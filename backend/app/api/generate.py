@@ -1,0 +1,972 @@
+"""Image and video generation endpoints (Cloud + Local mode)."""
+
+import base64
+import logging
+import uuid
+
+from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi.responses import Response
+
+from app.core.config import Settings, get_settings
+from app.core.legal import check_prompt_compliance, get_region_rules
+from app.core.region import detect_region
+from app.core.security import get_client_ip, get_current_user
+from app.models.schemas import (
+    CREDIT_COSTS,
+    GenerationResponse,
+    ImageGenerateRequest,
+    JobStatus,
+    JobStatusResponse,
+    VideoGenerateRequest,
+)
+
+logger = logging.getLogger(__name__)
+router = APIRouter(prefix="/generate", tags=["generation"])
+
+# Plan-based priority (lower = higher priority)
+PLAN_PRIORITY = {"studio": 0, "unlimited": 0, "pro": 1, "basic": 2, "lite": 3, "free": 3}
+
+# Plan hierarchy for access checks
+PLAN_RANK = {"free": 0, "lite": 1, "basic": 2, "pro": 3, "unlimited": 4, "studio": 5}
+
+# Plan-based concurrency limits (cloud mode only)
+PLAN_LIMITS = {
+    "free": {"max_concurrent": 1, "video_allowed": False, "nsfw_allowed": False},
+    "lite": {"max_concurrent": 1, "video_allowed": False, "nsfw_allowed": False},
+    "basic": {"max_concurrent": 2, "video_allowed": True, "nsfw_allowed": True},
+    "pro": {"max_concurrent": 4, "video_allowed": True, "nsfw_allowed": True},
+    "unlimited": {"max_concurrent": 8, "video_allowed": True, "nsfw_allowed": True},
+    "studio": {"max_concurrent": 12, "video_allowed": True, "nsfw_allowed": True},
+}
+
+# Model → minimum plan required (matches frontend MODELS array)
+MODEL_MIN_PLAN = {
+    "sd15": "free", "anime_sd15": "free",
+    "sdxl": "free", "real_sdxl": "free",
+    "sdxl_lightning": "free",
+    "flux_schnell": "free",
+    "flux_dev": "free",
+    "sd35_turbo": "free",
+    "sd35_large": "lite",
+    "realvisxl": "free",
+    "realistic_vision": "free",
+    "playground": "free",
+    "proteus": "free",
+    "fal_flux_schnell": "free",
+    "fal_flux_dev": "free",
+    "fal_sdxl": "free",
+    "fal_recraft": "free",
+    "fal_aura_flow": "free",
+}
+
+# Model ID → credit cost key
+MODEL_CREDIT_KEY = {
+    "sd15": "txt2img_sd15", "anime_sd15": "txt2img_sd15",
+    "sdxl": "txt2img_sdxl", "real_sdxl": "txt2img_sdxl",
+    "flux_schnell": "txt2img_flux_schnell",
+    "flux_dev": "txt2img_flux_dev",
+}
+
+
+def _calculate_credits(gen_type: str, params: dict) -> int:
+    model = params.get("model", "")
+    if gen_type == "txt2img":
+        # Check model-specific costs first
+        if model in MODEL_CREDIT_KEY:
+            return CREDIT_COSTS[MODEL_CREDIT_KEY[model]]
+        # Fallback: detect by resolution
+        is_xl = params.get("width", 512) > 768 or params.get("height", 512) > 768
+        return CREDIT_COSTS["txt2img_sdxl"] if is_xl else CREDIT_COSTS["txt2img_sd15"]
+    elif gen_type in ("txt2vid", "img2vid"):
+        frames = params.get("frame_count", 16)
+        key = f"{gen_type}_{32 if frames > 16 else 16}"
+        return CREDIT_COSTS.get(key, 5)
+    return 1
+
+
+def _check_model_access(model: str, plan: str) -> None:
+    """Raise 403 if user's plan doesn't have access to the requested model."""
+    # CivitAI custom models require Basic+
+    if model.startswith("civitai_"):
+        if PLAN_RANK.get(plan, 0) < PLAN_RANK.get("basic", 2):
+            raise HTTPException(
+                status_code=403,
+                detail="Custom CivitAI models require Basic plan or above. Upgrade to access.",
+            )
+        return
+
+    min_plan = MODEL_MIN_PLAN.get(model)
+    if min_plan and PLAN_RANK.get(plan, 0) < PLAN_RANK.get(min_plan, 0):
+        plan_names = {"lite": "Lite", "basic": "Basic", "pro": "Pro"}
+        required = plan_names.get(min_plan, min_plan.title())
+        raise HTTPException(
+            status_code=403,
+            detail=f"Model '{model}' requires {required} plan or above. Upgrade to access.",
+        )
+
+
+# ─── Local mode dependencies ───
+
+def _get_current_user_optional(settings: Settings = Depends(get_settings)):
+    """In local mode, no auth required."""
+    if settings.is_local:
+        return None
+    # In cloud mode, delegate to real auth
+    raise HTTPException(status_code=401, detail="Use cloud auth")
+
+
+# ─── Image Generation ───
+
+@router.post("/image", response_model=GenerationResponse)
+async def generate_image(
+    body: ImageGenerateRequest,
+    request: Request,
+    settings: Settings = Depends(get_settings),
+):
+    # 1. Prompt compliance (both modes)
+    is_safe, flagged = check_prompt_compliance(body.prompt)
+    if not is_safe:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Content policy violation: prohibited keywords detected: {', '.join(flagged)}",
+        )
+
+    # ─── LOCAL MODE ───
+    if settings.is_local:
+        return await _generate_image_local(body, settings)
+
+    # ─── CLOUD MODE ───
+    return await _generate_image_cloud(body, request, settings)
+
+
+async def _generate_image_local(body: ImageGenerateRequest, settings: Settings) -> GenerationResponse:
+    """Local mode: send directly to local ComfyUI, no credits, no auth."""
+    from app.services.local_comfyui import LocalComfyUIClient
+    from app.services.local_db import save_generation
+
+    # Import workflow builder from existing app code
+    import sys
+    sys.path.insert(0, str(__import__("pathlib").Path(__file__).resolve().parents[3] / "app"))
+    from comfyui_api import build_txt2img_workflow
+
+    client = LocalComfyUIClient(settings.local_comfyui_url)
+    if not client.is_running():
+        raise HTTPException(status_code=503, detail="ComfyUI is not running. Please start it first.")
+
+    workflow = build_txt2img_workflow(
+        prompt=body.prompt,
+        negative_prompt=body.negative_prompt or settings.default_negative_prompt,
+        model=body.model,
+        width=body.width,
+        height=body.height,
+        steps=body.steps,
+        cfg=body.cfg,
+        sampler=body.sampler,
+        scheduler=body.scheduler,
+        seed=body.seed,
+        batch_size=body.batch_size,
+        lora_name=body.lora_name,
+        lora_strength=body.lora_strength,
+    )
+
+    job_id = str(uuid.uuid4())
+    try:
+        result = client.generate_and_save(workflow, settings.local_output_dir, settings.generation_timeout)
+        image_path = result["images"][0] if result["images"] else None
+        save_generation(
+            prompt=body.prompt, negative_prompt=body.negative_prompt,
+            model=body.model, params=body.model_dump(),
+            nsfw=body.nsfw, image_path=image_path,
+        )
+        return GenerationResponse(job_id=job_id, status=JobStatus.completed, credits_used=0)
+    except TimeoutError:
+        raise HTTPException(status_code=504, detail="Generation timed out")
+    except Exception as e:
+        logger.error(f"Local generation failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+async def _generate_image_cloud(body: ImageGenerateRequest, request: Request, settings: Settings) -> GenerationResponse:
+    """Cloud mode: auth + credits + RunPod."""
+    from app.services.supabase import deduct_credits, get_supabase, get_user_profile
+
+    # Check at least one GPU backend is configured
+    has_replicate = bool(settings.replicate_api_token)
+    has_fal = bool(settings.fal_api_key)
+    has_runpod = bool(settings.runpod_api_key and settings.runpod_endpoint_id)
+    if not has_replicate and not has_fal and not has_runpod:
+        raise HTTPException(
+            status_code=503,
+            detail="GPU infrastructure is being set up. Image generation will be available soon.",
+        )
+
+    # Auth
+    auth_header = request.headers.get("authorization", "")
+    if not auth_header.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Authentication required")
+    token = auth_header.split(" ", 1)[1]
+
+    supabase = get_supabase(settings)
+    try:
+        user_response = supabase.auth.get_user(token)
+        user = user_response.user
+    except Exception:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+    profile = await get_user_profile(supabase, user.id)
+    if not profile:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    plan = profile["plan"]
+    limits = PLAN_LIMITS[plan]
+
+    if body.nsfw and not limits["nsfw_allowed"]:
+        raise HTTPException(status_code=403, detail="NSFW content requires Basic plan or above")
+    if body.nsfw and not profile.get("age_verified"):
+        raise HTTPException(status_code=403, detail="Age verification required for NSFW content")
+
+    # Check model access
+    if body.model:
+        _check_model_access(body.model, plan)
+
+    # Daily generation limit (cost control)
+    from app.models.schemas import PLAN_LIMITS_CONFIG
+    plan_config = PLAN_LIMITS_CONFIG.get(plan, PLAN_LIMITS_CONFIG["free"])
+    daily_limit = plan_config["daily_generations"]
+    try:
+        from app.services.queue import JobQueue
+        queue_check = JobQueue(settings)
+        daily_key = f"daily_gen:{user.id}:{__import__('datetime').date.today().isoformat()}"
+        daily_count = await queue_check.redis.get(daily_key)
+        if daily_count and int(daily_count) >= daily_limit:
+            raise HTTPException(
+                status_code=429,
+                detail=f"Daily generation limit reached ({daily_limit}). Upgrade your plan for more.",
+            )
+    except HTTPException:
+        raise
+    except Exception:
+        pass  # Non-fatal: if Redis fails, allow generation
+
+    # Enforce resolution limits for free/lite users
+    max_res = plan_config["max_resolution"]
+    if body.width > max_res:
+        body.width = max_res
+    if body.height > max_res:
+        body.height = max_res
+
+    ip = get_client_ip(request)
+    region = detect_region(request, ip, settings)
+    region_rules = get_region_rules(region)
+
+    credits_needed = _calculate_credits("txt2img", body.model_dump())
+    success = await deduct_credits(supabase, user.id, credits_needed, f"Image generation ({body.width}x{body.height})")
+    if not success:
+        raise HTTPException(status_code=402, detail="Insufficient credits")
+
+    from app.services.fal_ai import MODELS as FAL_MODELS
+    from app.services.fal_ai import FalClient
+    from app.services.replicate import MODELS as REP_MODELS
+    from app.services.replicate import ReplicateClient
+
+    # Resolve model
+    model_id = body.model or "flux_dev"
+    all_models = {**REP_MODELS, **FAL_MODELS}
+    is_fal_model = model_id in FAL_MODELS
+    is_rep_model = model_id in REP_MODELS
+
+    # Fallback if model not found (unless it's a CivitAI custom model)
+    if model_id not in all_models and not model_id.startswith("civitai_"):
+        model_id = "flux_dev"
+        is_rep_model = True
+
+    params = body.model_dump()
+    params["steps"] = params.get("steps", 20)
+
+    job_id = str(uuid.uuid4())
+
+    # ─── CivitAI custom LoRA model ───
+    fal_client = FalClient(settings)
+    if model_id.startswith("civitai_") and fal_client.is_available():
+        try:
+            lora_result = await _generate_with_civitai_lora(
+                fal_client, supabase, user.id, model_id, body, params, job_id, settings, credits_needed,
+            )
+            if lora_result:
+                return lora_result
+        except Exception as lora_err:
+            logger.error(f"CivitAI LoRA generation failed: {lora_err}")
+            # Fall through to standard generation
+
+    # ─── Try fal.ai (synchronous - returns result immediately) ───
+    if is_fal_model and fal_client.is_available():
+        try:
+            fal_result = await fal_client.submit_txt2img(
+                prompt=body.prompt,
+                model_id=model_id,
+                width=params["width"],
+                height=params["height"],
+                steps=params["steps"],
+                cfg=params["cfg"],
+                seed=body.seed,
+                negative_prompt=body.negative_prompt,
+            )
+            result_url = fal_client.extract_image_url(fal_result)
+            if result_url:
+                # Store status in Redis if available
+                await _store_job_status(settings, job_id, "completed", {"url": result_url, "backend": "fal"})
+                # Save to DB for gallery
+                await _save_generation_to_db(
+                    settings, user.id, job_id, "txt2img", body.prompt,
+                    body.negative_prompt, model_id, params, result_url, body.nsfw,
+                )
+                return GenerationResponse(
+                    job_id=job_id,
+                    status=JobStatus.completed,
+                    credits_used=credits_needed,
+                    result_url=result_url,
+                )
+        except Exception as fal_err:
+            logger.error(f"fal.ai submit failed: {fal_err}")
+            # Fall through to Replicate
+
+    # ─── Try Replicate (async - returns job ID for polling) ───
+    rep_client = ReplicateClient(settings)
+    if rep_client.is_available():
+        rep_model_id = model_id if is_rep_model else "flux_dev"
+        try:
+            rep_result = await rep_client.submit_txt2img(
+                prompt=body.prompt,
+                model_id=rep_model_id,
+                width=params["width"],
+                height=params["height"],
+                steps=params["steps"],
+                cfg=params["cfg"],
+                seed=body.seed,
+                negative_prompt=body.negative_prompt,
+            )
+            await _store_job_status(settings, job_id, "processing", {
+                "replicate_id": rep_result.get("id"),
+                "backend": "replicate",
+            })
+            # Store job metadata for DB save on completion
+            from app.services.queue import _MEMORY_STORE
+            if job_id in _MEMORY_STORE:
+                _MEMORY_STORE[job_id]["data"] = {
+                    "type": "txt2img", "user_id": user.id,
+                    "prompt": body.prompt, "negative_prompt": body.negative_prompt,
+                    "model": rep_model_id, "params": params, "nsfw": body.nsfw,
+                }
+            return GenerationResponse(job_id=job_id, status=JobStatus.queued, credits_used=credits_needed)
+        except Exception as rep_err:
+            logger.error(f"Replicate submit failed: {rep_err}")
+
+    # ─── Fallback: fal.ai with equivalent model ───
+    if not is_fal_model and fal_client.is_available():
+        # Map Replicate model to fal equivalent
+        fal_fallback = _get_fal_equivalent(model_id)
+        if fal_fallback:
+            try:
+                fal_result = await fal_client.submit_txt2img(
+                    prompt=body.prompt,
+                    model_id=fal_fallback,
+                    width=params["width"],
+                    height=params["height"],
+                    steps=params["steps"],
+                    cfg=params["cfg"],
+                    seed=body.seed,
+                    negative_prompt=body.negative_prompt,
+                )
+                result_url = fal_client.extract_image_url(fal_result)
+                if result_url:
+                    await _store_job_status(settings, job_id, "completed", {"url": result_url, "backend": "fal"})
+                    await _save_generation_to_db(
+                        settings, user.id, job_id, "txt2img", body.prompt,
+                        body.negative_prompt, fal_fallback, params, result_url, body.nsfw,
+                    )
+                    return GenerationResponse(
+                        job_id=job_id,
+                        status=JobStatus.completed,
+                        credits_used=credits_needed,
+                        result_url=result_url,
+                    )
+            except Exception as fal_err2:
+                logger.error(f"fal.ai fallback also failed: {fal_err2}")
+
+    # ─── Last resort: RunPod ───
+    if settings.runpod_api_key and settings.runpod_endpoint_id and settings.redis_url:
+        try:
+            from app.services.queue import JobQueue
+            queue = JobQueue(settings)
+            job_data = {
+                "type": "txt2img", "user_id": user.id, "model": model_id,
+                "params": params, "region": region,
+                "mosaic_required": region_rules["mosaic_required"] and body.nsfw,
+            }
+            await queue.enqueue(job_id, job_data, priority=PLAN_PRIORITY[plan])
+            await _try_runpod_backup(settings, queue, job_id, model_id, params, body)
+            return GenerationResponse(job_id=job_id, status=JobStatus.queued, credits_used=credits_needed)
+        except Exception as rp_err:
+            logger.error(f"RunPod backup failed: {rp_err}")
+
+    raise HTTPException(status_code=503, detail="All generation backends are currently unavailable. Please try again.")
+
+
+def _get_fal_equivalent(replicate_model_id: str) -> str | None:
+    """Map a Replicate model ID to its fal.ai equivalent."""
+    mapping = {
+        "flux_dev": "fal_flux_dev",
+        "flux_schnell": "fal_flux_schnell",
+        "sdxl": "fal_sdxl",
+        "sdxl_lightning": "fal_sdxl",
+    }
+    return mapping.get(replicate_model_id)
+
+
+async def _generate_with_civitai_lora(
+    fal_client,
+    supabase,
+    user_id: str,
+    model_id: str,
+    body,
+    params: dict,
+    job_id: str,
+    settings,
+    credits_needed: int,
+) -> GenerationResponse | None:
+    """Generate image with a CivitAI LoRA model via fal.ai."""
+    # Extract CivitAI model ID from model_id (format: "civitai_12345")
+    try:
+        civitai_id = int(model_id.replace("civitai_", ""))
+    except ValueError:
+        return None
+
+    # Look up user's saved model
+    try:
+        result = (
+            supabase.table("user_models")
+            .select("*")
+            .eq("user_id", user_id)
+            .eq("civitai_model_id", civitai_id)
+            .maybe_single()
+            .execute()
+        )
+        if not result or not result.data:
+            raise HTTPException(status_code=404, detail="Custom model not found. Add it from the CivitAI browser first.")
+        user_model = result.data
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to look up user model: {e}")
+        return None
+
+    # Build LoRA download URL from CivitAI version ID (with optional API token)
+    version_id = user_model["civitai_version_id"]
+    lora_url = f"https://civitai.com/api/download/models/{version_id}"
+    if settings.civitai_api_key:
+        lora_url += f"?token={settings.civitai_api_key}"
+    base_model = (user_model.get("base_model") or "flux").lower()
+
+    # Determine base model type for fal.ai
+    fal_base = "flux" if "flux" in base_model or "illustrious" in base_model else "sdxl"
+
+    fal_result = await fal_client.submit_txt2img_with_lora(
+        prompt=body.prompt,
+        lora_url=lora_url,
+        lora_scale=1.0,
+        base_model=fal_base,
+        width=params.get("width", 1024),
+        height=params.get("height", 1024),
+        steps=params.get("steps", 28),
+        cfg=params.get("cfg", 3.5) if fal_base == "flux" else params.get("cfg", 7.5),
+        seed=body.seed,
+        negative_prompt=body.negative_prompt,
+    )
+
+    result_url = fal_client.extract_image_url(fal_result)
+    if not result_url:
+        return None
+
+    await _store_job_status(settings, job_id, "completed", {"url": result_url, "backend": "fal"})
+    await _save_generation_to_db(
+        settings, user_id, job_id, "txt2img", body.prompt,
+        body.negative_prompt, f"civitai_{civitai_id}", params, result_url, body.nsfw,
+    )
+
+    return GenerationResponse(
+        job_id=job_id,
+        status=JobStatus.completed,
+        credits_used=credits_needed,
+        result_url=result_url,
+    )
+
+
+async def _save_generation_to_db(
+    settings, user_id: str, job_id: str, gen_type: str, prompt: str,
+    negative_prompt: str, model: str, params: dict, result_url: str, nsfw: bool = False,
+):
+    """Save a completed generation to the database for gallery."""
+    if not user_id or not result_url:
+        return
+    try:
+        from app.services.supabase import get_supabase, save_generation
+        supabase = get_supabase(settings)
+        is_video = gen_type in ("txt2vid", "img2vid", "vid2vid")
+        await save_generation(supabase, {
+            "id": job_id,
+            "user_id": user_id,
+            "prompt": prompt or "",
+            "negative_prompt": negative_prompt or "",
+            "model": model or "",
+            "params_json": params or {},
+            "nsfw_flag": nsfw,
+            "image_url": result_url if not is_video else None,
+            "video_url": result_url if is_video else None,
+            "credits_used": 1,
+        })
+        logger.info("Generation saved to DB: %s", job_id)
+    except Exception as e:
+        logger.warning("Failed to save generation to DB (non-fatal): %s", e)
+
+
+async def _store_job_status(settings, job_id: str, status: str, data: dict | None = None):
+    """Store job status in Redis if available, otherwise skip."""
+    if not settings.redis_url:
+        return
+    try:
+        import json
+        from app.services.queue import JobQueue
+        queue = JobQueue(settings)
+        await queue.set_status(job_id, status, data)
+    except Exception as e:
+        logger.warning(f"Failed to store job status (non-fatal): {e}")
+
+
+async def _try_runpod_backup(settings, queue, job_id, model_id, params, body):
+    """Try RunPod as backup when Replicate fails."""
+    try:
+        from app.services.runpod import RunPodClient
+        from app.services.workflows import build_workflow_for_model
+
+        runpod = RunPodClient(settings)
+        workflow = build_workflow_for_model(model_id, params)
+        rp_result = await runpod.submit_job(workflow)
+        await queue.set_status(job_id, "processing", {
+            "runpod_id": rp_result.get("id"),
+            "backend": "runpod",
+        })
+    except Exception as e:
+        logger.error(f"RunPod backup also failed: {e}")
+        await queue.set_status(job_id, "queued")
+
+
+# ─── Available Models API ───
+
+@router.get("/models")
+async def list_available_models(settings: Settings = Depends(get_settings)):
+    """List all available models for generation."""
+    from app.services.fal_ai import MODELS as FAL_MODELS
+    from app.services.replicate import MODELS as REP_MODELS
+
+    models_list = []
+    # Replicate models
+    if settings.replicate_api_token:
+        for model_id, info in REP_MODELS.items():
+            models_list.append({
+                "id": model_id,
+                "name": info["name"],
+                "category": info["category"],
+                "description": info["description"],
+                "min_plan": info["min_plan"],
+                "credits": info["credits"],
+            })
+    # fal.ai models
+    if settings.fal_api_key:
+        for model_id, info in FAL_MODELS.items():
+            models_list.append({
+                "id": model_id,
+                "name": info["name"],
+                "category": info["category"],
+                "description": info["description"],
+                "min_plan": info["min_plan"],
+                "credits": info["credits"],
+            })
+    return {"models": models_list}
+
+
+# ─── Video Generation ───
+
+@router.post("/video", response_model=GenerationResponse)
+async def generate_video(
+    body: VideoGenerateRequest,
+    request: Request,
+    settings: Settings = Depends(get_settings),
+):
+    is_safe, flagged = check_prompt_compliance(body.prompt)
+    if not is_safe:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Content policy violation: prohibited keywords detected: {', '.join(flagged)}",
+        )
+
+    if settings.is_local:
+        return await _generate_video_local(body, settings)
+    return await _generate_video_cloud(body, request, settings)
+
+
+async def _generate_video_local(body: VideoGenerateRequest, settings: Settings) -> GenerationResponse:
+    from app.services.local_comfyui import LocalComfyUIClient
+    from app.services.local_db import save_generation
+
+    import sys
+    sys.path.insert(0, str(__import__("pathlib").Path(__file__).resolve().parents[3] / "app"))
+    from comfyui_api import build_animatediff_workflow
+
+    client = LocalComfyUIClient(settings.local_comfyui_url)
+    if not client.is_running():
+        raise HTTPException(status_code=503, detail="ComfyUI is not running. Please start it first.")
+
+    workflow = build_animatediff_workflow(
+        prompt=body.prompt,
+        negative_prompt=body.negative_prompt or settings.default_negative_prompt,
+        model=body.model,
+        motion_model=body.motion_model,
+        width=body.width, height=body.height,
+        steps=body.steps, cfg=body.cfg,
+        sampler=body.sampler, scheduler=body.scheduler,
+        seed=body.seed, frame_count=body.frame_count,
+        fps=body.fps, output_format=body.output_format,
+    )
+
+    job_id = str(uuid.uuid4())
+    try:
+        result = client.generate_and_save(workflow, settings.local_output_dir, settings.generation_timeout)
+        video_path = result["videos"][0] if result["videos"] else None
+        save_generation(
+            prompt=body.prompt, negative_prompt=body.negative_prompt,
+            model=body.model, params=body.model_dump(),
+            nsfw=body.nsfw, video_path=video_path,
+        )
+        return GenerationResponse(job_id=job_id, status=JobStatus.completed, credits_used=0)
+    except TimeoutError:
+        raise HTTPException(status_code=504, detail="Generation timed out")
+    except Exception as e:
+        logger.error(f"Local video generation failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+async def _generate_video_cloud(body: VideoGenerateRequest, request: Request, settings: Settings) -> GenerationResponse:
+    """Cloud mode: auth + credits + Replicate for video generation."""
+    from app.services.replicate import ReplicateClient
+    from app.services.supabase import deduct_credits, get_supabase, get_user_profile
+
+    # Auth
+    auth_header = request.headers.get("authorization", "")
+    if not auth_header.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Authentication required")
+    token = auth_header.split(" ", 1)[1]
+
+    supabase = get_supabase(settings)
+    try:
+        user_response = supabase.auth.get_user(token)
+        user = user_response.user
+    except Exception:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+    profile = await get_user_profile(supabase, user.id)
+    if not profile:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    plan = profile["plan"]
+    limits = PLAN_LIMITS[plan]
+    if not limits["video_allowed"]:
+        raise HTTPException(status_code=403, detail="Video generation requires Basic plan or above")
+
+    frames = body.frame_count
+    credits_needed = _calculate_credits("txt2vid", body.model_dump())
+    success = await deduct_credits(supabase, user.id, credits_needed, f"Video generation ({frames} frames)")
+    if not success:
+        raise HTTPException(status_code=402, detail="Insufficient credits")
+
+    job_id = str(uuid.uuid4())
+
+    # ─── Try fal.ai first (NSFW-friendly, synchronous) ───
+    from app.services.fal_ai import FalClient
+    fal_client = FalClient(settings)
+    if fal_client.is_available():
+        try:
+            fal_result = await fal_client.submit_txt2vid(
+                prompt=body.prompt,
+                seed=body.seed,
+            )
+            result_url = fal_client.extract_video_url(fal_result)
+            if result_url:
+                await _store_job_status(settings, job_id, "completed", {"url": result_url, "backend": "fal"})
+                await _save_generation_to_db(
+                    settings, user.id, job_id, "txt2vid", body.prompt,
+                    body.negative_prompt, "ltx_2.3", body.model_dump(), result_url, body.nsfw,
+                )
+                return GenerationResponse(
+                    job_id=job_id, status=JobStatus.completed,
+                    credits_used=credits_needed, result_url=result_url,
+                )
+        except Exception as fal_err:
+            logger.error(f"fal.ai video failed: {fal_err}")
+
+    # ─── Fallback: Replicate (Wan 2.5, may reject NSFW) ───
+    rep_client = ReplicateClient(settings)
+    if rep_client.is_available():
+        from app.services.queue import JobQueue
+        queue = JobQueue(settings)
+        await queue.enqueue(job_id, {"type": "txt2vid", "user_id": user.id}, priority=PLAN_PRIORITY[plan])
+
+        try:
+            rep_result = await rep_client.submit_txt2vid(
+                prompt=body.prompt,
+                width=body.width,
+                height=body.height,
+                num_frames=frames,
+                fps=body.fps,
+                seed=body.seed,
+            )
+            await queue.set_status(job_id, "processing", {
+                "replicate_id": rep_result.get("id"),
+                "backend": "replicate",
+            })
+            from app.services.queue import _MEMORY_STORE
+            if job_id in _MEMORY_STORE:
+                _MEMORY_STORE[job_id]["data"]["prompt"] = body.prompt
+                _MEMORY_STORE[job_id]["data"]["negative_prompt"] = body.negative_prompt
+            return GenerationResponse(job_id=job_id, status=JobStatus.queued, credits_used=credits_needed)
+        except Exception as e:
+            logger.error(f"Replicate video submit failed: {e}")
+            await queue.set_status(job_id, "failed", {"error": f"Video generation failed: {e}"})
+
+    raise HTTPException(status_code=503, detail="Video generation service is temporarily unavailable.")
+
+
+# ─── Job Status ───
+
+@router.get("/status/{job_id}", response_model=JobStatusResponse)
+async def get_job_status(
+    job_id: str,
+    settings: Settings = Depends(get_settings),
+):
+    if settings.is_local:
+        return JobStatusResponse(job_id=job_id, status=JobStatus.completed, progress=1.0)
+
+    from app.services.queue import JobQueue
+
+    queue = JobQueue(settings)
+    status = await queue.get_status(job_id)
+    if not status:
+        raise HTTPException(status_code=404, detail="Job not found")
+
+    # If processing, check backend for actual status
+    if status.get("status") == "processing":
+        result_data = status.get("result", {})
+        backend = result_data.get("backend", "runpod")
+
+        # ─── Replicate status check ───
+        replicate_id = result_data.get("replicate_id")
+        if replicate_id or backend == "replicate":
+            try:
+                from app.services.replicate import ReplicateClient
+                rep_client = ReplicateClient(settings)
+                rep_status = await rep_client.check_status(replicate_id)
+                rep_state = rep_status.get("status", "")
+
+                if rep_state == "succeeded":
+                    output = rep_status.get("output")
+                    result_url = None
+
+                    # Replicate Flux returns a list of URLs or a single URL
+                    if isinstance(output, list) and output:
+                        result_url = output[0]
+                    elif isinstance(output, str):
+                        result_url = output
+
+                    await queue.set_status(job_id, "completed", {"url": result_url})
+
+                    # Save to DB for gallery (non-critical)
+                    if result_url:
+                        try:
+                            from app.services.queue import _MEMORY_STORE
+                            job_entry = _MEMORY_STORE.get(job_id, {})
+                            job_data = job_entry.get("data", {})
+                            await _save_generation_to_db(
+                                settings,
+                                user_id=job_data.get("user_id", ""),
+                                job_id=job_id,
+                                gen_type=job_data.get("type", "txt2img"),
+                                prompt=job_data.get("prompt", ""),
+                                negative_prompt=job_data.get("negative_prompt", ""),
+                                model=job_data.get("model", ""),
+                                params=job_data.get("params", {}),
+                                result_url=result_url,
+                                nsfw=job_data.get("nsfw", False),
+                            )
+                        except Exception as save_err:
+                            logger.warning("Failed to save generation to DB: %s", save_err)
+
+                    return JobStatusResponse(
+                        job_id=job_id, status=JobStatus.completed,
+                        result_url=result_url, progress=1.0,
+                    )
+
+                elif rep_state in ("failed", "canceled"):
+                    error_msg = rep_status.get("error") or "Generation failed"
+                    await queue.set_status(job_id, "failed", {"error": error_msg})
+                    return JobStatusResponse(
+                        job_id=job_id, status=JobStatus.failed,
+                        error=error_msg, progress=0.0,
+                    )
+
+                else:
+                    # starting or processing
+                    progress = 0.3 if rep_state == "starting" else 0.6
+                    return JobStatusResponse(
+                        job_id=job_id, status=JobStatus.processing, progress=progress,
+                    )
+            except Exception as e:
+                logger.error(f"Replicate status check failed: {e}")
+
+        # ─── RunPod status check ───
+        runpod_id = result_data.get("runpod_id")
+        if runpod_id:
+            try:
+                from app.services.runpod import RunPodClient
+                # Use the correct endpoint for video jobs
+                endpoint_id = result_data.get("endpoint_id")
+                runpod = RunPodClient(settings, endpoint_id=endpoint_id)
+                rp_status = await runpod.check_status(runpod_id)
+                rp_state = rp_status.get("status", "")
+
+                if rp_state == "COMPLETED":
+                    output = rp_status.get("output", {})
+                    result_url = None
+
+                    # Check for image output
+                    images = output.get("images", [])
+                    if images:
+                        first_img = images[0]
+                        b64_data = None
+                        if isinstance(first_img, dict) and first_img.get("data"):
+                            b64_data = first_img["data"]
+                        elif isinstance(first_img, str) and not first_img.startswith("http"):
+                            b64_data = first_img
+                        elif isinstance(first_img, str):
+                            result_url = first_img
+
+                        if b64_data:
+                            await queue.redis.set(
+                                f"job:{job_id}:image", b64_data, ex=3600
+                            )
+                            result_url = f"/api/generate/result/{job_id}"
+
+                    # Check for video/GIF output
+                    gifs = output.get("gifs", [])
+                    if not result_url and gifs:
+                        first_gif = gifs[0]
+                        b64_data = None
+                        if isinstance(first_gif, dict) and first_gif.get("data"):
+                            b64_data = first_gif["data"]
+                        elif isinstance(first_gif, str) and not first_gif.startswith("http"):
+                            b64_data = first_gif
+                        elif isinstance(first_gif, str):
+                            result_url = first_gif
+
+                        if b64_data:
+                            await queue.redis.set(
+                                f"job:{job_id}:video", b64_data, ex=3600
+                            )
+                            result_url = f"/api/generate/result/{job_id}?type=video"
+
+                    await queue.set_status(job_id, "completed", {"url": result_url})
+
+                    # ─── Prompt Cache: store the result for future lookups ───
+                    if result_url:
+                        try:
+                            job_raw = await queue.redis.get(f"job:{job_id}")
+                            if job_raw:
+                                import json
+                                job_info = json.loads(job_raw)
+                                prompt_hash = job_info.get("prompt_hash")
+                                if prompt_hash:
+                                    from app.services.cache import PromptCache
+                                    cache = PromptCache(settings)
+                                    await cache.store(prompt_hash, result_url)
+                        except Exception as cache_err:
+                            logger.warning("Failed to cache result (non-fatal): %s", cache_err)
+
+                    return JobStatusResponse(
+                        job_id=job_id, status=JobStatus.completed,
+                        result_url=result_url, progress=1.0,
+                    )
+
+                elif rp_state == "FAILED":
+                    error_msg = rp_status.get("error", "Generation failed")
+                    await queue.set_status(job_id, "failed", {"error": error_msg})
+                    return JobStatusResponse(
+                        job_id=job_id, status=JobStatus.failed,
+                        error=error_msg, progress=0.0,
+                    )
+
+                else:
+                    # Still in progress
+                    return JobStatusResponse(
+                        job_id=job_id, status=JobStatus.processing, progress=0.5,
+                    )
+            except Exception as e:
+                logger.error(f"RunPod status check failed: {e}")
+
+    result = status.get("result", {})
+    return JobStatusResponse(
+        job_id=job_id,
+        status=status["status"],
+        result_url=result.get("url"),
+        error=result.get("error"),
+        progress=result.get("progress", 0.0),
+    )
+
+
+# ─── Image Result Serving ───
+
+@router.get("/result/{job_id}")
+async def get_result_image(
+    job_id: str,
+    type: str = "image",
+    settings: Settings = Depends(get_settings),
+):
+    """Serve generated image or video as a proper HTTP response."""
+    from app.services.queue import JobQueue
+
+    queue = JobQueue(settings)
+
+    if type == "video":
+        b64_data = await queue.redis.get(f"job:{job_id}:video")
+        if not b64_data:
+            raise HTTPException(status_code=404, detail="Video not found or expired")
+        video_bytes = base64.b64decode(b64_data)
+        return Response(
+            content=video_bytes,
+            media_type="image/gif",
+            headers={
+                "Content-Disposition": f'inline; filename="egaku-{job_id[:8]}.gif"',
+                "Cache-Control": "public, max-age=3600",
+            },
+        )
+
+    b64_data = await queue.redis.get(f"job:{job_id}:image")
+    if not b64_data:
+        raise HTTPException(status_code=404, detail="Image not found or expired")
+
+    image_bytes = base64.b64decode(b64_data)
+    return Response(
+        content=image_bytes,
+        media_type="image/png",
+        headers={
+            "Content-Disposition": f'inline; filename="egaku-{job_id[:8]}.png"',
+            "Cache-Control": "public, max-age=3600",
+        },
+    )

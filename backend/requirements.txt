@@ -1,0 +1,10 @@
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+pydantic-settings==2.7.1
+supabase==2.12.0
+httpx==0.28.1
+redis[hiredis]==5.2.1
+boto3==1.36.5
+stripe==11.4.1
+geoip2==4.8.1
+python-multipart==0.0.20
