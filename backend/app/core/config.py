@@ -37,6 +37,9 @@ class Settings(BaseSettings):
     # fal.ai
     fal_api_key: str = ""
 
+    # Novita.ai (CivitAI checkpoint support, NSFW-friendly)
+    novita_api_key: str = ""
+
     # CivitAI (optional - for gated model downloads)
     civitai_api_key: str = ""
 

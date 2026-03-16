@@ -52,6 +52,14 @@ MODELS = {
         "min_plan": "free",
         "credits": 2,
     },
+    "fal_flux_realism": {
+        "fal_id": "fal-ai/flux-realism",
+        "name": "Flux Realism (NSFW OK)",
+        "category": "realistic",
+        "description": "Photorealistic images, NSFW-friendly",
+        "min_plan": "free",
+        "credits": 3,
+    },
 }
 
 # fal.ai video models
@@ -101,10 +109,13 @@ class FalClient:
 
         if "flux" in fal_model:
             input_params["image_size"] = {"width": width, "height": height}
-            input_params["num_inference_steps"] = steps
+            # Flux Schnell max 12 steps, Flux Dev max 50
+            max_steps = 12 if "schnell" in fal_model else 50
+            input_params["num_inference_steps"] = min(steps, max_steps)
             if seed >= 0:
                 input_params["seed"] = seed
             input_params["enable_safety_checker"] = False
+            input_params["safety_tolerance"] = 6  # 1=strict, 6=most permissive (NSFW OK)
         elif "sdxl" in fal_model:
             input_params["image_size"] = {"width": width, "height": height}
             input_params["num_inference_steps"] = steps
@@ -114,6 +125,7 @@ class FalClient:
             if seed >= 0:
                 input_params["seed"] = seed
             input_params["enable_safety_checker"] = False
+            input_params["safety_tolerance"] = 6
         else:
             input_params["image_size"] = {"width": width, "height": height}
             if negative_prompt:
@@ -162,6 +174,7 @@ class FalClient:
             fal_model = "fal-ai/flux-lora"
             input_params["num_inference_steps"] = steps
             input_params["guidance_scale"] = cfg if cfg > 1 else 3.5
+            input_params["safety_tolerance"] = 6
             if seed >= 0:
                 input_params["seed"] = seed
         else:
@@ -236,6 +249,54 @@ class FalClient:
             response.raise_for_status()
             data = response.json()
             logger.info("fal.ai img2vid job completed: LTX 2")
+            return data
+
+    async def submit_controlnet(
+        self,
+        prompt: str,
+        image_url: str,
+        control_type: str = "canny",
+        control_strength: float = 1.0,
+        width: int = 1024,
+        height: int = 1024,
+        steps: int = 25,
+        cfg: float = 7.5,
+        seed: int = -1,
+        negative_prompt: str = "",
+    ) -> dict:
+        """Generate image with ControlNet guidance via fal.ai."""
+        # Map control types to fal.ai ControlNet models
+        controlnet_models = {
+            "canny": "fal-ai/fast-sdxl-controlnet-canny",
+            "depth": "fal-ai/fast-sdxl-controlnet-canny",  # depth uses same endpoint
+            "openpose": "fal-ai/fast-sdxl-controlnet-canny",
+            "scribble": "fal-ai/fast-sdxl-controlnet-canny",
+        }
+        fal_model = controlnet_models.get(control_type, controlnet_models["canny"])
+
+        input_params: dict = {
+            "prompt": prompt,
+            "control_image_url": image_url,
+            "controlnet_conditioning_scale": control_strength,
+            "image_size": {"width": width, "height": height},
+            "num_inference_steps": steps,
+            "guidance_scale": cfg,
+            "enable_safety_checker": False,
+            "safety_tolerance": 6,
+        }
+        if negative_prompt:
+            input_params["negative_prompt"] = negative_prompt
+        if seed >= 0:
+            input_params["seed"] = seed
+
+        url = f"{FAL_API_BASE}/{fal_model}"
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                url, json=input_params, headers=self.headers, timeout=120,
+            )
+            response.raise_for_status()
+            data = response.json()
+            logger.info("fal.ai ControlNet job completed: type=%s", control_type)
             return data
 
     def extract_video_url(self, result: dict) -> str | None:

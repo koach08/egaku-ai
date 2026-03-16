@@ -70,7 +70,14 @@ async def get_credit_balance(supabase: Client, user_id: str) -> dict | None:
 
 
 async def deduct_credits(supabase: Client, user_id: str, amount: int, description: str) -> bool:
-    """Deduct credits atomically. Returns False if insufficient balance."""
+    """Deduct credits atomically. Returns False if insufficient balance.
+    Unlimited/Studio plans bypass credit deduction entirely.
+    """
+    # Check if user is on an unlimited plan
+    profile = await get_user_profile(supabase, user_id)
+    if profile and profile.get("plan") in ("unlimited", "studio"):
+        return True  # No deduction needed
+
     credits = await get_credit_balance(supabase, user_id)
     if not credits or credits["balance"] < amount:
         return False

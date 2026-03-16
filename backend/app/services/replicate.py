@@ -181,7 +181,9 @@ class ReplicateClient:
         if "flux" in replicate_model:
             input_params["width"] = width
             input_params["height"] = height
-            input_params["num_inference_steps"] = steps
+            # Flux Schnell max 4 steps, Flux Dev max 50
+            max_steps = 4 if "schnell" in replicate_model else 50
+            input_params["num_inference_steps"] = min(steps, max_steps)
             input_params["guidance"] = cfg
             input_params["output_format"] = "png"
             if seed >= 0:

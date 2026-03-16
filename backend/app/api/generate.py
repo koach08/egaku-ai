@@ -31,8 +31,8 @@ PLAN_RANK = {"free": 0, "lite": 1, "basic": 2, "pro": 3, "unlimited": 4, "studio
 
 # Plan-based concurrency limits (cloud mode only)
 PLAN_LIMITS = {
-    "free": {"max_concurrent": 1, "video_allowed": False, "nsfw_allowed": False},
-    "lite": {"max_concurrent": 1, "video_allowed": False, "nsfw_allowed": False},
+    "free": {"max_concurrent": 1, "video_allowed": True, "nsfw_allowed": True},
+    "lite": {"max_concurrent": 1, "video_allowed": True, "nsfw_allowed": True},
     "basic": {"max_concurrent": 2, "video_allowed": True, "nsfw_allowed": True},
     "pro": {"max_concurrent": 4, "video_allowed": True, "nsfw_allowed": True},
     "unlimited": {"max_concurrent": 8, "video_allowed": True, "nsfw_allowed": True},
@@ -57,6 +57,10 @@ MODEL_MIN_PLAN = {
     "fal_sdxl": "free",
     "fal_recraft": "free",
     "fal_aura_flow": "free",
+    "fal_flux_realism": "free",
+    "novita_dreamshaper_xl": "free",
+    "novita_realistic_vision": "free",
+    "novita_meinamix": "free",
 }
 
 # Model ID → credit cost key
@@ -220,28 +224,31 @@ async def _generate_image_cloud(body: ImageGenerateRequest, request: Request, se
     plan = profile["plan"]
     limits = PLAN_LIMITS[plan]
 
-    if body.nsfw and not limits["nsfw_allowed"]:
-        raise HTTPException(status_code=403, detail="NSFW content requires Basic plan or above")
-    if body.nsfw and not profile.get("age_verified"):
+    # Admin accounts bypass NSFW plan restrictions
+    from app.core.legal import is_admin
+    user_email = profile.get("email", "")
+    if body.nsfw and not limits["nsfw_allowed"] and not is_admin(user_email):
+        raise HTTPException(status_code=403, detail="NSFW content requires age verification")
+    if body.nsfw and not profile.get("age_verified") and not is_admin(user_email):
         raise HTTPException(status_code=403, detail="Age verification required for NSFW content")
 
     # Check model access
     if body.model:
         _check_model_access(body.model, plan)
 
-    # Daily generation limit (cost control)
+    # Daily generation limit (cost control) — image-specific
     from app.models.schemas import PLAN_LIMITS_CONFIG
     plan_config = PLAN_LIMITS_CONFIG.get(plan, PLAN_LIMITS_CONFIG["free"])
     daily_limit = plan_config["daily_generations"]
     try:
         from app.services.queue import JobQueue
         queue_check = JobQueue(settings)
-        daily_key = f"daily_gen:{user.id}:{__import__('datetime').date.today().isoformat()}"
+        daily_key = f"daily_gen_image:{user.id}:{__import__('datetime').date.today().isoformat()}"
         daily_count = await queue_check.redis.get(daily_key)
         if daily_count and int(daily_count) >= daily_limit:
             raise HTTPException(
                 status_code=429,
-                detail=f"Daily generation limit reached ({daily_limit}). Upgrade your plan for more.",
+                detail=f"Daily image generation limit reached ({daily_limit}). Upgrade your plan for more.",
             )
     except HTTPException:
         raise
@@ -264,6 +271,16 @@ async def _generate_image_cloud(body: ImageGenerateRequest, request: Request, se
     if not success:
         raise HTTPException(status_code=402, detail="Insufficient credits")
 
+    # Increment daily image counter
+    try:
+        from app.services.queue import JobQueue
+        queue_inc = JobQueue(settings)
+        inc_key = f"daily_gen_image:{user.id}:{__import__('datetime').date.today().isoformat()}"
+        await queue_inc.redis.incr(inc_key)
+        await queue_inc.redis.expire(inc_key, 86400)
+    except Exception:
+        pass
+
     from app.services.fal_ai import MODELS as FAL_MODELS
     from app.services.fal_ai import FalClient
     from app.services.replicate import MODELS as REP_MODELS
@@ -285,25 +302,48 @@ async def _generate_image_cloud(body: ImageGenerateRequest, request: Request, se
 
     job_id = str(uuid.uuid4())
 
-    # ─── CivitAI custom LoRA model ───
+    # ─── CivitAI custom model (LoRA via fal.ai, Checkpoint via Novita.ai) ───
     fal_client = FalClient(settings)
-    if model_id.startswith("civitai_") and fal_client.is_available():
+    if model_id.startswith("civitai_"):
         try:
-            lora_result = await _generate_with_civitai_lora(
+            custom_result = await _generate_with_civitai_model(
                 fal_client, supabase, user.id, model_id, body, params, job_id, settings, credits_needed,
             )
-            if lora_result:
-                return lora_result
-        except Exception as lora_err:
-            logger.error(f"CivitAI LoRA generation failed: {lora_err}")
+            if custom_result:
+                return custom_result
+        except Exception as custom_err:
+            logger.error(f"CivitAI model generation failed: {custom_err}")
             # Fall through to standard generation
 
-    # ─── Try fal.ai (synchronous - returns result immediately) ───
-    if is_fal_model and fal_client.is_available():
+    # ─── Novita.ai built-in models (NSFW-friendly checkpoints) ───
+    if model_id.startswith("novita_"):
         try:
+            novita_result = await _generate_with_novita_builtin(
+                model_id, body, params, job_id, settings, user.id, credits_needed,
+            )
+            if novita_result:
+                return novita_result
+        except Exception as novita_err:
+            logger.error(f"Novita.ai built-in generation failed: {novita_err}")
+            # Fall through to standard generation
+
+    # ─── ALWAYS try fal.ai first (synchronous, fastest, most reliable) ───
+    if fal_client.is_available():
+        # Map any model to its fal.ai equivalent
+        fal_model_id = model_id if is_fal_model else _get_fal_equivalent(model_id)
+        if not fal_model_id:
+            fal_model_id = "fal_flux_dev"  # Default fallback
+
+        # NSFW override: SDXL/non-Flux models return black images for NSFW.
+        # Route to Flux Realism which is explicitly NSFW-friendly.
+        if body.nsfw and fal_model_id in ("fal_sdxl", "fal_aura_flow", "fal_recraft"):
+            fal_model_id = "fal_flux_realism"
+            logger.info(f"NSFW mode: overriding model to fal_flux_realism")
+        try:
+            logger.info(f"Trying fal.ai with model {fal_model_id} (original: {model_id})")
             fal_result = await fal_client.submit_txt2img(
                 prompt=body.prompt,
-                model_id=model_id,
+                model_id=fal_model_id,
                 width=params["width"],
                 height=params["height"],
                 steps=params["steps"],
@@ -313,9 +353,7 @@ async def _generate_image_cloud(body: ImageGenerateRequest, request: Request, se
             )
             result_url = fal_client.extract_image_url(fal_result)
             if result_url:
-                # Store status in Redis if available
                 await _store_job_status(settings, job_id, "completed", {"url": result_url, "backend": "fal"})
-                # Save to DB for gallery
                 await _save_generation_to_db(
                     settings, user.id, job_id, "txt2img", body.prompt,
                     body.negative_prompt, model_id, params, result_url, body.nsfw,
@@ -326,6 +364,7 @@ async def _generate_image_cloud(body: ImageGenerateRequest, request: Request, se
                     credits_used=credits_needed,
                     result_url=result_url,
                 )
+            logger.warning("fal.ai returned no image URL")
         except Exception as fal_err:
             logger.error(f"fal.ai submit failed: {fal_err}")
             # Fall through to Replicate
@@ -335,6 +374,7 @@ async def _generate_image_cloud(body: ImageGenerateRequest, request: Request, se
     if rep_client.is_available():
         rep_model_id = model_id if is_rep_model else "flux_dev"
         try:
+            logger.info(f"Trying Replicate with model {rep_model_id}")
             rep_result = await rep_client.submit_txt2img(
                 prompt=body.prompt,
                 model_id=rep_model_id,
@@ -361,39 +401,7 @@ async def _generate_image_cloud(body: ImageGenerateRequest, request: Request, se
         except Exception as rep_err:
             logger.error(f"Replicate submit failed: {rep_err}")
 
-    # ─── Fallback: fal.ai with equivalent model ───
-    if not is_fal_model and fal_client.is_available():
-        # Map Replicate model to fal equivalent
-        fal_fallback = _get_fal_equivalent(model_id)
-        if fal_fallback:
-            try:
-                fal_result = await fal_client.submit_txt2img(
-                    prompt=body.prompt,
-                    model_id=fal_fallback,
-                    width=params["width"],
-                    height=params["height"],
-                    steps=params["steps"],
-                    cfg=params["cfg"],
-                    seed=body.seed,
-                    negative_prompt=body.negative_prompt,
-                )
-                result_url = fal_client.extract_image_url(fal_result)
-                if result_url:
-                    await _store_job_status(settings, job_id, "completed", {"url": result_url, "backend": "fal"})
-                    await _save_generation_to_db(
-                        settings, user.id, job_id, "txt2img", body.prompt,
-                        body.negative_prompt, fal_fallback, params, result_url, body.nsfw,
-                    )
-                    return GenerationResponse(
-                        job_id=job_id,
-                        status=JobStatus.completed,
-                        credits_used=credits_needed,
-                        result_url=result_url,
-                    )
-            except Exception as fal_err2:
-                logger.error(f"fal.ai fallback also failed: {fal_err2}")
-
-    # ─── Last resort: RunPod ───
+    # ─── Last resort: RunPod (with queue timeout tracking) ───
     if settings.runpod_api_key and settings.runpod_endpoint_id and settings.redis_url:
         try:
             from app.services.queue import JobQueue
@@ -402,6 +410,7 @@ async def _generate_image_cloud(body: ImageGenerateRequest, request: Request, se
                 "type": "txt2img", "user_id": user.id, "model": model_id,
                 "params": params, "region": region,
                 "mosaic_required": region_rules["mosaic_required"] and body.nsfw,
+                "queued_at": __import__("time").time(),
             }
             await queue.enqueue(job_id, job_data, priority=PLAN_PRIORITY[plan])
             await _try_runpod_backup(settings, queue, job_id, model_id, params, body)
@@ -419,11 +428,20 @@ def _get_fal_equivalent(replicate_model_id: str) -> str | None:
         "flux_schnell": "fal_flux_schnell",
         "sdxl": "fal_sdxl",
         "sdxl_lightning": "fal_sdxl",
+        "sd15": "fal_sdxl",
+        "anime_sd15": "fal_sdxl",
+        "real_sdxl": "fal_flux_realism",
+        "realvisxl": "fal_flux_realism",
+        "realistic_vision": "fal_flux_realism",
+        "playground": "fal_flux_dev",
+        "proteus": "fal_flux_dev",
+        "sd35_turbo": "fal_flux_schnell",
+        "sd35_large": "fal_flux_dev",
     }
     return mapping.get(replicate_model_id)
 
 
-async def _generate_with_civitai_lora(
+async def _generate_with_civitai_model(
     fal_client,
     supabase,
     user_id: str,
@@ -434,7 +452,11 @@ async def _generate_with_civitai_lora(
     settings,
     credits_needed: int,
 ) -> GenerationResponse | None:
-    """Generate image with a CivitAI LoRA model via fal.ai."""
+    """Generate image with a CivitAI model.
+
+    - LoRA models → fal.ai (flux-lora / sdxl-lora)
+    - Checkpoint models → Novita.ai (supports any CivitAI safetensors)
+    """
     # Extract CivitAI model ID from model_id (format: "civitai_12345")
     try:
         civitai_id = int(model_id.replace("civitai_", ""))
@@ -460,14 +482,59 @@ async def _generate_with_civitai_lora(
         logger.error(f"Failed to look up user model: {e}")
         return None
 
-    # Build LoRA download URL from CivitAI version ID (with optional API token)
+    model_type = user_model.get("model_type", "LORA")  # "LORA" or "Checkpoint"
+    base_model = (user_model.get("base_model") or "flux").lower()
+
+    # ─── Checkpoint → Novita.ai ───
+    if model_type == "Checkpoint":
+        from app.services.novita import NovitaClient
+        novita = NovitaClient(settings)
+        if not novita.is_available():
+            logger.warning("Novita.ai not available for checkpoint generation")
+            return None
+
+        # Use the safetensors filename stored in user_models
+        safetensors_name = user_model.get("safetensors_name", "")
+        if not safetensors_name:
+            # Try to build from CivitAI version ID
+            logger.warning("No safetensors_name stored for checkpoint model")
+            return None
+
+        try:
+            urls = await novita.generate_with_checkpoint(
+                prompt=body.prompt,
+                model_name=safetensors_name,
+                width=params.get("width", 512),
+                height=params.get("height", 768),
+                steps=params.get("steps", 25),
+                guidance_scale=params.get("cfg", 7.0),
+                seed=body.seed,
+                negative_prompt=body.negative_prompt,
+            )
+            if urls:
+                result_url = urls[0]
+                await _store_job_status(settings, job_id, "completed", {"url": result_url, "backend": "novita"})
+                await _save_generation_to_db(
+                    settings, user_id, job_id, "txt2img", body.prompt,
+                    body.negative_prompt, f"civitai_{civitai_id}", params, result_url, body.nsfw,
+                )
+                return GenerationResponse(
+                    job_id=job_id, status=JobStatus.completed,
+                    credits_used=credits_needed, result_url=result_url,
+                )
+        except Exception as e:
+            logger.error(f"Novita.ai checkpoint generation failed: {e}")
+            return None
+
+    # ─── LoRA → fal.ai ───
+    if not fal_client.is_available():
+        return None
+
     version_id = user_model["civitai_version_id"]
     lora_url = f"https://civitai.com/api/download/models/{version_id}"
     if settings.civitai_api_key:
         lora_url += f"?token={settings.civitai_api_key}"
-    base_model = (user_model.get("base_model") or "flux").lower()
 
-    # Determine base model type for fal.ai
     fal_base = "flux" if "flux" in base_model or "illustrious" in base_model else "sdxl"
 
     fal_result = await fal_client.submit_txt2img_with_lora(
@@ -494,11 +561,58 @@ async def _generate_with_civitai_lora(
     )
 
     return GenerationResponse(
-        job_id=job_id,
-        status=JobStatus.completed,
-        credits_used=credits_needed,
-        result_url=result_url,
+        job_id=job_id, status=JobStatus.completed,
+        credits_used=credits_needed, result_url=result_url,
     )
+
+
+async def _generate_with_novita_builtin(
+    model_id: str,
+    body,
+    params: dict,
+    job_id: str,
+    settings,
+    user_id: str,
+    credits_needed: int,
+) -> GenerationResponse | None:
+    """Generate with a Novita.ai built-in model (Realistic Vision, MeinaMix, etc.)."""
+    from app.services.novita import BUILTIN_MODELS, NovitaClient
+
+    model_info = BUILTIN_MODELS.get(model_id)
+    if not model_info:
+        return None
+
+    novita = NovitaClient(settings)
+    if not novita.is_available():
+        return None
+
+    defaults = model_info.get("defaults", {})
+
+    try:
+        urls = await novita.generate_with_checkpoint(
+            prompt=body.prompt,
+            model_name=model_info["model_name"],
+            width=params.get("width", defaults.get("width", 512)),
+            height=params.get("height", defaults.get("height", 768)),
+            steps=params.get("steps", defaults.get("steps", 25)),
+            guidance_scale=params.get("cfg", defaults.get("guidance_scale", 7.0)),
+            seed=body.seed,
+            negative_prompt=body.negative_prompt,
+        )
+        if urls:
+            result_url = urls[0]
+            await _store_job_status(settings, job_id, "completed", {"url": result_url, "backend": "novita"})
+            await _save_generation_to_db(
+                settings, user_id, job_id, "txt2img", body.prompt,
+                body.negative_prompt, model_id, params, result_url, body.nsfw,
+            )
+            return GenerationResponse(
+                job_id=job_id, status=JobStatus.completed,
+                credits_used=credits_needed, result_url=result_url,
+            )
+    except Exception as e:
+        logger.error(f"Novita.ai built-in generation failed: {e}")
+    return None
 
 
 async def _save_generation_to_db(
@@ -523,8 +637,30 @@ async def _save_generation_to_db(
             "image_url": result_url if not is_video else None,
             "video_url": result_url if is_video else None,
             "credits_used": 1,
+            "is_public": True,
         })
         logger.info("Generation saved to DB: %s", job_id)
+
+        # Also save to gallery table so it appears in My Gallery
+        try:
+            supabase.table("gallery").insert({
+                "user_id": user_id,
+                "job_id": job_id,
+                "prompt": prompt or "",
+                "negative_prompt": negative_prompt or "",
+                "model": model or "",
+                "steps": (params or {}).get("steps", 0),
+                "cfg": (params or {}).get("cfg", 0.0),
+                "seed": (params or {}).get("seed", -1),
+                "width": (params or {}).get("width", 0),
+                "height": (params or {}).get("height", 0),
+                "image_url": result_url if not is_video else None,
+                "nsfw": nsfw,
+                "public": True,
+            }).execute()
+            logger.info("Gallery item created: %s", job_id)
+        except Exception as gallery_err:
+            logger.warning("Failed to save to gallery (non-fatal): %s", gallery_err)
     except Exception as e:
         logger.warning("Failed to save generation to DB (non-fatal): %s", e)
 
@@ -680,13 +816,42 @@ async def _generate_video_cloud(body: VideoGenerateRequest, request: Request, se
     plan = profile["plan"]
     limits = PLAN_LIMITS[plan]
     if not limits["video_allowed"]:
-        raise HTTPException(status_code=403, detail="Video generation requires Basic plan or above")
+        raise HTTPException(status_code=403, detail="Video generation requires age verification")
+
+    # Daily video generation limit (separate from image limit)
+    from app.models.schemas import PLAN_LIMITS_CONFIG
+    plan_config = PLAN_LIMITS_CONFIG.get(plan, PLAN_LIMITS_CONFIG["free"])
+    daily_video_limit = plan_config.get("daily_video_generations", 99999)
+    try:
+        from app.services.queue import JobQueue
+        queue_check = JobQueue(settings)
+        daily_key = f"daily_gen_video:{user.id}:{__import__('datetime').date.today().isoformat()}"
+        daily_count = await queue_check.redis.get(daily_key)
+        if daily_count and int(daily_count) >= daily_video_limit:
+            raise HTTPException(
+                status_code=429,
+                detail=f"Daily video generation limit reached ({daily_video_limit}). Upgrade your plan for more.",
+            )
+    except HTTPException:
+        raise
+    except Exception:
+        pass  # Non-fatal
 
     frames = body.frame_count
     credits_needed = _calculate_credits("txt2vid", body.model_dump())
     success = await deduct_credits(supabase, user.id, credits_needed, f"Video generation ({frames} frames)")
     if not success:
         raise HTTPException(status_code=402, detail="Insufficient credits")
+
+    # Increment daily video counter
+    try:
+        from app.services.queue import JobQueue
+        queue_inc = JobQueue(settings)
+        inc_key = f"daily_gen_video:{user.id}:{__import__('datetime').date.today().isoformat()}"
+        await queue_inc.redis.incr(inc_key)
+        await queue_inc.redis.expire(inc_key, 86400)
+    except Exception:
+        pass
 
     job_id = str(uuid.uuid4())
 
@@ -912,6 +1077,36 @@ async def get_job_status(
                         error=error_msg, progress=0.0,
                     )
 
+                elif rp_state == "IN_QUEUE":
+                    # Check if job has been queued too long (2 min timeout)
+                    import time
+                    try:
+                        job_raw = await queue.redis.get(f"job:{job_id}")
+                        if job_raw:
+                            import json
+                            job_info = json.loads(job_raw)
+                            queued_at = job_info.get("queued_at", 0)
+                            if queued_at and (time.time() - queued_at) > 120:
+                                # Cancel the RunPod job
+                                try:
+                                    from app.services.runpod import RunPodClient
+                                    runpod_cancel = RunPodClient(settings)
+                                    await runpod_cancel.cancel_job(runpod_id)
+                                except Exception:
+                                    pass
+                                await queue.set_status(job_id, "failed", {
+                                    "error": "Generation timed out - no GPU workers available. Please try again.",
+                                })
+                                return JobStatusResponse(
+                                    job_id=job_id, status=JobStatus.failed,
+                                    error="Generation timed out - no GPU workers available. Please try again.",
+                                    progress=0.0,
+                                )
+                    except Exception:
+                        pass
+                    return JobStatusResponse(
+                        job_id=job_id, status=JobStatus.processing, progress=0.2,
+                    )
                 else:
                     # Still in progress
                     return JobStatusResponse(

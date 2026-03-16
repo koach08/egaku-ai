@@ -368,20 +368,23 @@ def calculate_resolution_multiplier(width: int, height: int) -> float:
 PLAN_LIMITS_CONFIG = {
     "free": {
         "daily_generations": 10,
+        "daily_video_generations": 5,
         "max_resolution": 512,
-        "nsfw_allowed": False,
+        "nsfw_allowed": True,
         "watermark": True,
         "queue_priority": "low",
     },
     "lite": {
         "daily_generations": 50,
+        "daily_video_generations": 20,
         "max_resolution": 768,
-        "nsfw_allowed": False,
+        "nsfw_allowed": True,
         "watermark": False,
         "queue_priority": "normal",
     },
     "basic": {
         "daily_generations": 200,
+        "daily_video_generations": 100,
         "max_resolution": 1024,
         "nsfw_allowed": True,
         "watermark": False,
@@ -389,6 +392,7 @@ PLAN_LIMITS_CONFIG = {
     },
     "pro": {
         "daily_generations": 500,
+        "daily_video_generations": 250,
         "max_resolution": 2048,
         "nsfw_allowed": True,
         "watermark": False,
@@ -396,6 +400,7 @@ PLAN_LIMITS_CONFIG = {
     },
     "unlimited": {
         "daily_generations": 99999,
+        "daily_video_generations": 99999,
         "max_resolution": 2048,
         "nsfw_allowed": True,
         "watermark": False,
@@ -403,6 +408,7 @@ PLAN_LIMITS_CONFIG = {
     },
     "studio": {
         "daily_generations": 99999,
+        "daily_video_generations": 99999,
         "max_resolution": 2048,
         "nsfw_allowed": True,
         "watermark": False,

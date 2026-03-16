@@ -3,7 +3,7 @@
 import logging
 
 import stripe
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 
 from app.core.config import Settings, get_settings
 from app.core.security import get_current_user
@@ -30,6 +30,36 @@ PLAN_INFO = {
     "studio": {"name": "Studio", "price": 9980, "credits": 999999},
 }
 
+# Region-based pricing multipliers (PPP adjustment)
+# Prices are shown in JPY equivalent but Stripe handles currency conversion
+REGION_PRICE_MULTIPLIER: dict[str, float] = {
+    "BR": 0.35,   # Brazil (~35% of JP price)
+    "IN": 0.25,   # India
+    "TR": 0.30,   # Turkey
+    "AR": 0.25,   # Argentina
+    "MX": 0.40,   # Mexico
+    "CO": 0.35,   # Colombia
+    "PH": 0.30,   # Philippines
+    "ID": 0.30,   # Indonesia
+    "TH": 0.40,   # Thailand
+    "VN": 0.25,   # Vietnam
+    "PL": 0.50,   # Poland
+    "RU": 0.30,   # Russia
+    "ZA": 0.40,   # South Africa
+}
+
+# Region-specific Stripe Price IDs (create these in Stripe Dashboard)
+# Format: {region_code: {plan: price_id}}
+# If a region doesn't have specific prices, falls back to default with coupon
+REGION_PRICES: dict[str, dict[str, str]] = {
+    # Example: Create these in Stripe for each region
+    # "BR": {
+    #     "lite": "price_BR_lite_xxx",
+    #     "basic": "price_BR_basic_xxx",
+    #     ...
+    # },
+}
+
 LOCAL_LICENSE_PRICE_ID = "price_1T8GZxPShJirStHRCA15wd6k"
 
 
@@ -40,14 +70,36 @@ def _get_stripe(settings: Settings):
 
 
 @router.get("/plans")
-async def get_plans():
-    """Return available plans and pricing."""
-    return PLAN_INFO
+async def get_plans(request: Request = None):
+    """Return available plans and pricing, adjusted for user's region."""
+    region = "US"
+    if request:
+        from app.core.region import detect_region
+        from app.core.security import get_client_ip
+        ip = get_client_ip(request)
+        region = detect_region(request, ip, get_settings())
+
+    multiplier = REGION_PRICE_MULTIPLIER.get(region, 1.0)
+    if multiplier >= 1.0:
+        return PLAN_INFO
+
+    # Return PPP-adjusted prices
+    adjusted = {}
+    for plan_key, info in PLAN_INFO.items():
+        adjusted[plan_key] = {
+            **info,
+            "price": int(info["price"] * multiplier) if info["price"] > 0 else 0,
+            "original_price": info["price"],
+            "region": region,
+            "discount_pct": int((1 - multiplier) * 100),
+        }
+    return adjusted
 
 
 @router.post("/checkout")
 async def create_checkout(
     plan: str,
+    request: Request,
     user=Depends(get_current_user),
     settings: Settings = Depends(get_settings),
 ):
@@ -62,12 +114,16 @@ async def create_checkout(
     if not profile:
         raise HTTPException(status_code=404, detail="User not found")
 
+    # Detect user region for PPP pricing
+    region = profile.get("region_code", "US")
+    multiplier = REGION_PRICE_MULTIPLIER.get(region, 1.0)
+
     # Get or create Stripe customer
     customer_id = profile.get("stripe_customer_id")
     if not customer_id:
         customer = stripe.Customer.create(
             email=profile["email"],
-            metadata={"user_id": user.id},
+            metadata={"user_id": user.id, "region": region},
         )
         customer_id = customer.id
         supabase.table("users").update(
@@ -90,17 +146,39 @@ async def create_checkout(
             cancel_url=f"{origin}/settings?checkout=cancel",
         )
     else:
-        # Subscription
-        price_id = PLAN_PRICES[plan]
-        session = stripe.checkout.Session.create(
-            customer=customer_id,
-            mode="subscription",
-            line_items=[{"price": price_id, "quantity": 1}],
-            metadata={"user_id": user.id, "plan": plan},
-            success_url=f"{origin}/settings?checkout=success",
-            cancel_url=f"{origin}/settings?checkout=cancel",
-            allow_promotion_codes=True,
-        )
+        # Check for region-specific Stripe price
+        region_prices = REGION_PRICES.get(region, {})
+        price_id = region_prices.get(plan, PLAN_PRICES[plan])
+
+        checkout_params = {
+            "customer": customer_id,
+            "mode": "subscription",
+            "line_items": [{"price": price_id, "quantity": 1}],
+            "metadata": {"user_id": user.id, "plan": plan, "region": region},
+            "success_url": f"{origin}/settings?checkout=success",
+            "cancel_url": f"{origin}/settings?checkout=cancel",
+            "allow_promotion_codes": True,
+        }
+
+        # Apply PPP discount via Stripe coupon if no region-specific price
+        if multiplier < 1.0 and plan not in region_prices:
+            discount_pct = int((1 - multiplier) * 100)
+            coupon_id = f"ppp_{region}_{discount_pct}"
+            try:
+                stripe.Coupon.retrieve(coupon_id)
+            except stripe.error.InvalidRequestError:
+                # Create the PPP coupon if it doesn't exist
+                stripe.Coupon.create(
+                    id=coupon_id,
+                    percent_off=discount_pct,
+                    duration="forever",
+                    name=f"Regional pricing ({region} -{discount_pct}%)",
+                )
+            checkout_params["discounts"] = [{"coupon": coupon_id}]
+            # discounts and allow_promotion_codes are mutually exclusive
+            del checkout_params["allow_promotion_codes"]
+
+        session = stripe.checkout.Session.create(**checkout_params)
 
     return {"checkout_url": session.url}
 

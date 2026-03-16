@@ -123,6 +123,23 @@ CREATE INDEX IF NOT EXISTS idx_follows_follower ON follows(follower_id);
 CREATE INDEX IF NOT EXISTS idx_follows_following ON follows(following_id);
 
 -- ============================================================
+-- API Keys (for external API access, Studio plan)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS api_keys (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  name TEXT DEFAULT 'Default',
+  key_hash TEXT NOT NULL UNIQUE,
+  key_prefix TEXT NOT NULL,
+  revoked BOOLEAN DEFAULT FALSE,
+  last_used_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_api_keys_user ON api_keys(user_id);
+CREATE INDEX IF NOT EXISTS idx_api_keys_hash ON api_keys(key_hash);
+
+-- ============================================================
 -- Enable RLS (Row Level Security)
 -- ============================================================
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
@@ -132,6 +149,7 @@ ALTER TABLE generations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE gallery ENABLE ROW LEVEL SECURITY;
 ALTER TABLE gallery_likes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE follows ENABLE ROW LEVEL SECURITY;
+ALTER TABLE api_keys ENABLE ROW LEVEL SECURITY;
 
 -- ============================================================
 -- RLS Policies: Users
@@ -204,3 +222,15 @@ CREATE POLICY "Follows own insert" ON follows
 
 CREATE POLICY "Follows own delete" ON follows
   FOR DELETE USING (auth.uid() = follower_id);
+
+-- ============================================================
+-- RLS Policies: API Keys
+-- ============================================================
+CREATE POLICY "API keys own read" ON api_keys
+  FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "API keys own insert" ON api_keys
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "API keys own update" ON api_keys
+  FOR UPDATE USING (auth.uid() = user_id);

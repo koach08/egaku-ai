@@ -15,11 +15,14 @@ PLAN_RANK = {"free": 0, "lite": 1, "basic": 2, "pro": 3, "unlimited": 4, "studio
 CUSTOM_MODEL_LIMITS = {
     "free": 0,
     "lite": 0,
-    "basic": 1,
-    "pro": 3,
-    "unlimited": 5,
-    "studio": 999,
+    "basic": 2,     # LoRA only
+    "pro": 5,       # LoRA + Checkpoint
+    "unlimited": 10, # LoRA + Checkpoint
+    "studio": 999,   # Unlimited
 }
+
+# Which plans can use Checkpoint models (not just LoRA)
+CHECKPOINT_ALLOWED_PLANS = {"pro", "unlimited", "studio"}
 
 
 # ─── List Built-in Models ───
@@ -29,7 +32,7 @@ async def get_available_models(
     request: Request,
     settings: Settings = Depends(get_settings),
 ):
-    """List all available built-in models (from Replicate) + user's custom CivitAI models."""
+    """List all available built-in models (Replicate, fal.ai, Novita.ai) + user's custom CivitAI models."""
     from app.services.replicate import MODELS
 
     # Built-in models from Replicate
@@ -44,6 +47,20 @@ async def get_available_models(
             "credits": info["credits"],
             "source": "replicate",
         })
+
+    # Novita.ai built-in models (NSFW-friendly checkpoints)
+    if settings.novita_api_key:
+        from app.services.novita import BUILTIN_MODELS as NOVITA_MODELS
+        for model_id, info in NOVITA_MODELS.items():
+            builtin.append({
+                "id": model_id,
+                "name": info["name"],
+                "category": info["category"],
+                "description": info["description"],
+                "min_plan": info["min_plan"],
+                "credits": info["credits"],
+                "source": "novita",
+            })
 
     # Check if user is authenticated to show custom models
     custom_models = []
@@ -214,6 +231,15 @@ async def add_civitai_model(
     name = body.get("name", "")
     base_model = body.get("base_model", "")
     preview_url = body.get("preview_url")
+    model_type = body.get("model_type", "LORA")  # "LORA" or "Checkpoint"
+    safetensors_name = body.get("safetensors_name", "")  # e.g. "realisticVision_v51.safetensors"
+
+    # Checkpoint models require Pro plan or above
+    if model_type == "Checkpoint" and plan not in CHECKPOINT_ALLOWED_PLANS:
+        raise HTTPException(
+            status_code=403,
+            detail="Checkpoint models require Pro plan or above. Basic plan supports LoRA models only.",
+        )
 
     if not civitai_model_id or not civitai_version_id:
         raise HTTPException(status_code=400, detail="civitai_model_id and civitai_version_id are required")
@@ -252,6 +278,8 @@ async def add_civitai_model(
             "name": name,
             "base_model": base_model,
             "preview_url": preview_url,
+            "model_type": model_type,
+            "safetensors_name": safetensors_name,
         }).execute()
     except Exception as e:
         logger.error(f"Failed to save custom model: {e}")

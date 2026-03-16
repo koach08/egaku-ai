@@ -251,16 +251,8 @@ async def generate_img2vid(
         raise HTTPException(status_code=400, detail="Input image is required")
 
     plan = profile["plan"]
-    plan_limits = {"free": False, "lite": False, "basic": True, "pro": True, "unlimited": True, "studio": True}
-    if not plan_limits.get(plan, False):
-        raise HTTPException(status_code=403, detail="Image-to-video requires Basic plan or above")
 
-    from app.services.replicate import ReplicateClient
     from app.services.supabase import deduct_credits
-
-    rep_client = ReplicateClient(settings)
-    if not rep_client.is_available():
-        raise HTTPException(status_code=503, detail="Video generation service is temporarily unavailable.")
 
     credits_needed = CREDIT_COSTS.get("img2vid_16", 5)
     success = await deduct_credits(supabase, user.id, credits_needed, "img2vid generation")
@@ -270,19 +262,51 @@ async def generate_img2vid(
     job_id = str(uuid.uuid4())
     image_url = _b64_to_data_url(body.image)
 
-    await _submit_to_replicate(
-        settings, job_id,
-        job_data={"type": "img2vid", "user_id": user.id},
-        priority=PLAN_PRIORITY[plan],
-        replicate_fn=rep_client.submit_img2vid,
-        image_url=image_url,
-        prompt=body.prompt,
-        num_frames=body.frame_count,
-        fps=body.fps,
-        seed=body.seed,
-    )
+    # ─── Try fal.ai first (synchronous, accepts data URLs, NSFW-friendly) ───
+    from app.services.fal_ai import FalClient
+    fal_client = FalClient(settings)
+    if fal_client.is_available():
+        try:
+            fal_result = await fal_client.submit_img2vid(
+                image_url=image_url,
+                prompt=body.prompt or "",
+                seed=body.seed,
+            )
+            result_url = fal_client.extract_video_url(fal_result)
+            if result_url:
+                # Save to DB for gallery
+                from app.api.generate import _save_generation_to_db, _store_job_status
+                await _store_job_status(settings, job_id, "completed", {"url": result_url, "backend": "fal"})
+                await _save_generation_to_db(
+                    settings, str(user.id), job_id, "img2vid", body.prompt or "",
+                    "", "ltx_2_i2v", {"seed": body.seed, "frame_count": body.frame_count, "fps": body.fps},
+                    result_url, False,
+                )
+                return GenerationResponse(
+                    job_id=job_id, status=JobStatus.completed,
+                    credits_used=credits_needed, result_url=result_url,
+                )
+        except Exception as fal_err:
+            logger.error(f"fal.ai img2vid failed: {fal_err}")
 
-    return GenerationResponse(job_id=job_id, status=JobStatus.queued, credits_used=credits_needed)
+    # ─── Fallback: Replicate (Wan 2.5 I2V) ───
+    from app.services.replicate import ReplicateClient
+    rep_client = ReplicateClient(settings)
+    if rep_client.is_available():
+        await _submit_to_replicate(
+            settings, job_id,
+            job_data={"type": "img2vid", "user_id": str(user.id)},
+            priority=PLAN_PRIORITY[plan],
+            replicate_fn=rep_client.submit_img2vid,
+            image_url=image_url,
+            prompt=body.prompt or "",
+            num_frames=body.frame_count,
+            fps=body.fps,
+            seed=body.seed,
+        )
+        return GenerationResponse(job_id=job_id, status=JobStatus.queued, credits_used=credits_needed)
+
+    raise HTTPException(status_code=503, detail="Video generation service is temporarily unavailable.")
 
 
 # ─── vid2vid ───
@@ -421,15 +445,73 @@ async def generate_controlnet(
     _check_infra(settings)
     user, profile, supabase = await _auth_and_profile(request, settings)
 
-    plan = profile["plan"]
-    if PLAN_RANK.get(plan, 0) < PLAN_RANK["basic"]:
-        raise HTTPException(status_code=403, detail="ControlNet requires Basic plan or above")
-
     if not body.image:
         raise HTTPException(status_code=400, detail="Control image is required")
 
-    # ControlNet requires SD1.5 + ControlNet models (coming soon with Network Volume)
-    raise HTTPException(status_code=503, detail="ControlNet is coming soon. Additional models are being set up.")
+    from app.services.supabase import deduct_credits
+
+    credits_needed = CREDIT_COSTS["controlnet"]
+    success = await deduct_credits(supabase, user.id, credits_needed, f"ControlNet ({body.control_type})")
+    if not success:
+        raise HTTPException(status_code=402, detail="Insufficient credits")
+
+    job_id = str(uuid.uuid4())
+    plan = profile["plan"]
+    image_url = _b64_to_data_url(body.image)
+
+    # Try fal.ai ControlNet first
+    from app.services.fal_ai import FalClient
+    fal_client = FalClient(settings)
+    if fal_client.is_available():
+        try:
+            fal_result = await fal_client.submit_controlnet(
+                prompt=body.prompt,
+                image_url=image_url,
+                control_type=body.control_type,
+                control_strength=body.control_strength,
+                width=body.width,
+                height=body.height,
+                steps=body.steps,
+                cfg=body.cfg,
+                seed=body.seed,
+                negative_prompt=body.negative_prompt,
+            )
+            result_url = fal_client.extract_image_url(fal_result)
+            if result_url:
+                from app.api.generate import _save_generation_to_db, _store_job_status
+                await _store_job_status(settings, job_id, "completed", {"url": result_url, "backend": "fal"})
+                await _save_generation_to_db(
+                    settings, str(user.id), job_id, "controlnet", body.prompt,
+                    body.negative_prompt, "controlnet_sdxl", body.model_dump(),
+                    result_url, body.nsfw,
+                )
+                return GenerationResponse(
+                    job_id=job_id, status=JobStatus.completed,
+                    credits_used=credits_needed, result_url=result_url,
+                )
+        except Exception as fal_err:
+            logger.error(f"fal.ai ControlNet failed: {fal_err}")
+
+    # Fallback: Replicate
+    from app.services.replicate import ReplicateClient
+    rep_client = ReplicateClient(settings)
+    if rep_client.is_available():
+        await _submit_to_replicate(
+            settings, job_id,
+            job_data={"type": "controlnet", "user_id": str(user.id)},
+            priority=PLAN_PRIORITY[plan],
+            replicate_fn=rep_client.submit_img2img,
+            image_url=image_url,
+            prompt=body.prompt,
+            strength=body.control_strength,
+            steps=body.steps,
+            cfg=body.cfg,
+            seed=body.seed,
+            negative_prompt=body.negative_prompt,
+        )
+        return GenerationResponse(job_id=job_id, status=JobStatus.queued, credits_used=credits_needed)
+
+    raise HTTPException(status_code=503, detail="ControlNet service is temporarily unavailable.")
 
 
 # ─── Remove Background ───

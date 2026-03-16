@@ -202,10 +202,11 @@ async def publish_to_gallery(
     except Exception:
         pass  # Table might not exist yet; continue
 
-    # NSFW region check
+    # NSFW region check (admins bypass)
     if body.nsfw:
         region = profile.get("region_code", "US")
-        if not can_publish_nsfw(region):
+        user_email = profile.get("email", "")
+        if not can_publish_nsfw(region, user_email):
             raise HTTPException(
                 status_code=403,
                 detail="NSFW content cannot be published publicly in your region.",
@@ -367,7 +368,7 @@ async def get_user_gallery(
         token = auth_header.split(" ", 1)[1]
         try:
             user_response = supabase.auth.get_user(token)
-            current_user_id = user_response.user.id
+            current_user_id = str(user_response.user.id)
             is_owner = current_user_id == user_id
         except Exception:
             pass
@@ -382,8 +383,8 @@ async def get_user_gallery(
     if not is_owner:
         query = query.eq("public", True)
 
-    # NSFW filter
-    if not nsfw:
+    # NSFW filter: owners always see their NSFW items
+    if not nsfw and not is_owner:
         query = query.eq("nsfw", False)
 
     query = query.order("created_at", desc=True)
@@ -486,6 +487,130 @@ async def get_gallery_item(
     user_data = row.get("users", {})
     author_name = _get_author_name(user_data)
     return _row_to_item(row, liked_by_me=liked_by_me, author_name=author_name)
+
+
+# ─── POST /gallery/{id}/publish ───
+
+@router.post("/{gallery_id}/publish")
+async def publish_gallery_item(
+    gallery_id: str,
+    request: Request,
+    settings: Settings = Depends(get_settings),
+):
+    """Set a gallery item to public (visible in Explore)."""
+    user, profile, supabase = await _auth_and_profile(request, settings)
+
+    # Verify ownership
+    try:
+        item = (
+            supabase.table("gallery")
+            .select("id, user_id, nsfw")
+            .eq("id", gallery_id)
+            .eq("user_id", user.id)
+            .single()
+            .execute()
+        )
+    except Exception:
+        raise HTTPException(status_code=404, detail="Gallery item not found")
+
+    if not item.data:
+        raise HTTPException(status_code=404, detail="Gallery item not found")
+
+    # NSFW region check (admins bypass via can_publish_nsfw)
+    if item.data.get("nsfw"):
+        region = profile.get("region_code", "US")
+        user_email = profile.get("email", "")
+        if not can_publish_nsfw(region, user_email):
+            raise HTTPException(
+                status_code=403,
+                detail="NSFW content cannot be published publicly in your region.",
+            )
+
+    try:
+        supabase.table("gallery").update({"public": True}).eq("id", gallery_id).execute()
+    except Exception as e:
+        logger.error(f"Failed to publish gallery item: {e}")
+        raise HTTPException(status_code=500, detail="Failed to publish")
+
+    return {"id": gallery_id, "public": True}
+
+
+# ─── POST /gallery/{id}/unpublish ───
+
+@router.post("/{gallery_id}/unpublish")
+async def unpublish_gallery_item(
+    gallery_id: str,
+    request: Request,
+    settings: Settings = Depends(get_settings),
+):
+    """Set a gallery item to private (hidden from Explore)."""
+    user, profile, supabase = await _auth_and_profile(request, settings)
+
+    # Verify ownership
+    try:
+        item = (
+            supabase.table("gallery")
+            .select("id, user_id")
+            .eq("id", gallery_id)
+            .eq("user_id", user.id)
+            .single()
+            .execute()
+        )
+    except Exception:
+        raise HTTPException(status_code=404, detail="Gallery item not found")
+
+    if not item.data:
+        raise HTTPException(status_code=404, detail="Gallery item not found")
+
+    try:
+        supabase.table("gallery").update({"public": False}).eq("id", gallery_id).execute()
+    except Exception as e:
+        logger.error(f"Failed to unpublish gallery item: {e}")
+        raise HTTPException(status_code=500, detail="Failed to unpublish")
+
+    return {"id": gallery_id, "public": False}
+
+
+# ─── DELETE /gallery/{id} ───
+
+@router.delete("/{gallery_id}")
+async def delete_gallery_item(
+    gallery_id: str,
+    request: Request,
+    settings: Settings = Depends(get_settings),
+):
+    """Delete a gallery item. Only the owner can delete."""
+    user, profile, supabase = await _auth_and_profile(request, settings)
+
+    # Verify ownership
+    try:
+        item = (
+            supabase.table("gallery")
+            .select("id, user_id")
+            .eq("id", gallery_id)
+            .eq("user_id", user.id)
+            .single()
+            .execute()
+        )
+    except Exception:
+        raise HTTPException(status_code=404, detail="Gallery item not found")
+
+    if not item.data:
+        raise HTTPException(status_code=404, detail="Gallery item not found")
+
+    try:
+        # Delete likes first
+        supabase.table("gallery_likes").delete().eq("gallery_id", gallery_id).execute()
+    except Exception:
+        pass  # Non-fatal
+
+    try:
+        supabase.table("gallery").delete().eq("id", gallery_id).execute()
+    except Exception as e:
+        logger.error(f"Failed to delete gallery item: {e}")
+        raise HTTPException(status_code=500, detail="Failed to delete")
+
+    return {"id": gallery_id, "deleted": True}
 
 
 # ─── POST /gallery/{id}/like ───
