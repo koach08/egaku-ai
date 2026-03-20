@@ -334,7 +334,7 @@ async def _generate_image_cloud(body: ImageGenerateRequest, request: Request, se
         if not fal_model_id:
             fal_model_id = "fal_flux_dev"  # Default fallback
 
-        # NSFW override: SDXL/non-Flux models return black images for NSFW.
+        # NSFW override: SDXL/non-Flux models may return black images.
         # Route to Flux Realism which is explicitly NSFW-friendly.
         if body.nsfw and fal_model_id in ("fal_sdxl", "fal_aura_flow", "fal_recraft"):
             fal_model_id = "fal_flux_realism"
@@ -730,6 +730,27 @@ async def list_available_models(settings: Settings = Depends(get_settings)):
     return {"models": models_list}
 
 
+@router.get("/video-models")
+async def list_video_models():
+    """List available video models."""
+    from app.services.fal_ai import VIDEO_MODELS
+    t2v = []
+    i2v = []
+    for mid, info in VIDEO_MODELS.items():
+        entry = {
+            "id": mid,
+            "name": info["name"],
+            "description": info["description"],
+            "credits": info["credits"],
+            "min_plan": info.get("min_plan", "free"),
+        }
+        if "i2v" in mid:
+            i2v.append(entry)
+        else:
+            t2v.append(entry)
+    return {"text_to_video": t2v, "image_to_video": i2v}
+
+
 # ─── Video Generation ───
 
 @router.post("/video", response_model=GenerationResponse)
@@ -856,27 +877,43 @@ async def _generate_video_cloud(body: VideoGenerateRequest, request: Request, se
     job_id = str(uuid.uuid4())
 
     # ─── Try fal.ai first (NSFW-friendly, synchronous) ───
-    from app.services.fal_ai import FalClient
+    from app.services.fal_ai import VIDEO_MODELS, FalClient
     fal_client = FalClient(settings)
+
+    # Resolve video model (default: LTX 2.3 for free, pass model from request)
+    video_model_id = body.model or "fal_ltx_t2v"
+    if video_model_id not in VIDEO_MODELS:
+        video_model_id = "fal_ltx_t2v"
+
+    # Check plan access for premium video models
+    video_model_info = VIDEO_MODELS[video_model_id]
+    video_min_plan = video_model_info.get("min_plan", "free")
+    if PLAN_RANK.get(plan, 0) < PLAN_RANK.get(video_min_plan, 0):
+        raise HTTPException(
+            status_code=403,
+            detail=f"Video model '{video_model_info['name']}' requires {video_min_plan.title()} plan or above",
+        )
+
     if fal_client.is_available():
         try:
             fal_result = await fal_client.submit_txt2vid(
                 prompt=body.prompt,
                 seed=body.seed,
+                model_id=video_model_id,
             )
             result_url = fal_client.extract_video_url(fal_result)
             if result_url:
                 await _store_job_status(settings, job_id, "completed", {"url": result_url, "backend": "fal"})
                 await _save_generation_to_db(
                     settings, user.id, job_id, "txt2vid", body.prompt,
-                    body.negative_prompt, "ltx_2.3", body.model_dump(), result_url, body.nsfw,
+                    body.negative_prompt, video_model_id, body.model_dump(), result_url, body.nsfw,
                 )
                 return GenerationResponse(
                     job_id=job_id, status=JobStatus.completed,
                     credits_used=credits_needed, result_url=result_url,
                 )
         except Exception as fal_err:
-            logger.error(f"fal.ai video failed: {fal_err}")
+            logger.error(f"fal.ai video failed ({video_model_id}): {fal_err}")
 
     # ─── Fallback: Replicate (Wan 2.5, may reject NSFW) ───
     rep_client = ReplicateClient(settings)

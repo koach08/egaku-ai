@@ -26,8 +26,29 @@ def _get_reader(settings: Settings):
     return _geoip_reader
 
 
+def _lookup_ip_country(ip: str) -> str | None:
+    """Lookup country from IP using free ip-api.com (no key needed, 45 req/min)."""
+    if ip in ("127.0.0.1", "0.0.0.0", "::1"):
+        return None
+    try:
+        import json
+        import urllib.request
+        req = urllib.request.Request(
+            f"http://ip-api.com/json/{ip}?fields=countryCode",
+            headers={"User-Agent": "EGAKU-AI/1.0"},
+        )
+        with urllib.request.urlopen(req, timeout=3) as resp:
+            data = json.loads(resp.read())
+            code = data.get("countryCode")
+            if code:
+                return code.upper()
+    except Exception as e:
+        logger.debug(f"IP lookup failed for {ip}: {e}")
+    return None
+
+
 def detect_region(request: Request, ip: str, settings: Settings) -> str:
-    """Detect country code from request. Priority: CF header > GeoIP > DEFAULT."""
+    """Detect country code from request. Priority: CF header > GeoIP > IP-API > DEFAULT."""
     # Cloudflare provides country header automatically
     cf_country = request.headers.get("cf-ipcountry")
     if cf_country and cf_country != "XX":
@@ -42,5 +63,10 @@ def detect_region(request: Request, ip: str, settings: Settings) -> str:
                 return response.country.iso_code.upper()
         except Exception:
             pass
+
+    # Fallback to free IP geolocation API
+    ip_country = _lookup_ip_country(ip)
+    if ip_country:
+        return ip_country
 
     return "US"  # Default fallback

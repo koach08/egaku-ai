@@ -268,6 +268,7 @@ class CommunityGalleryItem(BaseModel):
     width: int = 0
     height: int = 0
     image_url: str | None = None
+    video_url: str | None = None
     title: str = ""
     description: str = ""
     tags: list[str] = Field(default_factory=list)
@@ -340,9 +341,14 @@ CREDIT_COSTS = {
     "txt2img_flux_dev": 5,
     "txt2vid_16": 5,
     "txt2vid_32": 10,
+    "txt2vid_kling": 15,
+    "txt2vid_minimax": 15,
+    "txt2vid_wan": 10,
     "img2img": 2,
     "img2vid_16": 5,
     "img2vid_32": 10,
+    "img2vid_kling": 15,
+    "img2vid_wan": 10,
     "vid2vid": 15,
     "upscale": 1,
     "inpaint": 2,

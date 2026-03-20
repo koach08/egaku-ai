@@ -57,6 +57,9 @@ class Settings(BaseSettings):
     stripe_secret_key: str = ""
     stripe_webhook_secret: str = ""
 
+    # OpenAI (prompt assistant chat)
+    openai_api_key: str = ""
+
     # GeoIP
     geoip_db_path: str = "GeoLite2-Country.mmdb"
 

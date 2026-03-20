@@ -66,15 +66,52 @@ MODELS = {
 VIDEO_MODELS = {
     "fal_ltx_t2v": {
         "fal_id": "fal-ai/ltx-2.3/text-to-video",
-        "name": "LTX 2.3 T2V",
-        "description": "High quality text-to-video, NSFW-friendly",
+        "name": "LTX 2.3",
+        "description": "Fast text-to-video, NSFW-friendly",
         "credits": 5,
+        "min_plan": "free",
+    },
+    "fal_kling_t2v": {
+        "fal_id": "fal-ai/kling-video/v2/master/text-to-video",
+        "name": "Kling v2",
+        "description": "High quality cinematic video",
+        "credits": 15,
+        "min_plan": "basic",
+    },
+    "fal_minimax_t2v": {
+        "fal_id": "fal-ai/minimax-video/video-01-live/text-to-video",
+        "name": "Minimax Hailuo",
+        "description": "Realistic motion, expressive characters",
+        "credits": 15,
+        "min_plan": "basic",
+    },
+    "fal_wan_t2v": {
+        "fal_id": "fal-ai/wan/v2.1/text-to-video",
+        "name": "Wan 2.1",
+        "description": "Versatile video generation",
+        "credits": 10,
+        "min_plan": "free",
     },
     "fal_ltx_i2v": {
         "fal_id": "fal-ai/ltx-2-19b/image-to-video",
         "name": "LTX 2 I2V",
         "description": "Animate images to video",
         "credits": 5,
+        "min_plan": "free",
+    },
+    "fal_kling_i2v": {
+        "fal_id": "fal-ai/kling-video/v2/master/image-to-video",
+        "name": "Kling v2 I2V",
+        "description": "High quality image animation",
+        "credits": 15,
+        "min_plan": "basic",
+    },
+    "fal_wan_i2v": {
+        "fal_id": "fal-ai/wan/v2.1/image-to-video",
+        "name": "Wan 2.1 I2V",
+        "description": "Animate images with Wan",
+        "credits": 10,
+        "min_plan": "free",
     },
 }
 
@@ -132,6 +169,8 @@ class FalClient:
                 input_params["negative_prompt"] = negative_prompt
             if seed >= 0:
                 input_params["seed"] = seed
+            input_params["enable_safety_checker"] = False
+            input_params["safety_tolerance"] = 6
 
         url = f"{FAL_API_BASE}/{fal_model}"
 
@@ -206,8 +245,12 @@ class FalClient:
         self,
         prompt: str,
         seed: int = -1,
+        model_id: str = "fal_ltx_t2v",
     ) -> dict:
-        """Submit a text-to-video job via fal.ai LTX 2.3. NSFW-friendly."""
+        """Submit a text-to-video job via fal.ai. Supports multiple models."""
+        model_info = VIDEO_MODELS.get(model_id, VIDEO_MODELS["fal_ltx_t2v"])
+        fal_model = model_info["fal_id"]
+
         input_params: dict = {
             "prompt": prompt,
             "enable_safety_checker": False,
@@ -215,14 +258,21 @@ class FalClient:
         if seed >= 0:
             input_params["seed"] = seed
 
-        url = f"{FAL_API_BASE}/fal-ai/ltx-2.3/text-to-video"
+        # Model-specific params
+        if "kling" in fal_model:
+            input_params["duration"] = "5"
+            input_params["aspect_ratio"] = "16:9"
+        elif "minimax" in fal_model:
+            input_params["prompt_optimizer"] = True
+
+        url = f"{FAL_API_BASE}/{fal_model}"
         async with httpx.AsyncClient() as client:
             response = await client.post(
                 url, json=input_params, headers=self.headers, timeout=300,
             )
             response.raise_for_status()
             data = response.json()
-            logger.info("fal.ai video job completed: LTX 2.3")
+            logger.info("fal.ai video job completed: %s", model_id)
             return data
 
     async def submit_img2vid(
@@ -230,8 +280,12 @@ class FalClient:
         image_url: str,
         prompt: str = "",
         seed: int = -1,
+        model_id: str = "fal_ltx_i2v",
     ) -> dict:
-        """Submit an image-to-video job via fal.ai LTX 2."""
+        """Submit an image-to-video job via fal.ai. Supports multiple models."""
+        model_info = VIDEO_MODELS.get(model_id, VIDEO_MODELS["fal_ltx_i2v"])
+        fal_model = model_info["fal_id"]
+
         input_params: dict = {
             "image_url": image_url,
             "enable_safety_checker": False,
@@ -241,14 +295,18 @@ class FalClient:
         if seed >= 0:
             input_params["seed"] = seed
 
-        url = f"{FAL_API_BASE}/fal-ai/ltx-2-19b/image-to-video"
+        # Model-specific params
+        if "kling" in fal_model:
+            input_params["duration"] = "5"
+
+        url = f"{FAL_API_BASE}/{fal_model}"
         async with httpx.AsyncClient() as client:
             response = await client.post(
                 url, json=input_params, headers=self.headers, timeout=300,
             )
             response.raise_for_status()
             data = response.json()
-            logger.info("fal.ai img2vid job completed: LTX 2")
+            logger.info("fal.ai img2vid job completed: %s", model_id)
             return data
 
     async def submit_controlnet(

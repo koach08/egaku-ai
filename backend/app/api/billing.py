@@ -32,20 +32,36 @@ PLAN_INFO = {
 
 # Region-based pricing multipliers (PPP adjustment)
 # Prices are shown in JPY equivalent but Stripe handles currency conversion
+# "体感物価" based pricing - what feels affordable in each country
+# Base: Japan (1.0) - Lite ¥480 is affordable on ¥180k/month salary
+# Target: price of ~2 coffees in local currency
 REGION_PRICE_MULTIPLIER: dict[str, float] = {
-    "BR": 0.35,   # Brazil (~35% of JP price)
-    "IN": 0.25,   # India
-    "TR": 0.30,   # Turkey
-    "AR": 0.25,   # Argentina
-    "MX": 0.40,   # Mexico
-    "CO": 0.35,   # Colombia
-    "PH": 0.30,   # Philippines
-    "ID": 0.30,   # Indonesia
-    "TH": 0.40,   # Thailand
-    "VN": 0.25,   # Vietnam
+    # South America
+    "BR": 0.30,   # Brazil - R$7~8 for Lite (coffee ~R$5)
+    "AR": 0.20,   # Argentina - high inflation, keep very low
+    "CO": 0.25,   # Colombia
+    "CL": 0.40,   # Chile - higher income in LatAm
+    "PE": 0.25,   # Peru
+    "MX": 0.35,   # Mexico
+    # South/Southeast Asia
+    "IN": 0.20,   # India - ₹50~60 for Lite (chai ~₹20)
+    "ID": 0.25,   # Indonesia
+    "PH": 0.25,   # Philippines
+    "TH": 0.35,   # Thailand
+    "VN": 0.20,   # Vietnam
+    "MY": 0.40,   # Malaysia
+    "BD": 0.15,   # Bangladesh
+    "PK": 0.15,   # Pakistan
+    # Eastern Europe / Middle East
+    "TR": 0.25,   # Turkey - lira instability
     "PL": 0.50,   # Poland
-    "RU": 0.30,   # Russia
-    "ZA": 0.40,   # South Africa
+    "RU": 0.25,   # Russia
+    "UA": 0.20,   # Ukraine
+    "EG": 0.20,   # Egypt
+    # Africa
+    "ZA": 0.35,   # South Africa
+    "NG": 0.20,   # Nigeria
+    "KE": 0.20,   # Kenya
 }
 
 # Region-specific Stripe Price IDs (create these in Stripe Dashboard)
@@ -142,7 +158,7 @@ async def create_checkout(
             mode="payment",
             line_items=[{"price": LOCAL_LICENSE_PRICE_ID, "quantity": 1}],
             metadata={"user_id": user.id, "plan": "local"},
-            success_url=f"{origin}/settings?checkout=success",
+            success_url=f"{origin}/settings?checkout=success&plan=local",
             cancel_url=f"{origin}/settings?checkout=cancel",
         )
     else:
@@ -155,7 +171,7 @@ async def create_checkout(
             "mode": "subscription",
             "line_items": [{"price": price_id, "quantity": 1}],
             "metadata": {"user_id": user.id, "plan": plan, "region": region},
-            "success_url": f"{origin}/settings?checkout=success",
+            "success_url": f"{origin}/settings?checkout=success&plan={plan}",
             "cancel_url": f"{origin}/settings?checkout=cancel",
             "allow_promotion_codes": True,
         }

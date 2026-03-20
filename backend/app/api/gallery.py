@@ -136,6 +136,7 @@ def _row_to_item(row: dict, liked_by_me: bool = False, author_name: str = "Anony
         width=row.get("width", 0),
         height=row.get("height", 0),
         image_url=row.get("image_url"),
+        video_url=row.get("video_url"),
         title=row.get("title", ""),
         description=row.get("description", ""),
         tags=row.get("tags", []),
@@ -326,8 +327,29 @@ async def list_gallery(
         except Exception:
             pass
 
+    # Fetch video_url from generations for items missing image_url
+    rows = result.data or []
+    job_ids_needing_video = [row["job_id"] for row in rows if not row.get("image_url") and row.get("job_id")]
+    video_map: dict[str, str] = {}
+    if job_ids_needing_video:
+        try:
+            gen_result = (
+                supabase.table("generations")
+                .select("id, video_url")
+                .in_("id", job_ids_needing_video)
+                .execute()
+            )
+            for gen in (gen_result.data or []):
+                if gen.get("video_url"):
+                    video_map[gen["id"]] = gen["video_url"]
+        except Exception:
+            pass
+
     items = []
-    for row in result.data or []:
+    for row in rows:
+        # Inject video_url from generations if gallery row doesn't have image
+        if not row.get("image_url") and row.get("job_id") in video_map:
+            row["video_url"] = video_map[row["job_id"]]
         user_data = row.get("users", {})
         author_name = _get_author_name(user_data)
         liked = row["id"] in liked_ids

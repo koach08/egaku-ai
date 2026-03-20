@@ -100,6 +100,8 @@ CREATE TABLE IF NOT EXISTS public.user_models (
     name TEXT NOT NULL DEFAULT '',
     base_model TEXT DEFAULT '',
     preview_url TEXT,
+    model_type TEXT NOT NULL DEFAULT 'LORA',
+    safetensors_name TEXT DEFAULT '',
     created_at TIMESTAMPTZ DEFAULT NOW(),
     UNIQUE(user_id, civitai_model_id)
 );
