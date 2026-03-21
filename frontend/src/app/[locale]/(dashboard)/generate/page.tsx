@@ -1018,7 +1018,7 @@ export default function GeneratePage() {
                           Add blur
                         </button>
                       )}
-                      <a href={job.resultUrl} download className="text-xs text-purple-500 hover:underline font-medium">Download</a>
+                      <button onClick={() => { import("@/lib/utils").then(m => m.downloadFile(job.resultUrl!, job.type === "video" ? "egaku-video.mp4" : "egaku-image.png")); }} className="text-xs text-purple-500 hover:underline font-medium">Download</button>
                       <a href={job.resultUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:underline">Open full size</a>
                     </div>
                   </div>

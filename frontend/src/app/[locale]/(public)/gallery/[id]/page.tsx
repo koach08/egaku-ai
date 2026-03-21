@@ -368,18 +368,14 @@ export default function GalleryItemPage() {
                 <Button variant="ghost" size="sm" onClick={handleShare} title="Copy link">
                   <LinkIcon className="size-4" />
                 </Button>
-                {item.image_url && (
+                {(item.image_url || item.video_url) && (
                   <Button
                     variant="ghost"
                     size="sm"
-                    render={
-                      <a
-                        href={item.image_url}
-                        download
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      />
-                    }
+                    onClick={() => {
+                      const url = item.video_url || item.image_url;
+                      if (url) import("@/lib/utils").then(m => m.downloadFile(url, item.video_url ? "egaku-video.mp4" : "egaku-image.png"));
+                    }}
                   >
                     <DownloadIcon className="size-4 mr-1" />
                     Download
