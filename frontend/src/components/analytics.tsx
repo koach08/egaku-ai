@@ -84,19 +84,23 @@ export function trackEvent(action: string, category: string, label?: string, val
   }
 }
 
-// Google Ads conversion labels (set in Vercel env vars after creating in Google Ads)
+// Google Ads conversion labels
 const CONV_LABEL_SIGNUP = process.env.NEXT_PUBLIC_GADS_CONV_SIGNUP || "";
-const CONV_LABEL_PURCHASE = process.env.NEXT_PUBLIC_GADS_CONV_PURCHASE || "";
+const CONV_LABEL_PURCHASE = "VeAGCN3TjYwcEM-L8MJB";
 
 // Track Google Ads conversions
-export function trackConversion(conversionLabel: string, value?: number) {
+export function trackConversion(conversionLabel: string, value?: number, transactionId?: string) {
   if (typeof window !== "undefined" && "gtag" in window && conversionLabel) {
     const gtagFn = (window as unknown as { gtag: (...args: unknown[]) => void }).gtag;
-    gtagFn("event", "conversion", {
+    const params: Record<string, unknown> = {
       send_to: `${AW_ID}/${conversionLabel}`,
       value,
       currency: "JPY",
-    });
+    };
+    if (transactionId) {
+      params.transaction_id = transactionId;
+    }
+    gtagFn("event", "conversion", params);
   }
 }
 
@@ -107,9 +111,9 @@ export function trackSignup(method: string) {
 }
 
 // Track purchase conversion (Google Ads + GA4)
-export function trackPurchase(plan: string, value: number) {
+export function trackPurchase(plan: string, value: number, transactionId?: string) {
   trackEvent("purchase", "billing", plan, value);
-  trackConversion(CONV_LABEL_PURCHASE, value);
+  trackConversion(CONV_LABEL_PURCHASE, value, transactionId || `${plan}_${Date.now()}`);
 }
 
 // Track begin checkout (GA4)
