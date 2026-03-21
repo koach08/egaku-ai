@@ -68,6 +68,14 @@ MODELS = {
         "min_plan": "lite",
         "credits": 8,
     },
+    "fal_grok_imagine": {
+        "fal_id": "xai/grok-imagine-image",
+        "name": "Grok Imagine (xAI)",
+        "category": "premium",
+        "description": "xAI Aurora — photorealistic, precise text & logos",
+        "min_plan": "lite",
+        "credits": 8,
+    },
 }
 
 # fal.ai video models
@@ -156,6 +164,13 @@ VIDEO_MODELS = {
         "description": "Animate images with Sora 2",
         "credits": 50,
         "min_plan": "pro",
+    },
+    "fal_grok_t2v": {
+        "fal_id": "xai/grok-imagine-video",
+        "name": "Grok Imagine Video",
+        "description": "xAI video with native audio, 720p",
+        "credits": 30,
+        "min_plan": "basic",
     },
 }
 

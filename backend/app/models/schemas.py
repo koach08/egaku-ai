@@ -351,6 +351,8 @@ CREDIT_COSTS = {
     "img2vid_kling": 15,
     "img2vid_wan": 10,
     "txt2img_nano_banana": 8,
+    "txt2img_grok": 8,
+    "txt2vid_grok": 30,
     "txt2vid_kling25": 25,
     "txt2vid_veo3": 40,
     "txt2vid_sora2": 50,
