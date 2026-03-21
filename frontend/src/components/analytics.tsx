@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import Script from "next/script";
 import { getConsentState } from "@/components/cookie-consent";
 
-const GA_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
-const AW_ID = process.env.NEXT_PUBLIC_GOOGLE_ADS_ID;
+const GA_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || "G-6YZSPFFDYQ";
+const AW_ID = "AW-17588553167";
 
 /**
  * Google Ads tag - always loaded (required for Google Ads verification & conversion tracking).
