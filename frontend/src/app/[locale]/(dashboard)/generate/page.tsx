@@ -43,6 +43,8 @@ const MODELS = [
   { id: "fal_recraft", name: "Recraft V3", type: "Artistic", credits: 2, minPlan: "free", badge: "New" },
   { id: "fal_aura_flow", name: "AuraFlow v0.3", type: "Artistic", credits: 2, minPlan: "free", badge: "New" },
   { id: "proteus", name: "Proteus v0.3", type: "Anime", credits: 2, minPlan: "free" },
+  { id: "fal_nano_banana_2", name: "Nano Banana 2 (Google)", type: "Premium", credits: 8, minPlan: "lite", badge: "★" },
+  { id: "fal_grok_imagine", name: "Grok Imagine (xAI)", type: "Premium", credits: 8, minPlan: "lite", badge: "★" },
 ];
 
 const STYLES = [
@@ -68,12 +70,18 @@ const VIDEO_MODELS_T2V = [
   { id: "fal_wan_t2v", name: "Wan 2.1", credits: 10, minPlan: "free" },
   { id: "fal_kling_t2v", name: "Kling v2", credits: 15, minPlan: "basic", badge: "HD" },
   { id: "fal_minimax_t2v", name: "Minimax Hailuo", credits: 15, minPlan: "basic", badge: "HD" },
+  { id: "fal_kling25_t2v", name: "Kling 2.5 Pro", credits: 25, minPlan: "basic", badge: "★ Cinema" },
+  { id: "fal_grok_t2v", name: "Grok Video (xAI)", credits: 30, minPlan: "basic", badge: "★ Audio" },
+  { id: "fal_veo3_t2v", name: "Veo 3 (Google)", credits: 40, minPlan: "pro", badge: "★ Audio" },
+  { id: "fal_sora2_t2v", name: "Sora 2 (OpenAI)", credits: 50, minPlan: "pro", badge: "★ Best" },
 ];
 
 const VIDEO_MODELS_I2V = [
   { id: "fal_ltx_i2v", name: "LTX 2 I2V", credits: 5, minPlan: "free", badge: "Fast" },
   { id: "fal_wan_i2v", name: "Wan 2.1 I2V", credits: 10, minPlan: "free" },
   { id: "fal_kling_i2v", name: "Kling v2 I2V", credits: 15, minPlan: "basic", badge: "HD" },
+  { id: "fal_kling25_i2v", name: "Kling 2.5 Pro I2V", credits: 25, minPlan: "basic", badge: "★ Cinema" },
+  { id: "fal_sora2_i2v", name: "Sora 2 I2V", credits: 50, minPlan: "pro", badge: "★ Best" },
 ];
 
 const PLAN_RANK: Record<string, number> = {
