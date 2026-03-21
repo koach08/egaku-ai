@@ -127,6 +127,7 @@ CREATE TABLE IF NOT EXISTS public.gallery (
     width INTEGER NOT NULL DEFAULT 0,
     height INTEGER NOT NULL DEFAULT 0,
     image_url TEXT,
+    video_url TEXT,
     title TEXT NOT NULL DEFAULT '',
     description TEXT NOT NULL DEFAULT '',
     tags TEXT[] NOT NULL DEFAULT '{}',
