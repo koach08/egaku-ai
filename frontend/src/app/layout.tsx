@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { GoogleAnalytics } from "@/components/analytics";
 import { CookieConsent } from "@/components/cookie-consent";
 import { MaintenanceBanner } from "@/components/maintenance-banner";
 import "./globals.css";
@@ -103,10 +102,10 @@ export default function RootLayout({
               window.dataLayer = window.dataLayer || [];
               function gtag(){dataLayer.push(arguments);}
               gtag('consent', 'default', {
-                'ad_storage': 'denied',
-                'ad_user_data': 'denied',
-                'ad_personalization': 'denied',
-                'analytics_storage': 'denied',
+                'ad_storage': 'granted',
+                'ad_user_data': 'granted',
+                'ad_personalization': 'granted',
+                'analytics_storage': 'granted',
               });
               gtag('js', new Date());
               gtag('config', 'AW-17588553167');
@@ -119,7 +118,6 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-background`}
       >
         <MaintenanceBanner />
-        <GoogleAnalytics />
         {children}
         <CookieConsent />
       </body>
