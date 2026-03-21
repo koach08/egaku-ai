@@ -52,7 +52,6 @@ function SettingsContent() {
     const plan = searchParams.get("plan") || "unknown";
     if (checkout === "success") {
       toast.success("Subscription activated! Credits have been added.");
-      // Fire purchase conversion for Google Ads + GA4
       const planPrices: Record<string, number> = {
         lite: 480, basic: 980, pro: 2980, unlimited: 5980, studio: 9980,
       };
@@ -61,6 +60,15 @@ function SettingsContent() {
       toast.info("Checkout cancelled.");
     }
   }, [searchParams]);
+
+  // Auto-start checkout if redirected from register with a plan
+  useEffect(() => {
+    const upgradePlan = searchParams.get("upgrade");
+    if (upgradePlan && session && !upgrading) {
+      handleUpgrade(upgradePlan);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, session]);
 
   useEffect(() => {
     if (!session) return;

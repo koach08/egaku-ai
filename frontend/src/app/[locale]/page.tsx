@@ -212,7 +212,7 @@ export default function LandingPage() {
                     <Button
                       className="w-full mt-6"
                       variant={isPopular ? "default" : "outline"}
-                      render={<Link href="/register" />}
+                      render={<Link href={price === "0" ? "/register" : `/register?plan=${planKey}`} />}
                     >
                       {price === "0"
                         ? t("common.startFree")

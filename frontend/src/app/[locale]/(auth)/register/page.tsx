@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { Link, useRouter } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
@@ -11,6 +12,8 @@ import { Separator } from "@/components/ui/separator";
 import { Header } from "@/components/layout/header";
 import { trackSignup } from "@/components/analytics";
 
+const PAID_PLANS = ["lite", "basic", "pro", "unlimited", "studio"];
+
 export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -18,12 +21,21 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const supabase = createClient();
+  const searchParams = useSearchParams();
+  const plan = searchParams.get("plan") || "";
+  const hasPaidPlan = PAID_PLANS.includes(plan);
+
+  // After auth, redirect to settings with upgrade param if paid plan selected
+  const redirectPath = hasPaidPlan ? `/settings?upgrade=${plan}` : "/generate";
+  const redirectUrl = typeof window !== "undefined"
+    ? `${window.location.origin}${redirectPath}`
+    : redirectPath;
 
   const handleOAuth = async (provider: "google" | "discord" | "github" | "twitter") => {
     trackSignup(provider);
     await supabase.auth.signInWithOAuth({
       provider,
-      options: { redirectTo: `${window.location.origin}/generate` },
+      options: { redirectTo: redirectUrl },
     });
   };
 
@@ -34,16 +46,15 @@ export default function RegisterPage() {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: { emailRedirectTo: `${window.location.origin}/generate` },
+      options: { emailRedirectTo: redirectUrl },
     });
     if (error) {
       setError(error.message);
       setLoading(false);
     } else if (data.session) {
       trackSignup("email");
-      router.push("/generate");
+      router.push(redirectPath);
     } else {
-      // Confirm email is ON — show check email message
       setError("Check your email for a confirmation link.");
       setLoading(false);
     }
@@ -57,7 +68,9 @@ export default function RegisterPage() {
           <CardHeader className="text-center">
             <CardTitle className="text-2xl">Create Account</CardTitle>
             <p className="text-sm text-muted-foreground">
-              Start with 50 free credits
+              {hasPaidPlan
+                ? `Sign up to continue with the ${plan.charAt(0).toUpperCase() + plan.slice(1)} plan`
+                : "Start with 50 free credits"}
             </p>
           </CardHeader>
           <CardContent>
