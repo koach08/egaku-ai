@@ -66,6 +66,7 @@ class VideoGenerateRequest(BaseModel):
     prompt: str = Field(..., min_length=1, max_length=2000)
     negative_prompt: str = ""
     model: str = ""
+    image_url: str = ""
     motion_model: str = "mm_sd_v15_v2.ckpt"
     width: int = Field(512, ge=256, le=1024)
     height: int = Field(512, ge=256, le=1024)

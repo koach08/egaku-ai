@@ -859,8 +859,9 @@ async def _generate_video_cloud(body: VideoGenerateRequest, request: Request, se
         pass  # Non-fatal
 
     frames = body.frame_count
-    credits_needed = _calculate_credits("txt2vid", body.model_dump())
-    success = await deduct_credits(supabase, user.id, credits_needed, f"Video generation ({frames} frames)")
+    credit_type = "img2vid" if body.image_url else "txt2vid"
+    credits_needed = _calculate_credits(credit_type, body.model_dump())
+    success = await deduct_credits(supabase, user.id, credits_needed, f"Video generation ({credit_type}, {frames} frames)")
     if not success:
         raise HTTPException(status_code=402, detail="Insufficient credits")
 
@@ -880,10 +881,14 @@ async def _generate_video_cloud(body: VideoGenerateRequest, request: Request, se
     from app.services.fal_ai import VIDEO_MODELS, FalClient
     fal_client = FalClient(settings)
 
-    # Resolve video model (default: LTX 2.3 for free, pass model from request)
-    video_model_id = body.model or "fal_ltx_t2v"
+    # Determine if this is image-to-video or text-to-video
+    is_img2vid = bool(body.image_url)
+
+    # Resolve video model (default depends on t2v vs i2v)
+    default_model = "fal_ltx_i2v" if is_img2vid else "fal_ltx_t2v"
+    video_model_id = body.model or default_model
     if video_model_id not in VIDEO_MODELS:
-        video_model_id = "fal_ltx_t2v"
+        video_model_id = default_model
 
     # Check plan access for premium video models
     video_model_info = VIDEO_MODELS[video_model_id]
@@ -896,16 +901,25 @@ async def _generate_video_cloud(body: VideoGenerateRequest, request: Request, se
 
     if fal_client.is_available():
         try:
-            fal_result = await fal_client.submit_txt2vid(
-                prompt=body.prompt,
-                seed=body.seed,
-                model_id=video_model_id,
-            )
+            if is_img2vid:
+                fal_result = await fal_client.submit_img2vid(
+                    image_url=body.image_url,
+                    prompt=body.prompt,
+                    seed=body.seed,
+                    model_id=video_model_id,
+                )
+            else:
+                fal_result = await fal_client.submit_txt2vid(
+                    prompt=body.prompt,
+                    seed=body.seed,
+                    model_id=video_model_id,
+                )
             result_url = fal_client.extract_video_url(fal_result)
+            gen_type_label = "img2vid" if is_img2vid else "txt2vid"
             if result_url:
                 await _store_job_status(settings, job_id, "completed", {"url": result_url, "backend": "fal"})
                 await _save_generation_to_db(
-                    settings, user.id, job_id, "txt2vid", body.prompt,
+                    settings, user.id, job_id, gen_type_label, body.prompt,
                     body.negative_prompt, video_model_id, body.model_dump(), result_url, body.nsfw,
                 )
                 return GenerationResponse(
