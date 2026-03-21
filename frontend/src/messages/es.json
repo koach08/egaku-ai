@@ -1,0 +1,271 @@
+{
+  "common": {
+    "signIn": "Iniciar sesión",
+    "signOut": "Cerrar sesión",
+    "getStarted": "Comenzar",
+    "subscribe": "Suscribirse",
+    "startFree": "Comenzar gratis",
+    "buyLicense": "Comprar licencia",
+    "beta": "Beta",
+    "loading": "Cargando...",
+    "credits": "créditos",
+    "perMonth": "/mes",
+    "oneTime": "pago único",
+    "free": "Gratis",
+    "mostPopular": "Más popular",
+    "soon": "Próximamente",
+    "download": "Descargar",
+    "openFullSize": "Abrir tamaño completo",
+    "dismiss": "Descartar"
+  },
+  "nav": {
+    "explore": "Explorar",
+    "generate": "Generar",
+    "gallery": "Galería",
+    "myGenerations": "Mis generaciones",
+    "pricing": "Precios",
+    "settings": "Configuración"
+  },
+  "hero": {
+    "title": "Generador de Arte IA — Sin Restricciones.",
+    "subtitle": "Crea imágenes y videos con total libertad creativa. Sin filtros, sin censura. Impulsado por Flux, SDXL y Stable Diffusion. 50 créditos gratis — sin tarjeta de crédito.",
+    "viewPricing": "Ver precios"
+  },
+  "features": {
+    "title": "Todas las funciones",
+    "txt2img": {
+      "title": "Texto a imagen",
+      "desc": "Genera imágenes a partir de texto. Flux.1, SDXL, SD1.5 y más."
+    },
+    "img2img": {
+      "title": "Imagen a imagen",
+      "desc": "Transforma imágenes existentes con indicaciones de texto. Controla la intensidad de los cambios."
+    },
+    "style": {
+      "title": "Transferencia de estilo",
+      "desc": "Aplica estilos artísticos: Ghibli, anime, pintura al óleo, acuarela, cyberpunk, pixel art, ukiyo-e."
+    },
+    "txt2vid": {
+      "title": "Texto a video",
+      "desc": "Genera videos animados a partir de texto. AnimateDiff con salida en GIF, WebP, MP4."
+    },
+    "img2vid": {
+      "title": "Imagen a video",
+      "desc": "Anima imágenes fijas en videos. Dale vida a tus fotos."
+    },
+    "vid2vid": {
+      "title": "Video a video",
+      "desc": "Transforma videos existentes con transferencia de estilo. Cambia la apariencia de cualquier video."
+    },
+    "upscale": {
+      "title": "Escalado",
+      "desc": "Mejora la resolución hasta 4x con IA. RealESRGAN para resultados nítidos y detallados."
+    },
+    "inpaint": {
+      "title": "Retoque",
+      "desc": "Edita partes de una imagen. Pinta una máscara, describe qué cambiar."
+    },
+    "controlnet": {
+      "title": "ControlNet",
+      "desc": "Guía la generación con pose, profundidad, bordes o trazos. Control creativo preciso."
+    },
+    "removeBg": {
+      "title": "Eliminación de fondo",
+      "desc": "Elimina fondos al instante. Perfecto para fotos de productos y redes sociales."
+    },
+    "customModels": {
+      "title": "Modelos personalizados",
+      "desc": "Explora y agrega modelos de CivitAI. Usa tus checkpoints y LoRAs favoritos."
+    },
+    "apiAccess": {
+      "title": "Acceso a API",
+      "desc": "Integra EGAKU AI en tus propias aplicaciones. API REST completa con todas las funciones."
+    }
+  },
+  "pricing": {
+    "title": "Precios",
+    "selfHosted": {
+      "title": "Autoalojado (local)",
+      "desc": "Ejecuta en tu propia GPU. Todo ilimitado. Sin soporte.",
+      "sub": "Perfecto para usuarios avanzados con su propio hardware."
+    }
+  },
+  "plans": {
+    "free": {
+      "name": "Free",
+      "credits": "50 / mes",
+      "features": [
+        "Más de 15 modelos de IA (Flux, SDXL, SD3.5)",
+        "Texto a imagen",
+        "Escalado de imagen (x2)",
+        "Eliminación de fondo",
+        "Marca de agua en la salida"
+      ]
+    },
+    "lite": {
+      "name": "Lite",
+      "credits": "150 / mes",
+      "features": [
+        "Todas las funciones de Free",
+        "Imagen a imagen",
+        "Transferencia de estilo (8 estilos)",
+        "Sin marca de agua"
+      ]
+    },
+    "basic": {
+      "name": "Basic",
+      "credits": "500 / mes",
+      "features": [
+        "Todas las funciones de Lite",
+        "Kling v2 & Minimax video HD",
+        "Retoque",
+        "200 imágenes/día, 100 videos/día",
+        "1 modelo personalizado de CivitAI"
+      ]
+    },
+    "pro": {
+      "name": "Pro",
+      "credits": "2,000 / mes",
+      "features": [
+        "Todas las funciones de Basic",
+        "Video a video",
+        "3 modelos personalizados de CivitAI",
+        "Cola de alta prioridad"
+      ]
+    },
+    "unlimited": {
+      "name": "Unlimited",
+      "credits": "Ilimitados",
+      "features": [
+        "Todas las funciones de Pro",
+        "Generaciones ilimitadas",
+        "Procesamiento por lotes",
+        "Máxima prioridad",
+        "5 modelos personalizados"
+      ]
+    },
+    "studio": {
+      "name": "Studio",
+      "credits": "Ilimitados",
+      "features": [
+        "Todas las funciones de Unlimited",
+        "Acceso a API",
+        "Modelos personalizados ilimitados",
+        "Entrenamiento de LoRA",
+        "Soporte prioritario"
+      ]
+    }
+  },
+  "footer": {
+    "rights": "Todos los derechos reservados.",
+    "terms": "Términos",
+    "privacy": "Privacidad"
+  },
+  "generate": {
+    "title": "Generar",
+    "prompt": "Indicación",
+    "promptPlaceholder": "Un hermoso paisaje con montañas y un lago, obra maestra, mejor calidad...",
+    "negativePrompt": "Indicación negativa",
+    "negativePlaceholder": "peor calidad, baja calidad, borroso...",
+    "model": "Modelo",
+    "width": "Ancho",
+    "height": "Alto",
+    "steps": "Pasos",
+    "cfgScale": "Escala CFG",
+    "sampler": "Muestreador",
+    "seed": "Semilla (-1 = aleatorio)",
+    "denoise": "Intensidad de eliminación de ruido (0 = sin cambios, 1 = redibujado completo)",
+    "generateImage": "Generar imagen",
+    "generating": "Generando...",
+    "signInRequired": "Inicia sesión para comenzar a generar",
+    "settings": "Configuración",
+    "uploadImage": "Subir imagen",
+    "uploadVideo": "Subir video",
+    "uploadMask": "Subir máscara (blanco = área a editar)",
+    "uploadControl": "Subir imagen de control",
+    "style": "Estilo",
+    "strength": "Intensidad",
+    "frames": "Fotogramas",
+    "fps": "FPS",
+    "scaleFactor": "Factor de escala",
+    "controlType": "Tipo de control",
+    "controlStrength": "Intensidad de control",
+    "applyStyle": "Aplicar estilo",
+    "generateVideo": "Generar video",
+    "animateImage": "Animar imagen",
+    "transformVideo": "Transformar video",
+    "upscaleBtn": "Escalar",
+    "inpaintBtn": "Retocar",
+    "controlnetBtn": "Generar con ControlNet",
+    "removeBgBtn": "Eliminar fondo",
+    "upscaling": "Escalando...",
+    "processing": "Procesando...",
+    "promptOptional": "Indicación (opcional)",
+    "motionPlaceholder": "Describe el movimiento que deseas...",
+    "requiresPro": "Requiere plan Pro o superior",
+    "requiresBasic": "Requiere plan Basic o superior",
+    "queued": "En espera en la cola...",
+    "elapsed": "transcurrido",
+    "complete": "¡Completado!",
+    "failed": "La generación falló",
+    "failedDesc": "Ocurrió un error inesperado.",
+    "enterPrompt": "Por favor ingresa una indicación",
+    "uploadRequired": "Por favor sube una imagen",
+    "maskRequired": "Por favor sube una máscara",
+    "queuedMsg": "¡En cola! Créditos utilizados:",
+    "completeMsg": "¡Generación completada!",
+    "credit": "crédito",
+    "creditPlural": "créditos"
+  },
+  "auth": {
+    "login": "Iniciar sesión",
+    "register": "Crear cuenta",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "confirmPassword": "Confirmar contraseña",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "noAccount": "¿No tienes una cuenta?",
+    "hasAccount": "¿Ya tienes una cuenta?",
+    "signUp": "Registrarse"
+  },
+  "gallery": {
+    "title": "Galería de la comunidad",
+    "explore": "Explorar",
+    "noResults": "No se encontraron obras",
+    "likes": "me gusta",
+    "by": "por",
+    "remix": "Remezclar",
+    "report": "Reportar",
+    "share": "Compartir",
+    "promptUsed": "Indicación",
+    "modelUsed": "Modelo",
+    "createdAt": "Creado"
+  },
+  "profile": {
+    "followers": "Seguidores",
+    "following": "Siguiendo",
+    "works": "Obras",
+    "follow": "Seguir",
+    "unfollow": "Dejar de seguir",
+    "editProfile": "Editar perfil",
+    "displayName": "Nombre para mostrar",
+    "bio": "Biografía",
+    "save": "Guardar"
+  },
+  "settings": {
+    "title": "Configuración",
+    "account": "Cuenta",
+    "subscription": "Suscripción",
+    "currentPlan": "Plan actual",
+    "upgrade": "Mejorar plan",
+    "manage": "Administrar suscripción",
+    "ageVerification": "Verificación de edad",
+    "verified": "Verificado (18+)",
+    "notVerified": "No verificado",
+    "verify": "Verificar edad"
+  },
+  "meta": {
+    "title": "EGAKU AI - Generador de imágenes y videos con IA",
+    "description": "Crea impresionantes imágenes y videos generados por IA con Flux, SDXL y Stable Diffusion. Modelos personalizados de CivitAI. Libertad creativa total para adultos verificados."
+  }
+}

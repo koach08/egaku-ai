@@ -1,0 +1,271 @@
+{
+  "common": {
+    "signIn": "登录",
+    "signOut": "退出登录",
+    "getStarted": "立即开始",
+    "subscribe": "订阅",
+    "startFree": "免费开始",
+    "buyLicense": "购买许可证",
+    "beta": "Beta",
+    "loading": "加载中...",
+    "credits": "积分",
+    "perMonth": "/月",
+    "oneTime": "一次性付款",
+    "free": "免费",
+    "mostPopular": "最受欢迎",
+    "soon": "即将推出",
+    "download": "下载",
+    "openFullSize": "查看原图",
+    "dismiss": "关闭"
+  },
+  "nav": {
+    "explore": "探索",
+    "generate": "生成",
+    "gallery": "画廊",
+    "myGenerations": "我的作品",
+    "pricing": "定价",
+    "settings": "设置"
+  },
+  "hero": {
+    "title": "用AI创作",
+    "subtitle": "使用AI生成令人惊叹的图像和视频。文本生成图像、图像生成视频、风格迁移、超分辨率、局部重绘等。由 Flux、SDXL 和 Stable Diffusion 驱动。为经过年龄验证的成人用户提供完全的创作自由。",
+    "viewPricing": "查看定价"
+  },
+  "features": {
+    "title": "所有功能",
+    "txt2img": {
+      "title": "文本生成图像",
+      "desc": "通过文本提示词生成图像。支持 Flux.1、SDXL、SD1.5 等模型。"
+    },
+    "img2img": {
+      "title": "图像生成图像",
+      "desc": "使用提示词引导转换现有图像。可控制变化强度。"
+    },
+    "style": {
+      "title": "风格迁移",
+      "desc": "应用艺术风格：吉卜力、动漫、油画、水彩、赛博朋克、像素艺术、浮世绘。"
+    },
+    "txt2vid": {
+      "title": "文本生成视频",
+      "desc": "从文本生成动画视频。AnimateDiff 支持 GIF、WebP、MP4 输出。"
+    },
+    "img2vid": {
+      "title": "图像生成视频",
+      "desc": "将静态图像动画化为视频。让你的照片动起来。"
+    },
+    "vid2vid": {
+      "title": "视频转视频",
+      "desc": "使用风格迁移转换现有视频。改变任何视频的外观。"
+    },
+    "upscale": {
+      "title": "超分辨率放大",
+      "desc": "使用AI将分辨率提升最高4倍。RealESRGAN 提供清晰、精细的效果。"
+    },
+    "inpaint": {
+      "title": "局部重绘",
+      "desc": "编辑图像的部分区域。绘制蒙版，描述需要更改的内容。"
+    },
+    "controlnet": {
+      "title": "ControlNet",
+      "desc": "通过姿态、深度、边缘或涂鸦引导生成。精确的创意控制。"
+    },
+    "removeBg": {
+      "title": "背景移除",
+      "desc": "即时移除背景。适用于产品照片和社交媒体。"
+    },
+    "customModels": {
+      "title": "自定义模型",
+      "desc": "浏览和添加 CivitAI 的模型。使用你喜欢的 checkpoints 和 LoRAs。"
+    },
+    "apiAccess": {
+      "title": "API 访问",
+      "desc": "将 EGAKU AI 集成到你的应用中。完整的 REST API，包含所有功能。"
+    }
+  },
+  "pricing": {
+    "title": "定价",
+    "selfHosted": {
+      "title": "自托管（本地）",
+      "desc": "在你自己的 GPU 上运行。一切无限制。不提供技术支持。",
+      "sub": "适合拥有自己硬件的高级用户。"
+    }
+  },
+  "plans": {
+    "free": {
+      "name": "Free",
+      "credits": "50 / 月",
+      "features": [
+        "15+ AI 模型（Flux、SDXL、SD3.5）",
+        "文本生成图像",
+        "图像放大（x2）",
+        "背景移除",
+        "输出带水印"
+      ]
+    },
+    "lite": {
+      "name": "Lite",
+      "credits": "150 / 月",
+      "features": [
+        "包含 Free 的所有功能",
+        "图像生成图像",
+        "风格迁移（8种风格）",
+        "无水印"
+      ]
+    },
+    "basic": {
+      "name": "Basic",
+      "credits": "500 / 月",
+      "features": [
+        "包含 Lite 的所有功能",
+        "Kling v2 & Minimax 高清视频",
+        "局部重绘",
+        "200张图片/日，100个视频/日",
+        "1个 CivitAI 自定义模型"
+      ]
+    },
+    "pro": {
+      "name": "Pro",
+      "credits": "2,000 / 月",
+      "features": [
+        "包含 Basic 的所有功能",
+        "视频转视频",
+        "3个 CivitAI 自定义模型",
+        "高优先级队列"
+      ]
+    },
+    "unlimited": {
+      "name": "Unlimited",
+      "credits": "无限",
+      "features": [
+        "包含 Pro 的所有功能",
+        "无限生成次数",
+        "批量处理",
+        "最高优先级",
+        "5个自定义模型"
+      ]
+    },
+    "studio": {
+      "name": "Studio",
+      "credits": "无限",
+      "features": [
+        "包含 Unlimited 的所有功能",
+        "API 访问",
+        "无限自定义模型",
+        "LoRA 训练",
+        "优先技术支持"
+      ]
+    }
+  },
+  "footer": {
+    "rights": "保留所有权利。",
+    "terms": "服务条款",
+    "privacy": "隐私政策"
+  },
+  "generate": {
+    "title": "生成",
+    "prompt": "提示词",
+    "promptPlaceholder": "美丽的山水风景，湖泊与群山，杰作，最佳质量...",
+    "negativePrompt": "负面提示词",
+    "negativePlaceholder": "最差质量，低质量，模糊...",
+    "model": "模型",
+    "width": "宽度",
+    "height": "高度",
+    "steps": "步数",
+    "cfgScale": "CFG 比例",
+    "sampler": "采样器",
+    "seed": "种子（-1 = 随机）",
+    "denoise": "去噪强度（0 = 无变化，1 = 完全重绘）",
+    "generateImage": "生成图像",
+    "generating": "生成中...",
+    "signInRequired": "请登录以开始生成",
+    "settings": "设置",
+    "uploadImage": "上传图像",
+    "uploadVideo": "上传视频",
+    "uploadMask": "上传蒙版（白色 = 编辑区域）",
+    "uploadControl": "上传控制图像",
+    "style": "风格",
+    "strength": "强度",
+    "frames": "帧数",
+    "fps": "FPS",
+    "scaleFactor": "缩放倍数",
+    "controlType": "控制类型",
+    "controlStrength": "控制强度",
+    "applyStyle": "应用风格",
+    "generateVideo": "生成视频",
+    "animateImage": "动画化图像",
+    "transformVideo": "转换视频",
+    "upscaleBtn": "放大",
+    "inpaintBtn": "局部重绘",
+    "controlnetBtn": "使用 ControlNet 生成",
+    "removeBgBtn": "移除背景",
+    "upscaling": "放大中...",
+    "processing": "处理中...",
+    "promptOptional": "提示词（可选）",
+    "motionPlaceholder": "描述你想要的运动效果...",
+    "requiresPro": "需要 Pro 或更高级别的计划",
+    "requiresBasic": "需要 Basic 或更高级别的计划",
+    "queued": "正在排队中...",
+    "elapsed": "已用时",
+    "complete": "完成！",
+    "failed": "生成失败",
+    "failedDesc": "发生了意外错误。",
+    "enterPrompt": "请输入提示词",
+    "uploadRequired": "请上传图像",
+    "maskRequired": "请上传蒙版",
+    "queuedMsg": "已加入队列！使用积分：",
+    "completeMsg": "生成完成！",
+    "credit": "积分",
+    "creditPlural": "积分"
+  },
+  "auth": {
+    "login": "登录",
+    "register": "创建账户",
+    "email": "电子邮箱",
+    "password": "密码",
+    "confirmPassword": "确认密码",
+    "forgotPassword": "忘记密码？",
+    "noAccount": "还没有账户？",
+    "hasAccount": "已有账户？",
+    "signUp": "注册"
+  },
+  "gallery": {
+    "title": "社区画廊",
+    "explore": "探索",
+    "noResults": "未找到作品",
+    "likes": "喜欢",
+    "by": "作者",
+    "remix": "再创作",
+    "report": "举报",
+    "share": "分享",
+    "promptUsed": "提示词",
+    "modelUsed": "模型",
+    "createdAt": "创建时间"
+  },
+  "profile": {
+    "followers": "粉丝",
+    "following": "关注",
+    "works": "作品",
+    "follow": "关注",
+    "unfollow": "取消关注",
+    "editProfile": "编辑个人资料",
+    "displayName": "显示名称",
+    "bio": "个人简介",
+    "save": "保存"
+  },
+  "settings": {
+    "title": "设置",
+    "account": "账户",
+    "subscription": "订阅",
+    "currentPlan": "当前计划",
+    "upgrade": "升级",
+    "manage": "管理订阅",
+    "ageVerification": "年龄验证",
+    "verified": "已验证（18+）",
+    "notVerified": "未验证",
+    "verify": "验证年龄"
+  },
+  "meta": {
+    "title": "EGAKU AI - AI图像和视频生成器",
+    "description": "使用 Flux、SDXL 和 Stable Diffusion 创建令人惊叹的AI生成图像和视频。支持 CivitAI 自定义模型。为经过年龄验证的成人用户提供完全的创作自由。"
+  }
+}

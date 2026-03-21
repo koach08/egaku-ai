@@ -1,0 +1,275 @@
+{
+  "common": {
+    "signIn": "ログイン",
+    "signOut": "ログアウト",
+    "getStarted": "無料で始める",
+    "subscribe": "登録する",
+    "startFree": "無料で始める",
+    "buyLicense": "ライセンスを購入",
+    "beta": "ベータ版",
+    "loading": "読み込み中...",
+    "credits": "クレジット",
+    "perMonth": "/月",
+    "oneTime": "買い切り",
+    "free": "無料",
+    "mostPopular": "一番人気",
+    "soon": "近日公開",
+    "download": "ダウンロード",
+    "openFullSize": "原寸で開く",
+    "dismiss": "閉じる"
+  },
+  "nav": {
+    "explore": "ギャラリー探索",
+    "generate": "画像生成",
+    "gallery": "ギャラリー",
+    "myGenerations": "マイ作品",
+    "pricing": "料金プラン",
+    "settings": "設定"
+  },
+  "hero": {
+    "title": "AIで、描こう",
+    "subtitle": "AIを使って、思い描いた画像や動画を自由に生成。テキストから画像、画像から動画、スタイル変換、高解像度化、インペイントなど、多彩な機能を搭載。Flux、SDXL、Stable Diffusionを搭載。年齢確認済みユーザー向けに制限なしの表現の自由を提供。",
+    "viewPricing": "料金プランを見る"
+  },
+  "features": {
+    "title": "すべての機能",
+    "txt2img": {
+      "title": "テキストから画像生成",
+      "desc": "テキストプロンプトから画像を生成。Flux.1、SDXL、SD1.5など多数のモデルに対応。"
+    },
+    "img2img": {
+      "title": "画像から画像生成",
+      "desc": "既存の画像をプロンプトで変換。変更の強さを自由にコントロール。"
+    },
+    "style": {
+      "title": "スタイル変換",
+      "desc": "ジブリ風、アニメ、油絵、水彩画、サイバーパンク、ピクセルアート、浮世絵などのスタイルを適用。"
+    },
+    "txt2vid": {
+      "title": "テキストから動画生成",
+      "desc": "テキストからアニメーション動画を生成。GIF、WebP、MP4で出力可能。"
+    },
+    "img2vid": {
+      "title": "画像から動画生成",
+      "desc": "静止画を動画に変換。写真に命を吹き込みます。"
+    },
+    "vid2vid": {
+      "title": "動画から動画生成（近日公開）",
+      "desc": "既存の動画をスタイル変換。動画の見た目を自由に変更。"
+    },
+    "upscale": {
+      "title": "高解像度化",
+      "desc": "AIで最大4倍に高解像度化。RealESRGANによるシャープで精細な仕上がり。"
+    },
+    "inpaint": {
+      "title": "インペイント",
+      "desc": "画像の一部を編集。マスクを塗って、変更内容をテキストで指定。"
+    },
+    "controlnet": {
+      "title": "ControlNet",
+      "desc": "ポーズ、深度、エッジ、スケッチで生成をガイド。精密なクリエイティブコントロール。"
+    },
+    "removeBg": {
+      "title": "背景除去",
+      "desc": "背景を一瞬で除去。商品写真やSNS投稿に最適。"
+    },
+    "customModels": {
+      "title": "カスタムモデル",
+      "desc": "CivitAIからモデルを検索・追加。お気に入りのチェックポイントやLoRAを使用可能。"
+    },
+    "apiAccess": {
+      "title": "API アクセス",
+      "desc": "EGAKU AIをあなたのアプリに統合。全機能対応のREST API。"
+    }
+  },
+  "pricing": {
+    "title": "料金プラン",
+    "selfHosted": {
+      "title": "セルフホスト（ローカル）",
+      "desc": "自分のGPUで実行。すべて無制限。サポートなし。",
+      "sub": "自前のハードウェアを持つパワーユーザーに最適。"
+    }
+  },
+  "plans": {
+    "free": {
+      "name": "Free",
+      "credits": "50 / 月",
+      "features": [
+        "15+のAIモデル（Flux, SDXL, SD3.5）",
+        "テキストから画像生成（10枚/日）",
+        "テキストから動画生成（5本/日）",
+        "画像の高解像度化（2倍）",
+        "背景除去",
+        "制限なしの表現の自由（18歳以上）",
+        "出力にウォーターマーク"
+      ]
+    },
+    "lite": {
+      "name": "Lite",
+      "credits": "150 / 月",
+      "features": [
+        "Freeの全機能",
+        "画像から画像生成",
+        "画像から動画生成",
+        "スタイル変換（8種類）",
+        "制限なしの表現の自由（18歳以上）",
+        "ウォーターマークなし"
+      ]
+    },
+    "basic": {
+      "name": "Basic",
+      "credits": "500 / 月",
+      "features": [
+        "Liteの全機能",
+        "Kling v2 & Minimax HD動画",
+        "インペイント",
+        "画像200枚/日、動画100本/日",
+        "CivitAIカスタムモデル1個"
+      ]
+    },
+    "pro": {
+      "name": "Pro",
+      "credits": "2,000 / 月",
+      "features": [
+        "Basicの全機能",
+        "動画から動画生成",
+        "CivitAIカスタムモデル3個",
+        "優先キュー"
+      ]
+    },
+    "unlimited": {
+      "name": "Unlimited",
+      "credits": "無制限",
+      "features": [
+        "Proの全機能",
+        "無制限の画像生成",
+        "バッチ処理",
+        "最優先キュー",
+        "カスタムモデル5個"
+      ]
+    },
+    "studio": {
+      "name": "Studio",
+      "credits": "無制限",
+      "features": [
+        "Unlimitedの全機能",
+        "API アクセス",
+        "カスタムモデル無制限",
+        "LoRA トレーニング",
+        "優先サポート"
+      ]
+    }
+  },
+  "footer": {
+    "rights": "All rights reserved.",
+    "terms": "利用規約",
+    "privacy": "プライバシーポリシー"
+  },
+  "generate": {
+    "title": "画像生成",
+    "prompt": "プロンプト",
+    "promptPlaceholder": "美しい山と湖のある風景、傑作、最高品質...",
+    "negativePrompt": "ネガティブプロンプト",
+    "negativePlaceholder": "低品質、ぼやけ、変形...",
+    "model": "モデル",
+    "width": "幅",
+    "height": "高さ",
+    "steps": "ステップ数",
+    "cfgScale": "CFG スケール",
+    "sampler": "サンプラー",
+    "seed": "シード（-1 = ランダム）",
+    "denoise": "デノイズ強度（0 = 変更なし、1 = 全書き直し）",
+    "generateImage": "画像を生成",
+    "generating": "生成中...",
+    "signInRequired": "画像生成にはログインが必要です",
+    "settings": "設定",
+    "uploadImage": "画像をアップロード",
+    "uploadVideo": "動画をアップロード",
+    "uploadMask": "マスクをアップロード（白 = 編集する範囲）",
+    "uploadControl": "制御画像をアップロード",
+    "style": "スタイル",
+    "strength": "強度",
+    "frames": "フレーム数",
+    "fps": "FPS",
+    "scaleFactor": "拡大倍率",
+    "controlType": "制御タイプ",
+    "controlStrength": "制御の強さ",
+    "applyStyle": "スタイルを適用",
+    "generateVideo": "動画を生成",
+    "animateImage": "画像をアニメーション化",
+    "transformVideo": "動画を変換",
+    "upscaleBtn": "高解像度化",
+    "inpaintBtn": "インペイント",
+    "controlnetBtn": "ControlNetで生成",
+    "removeBgBtn": "背景を除去",
+    "upscaling": "高解像度化中...",
+    "processing": "処理中...",
+    "promptOptional": "プロンプト（任意）",
+    "motionPlaceholder": "動きの内容を入力してください...",
+    "requiresPro": "Proプラン以上が必要です",
+    "requiresBasic": "Basicプラン以上が必要です",
+    "queued": "キューで待機中...",
+    "elapsed": "経過",
+    "complete": "完了！",
+    "failed": "生成に失敗しました",
+    "failedDesc": "予期しないエラーが発生しました。",
+    "enterPrompt": "プロンプトを入力してください",
+    "uploadRequired": "画像をアップロードしてください",
+    "maskRequired": "マスクをアップロードしてください",
+    "queuedMsg": "キューに追加されました！使用クレジット：",
+    "completeMsg": "生成が完了しました！",
+    "credit": "クレジット",
+    "creditPlural": "クレジット"
+  },
+  "auth": {
+    "login": "ログイン",
+    "register": "アカウント作成",
+    "email": "メールアドレス",
+    "password": "パスワード",
+    "confirmPassword": "パスワード確認",
+    "forgotPassword": "パスワードをお忘れですか？",
+    "noAccount": "アカウントをお持ちでないですか？",
+    "hasAccount": "すでにアカウントをお持ちですか？",
+    "signUp": "新規登録"
+  },
+  "gallery": {
+    "title": "コミュニティギャラリー",
+    "explore": "ギャラリー探索",
+    "noResults": "作品が見つかりませんでした",
+    "likes": "いいね",
+    "by": "作成者",
+    "remix": "リミックス",
+    "report": "報告する",
+    "share": "シェア",
+    "promptUsed": "プロンプト",
+    "modelUsed": "モデル",
+    "createdAt": "作成日"
+  },
+  "profile": {
+    "followers": "フォロワー",
+    "following": "フォロー中",
+    "works": "作品",
+    "follow": "フォローする",
+    "unfollow": "フォロー解除",
+    "editProfile": "プロフィール編集",
+    "displayName": "表示名",
+    "bio": "自己紹介",
+    "save": "保存"
+  },
+  "settings": {
+    "title": "設定",
+    "account": "アカウント",
+    "subscription": "サブスクリプション",
+    "currentPlan": "現在のプラン",
+    "upgrade": "アップグレード",
+    "manage": "サブスクリプション管理",
+    "ageVerification": "年齢確認",
+    "verified": "確認済み（18歳以上）",
+    "notVerified": "未確認",
+    "verify": "年齢を確認する"
+  },
+  "meta": {
+    "title": "EGAKU AI - AI画像・動画ジェネレーター",
+    "description": "AIで画像や動画を自由に生成。Flux、SDXL、Stable Diffusionを搭載し、CivitAIのカスタムモデルにも対応。年齢確認済みユーザー向けに制限なしの表現の自由を提供。"
+  }
+}
