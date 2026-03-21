@@ -60,6 +60,14 @@ MODELS = {
         "min_plan": "free",
         "credits": 3,
     },
+    "fal_nano_banana_2": {
+        "fal_id": "fal-ai/nano-banana-2",
+        "name": "Nano Banana 2",
+        "category": "premium",
+        "description": "Google's latest — perfect text rendering, character consistency, up to 4K",
+        "min_plan": "lite",
+        "credits": 8,
+    },
 }
 
 # fal.ai video models
@@ -113,6 +121,42 @@ VIDEO_MODELS = {
         "credits": 10,
         "min_plan": "free",
     },
+    # --- Premium video models (paid plans only) ---
+    "fal_kling25_t2v": {
+        "fal_id": "fal-ai/kling-video/v2.5-turbo/pro/text-to-video",
+        "name": "Kling 2.5 Pro",
+        "description": "Cinematic quality, smooth motion",
+        "credits": 25,
+        "min_plan": "basic",
+    },
+    "fal_kling25_i2v": {
+        "fal_id": "fal-ai/kling-video/v2.5-turbo/pro/image-to-video",
+        "name": "Kling 2.5 Pro I2V",
+        "description": "Animate images with Kling 2.5",
+        "credits": 25,
+        "min_plan": "basic",
+    },
+    "fal_veo3_t2v": {
+        "fal_id": "fal-ai/veo3",
+        "name": "Veo 3 (Google)",
+        "description": "Google's video model with audio generation",
+        "credits": 40,
+        "min_plan": "pro",
+    },
+    "fal_sora2_t2v": {
+        "fal_id": "fal-ai/sora-2",
+        "name": "Sora 2 (OpenAI)",
+        "description": "OpenAI's cinematic video generation",
+        "credits": 50,
+        "min_plan": "pro",
+    },
+    "fal_sora2_i2v": {
+        "fal_id": "fal-ai/sora-2/image-to-video",
+        "name": "Sora 2 I2V",
+        "description": "Animate images with Sora 2",
+        "credits": 50,
+        "min_plan": "pro",
+    },
 }
 
 
@@ -144,7 +188,26 @@ class FalClient:
 
         input_params: dict = {"prompt": prompt}
 
-        if "flux" in fal_model:
+        if "nano-banana" in fal_model:
+            # Nano Banana 2 uses resolution/aspect_ratio instead of width/height
+            if width >= 2048 or height >= 2048:
+                input_params["resolution"] = "4K"
+            elif width >= 1536 or height >= 1536:
+                input_params["resolution"] = "2K"
+            else:
+                input_params["resolution"] = "1K"
+            # Map width/height ratio to aspect_ratio
+            ratio = width / height if height > 0 else 1.0
+            if ratio > 1.3:
+                input_params["aspect_ratio"] = "16:9"
+            elif ratio < 0.77:
+                input_params["aspect_ratio"] = "9:16"
+            else:
+                input_params["aspect_ratio"] = "1:1"
+            if seed >= 0:
+                input_params["seed"] = seed
+            input_params["safety_tolerance"] = 6
+        elif "flux" in fal_model:
             input_params["image_size"] = {"width": width, "height": height}
             # Flux Schnell max 12 steps, Flux Dev max 50
             max_steps = 12 if "schnell" in fal_model else 50

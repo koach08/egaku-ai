@@ -58,6 +58,7 @@ MODEL_MIN_PLAN = {
     "fal_recraft": "free",
     "fal_aura_flow": "free",
     "fal_flux_realism": "free",
+    "fal_nano_banana_2": "lite",
     "novita_dreamshaper_xl": "free",
     "novita_realistic_vision": "free",
     "novita_meinamix": "free",
@@ -69,6 +70,7 @@ MODEL_CREDIT_KEY = {
     "sdxl": "txt2img_sdxl", "real_sdxl": "txt2img_sdxl",
     "flux_schnell": "txt2img_flux_schnell",
     "flux_dev": "txt2img_flux_dev",
+    "fal_nano_banana_2": "txt2img_nano_banana",
 }
 
 
