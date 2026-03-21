@@ -27,8 +27,8 @@
     "settings": "Configurações"
   },
   "hero": {
-    "title": "Gerador de Arte IA — Sem Restrições.",
-    "subtitle": "Crie imagens e vídeos com total liberdade criativa. Sem filtros, sem censura. Desenvolvido com Flux, SDXL e Stable Diffusion. 50 créditos grátis — sem cartão de crédito.",
+    "title": "Sora 2 · Veo 3 · Nano Banana 2 · Grok — Uma Plataforma.",
+    "subtitle": "Gere imagens e vídeos com os melhores modelos de IA do mundo. Total liberdade criativa — sem filtros, sem restrições. O poder do ComfyUI sem configuração. 50 créditos grátis, sem cartão de crédito.",
     "viewPricing": "Ver Preços"
   },
   "features": {
@@ -92,15 +92,14 @@
   },
   "plans": {
     "free": {
-      "name": "Grátis",
+      "name": "Free",
       "credits": "50 / mês",
       "features": [
-        "15+ modelos de IA (Flux, SDXL, SD3.5)",
+        "Flux, SDXL, SD 3.5 e mais",
         "Texto para Imagem (10/dia)",
-        "Texto para Vídeo (5/dia)",
-        "Upscale de Imagem (x2)",
-        "Remoção de Fundo",
-        "Liberdade criativa total (18+)",
+        "Texto para Vídeo com LTX & Wan",
+        "Remoção de Fundo e Upscale",
+        "Total liberdade criativa (NSFW OK)",
         "Marca d'água na saída"
       ]
     },
@@ -108,11 +107,10 @@
       "name": "Lite",
       "credits": "150 / mês",
       "features": [
-        "Todos os recursos do Grátis",
-        "Imagem para Imagem",
-        "Imagem para Vídeo",
-        "Transferência de Estilo (8 estilos)",
-        "Liberdade criativa total (18+)",
+        "Tudo do Free +",
+        "★ Nano Banana 2 (Google)",
+        "★ Grok Imagine (xAI)",
+        "Imagem para Imagem e Transferência de Estilo",
         "Sem marca d'água"
       ]
     },
@@ -120,9 +118,10 @@
       "name": "Basic",
       "credits": "500 / mês",
       "features": [
-        "Todos os recursos do Lite",
-        "Kling v2 & Minimax vídeo HD",
-        "Inpainting",
+        "Tudo do Lite +",
+        "★ Kling 2.5 Pro video",
+        "★ Grok Video (com áudio)",
+        "Inpainting e ControlNet",
         "200 imagens/dia, 100 vídeos/dia",
         "1 modelo personalizado do CivitAI"
       ]
@@ -131,19 +130,20 @@
       "name": "Pro",
       "credits": "2.000 / mês",
       "features": [
-        "Todos os recursos do Basic",
-        "Vídeo para Vídeo",
+        "Tudo do Basic +",
+        "★ Sora 2 (OpenAI) video",
+        "★ Veo 3 (Google) video + audio",
         "3 modelos personalizados do CivitAI",
         "Fila de alta prioridade"
       ]
     },
     "unlimited": {
-      "name": "Ilimitado",
+      "name": "Unlimited",
       "credits": "Ilimitado",
       "features": [
-        "Todos os recursos do Pro",
+        "Tudo do Pro +",
         "Gerações ilimitadas",
-        "Processamento em lote",
+        "Todos os modelos premium incluídos",
         "Prioridade máxima",
         "5 modelos personalizados"
       ]
@@ -152,7 +152,7 @@
       "name": "Studio",
       "credits": "Ilimitado",
       "features": [
-        "Todos os recursos do Ilimitado",
+        "Tudo do Unlimited +",
         "Acesso à API",
         "Modelos personalizados ilimitados",
         "Treinamento de LoRA",

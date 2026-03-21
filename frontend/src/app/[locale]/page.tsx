@@ -80,19 +80,20 @@ export default function LandingPage() {
               Powered by the best AI models
             </p>
             <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-muted-foreground">
+              <span className="text-lg font-semibold text-purple-400">Sora 2</span>
+              <span className="text-lg font-semibold text-purple-400">Veo 3</span>
+              <span className="text-lg font-semibold text-purple-400">Nano Banana 2</span>
+              <span className="text-lg font-semibold text-purple-400">Grok Imagine</span>
               <span className="text-lg font-semibold">Flux</span>
               <span className="text-lg font-semibold">SDXL</span>
-              <span className="text-lg font-semibold">SD 3.5</span>
+              <span className="text-lg font-semibold">Kling 2.5</span>
               <span className="text-lg font-semibold">CivitAI</span>
-              <span className="text-lg font-semibold">Novita.ai</span>
-              <span className="text-lg font-semibold">Real-ESRGAN</span>
-              <span className="text-lg font-semibold">LTX Video</span>
             </div>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-2xl mx-auto text-center">
             <div>
               <p className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                15+
+                25+
               </p>
               <p className="text-sm text-muted-foreground">AI Models</p>
             </div>
@@ -243,7 +244,7 @@ export default function LandingPage() {
               <Button
                 className="w-full mt-4"
                 variant="outline"
-                render={<Link href="/register" />}
+                render={<Link href="/register?plan=local" />}
               >
                 {t("common.buyLicense")}
               </Button>

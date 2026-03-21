@@ -27,8 +27,8 @@
     "settings": "设置"
   },
   "hero": {
-    "title": "用AI创作",
-    "subtitle": "使用AI生成令人惊叹的图像和视频。文本生成图像、图像生成视频、风格迁移、超分辨率、局部重绘等。由 Flux、SDXL 和 Stable Diffusion 驱动。为经过年龄验证的成人用户提供完全的创作自由。",
+    "title": "Sora 2 · Veo 3 · Nano Banana 2 · Grok — 一个平台搞定。",
+    "subtitle": "使用全球最顶尖的AI模型生成图像和视频。完全创作自由 — 无滤镜、无限制。ComfyUI的强大功能，无需配置。50积分免费，无需信用卡。",
     "viewPricing": "查看定价"
   },
   "features": {
@@ -95,10 +95,11 @@
       "name": "Free",
       "credits": "50 / 月",
       "features": [
-        "15+ AI 模型（Flux、SDXL、SD3.5）",
-        "文本生成图像",
-        "图像放大（x2）",
-        "背景移除",
+        "Flux、SDXL、SD 3.5 等更多模型",
+        "文本生成图像（10次/日）",
+        "文本生成视频（LTX & Wan）",
+        "背景移除和图像放大",
+        "完全创作自由（NSFW OK）",
         "输出带水印"
       ]
     },
@@ -106,9 +107,10 @@
       "name": "Lite",
       "credits": "150 / 月",
       "features": [
-        "包含 Free 的所有功能",
-        "图像生成图像",
-        "风格迁移（8种风格）",
+        "包含 Free 全部功能 +",
+        "★ Nano Banana 2 (Google)",
+        "★ Grok Imagine (xAI)",
+        "图像生成图像和风格迁移",
         "无水印"
       ]
     },
@@ -116,9 +118,10 @@
       "name": "Basic",
       "credits": "500 / 月",
       "features": [
-        "包含 Lite 的所有功能",
-        "Kling v2 & Minimax 高清视频",
-        "局部重绘",
+        "包含 Lite 全部功能 +",
+        "★ Kling 2.5 Pro video",
+        "★ Grok Video（含音频）",
+        "局部重绘和 ControlNet",
         "200张图片/日，100个视频/日",
         "1个 CivitAI 自定义模型"
       ]
@@ -127,8 +130,9 @@
       "name": "Pro",
       "credits": "2,000 / 月",
       "features": [
-        "包含 Basic 的所有功能",
-        "视频转视频",
+        "包含 Basic 全部功能 +",
+        "★ Sora 2 (OpenAI) video",
+        "★ Veo 3 (Google) video + audio",
         "3个 CivitAI 自定义模型",
         "高优先级队列"
       ]
@@ -137,9 +141,9 @@
       "name": "Unlimited",
       "credits": "无限",
       "features": [
-        "包含 Pro 的所有功能",
+        "包含 Pro 全部功能 +",
         "无限生成次数",
-        "批量处理",
+        "所有高级模型全部包含",
         "最高优先级",
         "5个自定义模型"
       ]
@@ -148,7 +152,7 @@
       "name": "Studio",
       "credits": "无限",
       "features": [
-        "包含 Unlimited 的所有功能",
+        "包含 Unlimited 全部功能 +",
         "API 访问",
         "无限自定义模型",
         "LoRA 训练",

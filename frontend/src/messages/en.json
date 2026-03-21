@@ -27,8 +27,8 @@
     "settings": "Settings"
   },
   "hero": {
-    "title": "AI Art Generator — No Restrictions.",
-    "subtitle": "Create images and videos with full creative freedom. No filters, no censorship. Powered by Flux, SDXL & Stable Diffusion. 50 free credits — no credit card required.",
+    "title": "Sora 2 · Veo 3 · Nano Banana 2 · Grok — One Platform.",
+    "subtitle": "Generate images and videos with the world's best AI models. Full creative freedom — no filters, no restrictions. ComfyUI power without the setup. 50 free credits, no credit card.",
     "viewPricing": "View Pricing"
   },
   "features": {
@@ -95,12 +95,11 @@
       "name": "Free",
       "credits": "50 / month",
       "features": [
-        "15+ AI models (Flux, SDXL, SD3.5)",
+        "Flux, SDXL, SD 3.5 & more",
         "Text-to-Image (10/day)",
-        "Text-to-Video (5/day)",
-        "Image Upscale (x2)",
-        "Background Removal",
-        "Unrestricted creative freedom (18+)",
+        "Text-to-Video with LTX & Wan",
+        "Background Removal & Upscale",
+        "Full creative freedom (NSFW OK)",
         "Watermark on output"
       ]
     },
@@ -108,11 +107,10 @@
       "name": "Lite",
       "credits": "150 / month",
       "features": [
-        "All Free features",
-        "Image-to-Image",
-        "Image-to-Video",
-        "Style Transfer (8 styles)",
-        "Unrestricted creative freedom (18+)",
+        "Everything in Free +",
+        "★ Nano Banana 2 (Google)",
+        "★ Grok Imagine (xAI)",
+        "Image-to-Image & Style Transfer",
         "No watermark"
       ]
     },
@@ -120,9 +118,10 @@
       "name": "Basic",
       "credits": "500 / month",
       "features": [
-        "All Lite features",
-        "Kling v2 & Minimax HD video",
-        "Inpainting",
+        "Everything in Lite +",
+        "★ Kling 2.5 Pro video",
+        "★ Grok Video (with audio)",
+        "Inpainting & ControlNet",
         "200 images/day, 100 videos/day",
         "1 CivitAI custom model"
       ]
@@ -131,8 +130,9 @@
       "name": "Pro",
       "credits": "2,000 / month",
       "features": [
-        "All Basic features",
-        "Video-to-Video",
+        "Everything in Basic +",
+        "★ Sora 2 (OpenAI) video",
+        "★ Veo 3 (Google) video + audio",
         "3 CivitAI custom models",
         "High priority queue"
       ]
@@ -141,9 +141,9 @@
       "name": "Unlimited",
       "credits": "Unlimited",
       "features": [
-        "All Pro features",
+        "Everything in Pro +",
         "Unlimited generations",
-        "Batch processing",
+        "All premium models included",
         "Highest priority",
         "5 custom models"
       ]
@@ -152,7 +152,7 @@
       "name": "Studio",
       "credits": "Unlimited",
       "features": [
-        "All Unlimited features",
+        "Everything in Unlimited +",
         "API access",
         "Unlimited custom models",
         "LoRA training",
