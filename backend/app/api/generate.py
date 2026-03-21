@@ -643,7 +643,7 @@ async def _save_generation_to_db(
 
         # Also save to gallery table so it appears in My Gallery
         try:
-            supabase.table("gallery").insert({
+            gallery_row = {
                 "user_id": user_id,
                 "job_id": job_id,
                 "prompt": prompt or "",
@@ -654,10 +654,14 @@ async def _save_generation_to_db(
                 "seed": (params or {}).get("seed", -1),
                 "width": (params or {}).get("width", 0),
                 "height": (params or {}).get("height", 0),
-                "image_url": result_url if not is_video else None,
                 "nsfw": nsfw,
                 "public": True,
-            }).execute()
+            }
+            if is_video:
+                gallery_row["video_url"] = result_url
+            else:
+                gallery_row["image_url"] = result_url
+            supabase.table("gallery").insert(gallery_row).execute()
             logger.info("Gallery item created: %s", job_id)
         except Exception as gallery_err:
             logger.warning("Failed to save to gallery (non-fatal): %s", gallery_err)

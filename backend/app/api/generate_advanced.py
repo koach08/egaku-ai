@@ -263,14 +263,19 @@ async def generate_img2vid(
     image_url = _b64_to_data_url(body.image)
 
     # ─── Try fal.ai first (synchronous, accepts data URLs, NSFW-friendly) ───
-    from app.services.fal_ai import FalClient
+    from app.services.fal_ai import VIDEO_MODELS, FalClient
     fal_client = FalClient(settings)
+
+    # Resolve i2v model (use body.model if valid, otherwise default)
+    video_model_id = body.model if body.model in VIDEO_MODELS else "fal_ltx_i2v"
+
     if fal_client.is_available():
         try:
             fal_result = await fal_client.submit_img2vid(
                 image_url=image_url,
                 prompt=body.prompt or "",
                 seed=body.seed,
+                model_id=video_model_id,
             )
             result_url = fal_client.extract_video_url(fal_result)
             if result_url:
@@ -279,15 +284,15 @@ async def generate_img2vid(
                 await _store_job_status(settings, job_id, "completed", {"url": result_url, "backend": "fal"})
                 await _save_generation_to_db(
                     settings, str(user.id), job_id, "img2vid", body.prompt or "",
-                    "", "ltx_2_i2v", {"seed": body.seed, "frame_count": body.frame_count, "fps": body.fps},
-                    result_url, False,
+                    "", video_model_id, {"seed": body.seed, "frame_count": body.frame_count, "fps": body.fps},
+                    result_url, body.nsfw,
                 )
                 return GenerationResponse(
                     job_id=job_id, status=JobStatus.completed,
                     credits_used=credits_needed, result_url=result_url,
                 )
         except Exception as fal_err:
-            logger.error(f"fal.ai img2vid failed: {fal_err}")
+            logger.error(f"fal.ai img2vid failed ({video_model_id}): {fal_err}")
 
     # ─── Fallback: Replicate (Wan 2.5 I2V) ───
     from app.services.replicate import ReplicateClient
