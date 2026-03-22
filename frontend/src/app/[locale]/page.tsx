@@ -244,7 +244,7 @@ export default function LandingPage() {
               <Button
                 className="w-full mt-4"
                 variant="outline"
-                render={<Link href="/register?plan=local" />}
+                render={<Link href="/self-hosted" />}
               >
                 {t("common.buyLicense")}
               </Button>
