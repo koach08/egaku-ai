@@ -40,8 +40,9 @@ async def get_download_link(
         result = supabase.storage.from_(STORAGE_BUCKET).create_signed_url(
             STORAGE_FILE, 3600
         )
-        if result and result.get("signedURL"):
-            return {"download_url": result["signedURL"]}
+        signed_url = result.get("signedURL") or result.get("signedUrl")
+        if signed_url:
+            return {"download_url": signed_url}
         raise HTTPException(status_code=500, detail="Failed to generate download link")
     except HTTPException:
         raise
