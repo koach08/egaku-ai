@@ -12,7 +12,7 @@ import { Separator } from "@/components/ui/separator";
 import { Header } from "@/components/layout/header";
 import { trackSignup } from "@/components/analytics";
 
-const PAID_PLANS = ["lite", "basic", "pro", "unlimited", "studio"];
+const PAID_PLANS = ["lite", "basic", "pro", "unlimited", "studio", "local"];
 
 export default function RegisterPage() {
   const [email, setEmail] = useState("");

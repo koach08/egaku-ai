@@ -23,6 +23,7 @@ const PLAN_DISPLAY: Record<string, { name: string; price: string; credits: strin
 interface SubscriptionInfo {
   plan: string;
   has_stripe: boolean;
+  local_license?: boolean;
   subscription?: {
     status: string;
     current_period_end: number;
@@ -51,9 +52,13 @@ function SettingsContent() {
     const checkout = searchParams.get("checkout");
     const plan = searchParams.get("plan") || "unknown";
     if (checkout === "success") {
-      toast.success("Subscription activated! Credits have been added.");
+      if (plan === "local") {
+        toast.success("Self-hosted license purchased! Scroll down to download.");
+      } else {
+        toast.success("Subscription activated! Credits have been added.");
+      }
       const planPrices: Record<string, number> = {
-        lite: 480, basic: 980, pro: 2980, unlimited: 5980, studio: 9980,
+        lite: 480, basic: 980, pro: 2980, unlimited: 5980, studio: 9980, local: 4980,
       };
       trackPurchase(plan, planPrices[plan] || 0);
     } else if (checkout === "cancel") {
@@ -276,6 +281,38 @@ function SettingsContent() {
               >
                 {loading ? "Opening..." : "Open Billing Portal"}
               </Button>
+            </CardContent>
+          </Card>
+        )}
+        {/* Self-Hosted Download */}
+        {subscription?.local_license && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Self-Hosted License</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <p className="text-sm text-muted-foreground">
+                You own the self-hosted license. Download the full source code package below.
+              </p>
+              <Button
+                className="w-full"
+                onClick={async () => {
+                  if (!session) return;
+                  try {
+                    const { download_url } = await api.getSelfHostedDownload(session.access_token);
+                    window.location.href = download_url;
+                  } catch (err: unknown) {
+                    const message = err instanceof Error ? err.message : "Download failed";
+                    toast.error(message);
+                  }
+                }}
+              >
+                Download Source Code (.zip)
+              </Button>
+              <p className="text-xs text-muted-foreground">
+                Includes: Next.js frontend, FastAPI backend, Supabase schema, deployment guide, and setup documentation.
+                License: 1 project, commercial use OK, redistribution prohibited.
+              </p>
             </CardContent>
           </Card>
         )}

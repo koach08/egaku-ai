@@ -240,6 +240,7 @@ async def get_subscription_status(
     result = {
         "plan": profile.get("plan", "free"),
         "has_stripe": bool(profile.get("stripe_customer_id")),
+        "local_license": bool(profile.get("local_license")),
     }
 
     # If user has Stripe customer, get subscription details

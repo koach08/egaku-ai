@@ -312,4 +312,8 @@ export const api = {
       headers: { ...authHeaders(token), "Content-Type": "application/json" },
       body: JSON.stringify({ message, history }),
     }),
+
+  // Download
+  getSelfHostedDownload: (token: string) =>
+    fetchAPI("/download/self-hosted", { headers: authHeaders(token) }),
 };
