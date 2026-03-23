@@ -62,14 +62,14 @@ export function WebsiteJsonLd() {
         price: "0",
         priceCurrency: "JPY",
         name: "Free",
-        description: "50 credits/month, text-to-image, upscale, background removal",
+        description: "15 credits/month, text-to-image, upscale, background removal",
       },
       {
         "@type": "Offer",
         price: "480",
         priceCurrency: "JPY",
         name: "Lite",
-        description: "150 credits/month, all image features, no watermark",
+        description: "115 credits/month, all image features, no watermark",
       },
       {
         "@type": "Offer",
@@ -124,7 +124,7 @@ export function WebsiteJsonLd() {
         name: "Is EGAKU AI free to use?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "Yes, EGAKU AI offers a free plan with 50 credits per month. You can generate images using text-to-image, upscale images, and remove backgrounds for free. Paid plans start at ¥480/month for more credits and features.",
+          text: "Yes, EGAKU AI offers a free plan with 15 credits per month. You can generate images using text-to-image, upscale images, and remove backgrounds for free. Paid plans start at ¥480/month for more credits and features.",
         },
       },
       {

@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "AI Image Generator - EGAKU AI",
     description:
-      "Generate stunning AI art with 15+ models. Flux, SDXL, SD 3.5, anime, realistic. Free 50 credits.",
+      "Generate stunning AI art with 15+ models. Flux, SDXL, SD 3.5, anime, realistic. Free 15 credits.",
   },
 };
 

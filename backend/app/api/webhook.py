@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/webhooks", tags=["webhooks"])
 
 # Monthly credit allocations per plan
-PLAN_CREDITS = {"free": 50, "lite": 150, "basic": 500, "pro": 2000, "unlimited": 999999, "studio": 999999}
+PLAN_CREDITS = {"free": 15, "lite": 150, "basic": 500, "pro": 2000, "unlimited": 999999, "studio": 999999}
 
 
 @router.post("/runpod")

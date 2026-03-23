@@ -22,7 +22,7 @@ PLAN_PRICES: dict[str, str] = {
 }
 
 PLAN_INFO = {
-    "free": {"name": "Free", "price": 0, "credits": 50},
+    "free": {"name": "Free", "price": 0, "credits": 15},
     "lite": {"name": "Lite", "price": 480, "credits": 150},
     "basic": {"name": "Basic", "price": 980, "credits": 500},
     "pro": {"name": "Pro", "price": 2980, "credits": 2000},

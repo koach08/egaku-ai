@@ -51,7 +51,7 @@ const PAGES: Record<
     faq: [
       {
         q: "Is Flux AI free to use?",
-        a: "Yes! EGAKU AI offers Flux Dev and Flux Schnell for free with 50 credits/month. Paid plans provide more credits and features.",
+        a: "Yes! EGAKU AI offers Flux Dev and Flux Schnell for free with 15 credits/month. Paid plans provide more credits and features.",
       },
       {
         q: "What is the difference between Flux Dev and Flux Schnell?",
@@ -339,7 +339,7 @@ const PAGES: Record<
     faq: [
       {
         q: "How much does AI upscaling cost?",
-        a: "AI upscaling uses 1 credit on EGAKU AI. Free plan users get 50 credits/month, enough for 50 upscale operations.",
+        a: "AI upscaling uses 1 credit on EGAKU AI. Free plan users get 15 credits/month, enough for 50 upscale operations.",
       },
       {
         q: "What is the maximum upscale resolution?",
@@ -376,7 +376,7 @@ const PAGES: Record<
     faq: [
       {
         q: "Is background removal free?",
-        a: "Yes! Background removal uses 1 credit. Free plan includes 50 credits/month. No credit card required to start.",
+        a: "Yes! Background removal uses 1 credit. Free plan includes 15 credits/month. No credit card required to start.",
       },
       {
         q: "What image formats are supported?",

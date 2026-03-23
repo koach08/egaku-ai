@@ -28,7 +28,7 @@
   },
   "hero": {
     "title": "Sora 2 · Veo 3 · Nano Banana 2 · Grok — One Platform.",
-    "subtitle": "Generate images and videos with the world's best AI models. Full creative freedom — no filters, no restrictions. ComfyUI power without the setup. 50 free credits, no credit card.",
+    "subtitle": "Generate images and videos with the world's best AI models. Full creative freedom — no filters, no restrictions. ComfyUI power without the setup. 15 free credits, no credit card.",
     "viewPricing": "View Pricing"
   },
   "features": {
@@ -93,7 +93,7 @@
   "plans": {
     "free": {
       "name": "Free",
-      "credits": "50 / month",
+      "credits": "15 / month",
       "features": [
         "Flux, SDXL, SD 3.5 & more",
         "Text-to-Image (10/day)",

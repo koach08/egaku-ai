@@ -293,6 +293,18 @@ export default function GeneratePage() {
 
   const showError = (err: unknown) => {
     const msg = err instanceof Error ? err.message : "Generation failed";
+    // Show upgrade prompt for credit/plan errors
+    if (msg.includes("Insufficient credits") || msg.includes("credits")) {
+      toast.error("Out of credits! Upgrade your plan for more.", {
+        action: { label: "Upgrade", onClick: () => window.location.href = "/settings" },
+        duration: 8000,
+      });
+    } else if (msg.includes("requires") && msg.includes("plan")) {
+      toast.error(msg, {
+        action: { label: "Upgrade", onClick: () => window.location.href = "/settings" },
+        duration: 8000,
+      });
+    }
     setJob({
       jobId: "error",
       status: "failed",
