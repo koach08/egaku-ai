@@ -338,9 +338,13 @@ async def _generate_image_cloud(body: ImageGenerateRequest, request: Request, se
         if not fal_model_id:
             fal_model_id = "fal_flux_dev"  # Default fallback
 
-        # NSFW override: SDXL/non-Flux models may return black images.
+        # NSFW override: many models return black images or refuse NSFW content.
         # Route to Flux Realism which is explicitly NSFW-friendly.
-        if body.nsfw and fal_model_id in ("fal_sdxl", "fal_aura_flow", "fal_recraft"):
+        NSFW_BLOCKED_MODELS = {
+            "fal_sdxl", "fal_aura_flow", "fal_recraft",
+            "fal_nano_banana_2", "fal_grok_imagine",  # Google/xAI may block NSFW
+        }
+        if body.nsfw and fal_model_id in NSFW_BLOCKED_MODELS:
             fal_model_id = "fal_flux_realism"
             logger.info(f"NSFW mode: overriding model to fal_flux_realism")
         try:
@@ -357,6 +361,30 @@ async def _generate_image_cloud(body: ImageGenerateRequest, request: Request, se
             )
             result_url = fal_client.extract_image_url(fal_result)
             if result_url:
+                # Check for black image (safety checker blocked)
+                if await fal_client.is_black_image(result_url):
+                    logger.warning("Black image detected from %s, retrying with fal_flux_realism", fal_model_id)
+                    if fal_model_id != "fal_flux_realism":
+                        try:
+                            retry_result = await fal_client.submit_txt2img(
+                                prompt=body.prompt,
+                                model_id="fal_flux_realism",
+                                width=params["width"],
+                                height=params["height"],
+                                steps=params["steps"],
+                                cfg=params["cfg"],
+                                seed=body.seed,
+                                negative_prompt=body.negative_prompt,
+                            )
+                            retry_url = fal_client.extract_image_url(retry_result)
+                            if retry_url and not await fal_client.is_black_image(retry_url):
+                                result_url = retry_url
+                                logger.info("Retry with fal_flux_realism succeeded")
+                            else:
+                                logger.warning("Retry also produced black image")
+                        except Exception as retry_err:
+                            logger.error(f"Retry with fal_flux_realism failed: {retry_err}")
+
                 await _store_job_status(settings, job_id, "completed", {"url": result_url, "backend": "fal"})
                 await _save_generation_to_db(
                     settings, user.id, job_id, "txt2img", body.prompt,

@@ -8,3 +8,4 @@ boto3==1.36.5
 stripe==11.4.1
 geoip2==4.8.1
 python-multipart==0.0.20
+Pillow

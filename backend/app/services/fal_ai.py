@@ -435,6 +435,47 @@ class FalClient:
             logger.info("fal.ai ControlNet job completed: type=%s", control_type)
             return data
 
+    @staticmethod
+    async def is_black_image(image_url: str, threshold: int = 15) -> bool:
+        """Check if a generated image is mostly black (safety checker blocked it)."""
+        try:
+            async with httpx.AsyncClient() as client:
+                resp = await client.get(image_url, timeout=15)
+                if resp.status_code != 200:
+                    return False
+                data = resp.content
+                # Quick check: sample pixels from the raw image bytes
+                # For JPEG/PNG, pixel data is compressed, so check file size as heuristic
+                # A truly black image compresses extremely well (very small file)
+                if len(data) < 5000 and len(data) > 100:
+                    # Very small file for an image = likely solid black
+                    logger.warning("Possible black image detected (file size: %d bytes)", len(data))
+                    return True
+                # For larger files, try to decode and sample pixels
+                try:
+                    from io import BytesIO
+                    from PIL import Image
+                    img = Image.open(BytesIO(data)).convert("RGB")
+                    # Sample 100 random pixels
+                    import random
+                    w, h = img.size
+                    total_brightness = 0
+                    samples = 100
+                    for _ in range(samples):
+                        x, y = random.randint(0, w - 1), random.randint(0, h - 1)
+                        r, g, b = img.getpixel((x, y))
+                        total_brightness += (r + g + b) / 3
+                    avg_brightness = total_brightness / samples
+                    if avg_brightness < threshold:
+                        logger.warning("Black image detected (avg brightness: %.1f)", avg_brightness)
+                        return True
+                except ImportError:
+                    # PIL not available, fall back to file size heuristic only
+                    pass
+        except Exception as e:
+            logger.debug("Black image check failed: %s", e)
+        return False
+
     def extract_video_url(self, result: dict) -> str | None:
         """Extract the video URL from a fal.ai video response."""
         video = result.get("video")
