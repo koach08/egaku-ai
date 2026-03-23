@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Header } from "@/components/layout/header";
+import { ShowcaseGallery } from "@/components/showcase-gallery";
 
 const TECH_STACK = [
   { name: "Next.js 16", desc: "App Router, SSR, i18n (5 languages)" },
@@ -88,6 +89,9 @@ export default function SelfHostedPage() {
             </Button>
           </div>
         </div>
+
+        {/* Live Gallery — dynamic from API */}
+        <ShowcaseGallery title="Generated with EGAKU AI" />
 
         {/* What You Get */}
         <section className="mb-16">
