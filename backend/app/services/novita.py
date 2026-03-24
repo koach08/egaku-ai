@@ -327,3 +327,76 @@ class NovitaClient:
                     raise RuntimeError(f"Novita.ai LoRA generation failed: {reason}")
 
             raise TimeoutError("Novita.ai LoRA generation timed out")
+
+    async def generate_video(
+        self,
+        prompt: str,
+        model_name: str = "uberRealisticPornMerge_urpmv13.safetensors",
+        width: int = 512,
+        height: int = 512,
+        steps: int = 25,
+        guidance_scale: float = 7.0,
+        frames: int = 16,
+        seed: int = -1,
+        negative_prompt: str = "",
+    ) -> str | None:
+        """Generate video with AnimateDiff via Novita.ai (NSFW, no filters).
+
+        Returns:
+            Video URL or None
+        """
+        data: dict = {
+            "model_name": model_name,
+            "prompts": [{"prompt": prompt, "frames": frames}],
+            "negative_prompt": negative_prompt or "worst quality, low quality, deformed, ugly, bad anatomy",
+            "width": width,
+            "height": height,
+            "steps": steps,
+            "guidance_scale": guidance_scale if guidance_scale > 1 else 7.0,
+            "seed": seed if seed >= 0 else -1,
+            "enable_nsfw_detection": False,
+        }
+
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                f"{NOVITA_API_BASE}/async/txt2video",
+                json=data,
+                headers=self.headers,
+                timeout=30,
+            )
+            response.raise_for_status()
+            result = response.json()
+
+            task_id = result.get("task_id", "")
+            if not task_id:
+                raise RuntimeError("No task_id returned from Novita.ai video")
+
+            logger.info("Novita.ai video task submitted: %s (model: %s)", task_id, model_name)
+
+            import asyncio
+            for i in range(120):  # 120 * 5s = 10 min max
+                await asyncio.sleep(5)
+
+                poll_response = await client.get(
+                    f"{NOVITA_API_BASE}/async/task-result?task_id={task_id}",
+                    headers=self.headers,
+                    timeout=15,
+                )
+                poll_response.raise_for_status()
+                poll_result = poll_response.json()
+
+                status = poll_result.get("task", {}).get("status", "")
+
+                if status == "TASK_STATUS_SUCCEED":
+                    videos = poll_result.get("videos", [])
+                    if videos:
+                        url = videos[0].get("video_url", "")
+                        logger.info("Novita.ai video completed: %s", task_id)
+                        return url
+                    return None
+
+                elif status in ("TASK_STATUS_FAILED", "TASK_STATUS_CANCELED"):
+                    reason = poll_result.get("task", {}).get("reason", "Unknown error")
+                    raise RuntimeError(f"Novita.ai video failed: {reason}")
+
+            raise TimeoutError("Novita.ai video generation timed out")

@@ -68,8 +68,15 @@ ADULT_MODELS = [
 CIVITAI_CUSTOM_PLANS = {"adult_patron"}
 
 ADULT_VIDEO_MODELS = [
+    # Novita.ai (NSFW, no filters, AnimateDiff)
+    {"id": "novita_uber_realistic_porn", "name": "UberRealisticPorn Video", "credits": 5, "badge": "NSFW", "type": "t2v"},
+    {"id": "novita_babes", "name": "Babes Video", "credits": 5, "badge": "NSFW", "type": "t2v"},
+    {"id": "novita_chilloutmix", "name": "ChilloutMix Video", "credits": 5, "badge": "NSFW", "type": "t2v"},
+    {"id": "novita_cyberrealistic", "name": "CyberRealistic Video", "credits": 5, "badge": "NSFW", "type": "t2v"},
+    {"id": "novita_hassaku_hentai", "name": "Hassaku Hentai Video", "credits": 5, "badge": "Anime", "type": "t2v"},
+    # fal.ai (higher quality video but may filter NSFW)
     {"id": "fal_ltx_t2v", "name": "LTX 2.3", "credits": 5, "badge": "Fast", "type": "t2v"},
-    {"id": "fal_wan_t2v", "name": "Wan 2.1", "credits": 10, "badge": "", "type": "t2v"},
+    {"id": "fal_wan_t2v", "name": "Wan 2.1", "credits": 10, "badge": "HD", "type": "t2v"},
     {"id": "fal_kling_t2v", "name": "Kling v2", "credits": 15, "badge": "HD", "type": "t2v"},
     {"id": "fal_minimax_t2v", "name": "Minimax Hailuo", "credits": 15, "badge": "HD", "type": "t2v"},
     {"id": "fal_kling25_t2v", "name": "Kling 2.5 Pro", "credits": 25, "badge": "Cinema", "type": "t2v"},
@@ -557,18 +564,56 @@ async def generate_adult_video(
     if not success:
         raise HTTPException(status_code=402, detail="Insufficient credits")
 
-    # 5. Generate via fal.ai
+    from app.api.generate import _save_generation_to_db, _store_job_status
+
+    job_id = str(uuid.uuid4())
+    is_novita_model = model_id.startswith("novita_")
+
+    # 5a. Novita.ai video (NSFW, no filters) — for novita_ models or as primary
+    if settings.novita_api_key and (is_novita_model or not body.image_url):
+        try:
+            from app.services.novita import BUILTIN_MODELS, NovitaClient
+
+            novita = NovitaClient(settings)
+            # Pick the video model checkpoint
+            video_checkpoint = "uberRealisticPornMerge_urpmv13.safetensors"
+            if is_novita_model and model_id in BUILTIN_MODELS:
+                video_checkpoint = BUILTIN_MODELS[model_id]["model_name"]
+
+            video_url = await novita.generate_video(
+                prompt=body.prompt,
+                model_name=video_checkpoint,
+                width=512,
+                height=512,
+                steps=25,
+                guidance_scale=7,
+                frames=16,
+                seed=body.seed,
+                negative_prompt=body.negative_prompt,
+            )
+            if video_url:
+                await _store_job_status(settings, job_id, "completed", {"url": video_url, "backend": "novita"})
+                await _save_generation_to_db(
+                    settings, user.id, job_id, "txt2vid", body.prompt,
+                    body.negative_prompt, model_id, body.model_dump(), video_url, True,
+                )
+                return GenerationResponse(
+                    job_id=job_id,
+                    status=JobStatus.completed,
+                    credits_used=base_cost,
+                    result_url=video_url,
+                )
+        except Exception as e:
+            logger.warning(f"Novita.ai video failed, trying fal.ai: {e}")
+
+    # 5b. Fallback: fal.ai video
     from app.services.fal_ai import VIDEO_MODELS, FalClient
 
     fal_client = FalClient(settings)
-    job_id = str(uuid.uuid4())
-
     if not fal_client.is_available():
         raise HTTPException(status_code=503, detail="Video GPU backend unavailable")
 
-    if model_id not in VIDEO_MODELS:
-        model_id = "fal_ltx_t2v"
-
+    fal_model = model_id if model_id in VIDEO_MODELS else "fal_ltx_t2v"
     is_img2vid = bool(body.image_url)
 
     try:
@@ -577,23 +622,22 @@ async def generate_adult_video(
                 image_url=body.image_url,
                 prompt=body.prompt,
                 seed=body.seed,
-                model_id=model_id,
+                model_id=fal_model,
             )
         else:
             fal_result = await fal_client.submit_txt2vid(
                 prompt=body.prompt,
                 seed=body.seed,
-                model_id=model_id,
+                model_id=fal_model,
             )
 
         result_url = fal_client.extract_video_url(fal_result)
         if result_url:
-            from app.api.generate import _save_generation_to_db, _store_job_status
             gen_type = "img2vid" if is_img2vid else "txt2vid"
             await _store_job_status(settings, job_id, "completed", {"url": result_url, "backend": "fal"})
             await _save_generation_to_db(
                 settings, user.id, job_id, gen_type, body.prompt,
-                body.negative_prompt, model_id, body.model_dump(), result_url, True,
+                body.negative_prompt, fal_model, body.model_dump(), result_url, True,
             )
             return GenerationResponse(
                 job_id=job_id,
