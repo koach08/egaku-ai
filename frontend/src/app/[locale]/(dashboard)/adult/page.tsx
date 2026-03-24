@@ -81,7 +81,7 @@ export default function AdultPage() {
   // Generation params
   const [prompt, setPrompt] = useState("");
   const [negativePrompt, setNegativePrompt] = useState("");
-  const [model, setModel] = useState("fal_flux_realism");
+  const [model, setModel] = useState("novita_dreamshaper_xl");
   const [videoModel, setVideoModel] = useState("fal_ltx_t2v");
   const [width, setWidth] = useState(768);
   const [height, setHeight] = useState(1024);

@@ -388,10 +388,26 @@ async def generate_adult(
         except Exception as e:
             logger.warning(f"vast.ai generation failed, falling back to fal.ai: {e}")
 
-    # Route NSFW to appropriate backend
-    nsfw_model = model_id
-    if model_id.startswith("novita_"):
-        # Use Novita.ai for NSFW-friendly checkpoints
+    # ── ADULT GENERATION STRATEGY ──
+    # Priority: Novita.ai (zero filters) → fal.ai (with black image check) → error
+    # Novita.ai has NO safety filters at all — this is the whole point for adult content.
+
+    from app.api.generate import _save_generation_to_db, _store_job_status
+
+    async def _save_and_return(url: str, backend: str) -> GenerationResponse:
+        await _store_job_status(settings, job_id, "completed", {"url": url, "backend": backend})
+        await _save_generation_to_db(
+            settings, user.id, job_id, "txt2img", body.prompt,
+            body.negative_prompt, model_id, body.model_dump(), url, True,
+        )
+        return GenerationResponse(
+            job_id=job_id, status=JobStatus.completed,
+            credits_used=base_cost, result_url=url,
+        )
+
+    # ─── 1. ALWAYS try Novita.ai first for adult (NO safety filter) ───
+    novita_model = model_id if model_id.startswith("novita_") else "novita_dreamshaper_xl"
+    if settings.novita_api_key:
         try:
             from app.api.generate import _generate_with_novita_builtin
             from app.models.schemas import ImageGenerateRequest
@@ -399,7 +415,7 @@ async def generate_adult(
             img_body = ImageGenerateRequest(
                 prompt=body.prompt,
                 negative_prompt=body.negative_prompt,
-                model=model_id,
+                model=novita_model,
                 width=body.width,
                 height=body.height,
                 steps=body.steps,
@@ -408,73 +424,64 @@ async def generate_adult(
                 nsfw=True,
             )
             result = await _generate_with_novita_builtin(
-                model_id, img_body, img_body.model_dump(), job_id, settings, user.id, base_cost,
+                novita_model, img_body, img_body.model_dump(), job_id, settings, user.id, base_cost,
             )
             if result:
+                logger.info(f"Adult generation via Novita.ai succeeded ({novita_model})")
                 return result
         except Exception as e:
-            logger.error(f"Novita adult generation failed: {e}")
+            logger.warning(f"Novita.ai adult generation failed, trying fal.ai: {e}")
 
-    # Default: fal.ai with NSFW-friendly model
-    if not fal_client.is_available():
-        raise HTTPException(status_code=503, detail="GPU backend unavailable")
+    # ─── 2. Fallback: fal.ai with NSFW-friendly model ───
+    if fal_client.is_available():
+        nsfw_model = model_id if model_id.startswith("fal_") else "fal_flux_realism"
+        NSFW_SAFE = {"fal_flux_realism", "fal_flux_dev", "fal_sdxl"}
+        if nsfw_model not in NSFW_SAFE:
+            nsfw_model = "fal_flux_realism"
 
-    # Force NSFW-friendly model for blocked ones
-    NSFW_SAFE_MODELS = {"fal_flux_realism", "fal_flux_dev", "fal_sdxl"}
-    if nsfw_model not in NSFW_SAFE_MODELS and not nsfw_model.startswith("novita_"):
-        nsfw_model = "fal_flux_realism"
-
-    try:
-        fal_result = await fal_client.submit_txt2img(
-            prompt=body.prompt,
-            model_id=nsfw_model,
-            width=body.width,
-            height=body.height,
-            steps=body.steps,
-            cfg=body.cfg,
-            seed=body.seed,
-            negative_prompt=body.negative_prompt,
-        )
-        result_url = fal_client.extract_image_url(fal_result)
-
-        if result_url:
-            # Check for black image (safety blocked)
-            if await fal_client.is_black_image(result_url):
-                if nsfw_model != "fal_flux_realism":
-                    retry = await fal_client.submit_txt2img(
-                        prompt=body.prompt,
-                        model_id="fal_flux_realism",
-                        width=body.width,
-                        height=body.height,
-                        steps=body.steps,
-                        cfg=body.cfg,
-                        seed=body.seed,
-                        negative_prompt=body.negative_prompt,
-                    )
-                    retry_url = fal_client.extract_image_url(retry)
-                    if retry_url and not await fal_client.is_black_image(retry_url):
-                        result_url = retry_url
-
-            # Store result
-            from app.api.generate import _save_generation_to_db, _store_job_status
-            await _store_job_status(settings, job_id, "completed", {"url": result_url, "backend": "fal"})
-            await _save_generation_to_db(
-                settings, user.id, job_id, "txt2img", body.prompt,
-                body.negative_prompt, model_id, body.model_dump(), result_url, True,
+        try:
+            fal_result = await fal_client.submit_txt2img(
+                prompt=body.prompt,
+                model_id=nsfw_model,
+                width=body.width,
+                height=body.height,
+                steps=body.steps,
+                cfg=body.cfg,
+                seed=body.seed,
+                negative_prompt=body.negative_prompt,
             )
+            result_url = fal_client.extract_image_url(fal_result)
 
-            return GenerationResponse(
-                job_id=job_id,
-                status=JobStatus.completed,
-                credits_used=base_cost,
-                result_url=result_url,
-            )
+            if result_url and not await fal_client.is_black_image(result_url):
+                return await _save_and_return(result_url, "fal")
 
-    except Exception as e:
-        logger.error(f"Adult generation failed: {e}")
-        raise HTTPException(status_code=500, detail="Generation failed. Please try again.")
+            # Black image from fal → try flux_realism as last resort
+            if nsfw_model != "fal_flux_realism":
+                retry = await fal_client.submit_txt2img(
+                    prompt=body.prompt,
+                    model_id="fal_flux_realism",
+                    width=body.width,
+                    height=body.height,
+                    steps=body.steps,
+                    cfg=body.cfg,
+                    seed=body.seed,
+                    negative_prompt=body.negative_prompt,
+                )
+                retry_url = fal_client.extract_image_url(retry)
+                if retry_url and not await fal_client.is_black_image(retry_url):
+                    return await _save_and_return(retry_url, "fal")
 
-    raise HTTPException(status_code=500, detail="Generation produced no result")
+            # Still black → if we got a URL, DON'T return it (it's black)
+            logger.warning("fal.ai returned black image even after retry — all backends failed")
+
+        except Exception as e:
+            logger.error(f"fal.ai adult generation failed: {e}")
+
+    raise HTTPException(
+        status_code=503,
+        detail="Generation was blocked by safety filters on all backends. "
+               "Try adjusting your prompt or using a different model.",
+    )
 
 
 # ── Video Generation ──
