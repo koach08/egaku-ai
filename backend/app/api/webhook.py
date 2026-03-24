@@ -210,3 +210,35 @@ async def stripe_webhook(request: Request, settings: Settings = Depends(get_sett
             }).execute()
 
     return {"received": True}
+
+
+@router.post("/nowpayments")
+async def nowpayments_webhook(request: Request, settings: Settings = Depends(get_settings)):
+    """Handle NOWPayments IPN (crypto payment confirmation)."""
+    body = await request.body()
+    signature = request.headers.get("x-nowpayments-sig", "")
+
+    if settings.nowpayments_ipn_secret:
+        from app.services.crypto_pay import CryptoPayClient
+        crypto = CryptoPayClient(settings.nowpayments_api_key, settings.nowpayments_ipn_secret)
+        if not crypto.verify_webhook(body, signature):
+            raise HTTPException(status_code=400, detail="Invalid webhook signature")
+
+    data = await request.json()
+    payment_status = data.get("payment_status")
+    order_id = data.get("order_id", "")
+
+    logger.info(f"NOWPayments webhook: status={payment_status} order={order_id}")
+
+    if payment_status in ("finished", "confirmed"):
+        # Parse order_id: "adult_{plan}_{user_id}"
+        parts = order_id.split("_", 2)
+        if len(parts) >= 3 and parts[0] == "adult":
+            plan = f"adult_{parts[1]}"
+            user_id = parts[2]
+
+            supabase = get_supabase(settings)
+            _update_adult_plan(supabase, user_id, plan)
+            logger.info(f"Crypto payment confirmed: user={user_id} plan={plan}")
+
+    return {"ok": True}

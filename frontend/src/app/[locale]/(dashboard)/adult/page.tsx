@@ -316,6 +316,21 @@ export default function AdultPage() {
     }
   };
 
+  const handleCryptoCheckout = async (plan: string) => {
+    if (!session) return;
+    try {
+      const res = await api.createAdultCryptoCheckout(session.access_token, plan);
+      if (res.invoice_url) window.location.href = res.invoice_url;
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Crypto checkout failed";
+      if (msg.includes("not configured")) {
+        toast.error("Crypto payments coming soon!");
+      } else {
+        toast.error(msg);
+      }
+    }
+  };
+
   if (authLoading) return null;
 
   // Not logged in — show teaser + sign in prompt
@@ -554,6 +569,12 @@ export default function AdultPage() {
                         >
                           Subscribe
                         </Button>
+                        <button
+                          onClick={() => handleCryptoCheckout(key)}
+                          className="w-full text-[10px] text-muted-foreground hover:text-foreground mt-1 py-1 border border-muted rounded transition-colors"
+                        >
+                          Pay with Crypto
+                        </button>
                       </CardContent>
                     </Card>
                   ))}

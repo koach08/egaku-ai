@@ -250,6 +250,42 @@ async def create_adult_checkout(
     return {"checkout_url": session.url}
 
 
+@router.post("/checkout-crypto")
+async def create_crypto_checkout(
+    plan: str,
+    user=Depends(get_current_user),
+    settings: Settings = Depends(get_settings),
+):
+    """Create crypto payment invoice via NOWPayments."""
+    if not settings.nowpayments_api_key:
+        raise HTTPException(status_code=503, detail="Crypto payments not configured yet")
+
+    from app.services.crypto_pay import ADULT_PLAN_USD, CryptoPayClient
+
+    if plan not in ADULT_PLAN_USD:
+        raise HTTPException(status_code=400, detail=f"Invalid plan: {plan}")
+
+    supabase = get_supabase(settings)
+    profile = await get_user_profile(supabase, user.id)
+    if not profile:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    if not profile.get("age_verified"):
+        raise HTTPException(status_code=403, detail="Age verification required")
+
+    origin = settings.cors_origins[0] if settings.cors_origins else "https://egaku-ai.com"
+
+    crypto = CryptoPayClient(settings.nowpayments_api_key, settings.nowpayments_ipn_secret)
+    result = await crypto.create_invoice(
+        plan=plan,
+        user_id=user.id,
+        success_url=f"{origin}/adult?crypto=success&plan={plan}",
+        cancel_url=f"{origin}/adult?crypto=cancel",
+    )
+
+    return result
+
+
 @router.get("/subscription")
 async def get_adult_subscription(
     user=Depends(get_current_user),

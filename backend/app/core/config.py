@@ -46,6 +46,10 @@ class Settings(BaseSettings):
     # vast.ai (GPU backend for adult/NSFW generation)
     vastai_api_key: str = ""
 
+    # NOWPayments (crypto payments for adult subscriptions)
+    nowpayments_api_key: str = ""
+    nowpayments_ipn_secret: str = ""
+
     # Cloudflare R2 (cloud mode)
     r2_account_id: str = ""
     r2_access_key_id: str = ""

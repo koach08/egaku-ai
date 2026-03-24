@@ -326,6 +326,11 @@ export const api = {
       method: "POST",
       headers: authHeaders(token),
     }),
+  createAdultCryptoCheckout: (token: string, plan: string) =>
+    fetchAPI(`/adult/checkout-crypto?plan=${plan}`, {
+      method: "POST",
+      headers: authHeaders(token),
+    }),
   getAdultModels: () => fetchAPI("/adult/models"),
   getAdultShowcase: (page = 1, limit = 20) =>
     fetchAPI(`/adult/showcase?page=${page}&limit=${limit}`),
