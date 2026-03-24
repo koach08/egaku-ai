@@ -417,17 +417,31 @@ class NovitaClient:
             Video URL or None
         """
         import base64 as b64mod
+        import io
 
-        # Download image and convert to base64 if it's a URL
+        # Download/decode image and ensure PNG format (SVD requires PNG)
         async with httpx.AsyncClient(timeout=60) as client:
             if image_url.startswith("data:"):
-                # Extract base64 from data URI
-                image_b64 = image_url.split(",", 1)[1] if "," in image_url else image_url
+                raw_b64 = image_url.split(",", 1)[1] if "," in image_url else image_url
+                img_bytes = b64mod.b64decode(raw_b64)
             else:
-                # Download from URL
                 img_resp = await client.get(image_url)
                 img_resp.raise_for_status()
-                image_b64 = b64mod.b64encode(img_resp.content).decode()
+                img_bytes = img_resp.content
+
+            # Convert to PNG and resize to 1024x576 (SVD optimal)
+            try:
+                from PIL import Image
+                img = Image.open(io.BytesIO(img_bytes))
+                img = img.convert("RGB")
+                # SVD works best with 1024x576
+                img = img.resize((1024, 576), Image.LANCZOS)
+                buf = io.BytesIO()
+                img.save(buf, format="PNG")
+                image_b64 = b64mod.b64encode(buf.getvalue()).decode()
+            except Exception as conv_err:
+                logger.warning(f"Image conversion failed, using raw: {conv_err}")
+                image_b64 = b64mod.b64encode(img_bytes).decode()
 
             if model == "SVD-XT":
                 frames = 25  # SVD-XT requires exactly 25 frames
