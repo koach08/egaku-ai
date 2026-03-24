@@ -1069,14 +1069,22 @@ export default function AdultPage() {
                         {isCurrent ? (
                           <Badge className="bg-pink-500/20 text-pink-400">Current</Badge>
                         ) : (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="w-full"
-                            onClick={() => handleCheckout(key)}
-                          >
-                            {subStatus?.adult_plan !== "none" ? "Change" : "Subscribe"}
-                          </Button>
+                          <>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="w-full"
+                              onClick={() => handleCheckout(key)}
+                            >
+                              {subStatus?.adult_plan !== "none" ? "Change" : "Subscribe"}
+                            </Button>
+                            <button
+                              onClick={() => handleCryptoCheckout(key)}
+                              className="w-full text-[10px] text-muted-foreground hover:text-foreground mt-1 py-1 border border-muted rounded transition-colors"
+                            >
+                              Pay with Crypto
+                            </button>
+                          </>
                         )}
                       </CardContent>
                     </Card>
