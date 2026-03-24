@@ -326,6 +326,84 @@ async def get_adult_models():
     return {"models": ADULT_MODELS, "video_models": ADULT_VIDEO_MODELS}
 
 
+# ── Showcase Gallery ──
+
+@router.get("/showcase")
+async def get_adult_showcase(
+    page: int = 1,
+    limit: int = 20,
+    settings: Settings = Depends(get_settings),
+):
+    """Return NSFW showcase items (public NSFW generations marked as featured).
+
+    Returns image_url/video_url for all items. Client handles blur for non-subscribers.
+    """
+    supabase = get_supabase(settings)
+    offset = (page - 1) * limit
+
+    # Fetch public NSFW generations, newest first
+    result = (
+        supabase.table("generations")
+        .select("id, prompt, model, image_url, video_url, nsfw_flag, created_at", count="exact")
+        .eq("is_public", True)
+        .eq("nsfw_flag", True)
+        .order("created_at", desc=True)
+        .range(offset, offset + limit - 1)
+        .execute()
+    )
+
+    items = []
+    for row in result.data or []:
+        items.append({
+            "id": row["id"],
+            "prompt": row.get("prompt", ""),
+            "model": row.get("model", ""),
+            "image_url": row.get("image_url"),
+            "video_url": row.get("video_url"),
+            "created_at": row["created_at"],
+        })
+
+    return {"items": items, "total": result.count or 0, "page": page}
+
+
+@router.post("/showcase/publish/{generation_id}")
+async def publish_to_showcase(
+    generation_id: str,
+    request: Request,
+    settings: Settings = Depends(get_settings),
+):
+    """Mark a generation as public NSFW showcase item (admin or owner)."""
+    auth_header = request.headers.get("authorization", "")
+    if not auth_header.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Auth required")
+    token = auth_header.split(" ", 1)[1]
+
+    supabase = get_supabase(settings)
+    try:
+        user = supabase.auth.get_user(token).user
+    except Exception:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+    profile = await get_user_profile(supabase, user.id)
+    if not profile:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    # Check ownership or admin
+    gen = supabase.table("generations").select("*").eq("id", generation_id).maybe_single().execute()
+    if not gen.data:
+        raise HTTPException(status_code=404, detail="Generation not found")
+
+    if gen.data["user_id"] != user.id and not is_admin(profile.get("email", "")):
+        raise HTTPException(status_code=403, detail="Not authorized")
+
+    supabase.table("generations").update({
+        "is_public": True,
+        "nsfw_flag": True,
+    }).eq("id", generation_id).execute()
+
+    return {"published": True}
+
+
 @router.post("/generate", response_model=GenerationResponse)
 async def generate_adult(
     body: AdultGenerateRequest,

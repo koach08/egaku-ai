@@ -327,6 +327,13 @@ export const api = {
       headers: authHeaders(token),
     }),
   getAdultModels: () => fetchAPI("/adult/models"),
+  getAdultShowcase: (page = 1, limit = 20) =>
+    fetchAPI(`/adult/showcase?page=${page}&limit=${limit}`),
+  publishToAdultShowcase: (token: string, generationId: string) =>
+    fetchAPI(`/adult/showcase/publish/${generationId}`, {
+      method: "POST",
+      headers: authHeaders(token),
+    }),
   getAdultRegionRules: () => fetchAPI("/adult/region-rules"),
   generateAdult: (token: string, params: Record<string, unknown>) =>
     fetchAPI("/adult/generate", {
