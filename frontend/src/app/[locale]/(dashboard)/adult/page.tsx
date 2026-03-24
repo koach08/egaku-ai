@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Header } from "@/components/layout/header";
+import { CivitAIBrowser } from "@/components/civitai-browser";
 import { toast } from "sonner";
 
 type AdultModel = {
@@ -75,8 +76,16 @@ export default function AdultPage() {
   const [videoModels, setVideoModels] = useState<VideoModel[]>([]);
   const [regionRules, setRegionRules] = useState<RegionRules | null>(null);
 
-  // Mode: image or video
-  const [mode, setMode] = useState<"image" | "video">("image");
+  // Mode: image, video, or civitai
+  const [mode, setMode] = useState<"image" | "video" | "civitai">("image");
+
+  // CivitAI custom models
+  const [customModels, setCustomModels] = useState<
+    { id: string; name: string; civitai_model_id: number; civitai_version_id: number; preview_url?: string; category: string; description: string; source: string }[]
+  >([]);
+  const [customSlotsUsed, setCustomSlotsUsed] = useState(0);
+  const [customSlotsMax, setCustomSlotsMax] = useState(0);
+  const [civitaiModelName, setCivitaiModelName] = useState("");
 
   // Generation params
   const [prompt, setPrompt] = useState("");
@@ -131,7 +140,28 @@ export default function AdultPage() {
     api.getAdultPlans()
       .then((data) => setPlans(data))
       .catch(() => {});
+
+    api.getAvailableModels(session.access_token)
+      .then((data) => {
+        const civitai = (data.models || []).filter((m: Record<string, unknown>) => m.source === "civitai");
+        setCustomModels(civitai);
+        setCustomSlotsUsed(data.custom_slots_used || 0);
+        setCustomSlotsMax(data.custom_slots_max || 0);
+      })
+      .catch(() => {});
   }, [session]);
+
+  const refreshCustomModels = () => {
+    if (!session) return;
+    api.getAvailableModels(session.access_token)
+      .then((data) => {
+        const civitai = (data.models || []).filter((m: Record<string, unknown>) => m.source === "civitai");
+        setCustomModels(civitai);
+        setCustomSlotsUsed(data.custom_slots_used || 0);
+        setCustomSlotsMax(data.custom_slots_max || 0);
+      })
+      .catch(() => {});
+  };
 
   // Timer cleanup
   useEffect(() => {
@@ -178,6 +208,18 @@ export default function AdultPage() {
           model: videoModel,
           seed,
           mosaic_enabled: mosaicEnabled,
+        });
+      } else if (mode === "civitai" && civitaiModelName) {
+        res = await api.generateAdultCivitai(session.access_token, {
+          prompt,
+          negative_prompt: negativePrompt,
+          civitai_model_name: civitaiModelName,
+          width,
+          height,
+          steps,
+          cfg,
+          sampler,
+          seed,
         });
       } else {
         res = await api.generateAdult(session.access_token, {
@@ -537,7 +579,7 @@ export default function AdultPage() {
 
             {/* Right: controls */}
             <div className="space-y-4">
-              {/* Image / Video toggle */}
+              {/* Image / Video / CivitAI toggle */}
               <div className="flex rounded-lg border overflow-hidden">
                 <button
                   onClick={() => setMode("image")}
@@ -558,6 +600,16 @@ export default function AdultPage() {
                   }`}
                 >
                   Video
+                </button>
+                <button
+                  onClick={() => setMode("civitai")}
+                  className={`flex-1 py-2 text-sm font-medium transition-colors ${
+                    mode === "civitai"
+                      ? "bg-purple-600 text-white"
+                      : "bg-muted text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  CivitAI
                 </button>
               </div>
 
@@ -590,7 +642,7 @@ export default function AdultPage() {
               {/* Model */}
               <Card>
                 <CardContent className="pt-4 space-y-3">
-                  {mode === "image" ? (
+                  {mode === "image" && (
                     <div>
                       <Label className="text-xs">Image Model</Label>
                       <Select value={model} onValueChange={(v) => v && setModel(v)}>
@@ -616,7 +668,8 @@ export default function AdultPage() {
                         </SelectContent>
                       </Select>
                     </div>
-                  ) : (
+                  )}
+                  {mode === "video" && (
                     <div>
                       <Label className="text-xs">Video Model</Label>
                       <Select value={videoModel} onValueChange={(v) => v && setVideoModel(v)}>
@@ -643,9 +696,49 @@ export default function AdultPage() {
                       </Select>
                     </div>
                   )}
+                  {mode === "civitai" && (
+                    <div className="space-y-3">
+                      <div>
+                        <Label className="text-xs">CivitAI Model (safetensors filename)</Label>
+                        {customModels.length > 0 ? (
+                          <Select value={civitaiModelName} onValueChange={(v) => v && setCivitaiModelName(v)}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a CivitAI model" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {customModels.map((m) => (
+                                <SelectItem key={m.id} value={m.id}>
+                                  {m.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        ) : (
+                          <Input
+                            placeholder="e.g. ponyDiffusionV6XL_v6.safetensors"
+                            value={civitaiModelName}
+                            onChange={(e) => setCivitaiModelName(e.target.value)}
+                          />
+                        )}
+                        <p className="text-[10px] text-muted-foreground mt-1">
+                          Patron plan: use any CivitAI model by name. Browse and add models below.
+                        </p>
+                      </div>
+                      {session && (
+                        <CivitAIBrowser
+                          token={session.access_token}
+                          userPlan={subStatus?.adult_plan || "none"}
+                          myModels={customModels}
+                          slotsUsed={customSlotsUsed}
+                          slotsMax={customSlotsMax}
+                          onRefresh={refreshCustomModels}
+                        />
+                      )}
+                    </div>
+                  )}
 
-                  {/* Resolution (image only) */}
-                  {mode === "image" && (
+                  {/* Resolution (image + civitai) */}
+                  {(mode === "image" || mode === "civitai") && (
                     <div className="grid grid-cols-2 gap-2">
                       <div>
                         <Label className="text-xs">Width</Label>
@@ -672,8 +765,8 @@ export default function AdultPage() {
                     </div>
                   )}
 
-                  {/* Sampler + Steps & CFG (image only) */}
-                  {mode === "image" && (
+                  {/* Sampler + Steps & CFG (image + civitai) */}
+                  {(mode === "image" || mode === "civitai") && (
                     <>
                       <div>
                         <Label className="text-xs">Sampler</Label>
@@ -778,9 +871,15 @@ export default function AdultPage() {
               <Button
                 className="w-full h-12 text-lg bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-700 hover:to-rose-700"
                 onClick={handleGenerate}
-                disabled={generating || !prompt.trim()}
+                disabled={generating || !prompt.trim() || (mode === "civitai" && !civitaiModelName)}
               >
-                {generating ? `Generating ${mode}... ${elapsed}s` : mode === "video" ? "Generate Video" : "Generate Image"}
+                {generating
+                  ? `Generating ${mode}... ${elapsed}s`
+                  : mode === "video"
+                    ? "Generate Video"
+                    : mode === "civitai"
+                      ? "Generate with CivitAI"
+                      : "Generate Image"}
               </Button>
 
               {/* Policy reminder */}
