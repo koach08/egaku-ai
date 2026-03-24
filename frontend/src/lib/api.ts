@@ -346,4 +346,28 @@ export const api = {
       headers: authHeaders(token),
       body: JSON.stringify(params),
     }),
+  adultImg2Img: (token: string, params: Record<string, unknown>) =>
+    fetchAPI("/adult/img2img", {
+      method: "POST",
+      headers: authHeaders(token),
+      body: JSON.stringify(params),
+    }),
+  adultControlNet: (token: string, params: Record<string, unknown>) =>
+    fetchAPI("/adult/controlnet", {
+      method: "POST",
+      headers: authHeaders(token),
+      body: JSON.stringify(params),
+    }),
+  adultInpaint: (token: string, params: Record<string, unknown>) =>
+    fetchAPI("/adult/inpaint", {
+      method: "POST",
+      headers: authHeaders(token),
+      body: JSON.stringify(params),
+    }),
+  adultLoRA: (token: string, params: Record<string, unknown>) =>
+    fetchAPI("/adult/generate-lora", {
+      method: "POST",
+      headers: authHeaders(token),
+      body: JSON.stringify(params),
+    }),
 };

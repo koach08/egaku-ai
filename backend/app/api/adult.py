@@ -745,3 +745,291 @@ async def generate_with_civitai(
         raise HTTPException(status_code=500, detail=f"Generation failed: {e}")
 
     raise HTTPException(status_code=500, detail="Generation produced no result")
+
+
+# ── Advanced: img2img, ControlNet, Inpaint, LoRA, vid2vid ──
+
+class AdultImg2ImgRequest(BaseModel):
+    prompt: str = Field(..., min_length=1, max_length=2000)
+    negative_prompt: str = ""
+    image: str = ""  # base64 encoded
+    model: str = "novita_uber_realistic_porn"
+    width: int = Field(512, ge=256, le=2048)
+    height: int = Field(768, ge=256, le=2048)
+    steps: int = Field(25, ge=1, le=100)
+    cfg: float = Field(7.0, ge=1.0, le=30.0)
+    denoise: float = Field(0.7, ge=0.0, le=1.0)
+    sampler: str = "DPM++ 2M Karras"
+    seed: int = -1
+
+
+class AdultControlNetRequest(BaseModel):
+    prompt: str = Field(..., min_length=1, max_length=2000)
+    negative_prompt: str = ""
+    image: str = ""  # base64 encoded control image
+    control_type: str = "openpose"  # canny, depth, openpose, scribble
+    control_strength: float = Field(1.0, ge=0.0, le=2.0)
+    model: str = "novita_uber_realistic_porn"
+    width: int = Field(512, ge=256, le=2048)
+    height: int = Field(768, ge=256, le=2048)
+    steps: int = Field(25, ge=1, le=100)
+    cfg: float = Field(7.0, ge=1.0, le=30.0)
+    sampler: str = "DPM++ 2M Karras"
+    seed: int = -1
+
+
+class AdultInpaintRequest(BaseModel):
+    prompt: str = Field(..., min_length=1, max_length=2000)
+    negative_prompt: str = ""
+    image: str = ""  # base64
+    mask: str = ""  # base64 mask
+    model: str = "novita_uber_realistic_porn"
+    width: int = Field(512, ge=256, le=2048)
+    height: int = Field(768, ge=256, le=2048)
+    steps: int = Field(25, ge=1, le=100)
+    cfg: float = Field(7.0, ge=1.0, le=30.0)
+    denoise: float = Field(0.8, ge=0.0, le=1.0)
+    sampler: str = "DPM++ 2M Karras"
+    seed: int = -1
+
+
+class AdultLoRARequest(BaseModel):
+    prompt: str = Field(..., min_length=1, max_length=2000)
+    negative_prompt: str = ""
+    checkpoint_model: str = "uberRealisticPornMerge_urpmv13.safetensors"
+    lora_model: str = Field(..., description="LoRA safetensors filename")
+    lora_strength: float = Field(0.8, ge=0.0, le=2.0)
+    width: int = Field(512, ge=256, le=2048)
+    height: int = Field(768, ge=256, le=2048)
+    steps: int = Field(25, ge=1, le=100)
+    cfg: float = Field(7.0, ge=1.0, le=30.0)
+    sampler: str = "DPM++ 2M Karras"
+    seed: int = -1
+
+
+async def _adult_auth(request: Request, settings: Settings):
+    """Common auth + access check for adult advanced endpoints."""
+    auth_header = request.headers.get("authorization", "")
+    if not auth_header.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Authentication required")
+    token = auth_header.split(" ", 1)[1]
+    supabase = get_supabase(settings)
+    try:
+        user = supabase.auth.get_user(token).user
+    except Exception:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    profile = await get_user_profile(supabase, user.id)
+    if not profile:
+        raise HTTPException(status_code=404, detail="User not found")
+    _check_adult_access(profile)
+    return user, profile, supabase
+
+
+@router.post("/img2img", response_model=GenerationResponse)
+async def adult_img2img(
+    body: AdultImg2ImgRequest,
+    request: Request,
+    settings: Settings = Depends(get_settings),
+):
+    """Image-to-image with NSFW models (Novita.ai, no filters)."""
+    _check_adult_prompt(body.prompt)
+    user, profile, supabase = await _adult_auth(request, settings)
+
+    if not body.image:
+        raise HTTPException(status_code=400, detail="Input image required")
+
+    from app.services.supabase import deduct_credits
+    success = await deduct_credits(supabase, user.id, 3, "Adult img2img")
+    if not success:
+        raise HTTPException(status_code=402, detail="Insufficient credits")
+
+    # Use fal.ai img2img (supports data URLs)
+    from app.api.generate import _save_generation_to_db, _store_job_status
+    from app.services.fal_ai import FalClient
+
+    fal_client = FalClient(settings)
+    job_id = str(uuid.uuid4())
+
+    if fal_client.is_available():
+        import base64 as b64mod
+        image_url = f"data:image/png;base64,{body.image}" if not body.image.startswith("data:") else body.image
+        try:
+            fal_result = await fal_client.submit_img2img(
+                prompt=body.prompt,
+                image_url=image_url,
+                strength=body.denoise,
+                width=body.width,
+                height=body.height,
+                steps=body.steps,
+                cfg=body.cfg,
+                seed=body.seed,
+                negative_prompt=body.negative_prompt,
+            )
+            result_url = fal_client.extract_image_url(fal_result)
+            if result_url:
+                await _store_job_status(settings, job_id, "completed", {"url": result_url, "backend": "fal"})
+                await _save_generation_to_db(
+                    settings, user.id, job_id, "img2img", body.prompt,
+                    body.negative_prompt, body.model, body.model_dump(), result_url, True,
+                )
+                return GenerationResponse(job_id=job_id, status=JobStatus.completed, credits_used=3, result_url=result_url)
+        except Exception as e:
+            logger.error(f"Adult img2img failed: {e}")
+
+    raise HTTPException(status_code=503, detail="img2img service unavailable")
+
+
+@router.post("/controlnet", response_model=GenerationResponse)
+async def adult_controlnet(
+    body: AdultControlNetRequest,
+    request: Request,
+    settings: Settings = Depends(get_settings),
+):
+    """ControlNet generation with NSFW models (openpose, canny, depth, scribble)."""
+    _check_adult_prompt(body.prompt)
+    user, profile, supabase = await _adult_auth(request, settings)
+
+    if not body.image:
+        raise HTTPException(status_code=400, detail="Control image required")
+
+    from app.services.supabase import deduct_credits
+    success = await deduct_credits(supabase, user.id, 3, f"Adult ControlNet ({body.control_type})")
+    if not success:
+        raise HTTPException(status_code=402, detail="Insufficient credits")
+
+    from app.api.generate import _save_generation_to_db, _store_job_status
+    from app.services.fal_ai import FalClient
+
+    fal_client = FalClient(settings)
+    job_id = str(uuid.uuid4())
+
+    if fal_client.is_available():
+        image_url = f"data:image/png;base64,{body.image}" if not body.image.startswith("data:") else body.image
+        try:
+            fal_result = await fal_client.submit_controlnet(
+                prompt=body.prompt,
+                image_url=image_url,
+                control_type=body.control_type,
+                control_strength=body.control_strength,
+                width=body.width,
+                height=body.height,
+                steps=body.steps,
+                cfg=body.cfg,
+                seed=body.seed,
+                negative_prompt=body.negative_prompt,
+            )
+            result_url = fal_client.extract_image_url(fal_result)
+            if result_url:
+                await _store_job_status(settings, job_id, "completed", {"url": result_url, "backend": "fal"})
+                await _save_generation_to_db(
+                    settings, user.id, job_id, "controlnet", body.prompt,
+                    body.negative_prompt, body.control_type, body.model_dump(), result_url, True,
+                )
+                return GenerationResponse(job_id=job_id, status=JobStatus.completed, credits_used=3, result_url=result_url)
+        except Exception as e:
+            logger.error(f"Adult ControlNet failed: {e}")
+
+    raise HTTPException(status_code=503, detail="ControlNet service unavailable")
+
+
+@router.post("/inpaint", response_model=GenerationResponse)
+async def adult_inpaint(
+    body: AdultInpaintRequest,
+    request: Request,
+    settings: Settings = Depends(get_settings),
+):
+    """Inpaint with NSFW models — edit parts of an image."""
+    _check_adult_prompt(body.prompt)
+    user, profile, supabase = await _adult_auth(request, settings)
+
+    if not body.image or not body.mask:
+        raise HTTPException(status_code=400, detail="Image and mask required")
+
+    from app.services.supabase import deduct_credits
+    success = await deduct_credits(supabase, user.id, 3, "Adult inpaint")
+    if not success:
+        raise HTTPException(status_code=402, detail="Insufficient credits")
+
+    from app.api.generate import _save_generation_to_db, _store_job_status
+    from app.services.fal_ai import FalClient
+
+    fal_client = FalClient(settings)
+    job_id = str(uuid.uuid4())
+
+    if fal_client.is_available():
+        image_url = f"data:image/png;base64,{body.image}" if not body.image.startswith("data:") else body.image
+        mask_url = f"data:image/png;base64,{body.mask}" if not body.mask.startswith("data:") else body.mask
+        try:
+            fal_result = await fal_client.submit_inpaint(
+                prompt=body.prompt,
+                image_url=image_url,
+                mask_url=mask_url,
+                width=body.width,
+                height=body.height,
+                steps=body.steps,
+                cfg=body.cfg,
+                denoise=body.denoise,
+                seed=body.seed,
+                negative_prompt=body.negative_prompt,
+            )
+            result_url = fal_client.extract_image_url(fal_result)
+            if result_url:
+                await _store_job_status(settings, job_id, "completed", {"url": result_url, "backend": "fal"})
+                await _save_generation_to_db(
+                    settings, user.id, job_id, "inpaint", body.prompt,
+                    body.negative_prompt, "inpaint", body.model_dump(), result_url, True,
+                )
+                return GenerationResponse(job_id=job_id, status=JobStatus.completed, credits_used=3, result_url=result_url)
+        except Exception as e:
+            logger.error(f"Adult inpaint failed: {e}")
+
+    raise HTTPException(status_code=503, detail="Inpaint service unavailable")
+
+
+@router.post("/generate-lora", response_model=GenerationResponse)
+async def adult_generate_lora(
+    body: AdultLoRARequest,
+    request: Request,
+    settings: Settings = Depends(get_settings),
+):
+    """Generate with checkpoint + LoRA via Novita.ai (fully uncensored)."""
+    _check_adult_prompt(body.prompt)
+    user, profile, supabase = await _adult_auth(request, settings)
+
+    from app.services.supabase import deduct_credits
+    success = await deduct_credits(supabase, user.id, 3, f"Adult LoRA ({body.lora_model[:30]})")
+    if not success:
+        raise HTTPException(status_code=402, detail="Insufficient credits")
+
+    from app.api.generate import _save_generation_to_db, _store_job_status
+    from app.services.novita import NovitaClient
+
+    novita = NovitaClient(settings)
+    job_id = str(uuid.uuid4())
+
+    try:
+        urls = await novita.generate_with_lora(
+            prompt=body.prompt,
+            checkpoint_model=body.checkpoint_model,
+            lora_model=body.lora_model,
+            lora_strength=body.lora_strength,
+            width=body.width,
+            height=body.height,
+            steps=body.steps,
+            guidance_scale=body.cfg,
+            seed=body.seed,
+            negative_prompt=body.negative_prompt,
+        )
+        if urls:
+            result_url = urls[0]
+            await _store_job_status(settings, job_id, "completed", {"url": result_url, "backend": "novita_lora"})
+            await _save_generation_to_db(
+                settings, user.id, job_id, "txt2img", body.prompt,
+                body.negative_prompt, f"{body.checkpoint_model}+{body.lora_model}", body.model_dump(), result_url, True,
+            )
+            return GenerationResponse(job_id=job_id, status=JobStatus.completed, credits_used=3, result_url=result_url)
+    except Exception as e:
+        logger.error(f"Adult LoRA generation failed: {e}")
+        raise HTTPException(status_code=500, detail=f"LoRA generation failed: {e}")
+
+    raise HTTPException(status_code=500, detail="LoRA generation produced no result")

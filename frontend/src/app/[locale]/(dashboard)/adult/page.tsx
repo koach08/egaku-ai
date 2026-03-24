@@ -76,8 +76,8 @@ export default function AdultPage() {
   const [videoModels, setVideoModels] = useState<VideoModel[]>([]);
   const [regionRules, setRegionRules] = useState<RegionRules | null>(null);
 
-  // Mode: image, video, or civitai
-  const [mode, setMode] = useState<"image" | "video" | "civitai">("image");
+  // Mode
+  const [mode, setMode] = useState<"image" | "video" | "civitai" | "img2img" | "controlnet">("image");
 
   // CivitAI custom models
   const [customModels, setCustomModels] = useState<
@@ -86,6 +86,13 @@ export default function AdultPage() {
   const [customSlotsUsed, setCustomSlotsUsed] = useState(0);
   const [customSlotsMax, setCustomSlotsMax] = useState(0);
   const [civitaiModelName, setCivitaiModelName] = useState("");
+
+  // img2img / controlnet
+  const [inputImage, setInputImage] = useState<File | null>(null);
+  const [inputImagePreview, setInputImagePreview] = useState<string | null>(null);
+  const [denoise, setDenoise] = useState(0.7);
+  const [controlType, setControlType] = useState("openpose");
+  const [controlStrength, setControlStrength] = useState(1.0);
 
   // Generation params
   const [prompt, setPrompt] = useState("");
@@ -183,6 +190,14 @@ export default function AdultPage() {
     }
   };
 
+  const fileToBase64 = (file: File): Promise<string> =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve((reader.result as string).split(",")[1]);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+
   // Generate handler
   const handleGenerate = async () => {
     if (!prompt.trim()) {
@@ -196,6 +211,12 @@ export default function AdultPage() {
     setError(null);
     setElapsed(0);
     setResultType(mode === "video" ? "video" : "image");
+    if ((mode === "img2img" || mode === "controlnet") && !inputImage) {
+      toast.error("Please upload an image first");
+      setGenerating(false);
+      if (timerRef.current) clearInterval(timerRef.current);
+      return;
+    }
 
     timerRef.current = setInterval(() => setElapsed((p) => p + 1), 1000);
 
@@ -208,6 +229,19 @@ export default function AdultPage() {
           model: videoModel,
           seed,
           mosaic_enabled: mosaicEnabled,
+        });
+      } else if (mode === "img2img" && inputImage) {
+        const b64 = await fileToBase64(inputImage);
+        res = await api.adultImg2Img(session.access_token, {
+          prompt, negative_prompt: negativePrompt, image: b64,
+          model, width, height, steps, cfg, denoise, sampler, seed,
+        });
+      } else if (mode === "controlnet" && inputImage) {
+        const b64 = await fileToBase64(inputImage);
+        res = await api.adultControlNet(session.access_token, {
+          prompt, negative_prompt: negativePrompt, image: b64,
+          control_type: controlType, control_strength: controlStrength,
+          model, width, height, steps, cfg, sampler, seed,
         });
       } else if (mode === "civitai" && civitaiModelName) {
         res = await api.generateAdultCivitai(session.access_token, {
@@ -579,38 +613,21 @@ export default function AdultPage() {
 
             {/* Right: controls */}
             <div className="space-y-4">
-              {/* Image / Video / CivitAI toggle */}
-              <div className="flex rounded-lg border overflow-hidden">
-                <button
-                  onClick={() => setMode("image")}
-                  className={`flex-1 py-2 text-sm font-medium transition-colors ${
-                    mode === "image"
-                      ? "bg-pink-600 text-white"
-                      : "bg-muted text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  Image
-                </button>
-                <button
-                  onClick={() => setMode("video")}
-                  className={`flex-1 py-2 text-sm font-medium transition-colors ${
-                    mode === "video"
-                      ? "bg-pink-600 text-white"
-                      : "bg-muted text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  Video
-                </button>
-                <button
-                  onClick={() => setMode("civitai")}
-                  className={`flex-1 py-2 text-sm font-medium transition-colors ${
-                    mode === "civitai"
-                      ? "bg-purple-600 text-white"
-                      : "bg-muted text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  CivitAI
-                </button>
+              {/* Mode tabs */}
+              <div className="flex rounded-lg border overflow-hidden text-[11px]">
+                {(["image", "video", "img2img", "controlnet", "civitai"] as const).map((m) => (
+                  <button
+                    key={m}
+                    onClick={() => setMode(m)}
+                    className={`flex-1 py-2 font-medium transition-colors ${
+                      mode === m
+                        ? m === "civitai" ? "bg-purple-600 text-white" : "bg-pink-600 text-white"
+                        : "bg-muted text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {m === "image" ? "Image" : m === "video" ? "Video" : m === "img2img" ? "Img2Img" : m === "controlnet" ? "ControlNet" : "CivitAI"}
+                  </button>
+                ))}
               </div>
 
               {/* Prompt */}
@@ -737,8 +754,59 @@ export default function AdultPage() {
                     </div>
                   )}
 
-                  {/* Resolution (image + civitai) */}
-                  {(mode === "image" || mode === "civitai") && (
+                  {/* img2img / controlnet: image upload + settings */}
+                  {(mode === "img2img" || mode === "controlnet") && (
+                    <>
+                      <div>
+                        <Label className="text-xs">Upload Image</Label>
+                        <Input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              setInputImage(file);
+                              setInputImagePreview(URL.createObjectURL(file));
+                            }
+                          }}
+                          className="mt-1"
+                        />
+                        {inputImagePreview && (
+                          <img src={inputImagePreview} alt="Preview" className="mt-2 rounded max-h-24 object-contain" />
+                        )}
+                      </div>
+                      {mode === "img2img" && (
+                        <div>
+                          <Label className="text-xs">Denoise Strength: {denoise}</Label>
+                          <Input type="range" min={0} max={1} step={0.05} value={denoise} onChange={(e) => setDenoise(Number(e.target.value))} />
+                          <p className="text-[10px] text-muted-foreground">0 = keep original, 1 = fully regenerate</p>
+                        </div>
+                      )}
+                      {mode === "controlnet" && (
+                        <>
+                          <div>
+                            <Label className="text-xs">Control Type</Label>
+                            <Select value={controlType} onValueChange={(v) => v && setControlType(v)}>
+                              <SelectTrigger><SelectValue /></SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="openpose">OpenPose (Body)</SelectItem>
+                                <SelectItem value="canny">Canny Edge</SelectItem>
+                                <SelectItem value="depth">Depth</SelectItem>
+                                <SelectItem value="scribble">Scribble</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div>
+                            <Label className="text-xs">Control Strength: {controlStrength}</Label>
+                            <Input type="range" min={0} max={2} step={0.1} value={controlStrength} onChange={(e) => setControlStrength(Number(e.target.value))} />
+                          </div>
+                        </>
+                      )}
+                    </>
+                  )}
+
+                  {/* Resolution (image + civitai + img2img + controlnet) */}
+                  {(mode === "image" || mode === "civitai" || mode === "img2img" || mode === "controlnet") && (
                     <div className="grid grid-cols-2 gap-2">
                       <div>
                         <Label className="text-xs">Width</Label>
@@ -765,8 +833,8 @@ export default function AdultPage() {
                     </div>
                   )}
 
-                  {/* Sampler + Steps & CFG (image + civitai) */}
-                  {(mode === "image" || mode === "civitai") && (
+                  {/* Sampler + Steps & CFG */}
+                  {(mode === "image" || mode === "civitai" || mode === "img2img" || mode === "controlnet") && (
                     <>
                       <div>
                         <Label className="text-xs">Sampler</Label>
@@ -874,12 +942,12 @@ export default function AdultPage() {
                 disabled={generating || !prompt.trim() || (mode === "civitai" && !civitaiModelName)}
               >
                 {generating
-                  ? `Generating ${mode}... ${elapsed}s`
-                  : mode === "video"
-                    ? "Generate Video"
-                    : mode === "civitai"
-                      ? "Generate with CivitAI"
-                      : "Generate Image"}
+                  ? `Generating... ${elapsed}s`
+                  : mode === "video" ? "Generate Video"
+                  : mode === "civitai" ? "Generate with CivitAI"
+                  : mode === "img2img" ? "Transform Image"
+                  : mode === "controlnet" ? "Generate with ControlNet"
+                  : "Generate Image"}
               </Button>
 
               {/* Policy reminder */}
