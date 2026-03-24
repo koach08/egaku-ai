@@ -328,6 +328,16 @@ async def generate_adult(
     """Generate adult content with mosaic control."""
     from app.services.supabase import deduct_credits
 
+    # 0. Ensure negative prompt has quality defaults
+    DEFAULT_NEGATIVE = (
+        "worst quality, low quality, blurry, deformed, ugly, bad anatomy, bad hands, "
+        "extra fingers, missing fingers, extra limbs, disfigured, poorly drawn face, "
+        "mutated, bad proportions, gross proportions, extra eyes, missing arms, "
+        "missing legs, fused fingers, too many fingers, long neck, malformed limbs"
+    )
+    if not body.negative_prompt or len(body.negative_prompt.strip()) < 10:
+        body.negative_prompt = DEFAULT_NEGATIVE
+
     # 1. Prompt compliance (CSAM + real person block)
     _check_adult_prompt(body.prompt)
 

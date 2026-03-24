@@ -80,7 +80,7 @@ export default function AdultPage() {
 
   // Generation params
   const [prompt, setPrompt] = useState("");
-  const [negativePrompt, setNegativePrompt] = useState("");
+  const [negativePrompt, setNegativePrompt] = useState("worst quality, low quality, blurry, deformed, ugly, bad anatomy, bad hands, extra fingers, missing fingers, extra limbs, disfigured, poorly drawn face, mutated, bad proportions, gross proportions, extra eyes, missing arms, missing legs, fused fingers, too many fingers, long neck, malformed limbs");
   const [model, setModel] = useState("novita_uber_realistic_porn");
   const [videoModel, setVideoModel] = useState("fal_ltx_t2v");
   const [width, setWidth] = useState(768);
@@ -579,7 +579,7 @@ export default function AdultPage() {
                     <Textarea
                       id="adult-neg"
                       placeholder="worst quality, low quality, blurry, deformed, ugly, bad anatomy..."
-                      value={negativePrompt || "worst quality, low quality, blurry, deformed, ugly, bad anatomy, bad hands, extra fingers, missing fingers, extra limbs, disfigured, poorly drawn face, mutated, bad proportions, gross proportions, extra eyes"}
+                      value={negativePrompt}
                       onChange={(e) => setNegativePrompt(e.target.value)}
                       rows={2}
                     />
