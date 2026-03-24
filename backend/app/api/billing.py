@@ -223,6 +223,58 @@ async def create_checkout(
     return {"checkout_url": session.url}
 
 
+@router.post("/checkout-crypto")
+async def create_crypto_checkout(
+    plan: str,
+    user=Depends(get_current_user),
+    settings: Settings = Depends(get_settings),
+):
+    """Create crypto payment for a regular plan via NOWPayments."""
+    if not settings.nowpayments_api_key:
+        raise HTTPException(status_code=503, detail="Crypto payments coming soon")
+
+    plan_usd = {
+        "lite": 3.20, "basic": 6.50, "pro": 19.80,
+        "unlimited": 39.80, "studio": 66.50,
+    }
+    if plan not in plan_usd:
+        raise HTTPException(status_code=400, detail=f"Invalid plan: {plan}")
+
+    from app.services.crypto_pay import CryptoPayClient
+    crypto = CryptoPayClient(settings.nowpayments_api_key, settings.nowpayments_ipn_secret)
+
+    supabase = get_supabase(settings)
+    profile = await get_user_profile(supabase, user.id)
+    if not profile:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    origin = settings.cors_origins[0] if settings.cors_origins else "https://egaku-ai.com"
+
+    import httpx
+    data = {
+        "price_amount": plan_usd[plan],
+        "price_currency": "usd",
+        "order_id": f"main_{plan}_{user.id}",
+        "order_description": f"EGAKU AI {plan.title()} Plan (30 days)",
+        "success_url": f"{origin}/settings?checkout=success&plan={plan}",
+        "cancel_url": f"{origin}/settings?checkout=cancel",
+    }
+    async with httpx.AsyncClient(timeout=30) as client:
+        r = await client.post(
+            "https://api.nowpayments.io/v1/invoice",
+            json=data,
+            headers={"x-api-key": settings.nowpayments_api_key, "Content-Type": "application/json"},
+        )
+        r.raise_for_status()
+        result = r.json()
+
+    return {
+        "invoice_url": result.get("invoice_url"),
+        "invoice_id": result.get("id"),
+        "price_usd": plan_usd[plan],
+    }
+
+
 @router.post("/portal")
 async def create_portal_session(
     user=Depends(get_current_user),

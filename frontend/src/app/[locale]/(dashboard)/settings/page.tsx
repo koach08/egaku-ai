@@ -103,6 +103,20 @@ function SettingsContent() {
     }
   };
 
+  const handleCryptoUpgrade = async (plan: string) => {
+    if (!session) return;
+    setUpgrading(plan);
+    try {
+      const res = await api.createCryptoCheckout(session.access_token, plan);
+      if (res.invoice_url) window.location.href = res.invoice_url;
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Crypto checkout failed";
+      toast.error(msg.includes("coming soon") ? "Crypto payments coming soon!" : msg);
+    } finally {
+      setUpgrading(null);
+    }
+  };
+
   const handleManageBilling = async () => {
     if (!session) return;
     setLoading(true);
@@ -248,13 +262,22 @@ function SettingsContent() {
                           {info.price} &middot; {info.credits} credits
                         </p>
                       </div>
-                      <Button
-                        size="sm"
-                        onClick={() => handleUpgrade(plan)}
-                        disabled={upgrading !== null}
-                      >
-                        {upgrading === plan ? "Loading..." : "Upgrade"}
-                      </Button>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          size="sm"
+                          onClick={() => handleUpgrade(plan)}
+                          disabled={upgrading !== null}
+                        >
+                          {upgrading === plan ? "Loading..." : "Upgrade"}
+                        </Button>
+                        <button
+                          onClick={() => handleCryptoUpgrade(plan)}
+                          disabled={upgrading !== null}
+                          className="text-[10px] text-muted-foreground hover:text-foreground px-2 py-1 border rounded transition-colors disabled:opacity-50"
+                        >
+                          Crypto
+                        </button>
+                      </div>
                     </div>
                   );
                 })}

@@ -231,14 +231,21 @@ async def nowpayments_webhook(request: Request, settings: Settings = Depends(get
     logger.info(f"NOWPayments webhook: status={payment_status} order={order_id}")
 
     if payment_status in ("finished", "confirmed"):
-        # Parse order_id: "adult_{plan}_{user_id}"
         parts = order_id.split("_", 2)
-        if len(parts) >= 3 and parts[0] == "adult":
-            plan = f"adult_{parts[1]}"
+        if len(parts) >= 3:
+            prefix = parts[0]
+            plan_name = parts[1]
             user_id = parts[2]
 
             supabase = get_supabase(settings)
-            _update_adult_plan(supabase, user_id, plan)
-            logger.info(f"Crypto payment confirmed: user={user_id} plan={plan}")
+
+            if prefix == "adult":
+                # Adult plan: "adult_{plan}_{user_id}"
+                _update_adult_plan(supabase, user_id, f"adult_{plan_name}")
+                logger.info(f"Crypto adult plan confirmed: user={user_id} plan=adult_{plan_name}")
+            elif prefix == "main":
+                # Regular plan: "main_{plan}_{user_id}"
+                _update_user_plan(supabase, user_id, plan_name)
+                logger.info(f"Crypto main plan confirmed: user={user_id} plan={plan_name}")
 
     return {"ok": True}

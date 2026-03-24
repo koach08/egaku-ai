@@ -299,6 +299,11 @@ export const api = {
       method: "POST",
       headers: authHeaders(token),
     }),
+  createCryptoCheckout: (token: string, plan: string) =>
+    fetchAPI(`/billing/checkout-crypto?plan=${plan}`, {
+      method: "POST",
+      headers: authHeaders(token),
+    }),
   createPortalSession: (token: string) =>
     fetchAPI("/billing/portal", {
       method: "POST",
