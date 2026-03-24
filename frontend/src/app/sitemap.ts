@@ -22,6 +22,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: "/ai/ai-image-upscaler", priority: 0.7, changeFrequency: "monthly" as const },
     { path: "/ai/ai-background-remover", priority: 0.7, changeFrequency: "monthly" as const },
     { path: "/ai/civitai-models-online", priority: 0.7, changeFrequency: "monthly" as const },
+    // Adult SEO pages
+    { path: "/ai/ai-nsfw-generator", priority: 0.7, changeFrequency: "monthly" as const },
+    { path: "/ai/ai-hentai-generator", priority: 0.7, changeFrequency: "monthly" as const },
+    { path: "/ai/ai-nsfw-video-generator", priority: 0.7, changeFrequency: "monthly" as const },
+    { path: "/adult", priority: 0.6, changeFrequency: "weekly" as const },
     // Legal pages
     { path: "/content-policy", priority: 0.4, changeFrequency: "yearly" as const },
     { path: "/terms", priority: 0.3, changeFrequency: "yearly" as const },

@@ -328,6 +328,24 @@ export default function LandingPage() {
               Unrestricted AI Art
             </Link>
             <Link
+              href="/ai/ai-nsfw-generator"
+              className="text-muted-foreground hover:text-foreground transition-colors"
+            >
+              AI NSFW Generator
+            </Link>
+            <Link
+              href="/ai/ai-hentai-generator"
+              className="text-muted-foreground hover:text-foreground transition-colors"
+            >
+              AI Hentai Generator
+            </Link>
+            <Link
+              href="/ai/ai-nsfw-video-generator"
+              className="text-muted-foreground hover:text-foreground transition-colors"
+            >
+              AI NSFW Video
+            </Link>
+            <Link
               href="/adult"
               className="text-muted-foreground/60 hover:text-pink-400/80 transition-colors"
             >

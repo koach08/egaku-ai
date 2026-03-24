@@ -430,6 +430,142 @@ const PAGES: Record<
     minPlan: "Basic",
     credits: "3",
   },
+  "ai-nsfw-generator": {
+    title: "AI NSFW Image Generator - Uncensored AI Art Creator | EGAKU AI",
+    h1: "AI NSFW Image Generator",
+    description:
+      "Create uncensored NSFW AI images with 14+ specialized models. Photorealistic, anime, hentai styles. No content filter. Mosaic control. Age-verified adults only (18+). From $6.50/month.",
+    keywords: [
+      "ai nsfw generator", "nsfw ai art", "uncensored ai generator",
+      "ai image generator nsfw", "nsfw ai image generator free",
+      "ai art generator no filter", "unrestricted ai image generator",
+      "ai adult image generator", "nsfw ai art generator online",
+    ],
+    features: [
+      "14+ NSFW-optimized models (UberRealisticPorn, ChilloutMix, EpicPhotogasm)",
+      "Anime/Hentai models (Hassaku Hentai, MeinaHentai, Anything v5)",
+      "SDXL models for higher quality (ProtoVision XL, HelloWorld SDXL)",
+      "No safety filters - full creative freedom",
+      "Mosaic on/off toggle with regional legal warnings",
+      "Image-to-image transformation for custom editing",
+      "ControlNet (OpenPose, Canny, Depth) for precise control",
+      "CivitAI model browser - use any model (Patron plan)",
+    ],
+    prompts: [
+      "beautiful woman, elegant lingerie, soft studio lighting, photorealistic, detailed skin, professional boudoir photography",
+      "1girl, anime style, seductive pose, detailed eyes, masterpiece, best quality, vibrant colors",
+      "fantasy goddess, ethereal beauty, flowing sheer fabric, dramatic lighting, ornate jewelry",
+      "artistic nude, renaissance painting inspired, chiaroscuro lighting, oil painting texture, museum quality",
+    ],
+    faq: [
+      {
+        q: "Is this legal?",
+        a: "Yes. EGAKU AI Adult Expression is available to age-verified users (18+). We comply with regional laws - Japan requires mosaic on public content, which is handled automatically. Child exploitation material (CSAM) is strictly prohibited.",
+      },
+      {
+        q: "Which models work best for NSFW?",
+        a: "UberRealisticPorn v1.3 and ChilloutMix produce the best photorealistic results. For anime/hentai, Hassaku Hentai v1.3 is recommended. All models run on Novita.ai with zero content filtering.",
+      },
+      {
+        q: "Can I control censoring/mosaic?",
+        a: "Yes. A mosaic toggle is available. In Japan, mosaic is on by default for legal compliance. In other regions, you can generate fully uncensored content.",
+      },
+      {
+        q: "What payment methods are accepted?",
+        a: "We accept credit cards (via Stripe) and 240+ cryptocurrencies (via NOWPayments) including Bitcoin, Ethereum, USDT, and more. Crypto payments are anonymous.",
+      },
+    ],
+    category: "feature",
+    minPlan: "Adult Starter ($6.50/mo)",
+    credits: "2-3",
+  },
+  "ai-hentai-generator": {
+    title: "AI Hentai Generator - Anime NSFW Art Creator | EGAKU AI",
+    h1: "AI Hentai Generator",
+    description:
+      "Generate high-quality hentai and anime NSFW art with AI. Specialized anime models, uncensored output, LoRA support. Create custom characters and scenes. Adults only (18+).",
+    keywords: [
+      "ai hentai generator", "hentai ai", "ai hentai art generator",
+      "anime nsfw generator", "ai anime nsfw", "hentai image generator",
+      "uncensored hentai ai", "ai hentai maker",
+      "hentai generator online", "free hentai ai generator",
+    ],
+    features: [
+      "Hassaku Hentai v1.3 - top-rated anime NSFW model",
+      "MeinaHentai v4 - classic hentai style",
+      "Anything v5 - versatile anime model",
+      "CivitAI anime LoRAs for custom characters",
+      "ControlNet with OpenPose for exact body positioning",
+      "Uncensored output with optional mosaic",
+      "High resolution up to 1024x1024",
+    ],
+    prompts: [
+      "1girl, long flowing hair, detailed anime eyes, seductive expression, masterpiece, best quality, vibrant colors",
+      "anime couple, romantic scene, soft lighting, detailed illustration, high quality",
+      "fantasy elf girl, pointy ears, magical forest background, ethereal lighting, anime style, masterpiece",
+      "1girl, school uniform, dynamic pose, cherry blossom background, detailed, best quality",
+    ],
+    faq: [
+      {
+        q: "What is the best model for hentai?",
+        a: "Hassaku Hentai v1.3 produces the best results for classic hentai style. MeinaHentai v4 is great for softer anime aesthetics. Both run uncensored on EGAKU AI.",
+      },
+      {
+        q: "Can I create custom anime characters?",
+        a: "Yes. Use LoRA models from CivitAI to create specific character styles. Combine with ControlNet OpenPose for precise body positioning.",
+      },
+      {
+        q: "Is there a free trial?",
+        a: "NSFW generation requires an Adult Expression subscription starting at $6.50/month (¥980). This covers GPU costs for uncensored generation.",
+      },
+    ],
+    category: "model",
+    minPlan: "Adult Starter ($6.50/mo)",
+    credits: "2",
+  },
+  "ai-nsfw-video-generator": {
+    title: "AI NSFW Video Generator - Create Adult Videos with AI | EGAKU AI",
+    h1: "AI NSFW Video Generator",
+    description:
+      "Generate NSFW videos with AI. Text-to-video and image-to-video with Kling v2 and AnimateDiff. Uncensored adult video generation. Animate your AI images into video. 18+ only.",
+    keywords: [
+      "ai nsfw video generator", "ai adult video", "nsfw video ai",
+      "ai video generator uncensored", "ai porn video generator",
+      "text to video nsfw", "image to video nsfw",
+      "ai video generator no filter", "adult ai video maker",
+    ],
+    features: [
+      "Text-to-video with Kling v2 (highest quality, NSFW verified)",
+      "LTX 2.3 for fast video generation",
+      "Image-to-video: animate any NSFW image via Novita SVD",
+      "AnimateDiff with NSFW models (UberRealisticPorn, Babes, Hentai)",
+      "No content filter on video output",
+      "Crypto payment accepted (anonymous)",
+    ],
+    prompts: [
+      "beautiful woman slowly turning around, elegant dress flowing in wind, soft golden lighting, cinematic",
+      "woman in steamy shower, water droplets on glass, artistic backlit cinematography, slow motion",
+      "couple dancing closely, romantic atmosphere, warm lighting, slow motion, cinematic video",
+      "artistic nude, slow motion hair flip, soft lighting, upper body, simple background",
+    ],
+    faq: [
+      {
+        q: "Which video model is best for NSFW?",
+        a: "Kling v2 produces the highest quality NSFW videos from text prompts. For image-to-video (animating a still NSFW image), Novita SVD works without any content filter.",
+      },
+      {
+        q: "How long are the generated videos?",
+        a: "Videos are typically 3-5 seconds. Kling v2 produces 5-second clips. AnimateDiff generates 2-3 second animations. Multiple clips can be combined externally.",
+      },
+      {
+        q: "Can I animate my own NSFW images?",
+        a: "Yes. Generate an NSFW image, then use Image-to-Video mode with Kling v2 I2V or Novita SVD to animate it. This produces the highest quality NSFW videos.",
+      },
+    ],
+    category: "feature",
+    minPlan: "Adult Starter ($6.50/mo)",
+    credits: "5-15",
+  },
 };
 
 // ─── Static Params ───
