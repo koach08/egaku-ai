@@ -400,3 +400,81 @@ class NovitaClient:
                     raise RuntimeError(f"Novita.ai video failed: {reason}")
 
             raise TimeoutError("Novita.ai video generation timed out")
+
+    async def img2video(
+        self,
+        image_url: str,
+        steps: int = 25,
+        frames: int = 14,
+        fps: int = 6,
+        model: str = "SVD",
+    ) -> str | None:
+        """Convert image to video via Novita.ai SVD (no NSFW filter).
+
+        Args:
+            image_url: URL or data:base64 of the source image
+        Returns:
+            Video URL or None
+        """
+        import base64 as b64mod
+
+        # Download image and convert to base64 if it's a URL
+        async with httpx.AsyncClient(timeout=60) as client:
+            if image_url.startswith("data:"):
+                # Extract base64 from data URI
+                image_b64 = image_url.split(",", 1)[1] if "," in image_url else image_url
+            else:
+                # Download from URL
+                img_resp = await client.get(image_url)
+                img_resp.raise_for_status()
+                image_b64 = b64mod.b64encode(img_resp.content).decode()
+
+            if model == "SVD-XT":
+                frames = 25  # SVD-XT requires exactly 25 frames
+
+            data = {
+                "model_name": model,
+                "image_file": image_b64,
+                "steps": steps,
+                "frames_num": frames,
+                "frames_per_second": fps,
+            }
+
+            response = await client.post(
+                f"{NOVITA_API_BASE}/async/img2video",
+                json=data,
+                headers=self.headers,
+                timeout=30,
+            )
+            response.raise_for_status()
+            result = response.json()
+
+            task_id = result.get("task_id", "")
+            if not task_id:
+                raise RuntimeError("No task_id from Novita.ai img2video")
+
+            logger.info("Novita.ai img2video task: %s", task_id)
+
+            import asyncio
+            for i in range(120):
+                await asyncio.sleep(5)
+
+                poll = await client.get(
+                    f"{NOVITA_API_BASE}/async/task-result?task_id={task_id}",
+                    headers=self.headers,
+                    timeout=15,
+                )
+                poll.raise_for_status()
+                poll_data = poll.json()
+                status = poll_data.get("task", {}).get("status", "")
+
+                if status == "TASK_STATUS_SUCCEED":
+                    videos = poll_data.get("videos", [])
+                    if videos:
+                        return videos[0].get("video_url", "")
+                    return None
+                elif status in ("TASK_STATUS_FAILED", "TASK_STATUS_CANCELED"):
+                    reason = poll_data.get("task", {}).get("reason", "")
+                    raise RuntimeError(f"Novita.ai img2video failed: {reason}")
+
+            raise TimeoutError("Novita.ai img2video timed out")

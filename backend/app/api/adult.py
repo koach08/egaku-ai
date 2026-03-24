@@ -680,7 +680,35 @@ async def generate_adult_video(
 
     is_i2v = bool(body.image_url)
 
-    # 5a. Novita.ai video (NSFW, no filters) — only for t2v, not i2v
+    # 5a-i2v. Novita.ai SVD for img2vid (NSFW, no filters on image input)
+    if is_i2v and settings.novita_api_key:
+        try:
+            from app.services.novita import NovitaClient
+
+            novita = NovitaClient(settings)
+            video_url = await novita.img2video(
+                image_url=body.image_url,
+                steps=25,
+                frames=14,
+                fps=6,
+            )
+            if video_url:
+                await _store_job_status(settings, job_id, "completed", {"url": video_url, "backend": "novita_svd"})
+                await _save_generation_to_db(
+                    settings, user.id, job_id, "img2vid", body.prompt,
+                    body.negative_prompt, "novita_svd", body.model_dump(), video_url, True,
+                )
+                return GenerationResponse(
+                    job_id=job_id,
+                    status=JobStatus.completed,
+                    credits_used=base_cost,
+                    result_url=video_url,
+                )
+        except Exception as e:
+            logger.error(f"Novita.ai img2vid failed: {e}")
+            raise HTTPException(status_code=500, detail=f"Image-to-video failed: {e}")
+
+    # 5a-t2v. Novita.ai AnimateDiff for txt2vid (NSFW, no filters)
     if settings.novita_api_key and is_novita_model and not is_i2v:
         try:
             from app.services.novita import BUILTIN_MODELS, NovitaClient
