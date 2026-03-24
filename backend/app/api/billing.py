@@ -78,6 +78,30 @@ REGION_PRICES: dict[str, dict[str, str]] = {
 
 LOCAL_LICENSE_PRICE_ID = "price_1T8GZxPShJirStHRCA15wd6k"
 
+# ── Adult Expression Plans (standalone subscription) ──
+# Stripe Price IDs — create these in Stripe Dashboard
+ADULT_PLAN_PRICES: dict[str, str] = {
+    "adult_starter": "price_1TEJeOPShJirStHR5mdU96ev",
+    "adult_creator": "price_1TEJeOPShJirStHRvCIqGObq",
+    "adult_studio": "price_1TEJePPShJirStHR9mbOrHhc",
+    "adult_patron": "price_1TEJeQPShJirStHR7hHv0R93",
+}
+
+ADULT_PLAN_INFO = {
+    "none": {"name": "None", "price": 0, "credits": 0, "generations_per_month": 0},
+    "adult_starter": {"name": "Starter", "price": 980, "credits": 100, "generations_per_month": 100},
+    "adult_creator": {"name": "Creator", "price": 2480, "credits": 500, "generations_per_month": 500},
+    "adult_studio": {"name": "Studio", "price": 4980, "credits": 2000, "generations_per_month": 2000},
+    "adult_patron": {"name": "Patron", "price": 9800, "credits": 999999, "generations_per_month": 999999},
+}
+
+ADULT_PLAN_CREDITS = {
+    "adult_starter": 100,
+    "adult_creator": 500,
+    "adult_studio": 2000,
+    "adult_patron": 999999,
+}
+
 
 def _get_stripe(settings: Settings):
     stripe.api_key = settings.stripe_secret_key

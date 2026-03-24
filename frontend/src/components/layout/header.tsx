@@ -99,9 +99,14 @@ export function Header() {
             Discord
           </a>
           {user && (
-            <Link href="/settings" className="hover:text-foreground/80">
-              {t("nav.settings")}
-            </Link>
+            <>
+              <Link href="/adult" className="hover:text-foreground/80 text-pink-400/80 hover:text-pink-400">
+                18+
+              </Link>
+              <Link href="/settings" className="hover:text-foreground/80">
+                {t("nav.settings")}
+              </Link>
+            </>
           )}
         </nav>
 
@@ -157,6 +162,9 @@ export function Header() {
                 <DropdownMenuItem render={<Link href="/my-gallery" />}>
                   {t("nav.myGenerations")}
                 </DropdownMenuItem>
+                <DropdownMenuItem render={<Link href="/adult" />}>
+                  <span className="text-pink-400">18+ Adult</span>
+                </DropdownMenuItem>
                 <DropdownMenuItem render={<Link href="/settings" />}>
                   {t("nav.settings")}
                 </DropdownMenuItem>
@@ -203,9 +211,14 @@ export function Header() {
             Discord Community
           </a>
           {user && (
-            <Link href="/settings" onClick={() => setMobileOpen(false)} className="block py-2 text-sm hover:text-foreground/80">
-              {t("nav.settings")}
-            </Link>
+            <>
+              <Link href="/adult" onClick={() => setMobileOpen(false)} className="block py-2 text-sm text-pink-400/80 hover:text-pink-400">
+                18+ Adult Expression
+              </Link>
+              <Link href="/settings" onClick={() => setMobileOpen(false)} className="block py-2 text-sm hover:text-foreground/80">
+                {t("nav.settings")}
+              </Link>
+            </>
           )}
           <div className="pt-2 border-t mt-2">
             {user ? (

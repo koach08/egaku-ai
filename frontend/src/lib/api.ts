@@ -316,4 +316,22 @@ export const api = {
   // Download
   getSelfHostedDownload: (token: string) =>
     fetchAPI("/download/self-hosted", { headers: authHeaders(token) }),
+
+  // Adult Expression
+  getAdultPlans: () => fetchAPI("/adult/plans"),
+  getAdultSubscription: (token: string) =>
+    fetchAPI("/adult/subscription", { headers: authHeaders(token) }),
+  createAdultCheckout: (token: string, plan: string) =>
+    fetchAPI(`/adult/checkout?plan=${plan}`, {
+      method: "POST",
+      headers: authHeaders(token),
+    }),
+  getAdultModels: () => fetchAPI("/adult/models"),
+  getAdultRegionRules: () => fetchAPI("/adult/region-rules"),
+  generateAdult: (token: string, params: Record<string, unknown>) =>
+    fetchAPI("/adult/generate", {
+      method: "POST",
+      headers: authHeaders(token),
+      body: JSON.stringify(params),
+    }),
 };

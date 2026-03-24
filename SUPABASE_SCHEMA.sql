@@ -13,10 +13,12 @@ CREATE TABLE IF NOT EXISTS users (
   age_verified BOOLEAN DEFAULT FALSE,
   region_code TEXT DEFAULT 'US',
   plan TEXT DEFAULT 'free',
+  adult_plan TEXT DEFAULT 'none',
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 CREATE INDEX IF NOT EXISTS idx_users_plan ON users(plan);
+CREATE INDEX IF NOT EXISTS idx_users_adult_plan ON users(adult_plan);
 
 -- ============================================================
 -- Credits

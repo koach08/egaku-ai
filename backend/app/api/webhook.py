@@ -15,6 +15,7 @@ router = APIRouter(prefix="/webhooks", tags=["webhooks"])
 
 # Monthly credit allocations per plan
 PLAN_CREDITS = {"free": 15, "lite": 150, "basic": 500, "pro": 2000, "unlimited": 999999, "studio": 999999}
+ADULT_PLAN_CREDITS = {"adult_starter": 100, "adult_creator": 500, "adult_studio": 2000, "adult_patron": 999999}
 
 
 @router.post("/runpod")
@@ -84,6 +85,23 @@ def _find_user_by_email(supabase, email: str) -> dict | None:
     return result.data
 
 
+def _update_adult_plan(supabase, user_id: str, plan: str):
+    """Update user's adult plan and add adult credits."""
+    supabase.table("users").update({"adult_plan": plan}).eq("id", user_id).execute()
+    credits = ADULT_PLAN_CREDITS.get(plan, 100)
+    # Adult credits add on top of existing balance
+    current = supabase.table("credits").select("balance").eq("user_id", user_id).maybe_single().execute()
+    new_balance = (current.data["balance"] if current.data else 0) + credits
+    supabase.table("credits").upsert({"user_id": user_id, "balance": new_balance}).execute()
+    supabase.table("credit_transactions").insert({
+        "user_id": user_id,
+        "amount": credits,
+        "type": "adult_subscription",
+        "description": f"Monthly {plan} adult plan credits",
+    }).execute()
+    logger.info(f"Adult plan updated: user={user_id} plan={plan} credits={credits}")
+
+
 def _update_user_plan(supabase, user_id: str, plan: str):
     """Update user plan and reset credits."""
     supabase.table("users").update({"plan": plan}).eq("id", user_id).execute()
@@ -133,7 +151,11 @@ async def stripe_webhook(request: Request, settings: Settings = Depends(get_sett
             ).eq("id", user_id).execute()
 
             if data.get("mode") == "subscription":
-                _update_user_plan(supabase, user_id, plan)
+                plan_type = metadata.get("type", "main")
+                if plan_type == "adult":
+                    _update_adult_plan(supabase, user_id, plan)
+                else:
+                    _update_user_plan(supabase, user_id, plan)
             elif data.get("mode") == "payment":
                 # One-time purchase (local license)
                 supabase.table("users").update(
