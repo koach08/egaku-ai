@@ -42,12 +42,13 @@ ADULT_PROHIBITED_KEYWORDS = [
 
 # NSFW-optimized models (Novita.ai + fal uncensored)
 ADULT_MODELS = [
-    {"id": "fal_flux_realism", "name": "Flux Realism (Uncensored)", "credits": 3, "badge": "Best"},
-    {"id": "novita_dreamshaper_xl", "name": "DreamShaper XL", "credits": 3, "badge": "Realistic"},
-    {"id": "novita_realistic_vision", "name": "Realistic Vision", "credits": 3, "badge": "Photo"},
-    {"id": "novita_meinamix", "name": "MeinaMix (Anime)", "credits": 2, "badge": "Anime"},
-    {"id": "fal_flux_dev", "name": "Flux Dev", "credits": 5, "badge": "Quality"},
-    {"id": "fal_sdxl", "name": "SDXL", "credits": 2, "badge": ""},
+    {"id": "novita_epicphotogasm", "name": "EpicPhotogasm (Photorealistic)", "credits": 3, "badge": "Best"},
+    {"id": "novita_epicrealism", "name": "EpicRealism (Natural)", "credits": 3, "badge": "Photo"},
+    {"id": "novita_realistic_vision", "name": "Realistic Vision v4", "credits": 2, "badge": "Realistic"},
+    {"id": "novita_meinahentai", "name": "MeinaHentai v4 (Anime)", "credits": 2, "badge": "Anime"},
+    {"id": "novita_revanimated", "name": "RevAnimated (Fantasy)", "credits": 2, "badge": "Fantasy"},
+    {"id": "fal_flux_realism", "name": "Flux Realism", "credits": 3, "badge": "Flux"},
+    {"id": "fal_flux_dev", "name": "Flux Dev", "credits": 5, "badge": ""},
 ]
 
 ADULT_VIDEO_MODELS = [

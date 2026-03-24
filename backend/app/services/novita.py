@@ -19,32 +19,50 @@ NOVITA_API_BASE = "https://api.novita.ai/v3"
 
 # Pre-configured popular models (users can also use any CivitAI checkpoint)
 BUILTIN_MODELS = {
-    "novita_dreamshaper_xl": {
-        "model_name": "dreamshaperXL_v21Turbo_631290.safetensors",
-        "name": "DreamShaper XL",
-        "category": "artistic",
-        "description": "Versatile SDXL model, great for all styles",
+    "novita_epicphotogasm": {
+        "model_name": "epicphotogasm_xPlusPlus_135412.safetensors",
+        "name": "EpicPhotogasm (Photorealistic)",
+        "category": "realistic",
+        "description": "Best photorealistic model, fully NSFW capable",
         "min_plan": "free",
-        "credits": 2,
-        "defaults": {"steps": 8, "guidance_scale": 2, "width": 1024, "height": 1024},
+        "credits": 3,
+        "defaults": {"steps": 25, "guidance_scale": 7, "width": 512, "height": 768, "sampler_name": "DPM++ 2M Karras"},
+    },
+    "novita_epicrealism": {
+        "model_name": "epicrealism_naturalSinRC1VAE_106430.safetensors",
+        "name": "EpicRealism (Natural)",
+        "category": "realistic",
+        "description": "Natural photorealistic, great skin detail",
+        "min_plan": "free",
+        "credits": 3,
+        "defaults": {"steps": 25, "guidance_scale": 7, "width": 512, "height": 768, "sampler_name": "DPM++ 2M Karras"},
     },
     "novita_realistic_vision": {
-        "model_name": "realisticVisionV60B1_v51VAE_127635.safetensors",
-        "name": "Realistic Vision v5.1 (NSFW OK)",
+        "model_name": "realisticVisionV40_v40VAE-inpainting_81543.safetensors",
+        "name": "Realistic Vision v4",
         "category": "realistic",
-        "description": "Photorealistic, NSFW-friendly checkpoint",
+        "description": "Photorealistic, NSFW-friendly",
         "min_plan": "free",
         "credits": 2,
-        "defaults": {"steps": 25, "guidance_scale": 7, "width": 512, "height": 768},
+        "defaults": {"steps": 25, "guidance_scale": 7, "width": 512, "height": 768, "sampler_name": "DPM++ 2M Karras"},
     },
-    "novita_meinamix": {
-        "model_name": "meinamix_meinaV11_97584.safetensors",
-        "name": "MeinaMix v11 (Anime NSFW)",
+    "novita_meinahentai": {
+        "model_name": "meinahentai_v4_70340.safetensors",
+        "name": "MeinaHentai v4 (Anime)",
         "category": "anime",
-        "description": "High quality anime, NSFW-friendly",
+        "description": "Anime/hentai style, fully uncensored",
         "min_plan": "free",
         "credits": 2,
-        "defaults": {"steps": 25, "guidance_scale": 7, "width": 512, "height": 768},
+        "defaults": {"steps": 25, "guidance_scale": 7, "width": 512, "height": 768, "sampler_name": "DPM++ 2M Karras"},
+    },
+    "novita_revanimated": {
+        "model_name": "revAnimated_v122.safetensors",
+        "name": "RevAnimated (Fantasy)",
+        "category": "artistic",
+        "description": "Fantasy/artistic style, versatile",
+        "min_plan": "free",
+        "credits": 2,
+        "defaults": {"steps": 25, "guidance_scale": 7, "width": 512, "height": 768, "sampler_name": "DPM++ 2M Karras"},
     },
 }
 
@@ -70,6 +88,7 @@ class NovitaClient:
         guidance_scale: float = 7.0,
         seed: int = -1,
         negative_prompt: str = "",
+        sampler_name: str = "DPM++ 2M Karras",
     ) -> list[str]:
         """Generate image with a CivitAI checkpoint model via Novita.ai.
 
@@ -98,7 +117,7 @@ class NovitaClient:
                 data["negative_prompt"] = negative_prompt
             endpoint = "/async/flux"
         else:
-            data = {
+            request_body: dict = {
                 "model_name": model_name,
                 "prompt": prompt,
                 "negative_prompt": negative_prompt or "(worst quality, low quality:1.3)",
@@ -106,11 +125,16 @@ class NovitaClient:
                 "height": height,
                 "steps": steps,
                 "guidance_scale": guidance_scale if guidance_scale > 1 else 7.0,
+                "sampler_name": sampler_name or "DPM++ 2M Karras",
                 "image_num": 1,
                 "enable_nsfw_detection": False,
             }
             if seed >= 0:
-                data["seed"] = seed
+                request_body["seed"] = seed
+            data = {
+                "extra": {"response_image_type": "jpeg"},
+                "request": request_body,
+            }
             endpoint = "/async/txt2img"
 
         async with httpx.AsyncClient() as client:
