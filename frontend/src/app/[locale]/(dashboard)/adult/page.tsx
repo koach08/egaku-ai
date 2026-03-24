@@ -87,6 +87,7 @@ export default function AdultPage() {
   const [height, setHeight] = useState(1024);
   const [steps, setSteps] = useState(25);
   const [cfg, setCfg] = useState(7);
+  const [sampler, setSampler] = useState("euler_ancestral");
   const [seed, setSeed] = useState(-1);
   const [mosaicEnabled, setMosaicEnabled] = useState(true);
 
@@ -187,6 +188,7 @@ export default function AdultPage() {
           height,
           steps,
           cfg,
+          sampler,
           seed,
           mosaic_enabled: mosaicEnabled,
         });
@@ -670,31 +672,44 @@ export default function AdultPage() {
                     </div>
                   )}
 
-                  {/* Steps & CFG (image only) */}
+                  {/* Sampler + Steps & CFG (image only) */}
                   {mode === "image" && (
-                    <div className="grid grid-cols-2 gap-2">
+                    <>
                       <div>
-                        <Label className="text-xs">Steps: {steps}</Label>
-                        <Input
-                          type="range"
-                          min={1}
-                          max={50}
-                          value={steps}
-                          onChange={(e) => setSteps(Number(e.target.value))}
-                        />
+                        <Label className="text-xs">Sampler</Label>
+                        <Select value={sampler} onValueChange={(v) => v && setSampler(v)}>
+                          <SelectTrigger><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            {["euler_ancestral", "euler", "dpm_2", "dpmpp_2m", "dpmpp_sde", "ddim", "uni_pc", "lcm"].map((s) => (
+                              <SelectItem key={s} value={s}>{s}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
-                      <div>
-                        <Label className="text-xs">CFG: {cfg}</Label>
-                        <Input
-                          type="range"
-                          min={1}
-                          max={20}
-                          step={0.5}
-                          value={cfg}
-                          onChange={(e) => setCfg(Number(e.target.value))}
-                        />
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <Label className="text-xs">Steps: {steps}</Label>
+                          <Input
+                            type="range"
+                            min={1}
+                            max={50}
+                            value={steps}
+                            onChange={(e) => setSteps(Number(e.target.value))}
+                          />
+                        </div>
+                        <div>
+                          <Label className="text-xs">CFG: {cfg}</Label>
+                          <Input
+                            type="range"
+                            min={1}
+                            max={20}
+                            step={0.5}
+                            value={cfg}
+                            onChange={(e) => setCfg(Number(e.target.value))}
+                          />
+                        </div>
                       </div>
-                    </div>
+                    </>
                   )}
 
                   {/* Seed */}

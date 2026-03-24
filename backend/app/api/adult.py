@@ -81,6 +81,8 @@ class AdultGenerateRequest(BaseModel):
     height: int = Field(1024, ge=256, le=2048)
     steps: int = Field(25, ge=1, le=100)
     cfg: float = Field(7.0, ge=1.0, le=30.0)
+    sampler: str = "euler_ancestral"
+    scheduler: str = "normal"
     seed: int = -1
     mosaic_enabled: bool = True  # Default ON for safety
 
