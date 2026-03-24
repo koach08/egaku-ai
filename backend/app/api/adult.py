@@ -330,11 +330,41 @@ async def generate_adult(
     if not success:
         raise HTTPException(status_code=402, detail="Insufficient credits")
 
-    # 6. Generate via existing pipeline
+    # 6. Generate via GPU backends (priority: vast.ai → fal.ai → novita)
     from app.services.fal_ai import FalClient
 
     fal_client = FalClient(settings)
     job_id = str(uuid.uuid4())
+
+    # Try vast.ai first (cheapest, no content filter)
+    if settings.vastai_api_key:
+        try:
+            from app.services.vastai import VastAIClient
+            vast_client = VastAIClient(settings.vastai_api_key)
+            vast_result = await vast_client.submit_comfyui_workflow(
+                prompt=body.prompt,
+                negative_prompt=body.negative_prompt,
+                width=body.width,
+                height=body.height,
+                steps=body.steps,
+                cfg=body.cfg,
+                seed=body.seed,
+            )
+            if vast_result:
+                from app.api.generate import _save_generation_to_db, _store_job_status
+                await _store_job_status(settings, job_id, "completed", {"url": vast_result, "backend": "vastai"})
+                await _save_generation_to_db(
+                    settings, user.id, job_id, "txt2img", body.prompt,
+                    body.negative_prompt, model_id, body.model_dump(), vast_result, True,
+                )
+                return GenerationResponse(
+                    job_id=job_id,
+                    status=JobStatus.completed,
+                    credits_used=base_cost,
+                    result_url=vast_result,
+                )
+        except Exception as e:
+            logger.warning(f"vast.ai generation failed, falling back to fal.ai: {e}")
 
     # Route NSFW to appropriate backend
     nsfw_model = model_id

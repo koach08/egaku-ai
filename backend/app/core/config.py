@@ -43,6 +43,9 @@ class Settings(BaseSettings):
     # CivitAI (optional - for gated model downloads)
     civitai_api_key: str = ""
 
+    # vast.ai (GPU backend for adult/NSFW generation)
+    vastai_api_key: str = ""
+
     # Cloudflare R2 (cloud mode)
     r2_account_id: str = ""
     r2_access_key_id: str = ""
