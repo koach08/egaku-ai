@@ -334,4 +334,10 @@ export const api = {
       headers: authHeaders(token),
       body: JSON.stringify(params),
     }),
+  generateAdultVideo: (token: string, params: Record<string, unknown>) =>
+    fetchAPI("/adult/generate-video", {
+      method: "POST",
+      headers: authHeaders(token),
+      body: JSON.stringify(params),
+    }),
 };

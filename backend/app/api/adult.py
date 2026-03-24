@@ -50,6 +50,17 @@ ADULT_MODELS = [
     {"id": "fal_sdxl", "name": "SDXL", "credits": 2, "badge": ""},
 ]
 
+ADULT_VIDEO_MODELS = [
+    {"id": "fal_ltx_t2v", "name": "LTX 2.3", "credits": 5, "badge": "Fast", "type": "t2v"},
+    {"id": "fal_wan_t2v", "name": "Wan 2.1", "credits": 10, "badge": "", "type": "t2v"},
+    {"id": "fal_kling_t2v", "name": "Kling v2", "credits": 15, "badge": "HD", "type": "t2v"},
+    {"id": "fal_minimax_t2v", "name": "Minimax Hailuo", "credits": 15, "badge": "HD", "type": "t2v"},
+    {"id": "fal_kling25_t2v", "name": "Kling 2.5 Pro", "credits": 25, "badge": "Cinema", "type": "t2v"},
+    {"id": "fal_ltx_i2v", "name": "LTX 2 I2V", "credits": 5, "badge": "Fast", "type": "i2v"},
+    {"id": "fal_wan_i2v", "name": "Wan 2.1 I2V", "credits": 10, "badge": "", "type": "i2v"},
+    {"id": "fal_kling_i2v", "name": "Kling v2 I2V", "credits": 15, "badge": "HD", "type": "i2v"},
+]
+
 ADULT_PLAN_RANK = {
     "none": 0,
     "adult_starter": 1,
@@ -72,6 +83,15 @@ class AdultGenerateRequest(BaseModel):
     cfg: float = Field(7.0, ge=1.0, le=30.0)
     seed: int = -1
     mosaic_enabled: bool = True  # Default ON for safety
+
+
+class AdultVideoRequest(BaseModel):
+    prompt: str = Field(..., min_length=1, max_length=2000)
+    negative_prompt: str = ""
+    model: str = "fal_ltx_t2v"
+    image_url: str = ""  # For img2vid
+    seed: int = -1
+    mosaic_enabled: bool = True
 
 
 def _check_adult_access(profile: dict) -> None:
@@ -276,8 +296,8 @@ async def get_adult_region_rules(
 
 @router.get("/models")
 async def get_adult_models():
-    """Return available adult-optimized models."""
-    return {"models": ADULT_MODELS}
+    """Return available adult-optimized models (image + video)."""
+    return {"models": ADULT_MODELS, "video_models": ADULT_VIDEO_MODELS}
 
 
 @router.post("/generate", response_model=GenerationResponse)
@@ -453,3 +473,101 @@ async def generate_adult(
         raise HTTPException(status_code=500, detail="Generation failed. Please try again.")
 
     raise HTTPException(status_code=500, detail="Generation produced no result")
+
+
+# ── Video Generation ──
+
+@router.post("/generate-video", response_model=GenerationResponse)
+async def generate_adult_video(
+    body: AdultVideoRequest,
+    request: Request,
+    settings: Settings = Depends(get_settings),
+):
+    """Generate adult video content."""
+    from app.services.supabase import deduct_credits
+
+    # 1. Prompt compliance
+    _check_adult_prompt(body.prompt)
+
+    # 2. Auth
+    auth_header = request.headers.get("authorization", "")
+    if not auth_header.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Authentication required")
+    token = auth_header.split(" ", 1)[1]
+
+    supabase = get_supabase(settings)
+    try:
+        user_response = supabase.auth.get_user(token)
+        user = user_response.user
+    except Exception:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+    profile = await get_user_profile(supabase, user.id)
+    if not profile:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    # 3. Access check
+    _check_adult_access(profile)
+
+    # 4. Credits
+    model_id = body.model or "fal_ltx_t2v"
+    base_cost = 5
+    for m in ADULT_VIDEO_MODELS:
+        if m["id"] == model_id:
+            base_cost = m["credits"]
+            break
+
+    success = await deduct_credits(supabase, user.id, base_cost, f"Adult video ({model_id})")
+    if not success:
+        raise HTTPException(status_code=402, detail="Insufficient credits")
+
+    # 5. Generate via fal.ai
+    from app.services.fal_ai import VIDEO_MODELS, FalClient
+
+    fal_client = FalClient(settings)
+    job_id = str(uuid.uuid4())
+
+    if not fal_client.is_available():
+        raise HTTPException(status_code=503, detail="Video GPU backend unavailable")
+
+    if model_id not in VIDEO_MODELS:
+        model_id = "fal_ltx_t2v"
+
+    is_img2vid = bool(body.image_url)
+
+    try:
+        if is_img2vid:
+            fal_result = await fal_client.submit_img2vid(
+                image_url=body.image_url,
+                prompt=body.prompt,
+                seed=body.seed,
+                model_id=model_id,
+            )
+        else:
+            fal_result = await fal_client.submit_txt2vid(
+                prompt=body.prompt,
+                seed=body.seed,
+                model_id=model_id,
+            )
+
+        result_url = fal_client.extract_video_url(fal_result)
+        if result_url:
+            from app.api.generate import _save_generation_to_db, _store_job_status
+            gen_type = "img2vid" if is_img2vid else "txt2vid"
+            await _store_job_status(settings, job_id, "completed", {"url": result_url, "backend": "fal"})
+            await _save_generation_to_db(
+                settings, user.id, job_id, gen_type, body.prompt,
+                body.negative_prompt, model_id, body.model_dump(), result_url, True,
+            )
+            return GenerationResponse(
+                job_id=job_id,
+                status=JobStatus.completed,
+                credits_used=base_cost,
+                result_url=result_url,
+            )
+
+    except Exception as e:
+        logger.error(f"Adult video generation failed: {e}")
+        raise HTTPException(status_code=500, detail="Video generation failed. Please try again.")
+
+    raise HTTPException(status_code=500, detail="Video generation produced no result")

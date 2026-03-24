@@ -26,6 +26,14 @@ type AdultModel = {
   badge: string;
 };
 
+type VideoModel = {
+  id: string;
+  name: string;
+  credits: number;
+  badge: string;
+  type: string;
+};
+
 type RegionRules = {
   region: string;
   mosaic_required: boolean;
@@ -64,12 +72,17 @@ export default function AdultPage() {
 
   // Models & region
   const [models, setModels] = useState<AdultModel[]>([]);
+  const [videoModels, setVideoModels] = useState<VideoModel[]>([]);
   const [regionRules, setRegionRules] = useState<RegionRules | null>(null);
+
+  // Mode: image or video
+  const [mode, setMode] = useState<"image" | "video">("image");
 
   // Generation params
   const [prompt, setPrompt] = useState("");
   const [negativePrompt, setNegativePrompt] = useState("");
   const [model, setModel] = useState("fal_flux_realism");
+  const [videoModel, setVideoModel] = useState("fal_ltx_t2v");
   const [width, setWidth] = useState(768);
   const [height, setHeight] = useState(1024);
   const [steps, setSteps] = useState(25);
@@ -80,6 +93,7 @@ export default function AdultPage() {
   // Job state
   const [generating, setGenerating] = useState(false);
   const [resultUrl, setResultUrl] = useState<string | null>(null);
+  const [resultType, setResultType] = useState<"image" | "video">("image");
   const [error, setError] = useState<string | null>(null);
   const [elapsed, setElapsed] = useState(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -100,7 +114,10 @@ export default function AdultPage() {
       .catch(() => {});
 
     api.getAdultModels()
-      .then((data) => setModels(data.models || []))
+      .then((data) => {
+        setModels(data.models || []);
+        setVideoModels(data.video_models || []);
+      })
       .catch(() => {});
 
     api.getAdultRegionRules()
@@ -147,21 +164,33 @@ export default function AdultPage() {
     setResultUrl(null);
     setError(null);
     setElapsed(0);
+    setResultType(mode);
 
     timerRef.current = setInterval(() => setElapsed((p) => p + 1), 1000);
 
     try {
-      const res = await api.generateAdult(session.access_token, {
-        prompt,
-        negative_prompt: negativePrompt,
-        model,
-        width,
-        height,
-        steps,
-        cfg,
-        seed,
-        mosaic_enabled: mosaicEnabled,
-      });
+      let res;
+      if (mode === "video") {
+        res = await api.generateAdultVideo(session.access_token, {
+          prompt,
+          negative_prompt: negativePrompt,
+          model: videoModel,
+          seed,
+          mosaic_enabled: mosaicEnabled,
+        });
+      } else {
+        res = await api.generateAdult(session.access_token, {
+          prompt,
+          negative_prompt: negativePrompt,
+          model,
+          width,
+          height,
+          steps,
+          cfg,
+          seed,
+          mosaic_enabled: mosaicEnabled,
+        });
+      }
 
       if (res.status === "completed" && res.result_url) {
         setResultUrl(resolveResultUrl(res.result_url) || res.result_url);
@@ -462,11 +491,21 @@ export default function AdultPage() {
                       </div>
                     ) : resultUrl ? (
                       <div className="relative">
-                        <img
-                          src={resultUrl}
-                          alt="Generated"
-                          className="max-w-full max-h-[600px] object-contain rounded"
-                        />
+                        {resultType === "video" ? (
+                          <video
+                            src={resultUrl}
+                            controls
+                            autoPlay
+                            loop
+                            className="max-w-full max-h-[600px] rounded"
+                          />
+                        ) : (
+                          <img
+                            src={resultUrl}
+                            alt="Generated"
+                            className="max-w-full max-h-[600px] object-contain rounded"
+                          />
+                        )}
                         <div className="absolute bottom-2 right-2 flex gap-2">
                           <a
                             href={resultUrl}
@@ -496,6 +535,30 @@ export default function AdultPage() {
 
             {/* Right: controls */}
             <div className="space-y-4">
+              {/* Image / Video toggle */}
+              <div className="flex rounded-lg border overflow-hidden">
+                <button
+                  onClick={() => setMode("image")}
+                  className={`flex-1 py-2 text-sm font-medium transition-colors ${
+                    mode === "image"
+                      ? "bg-pink-600 text-white"
+                      : "bg-muted text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  Image
+                </button>
+                <button
+                  onClick={() => setMode("video")}
+                  className={`flex-1 py-2 text-sm font-medium transition-colors ${
+                    mode === "video"
+                      ? "bg-pink-600 text-white"
+                      : "bg-muted text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  Video
+                </button>
+              </div>
+
               {/* Prompt */}
               <Card>
                 <CardContent className="pt-4 space-y-3">
@@ -525,82 +588,114 @@ export default function AdultPage() {
               {/* Model */}
               <Card>
                 <CardContent className="pt-4 space-y-3">
-                  <div>
-                    <Label className="text-xs">Model</Label>
-                    <Select value={model} onValueChange={(v) => v && setModel(v)}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {models.map((m) => (
-                          <SelectItem key={m.id} value={m.id}>
-                            <span className="flex items-center gap-1.5">
-                              {m.name}
-                              <span className="text-[10px] text-muted-foreground">
-                                ({m.credits} cr)
-                              </span>
-                              {m.badge && (
-                                <span className="text-[10px] bg-pink-500/20 text-pink-400 px-1 rounded">
-                                  {m.badge}
+                  {mode === "image" ? (
+                    <div>
+                      <Label className="text-xs">Image Model</Label>
+                      <Select value={model} onValueChange={(v) => v && setModel(v)}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {models.map((m) => (
+                            <SelectItem key={m.id} value={m.id}>
+                              <span className="flex items-center gap-1.5">
+                                {m.name}
+                                <span className="text-[10px] text-muted-foreground">
+                                  ({m.credits} cr)
                                 </span>
-                              )}
-                            </span>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* Resolution */}
-                  <div className="grid grid-cols-2 gap-2">
-                    <div>
-                      <Label className="text-xs">Width</Label>
-                      <Select value={String(width)} onValueChange={(v) => setWidth(Number(v))}>
-                        <SelectTrigger><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          {[512, 640, 768, 832, 1024].map((v) => (
-                            <SelectItem key={v} value={String(v)}>{v}px</SelectItem>
+                                {m.badge && (
+                                  <span className="text-[10px] bg-pink-500/20 text-pink-400 px-1 rounded">
+                                    {m.badge}
+                                  </span>
+                                )}
+                              </span>
+                            </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
                     </div>
+                  ) : (
                     <div>
-                      <Label className="text-xs">Height</Label>
-                      <Select value={String(height)} onValueChange={(v) => setHeight(Number(v))}>
-                        <SelectTrigger><SelectValue /></SelectTrigger>
+                      <Label className="text-xs">Video Model</Label>
+                      <Select value={videoModel} onValueChange={(v) => v && setVideoModel(v)}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
                         <SelectContent>
-                          {[512, 640, 768, 832, 1024, 1280].map((v) => (
-                            <SelectItem key={v} value={String(v)}>{v}px</SelectItem>
+                          {videoModels.filter((m) => m.type === "t2v").map((m) => (
+                            <SelectItem key={m.id} value={m.id}>
+                              <span className="flex items-center gap-1.5">
+                                {m.name}
+                                <span className="text-[10px] text-muted-foreground">
+                                  ({m.credits} cr)
+                                </span>
+                                {m.badge && (
+                                  <span className="text-[10px] bg-pink-500/20 text-pink-400 px-1 rounded">
+                                    {m.badge}
+                                  </span>
+                                )}
+                              </span>
+                            </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
                     </div>
-                  </div>
+                  )
 
-                  {/* Steps & CFG */}
-                  <div className="grid grid-cols-2 gap-2">
-                    <div>
-                      <Label className="text-xs">Steps: {steps}</Label>
-                      <Input
-                        type="range"
-                        min={1}
-                        max={50}
-                        value={steps}
-                        onChange={(e) => setSteps(Number(e.target.value))}
-                      />
+                  {/* Resolution (image only) */}
+                  {mode === "image" && (
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <Label className="text-xs">Width</Label>
+                        <Select value={String(width)} onValueChange={(v) => setWidth(Number(v))}>
+                          <SelectTrigger><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            {[512, 640, 768, 832, 1024].map((v) => (
+                              <SelectItem key={v} value={String(v)}>{v}px</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label className="text-xs">Height</Label>
+                        <Select value={String(height)} onValueChange={(v) => setHeight(Number(v))}>
+                          <SelectTrigger><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            {[512, 640, 768, 832, 1024, 1280].map((v) => (
+                              <SelectItem key={v} value={String(v)}>{v}px</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </div>
-                    <div>
-                      <Label className="text-xs">CFG: {cfg}</Label>
-                      <Input
-                        type="range"
-                        min={1}
-                        max={20}
-                        step={0.5}
-                        value={cfg}
-                        onChange={(e) => setCfg(Number(e.target.value))}
-                      />
+                  )}
+
+                  {/* Steps & CFG (image only) */}
+                  {mode === "image" && (
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <Label className="text-xs">Steps: {steps}</Label>
+                        <Input
+                          type="range"
+                          min={1}
+                          max={50}
+                          value={steps}
+                          onChange={(e) => setSteps(Number(e.target.value))}
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-xs">CFG: {cfg}</Label>
+                        <Input
+                          type="range"
+                          min={1}
+                          max={20}
+                          step={0.5}
+                          value={cfg}
+                          onChange={(e) => setCfg(Number(e.target.value))}
+                        />
+                      </div>
                     </div>
-                  </div>
+                  )}
 
                   {/* Seed */}
                   <div>
@@ -670,7 +765,7 @@ export default function AdultPage() {
                 onClick={handleGenerate}
                 disabled={generating || !prompt.trim()}
               >
-                {generating ? `Generating... ${elapsed}s` : "Generate"}
+                {generating ? `Generating ${mode}... ${elapsed}s` : mode === "video" ? "Generate Video" : "Generate Image"}
               </Button>
 
               {/* Policy reminder */}
