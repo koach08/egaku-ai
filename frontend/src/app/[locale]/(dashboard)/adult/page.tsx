@@ -640,7 +640,7 @@ export default function AdultPage() {
                         </SelectContent>
                       </Select>
                     </div>
-                  )
+                  )}
 
                   {/* Resolution (image only) */}
                   {mode === "image" && (
