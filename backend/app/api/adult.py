@@ -678,8 +678,10 @@ async def generate_adult_video(
     job_id = str(uuid.uuid4())
     is_novita_model = model_id.startswith("novita_")
 
-    # 5a. Novita.ai video (NSFW, no filters) — for novita_ models or as primary
-    if settings.novita_api_key and (is_novita_model or not body.image_url):
+    is_i2v = bool(body.image_url)
+
+    # 5a. Novita.ai video (NSFW, no filters) — only for t2v, not i2v
+    if settings.novita_api_key and is_novita_model and not is_i2v:
         try:
             from app.services.novita import BUILTIN_MODELS, NovitaClient
 
@@ -722,11 +724,16 @@ async def generate_adult_video(
     if not fal_client.is_available():
         raise HTTPException(status_code=503, detail="Video GPU backend unavailable")
 
-    fal_model = model_id if model_id in VIDEO_MODELS else "fal_ltx_t2v"
-    is_img2vid = bool(body.image_url)
+    # For I2V models, use the correct fal.ai model; for others default to ltx t2v
+    if model_id in VIDEO_MODELS:
+        fal_model = model_id
+    elif is_i2v:
+        fal_model = "fal_kling_i2v"
+    else:
+        fal_model = "fal_ltx_t2v"
 
     try:
-        if is_img2vid:
+        if is_i2v:
             fal_result = await fal_client.submit_img2vid(
                 image_url=body.image_url,
                 prompt=body.prompt,
@@ -742,7 +749,7 @@ async def generate_adult_video(
 
         result_url = fal_client.extract_video_url(fal_result)
         if result_url:
-            gen_type = "img2vid" if is_img2vid else "txt2vid"
+            gen_type = "img2vid" if is_i2v else "txt2vid"
             await _store_job_status(settings, job_id, "completed", {"url": result_url, "backend": "fal"})
             await _save_generation_to_db(
                 settings, user.id, job_id, gen_type, body.prompt,
