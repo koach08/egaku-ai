@@ -196,17 +196,53 @@ export default function AdultPage() {
 
   if (authLoading) return null;
 
-  // Not logged in
+  // Not logged in — show teaser + sign in prompt
   if (!user) {
     return (
       <>
         <Header />
-        <div className="flex min-h-[60vh] items-center justify-center">
-          <Card className="w-full max-w-md text-center">
-            <CardContent className="pt-6">
-              <p className="mb-4 text-lg">Sign in to access Adult Expression</p>
-              <p className="mb-4 text-sm text-muted-foreground">You must be 18+ to use this feature.</p>
-              <Button render={<a href="/login" />}>Sign In</Button>
+        <div className="container mx-auto max-w-4xl px-4 py-10">
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-pink-500 to-rose-500 bg-clip-text text-transparent mb-2">
+              Adult Expression
+            </h1>
+            <p className="text-muted-foreground">
+              Uncensored AI image generation for mature creators. No filters, no limits.
+            </p>
+          </div>
+
+          {/* Teaser grid */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
+            {[
+              { label: "Photorealistic", color: "from-pink-600/40 to-rose-800/40" },
+              { label: "Anime / Hentai", color: "from-purple-600/40 to-fuchsia-800/40" },
+              { label: "Fantasy Art", color: "from-red-600/40 to-orange-800/40" },
+              { label: "Uncensored", color: "from-pink-700/40 to-red-900/40" },
+            ].map((item) => (
+              <div
+                key={item.label}
+                className={`aspect-[3/4] rounded-xl bg-gradient-to-br ${item.color} flex items-end p-3`}
+              >
+                <div>
+                  <p className="text-sm font-semibold text-white">{item.label}</p>
+                  <p className="text-[10px] text-white/40">Sign in to explore</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <Card className="max-w-md mx-auto border-pink-500/20 text-center">
+            <CardContent className="pt-6 space-y-3">
+              <p className="text-lg font-medium">Sign in to get started</p>
+              <p className="text-sm text-muted-foreground">
+                Age verification required. From {"\u00A5"}980/month.
+              </p>
+              <div className="flex gap-3 justify-center">
+                <Button variant="outline" render={<a href="/" />}>Back</Button>
+                <Button className="bg-pink-600 hover:bg-pink-700" render={<a href="/login" />}>
+                  Sign In
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -301,15 +337,70 @@ export default function AdultPage() {
           )}
         </div>
 
-        {/* No access — show plan selection */}
+        {/* No access — showcase + plan selection */}
         {!hasAccess && (
-          <div className="mb-8">
+          <div className="mb-8 space-y-8">
+            {/* Showcase: what you can create */}
+            <div>
+              <h2 className="text-lg font-semibold mb-3">What you can create</h2>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {[
+                  { label: "Photorealistic", color: "from-pink-600/40 to-rose-800/40", desc: "Lifelike portraits & figures" },
+                  { label: "Anime / Hentai", color: "from-purple-600/40 to-fuchsia-800/40", desc: "Illustration style" },
+                  { label: "Fantasy", color: "from-red-600/40 to-orange-800/40", desc: "Surreal & imaginative" },
+                  { label: "Uncensored", color: "from-pink-700/40 to-red-900/40", desc: "Mosaic on/off control" },
+                ].map((item) => (
+                  <div
+                    key={item.label}
+                    className={`relative aspect-[3/4] rounded-xl bg-gradient-to-br ${item.color} overflow-hidden group cursor-pointer`}
+                  >
+                    {/* Blurred placeholder - suggestive silhouette */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-16 h-16 rounded-full bg-white/5 backdrop-blur-sm border border-white/10 flex items-center justify-center">
+                        <svg className="w-6 h-6 text-white/40" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                        </svg>
+                      </div>
+                    </div>
+                    <div className="absolute bottom-0 left-0 right-0 p-3">
+                      <p className="text-sm font-semibold text-white">{item.label}</p>
+                      <p className="text-[10px] text-white/60">{item.desc}</p>
+                    </div>
+                    <div className="absolute top-2 right-2">
+                      <span className="text-[9px] bg-pink-500/30 text-pink-200 px-1.5 py-0.5 rounded-full backdrop-blur-sm">
+                        Subscribers only
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-muted-foreground mt-2 text-center">
+                Full uncensored generation available to subscribers. Mosaic can be toggled on/off per image.
+              </p>
+            </div>
+
+            {/* Features list */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="rounded-lg border border-pink-500/10 bg-pink-500/5 p-4">
+                <p className="font-medium text-sm mb-1">Uncensored Models</p>
+                <p className="text-xs text-muted-foreground">NSFW-optimized AI models with no safety filters. Photorealistic to anime.</p>
+              </div>
+              <div className="rounded-lg border border-pink-500/10 bg-pink-500/5 p-4">
+                <p className="font-medium text-sm mb-1">Mosaic Control</p>
+                <p className="text-xs text-muted-foreground">Toggle censoring on/off. Regional legal warnings included. Your content, your choice.</p>
+              </div>
+              <div className="rounded-lg border border-pink-500/10 bg-pink-500/5 p-4">
+                <p className="font-medium text-sm mb-1">Private & Secure</p>
+                <p className="text-xs text-muted-foreground">Generations are private by default. No public gallery unless you opt in.</p>
+              </div>
+            </div>
+
             <Card className="border-pink-500/20">
               <CardHeader>
                 <CardTitle className="text-lg">Choose Your Plan</CardTitle>
                 <p className="text-sm text-muted-foreground">
-                  Subscribe to Adult Expression or upgrade to Pro+ on your main plan.
-                  GPU costs are shared — prices may decrease as our community grows.
+                  Subscribe to start generating. GPU costs are shared — prices may decrease as our community grows.
                 </p>
               </CardHeader>
               <CardContent>
