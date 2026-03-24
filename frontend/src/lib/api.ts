@@ -340,4 +340,10 @@ export const api = {
       headers: authHeaders(token),
       body: JSON.stringify(params),
     }),
+  generateAdultCivitai: (token: string, params: Record<string, unknown>) =>
+    fetchAPI("/adult/generate-civitai", {
+      method: "POST",
+      headers: authHeaders(token),
+      body: JSON.stringify(params),
+    }),
 };

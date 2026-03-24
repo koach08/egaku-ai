@@ -81,7 +81,7 @@ export default function AdultPage() {
   // Generation params
   const [prompt, setPrompt] = useState("");
   const [negativePrompt, setNegativePrompt] = useState("");
-  const [model, setModel] = useState("novita_epicphotogasm");
+  const [model, setModel] = useState("novita_uber_realistic_porn");
   const [videoModel, setVideoModel] = useState("fal_ltx_t2v");
   const [width, setWidth] = useState(768);
   const [height, setHeight] = useState(1024);
@@ -578,8 +578,8 @@ export default function AdultPage() {
                     <Label htmlFor="adult-neg">Negative Prompt</Label>
                     <Textarea
                       id="adult-neg"
-                      placeholder="worst quality, low quality, blurry, deformed..."
-                      value={negativePrompt}
+                      placeholder="worst quality, low quality, blurry, deformed, ugly, bad anatomy..."
+                      value={negativePrompt || "worst quality, low quality, blurry, deformed, ugly, bad anatomy, bad hands, extra fingers, missing fingers, extra limbs, disfigured, poorly drawn face, mutated, bad proportions, gross proportions, extra eyes"}
                       onChange={(e) => setNegativePrompt(e.target.value)}
                       rows={2}
                     />
