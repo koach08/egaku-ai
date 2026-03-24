@@ -250,6 +250,15 @@ export default function LandingPage() {
               </Button>
             </CardContent>
           </Card>
+
+          {/* Adult Expression hint */}
+          <p className="mt-6 text-center text-xs text-muted-foreground/60">
+            Looking for unrestricted creative expression?{" "}
+            <Link href="/adult" className="underline underline-offset-2 hover:text-muted-foreground transition-colors">
+              Adult Expression plans
+            </Link>{" "}
+            are available for verified users (18+).
+          </p>
         </section>
 
         {/* SEO Internal Links */}
@@ -293,6 +302,12 @@ export default function LandingPage() {
               className="text-muted-foreground hover:text-foreground transition-colors"
             >
               Unrestricted AI Art
+            </Link>
+            <Link
+              href="/adult"
+              className="text-muted-foreground/60 hover:text-pink-400/80 transition-colors"
+            >
+              Adult Expression (18+)
             </Link>
             <Link
               href="/ai/ai-video-generator"
@@ -354,6 +369,12 @@ export default function LandingPage() {
                 className="hover:text-foreground transition-colors"
               >
                 Content Policy
+              </Link>
+              <Link
+                href="/adult"
+                className="hover:text-pink-400/70 transition-colors"
+              >
+                18+
               </Link>
             </div>
           </div>
