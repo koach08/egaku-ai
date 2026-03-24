@@ -98,7 +98,7 @@ export default function AdultPage() {
   const [prompt, setPrompt] = useState("");
   const [negativePrompt, setNegativePrompt] = useState("worst quality, low quality, blurry, deformed, ugly, bad anatomy, bad hands, extra fingers, missing fingers, extra limbs, disfigured, poorly drawn face, mutated, bad proportions, gross proportions, extra eyes, missing arms, missing legs, fused fingers, too many fingers, long neck, malformed limbs");
   const [model, setModel] = useState("novita_uber_realistic_porn");
-  const [videoModel, setVideoModel] = useState("fal_ltx_t2v");
+  const [videoModel, setVideoModel] = useState("fal_kling_t2v");
   const [width, setWidth] = useState(768);
   const [height, setHeight] = useState(1024);
   const [steps, setSteps] = useState(25);
@@ -231,13 +231,19 @@ export default function AdultPage() {
     try {
       let res;
       if (mode === "video") {
-        res = await api.generateAdultVideo(session.access_token, {
+        const isI2V = videoModels.find((m) => m.id === videoModel)?.type === "i2v";
+        const videoParams: Record<string, unknown> = {
           prompt,
           negative_prompt: negativePrompt,
           model: videoModel,
           seed,
           mosaic_enabled: mosaicEnabled,
-        });
+        };
+        if (isI2V && inputImage) {
+          const b64 = await fileToBase64(inputImage);
+          videoParams.image_url = `data:image/png;base64,${b64}`;
+        }
+        res = await api.generateAdultVideo(session.access_token, videoParams);
       } else if (mode === "img2img" && inputImage) {
         const b64 = await fileToBase64(inputImage);
         res = await api.adultImg2Img(session.access_token, {
@@ -710,30 +716,56 @@ export default function AdultPage() {
                     </div>
                   )}
                   {mode === "video" && (
-                    <div>
-                      <Label className="text-xs">Video Model</Label>
-                      <Select value={videoModel} onValueChange={(v) => v && setVideoModel(v)}>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {videoModels.filter((m) => m.type === "t2v").map((m) => (
-                            <SelectItem key={m.id} value={m.id}>
-                              <span className="flex items-center gap-1.5">
-                                {m.name}
-                                <span className="text-[10px] text-muted-foreground">
-                                  ({m.credits} cr)
+                    <div className="space-y-3">
+                      <div>
+                        <Label className="text-xs">Video Model</Label>
+                        <Select value={videoModel} onValueChange={(v) => v && setVideoModel(v)}>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <div className="px-2 py-1 text-[10px] font-semibold text-pink-400 uppercase">Text to Video</div>
+                            {videoModels.filter((m) => m.type === "t2v").map((m) => (
+                              <SelectItem key={m.id} value={m.id}>
+                                <span className="flex items-center gap-1.5">
+                                  {m.name}
+                                  <span className="text-[10px] text-muted-foreground">({m.credits} cr)</span>
+                                  {m.badge && <span className="text-[10px] bg-pink-500/20 text-pink-400 px-1 rounded">{m.badge}</span>}
                                 </span>
-                                {m.badge && (
-                                  <span className="text-[10px] bg-pink-500/20 text-pink-400 px-1 rounded">
-                                    {m.badge}
-                                  </span>
-                                )}
-                              </span>
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                              </SelectItem>
+                            ))}
+                            <div className="px-2 py-1 text-[10px] font-semibold text-pink-400 uppercase border-t mt-1 pt-2">Image to Video</div>
+                            {videoModels.filter((m) => m.type === "i2v").map((m) => (
+                              <SelectItem key={m.id} value={m.id}>
+                                <span className="flex items-center gap-1.5">
+                                  {m.name}
+                                  <span className="text-[10px] text-muted-foreground">({m.credits} cr)</span>
+                                  {m.badge && <span className="text-[10px] bg-pink-500/20 text-pink-400 px-1 rounded">{m.badge}</span>}
+                                </span>
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      {/* I2V: image upload */}
+                      {videoModels.find((m) => m.id === videoModel)?.type === "i2v" && (
+                        <div>
+                          <Label className="text-xs">Upload Image (for Image-to-Video)</Label>
+                          <Input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) { setInputImage(file); setInputImagePreview(URL.createObjectURL(file)); }
+                            }}
+                            className="mt-1"
+                          />
+                          {inputImagePreview && <img src={inputImagePreview} alt="Preview" className="mt-2 rounded max-h-24 object-contain" />}
+                          <p className="text-[10px] text-muted-foreground mt-1">
+                            Tip: Generate a high-quality NSFW image first, then animate it here for best results.
+                          </p>
+                        </div>
+                      )}
                     </div>
                   )}
                   {mode === "civitai" && (

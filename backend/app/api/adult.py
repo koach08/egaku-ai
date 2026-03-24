@@ -68,21 +68,16 @@ ADULT_MODELS = [
 CIVITAI_CUSTOM_PLANS = {"adult_patron"}
 
 ADULT_VIDEO_MODELS = [
-    # Novita.ai (NSFW, no filters, AnimateDiff)
-    {"id": "novita_uber_realistic_porn", "name": "UberRealisticPorn Video", "credits": 5, "badge": "NSFW", "type": "t2v"},
-    {"id": "novita_babes", "name": "Babes Video", "credits": 5, "badge": "NSFW", "type": "t2v"},
-    {"id": "novita_chilloutmix", "name": "ChilloutMix Video", "credits": 5, "badge": "NSFW", "type": "t2v"},
-    {"id": "novita_cyberrealistic", "name": "CyberRealistic Video", "credits": 5, "badge": "NSFW", "type": "t2v"},
-    {"id": "novita_hassaku_hentai", "name": "Hassaku Hentai Video", "credits": 5, "badge": "Anime", "type": "t2v"},
-    # fal.ai (higher quality video but may filter NSFW)
-    {"id": "fal_ltx_t2v", "name": "LTX 2.3", "credits": 5, "badge": "Fast", "type": "t2v"},
-    {"id": "fal_wan_t2v", "name": "Wan 2.1", "credits": 10, "badge": "HD", "type": "t2v"},
-    {"id": "fal_kling_t2v", "name": "Kling v2", "credits": 15, "badge": "HD", "type": "t2v"},
-    {"id": "fal_minimax_t2v", "name": "Minimax Hailuo", "credits": 15, "badge": "HD", "type": "t2v"},
-    {"id": "fal_kling25_t2v", "name": "Kling 2.5 Pro", "credits": 25, "badge": "Cinema", "type": "t2v"},
-    {"id": "fal_ltx_i2v", "name": "LTX 2 I2V", "credits": 5, "badge": "Fast", "type": "i2v"},
-    {"id": "fal_wan_i2v", "name": "Wan 2.1 I2V", "credits": 10, "badge": "", "type": "i2v"},
-    {"id": "fal_kling_i2v", "name": "Kling v2 I2V", "credits": 15, "badge": "HD", "type": "i2v"},
+    # fal.ai HIGH QUALITY (verified NSFW-passing)
+    {"id": "fal_kling_t2v", "name": "Kling v2 (Best Quality)", "credits": 15, "badge": "HD", "type": "t2v"},
+    {"id": "fal_ltx_t2v", "name": "LTX 2.3 (Fast)", "credits": 5, "badge": "Fast", "type": "t2v"},
+    # fal.ai I2V (upload image → animate)
+    {"id": "fal_kling_i2v", "name": "Kling v2 I2V (Upload → Video)", "credits": 15, "badge": "HD", "type": "i2v"},
+    {"id": "fal_ltx_i2v", "name": "LTX 2 I2V (Upload → Video)", "credits": 5, "badge": "Fast", "type": "i2v"},
+    # Novita.ai AnimateDiff (NSFW guaranteed, lower quality)
+    {"id": "novita_uber_realistic_porn", "name": "AnimateDiff NSFW (Guaranteed)", "credits": 5, "badge": "NSFW", "type": "t2v"},
+    {"id": "novita_babes", "name": "AnimateDiff Babes", "credits": 5, "badge": "NSFW", "type": "t2v"},
+    {"id": "novita_hassaku_hentai", "name": "AnimateDiff Hentai", "credits": 5, "badge": "Anime", "type": "t2v"},
 ]
 
 ADULT_PLAN_RANK = {
