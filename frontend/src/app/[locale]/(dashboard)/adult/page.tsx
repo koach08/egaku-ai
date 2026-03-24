@@ -195,7 +195,7 @@ export default function AdultPage() {
     setResultUrl(null);
     setError(null);
     setElapsed(0);
-    setResultType(mode);
+    setResultType(mode === "video" ? "video" : "image");
 
     timerRef.current = setInterval(() => setElapsed((p) => p + 1), 1000);
 
