@@ -219,6 +219,14 @@ export default function LandingPage() {
                         ? t("common.startFree")
                         : t("common.subscribe")}
                     </Button>
+                    {price !== "0" && (
+                      <Link
+                        href={`/register?plan=${planKey}&crypto=1`}
+                        className="block w-full text-center text-[10px] text-muted-foreground hover:text-foreground mt-2 py-1 border border-muted rounded transition-colors"
+                      >
+                        Pay with Crypto
+                      </Link>
+                    )}
                   </CardContent>
                 </Card>
               );
