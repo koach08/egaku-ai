@@ -164,6 +164,104 @@ def _check_adult_prompt(prompt: str) -> None:
         )
 
 
+# ── ComfyUI Direct Generation (vast.ai / self-hosted) ──
+
+# Map model_id to ComfyUI checkpoint filename
+COMFYUI_CHECKPOINT_MAP = {
+    "novita_uber_realistic_porn": "uberRealisticPorn.safetensors",
+    "novita_epicphotogasm": "epicphotogasm.safetensors",
+    "novita_chilloutmix": "chilloutmix.safetensors",
+    "novita_hassaku_hentai": "hassakuHentai.safetensors",
+    "civitai_custom": "epicphotogasm.safetensors",  # default
+}
+COMFYUI_DEFAULT_CHECKPOINT = "epicphotogasm.safetensors"
+
+
+async def _generate_with_comfyui(
+    comfyui_url: str,
+    prompt: str,
+    negative_prompt: str,
+    width: int = 768,
+    height: int = 1024,
+    steps: int = 30,
+    cfg: float = 7.0,
+    seed: int = -1,
+    model_id: str = "",
+) -> str | None:
+    """Generate image via ComfyUI API (vast.ai or self-hosted).
+
+    Returns base64 data URL or None on failure.
+    """
+    import asyncio
+    import base64
+    import random
+
+    import httpx
+
+    if seed == -1:
+        seed = random.randint(0, 2**32 - 1)
+
+    checkpoint = COMFYUI_CHECKPOINT_MAP.get(model_id, COMFYUI_DEFAULT_CHECKPOINT)
+
+    workflow = {
+        "3": {
+            "class_type": "KSampler",
+            "inputs": {
+                "seed": seed, "steps": steps, "cfg": cfg,
+                "sampler_name": "dpmpp_2m", "scheduler": "karras",
+                "denoise": 1.0,
+                "model": ["4", 0], "positive": ["6", 0],
+                "negative": ["7", 0], "latent_image": ["5", 0],
+            },
+        },
+        "4": {"class_type": "CheckpointLoaderSimple", "inputs": {"ckpt_name": checkpoint}},
+        "5": {"class_type": "EmptyLatentImage", "inputs": {"width": width, "height": height, "batch_size": 1}},
+        "6": {"class_type": "CLIPTextEncode", "inputs": {"text": prompt, "clip": ["4", 1]}},
+        "7": {"class_type": "CLIPTextEncode", "inputs": {"text": negative_prompt or "worst quality, low quality, deformed, ugly, bad anatomy, text, watermark, blurry", "clip": ["4", 1]}},
+        "8": {"class_type": "VAEDecode", "inputs": {"samples": ["3", 0], "vae": ["4", 2]}},
+        "9": {"class_type": "SaveImage", "inputs": {"filename_prefix": "egaku", "images": ["8", 0]}},
+    }
+
+    async with httpx.AsyncClient(timeout=120) as client:
+        # Submit workflow
+        resp = await client.post(f"{comfyui_url}/prompt", json={"prompt": workflow})
+        resp.raise_for_status()
+        prompt_id = resp.json().get("prompt_id")
+        if not prompt_id:
+            return None
+
+        logger.info(f"ComfyUI job submitted: {prompt_id} (checkpoint={checkpoint})")
+
+        # Poll for completion (max 2 minutes)
+        for i in range(24):
+            await asyncio.sleep(5)
+            history_resp = await client.get(f"{comfyui_url}/history/{prompt_id}")
+            if history_resp.status_code != 200:
+                continue
+            history = history_resp.json()
+            if prompt_id not in history:
+                continue
+            if not history[prompt_id].get("status", {}).get("completed"):
+                continue
+
+            # Get output image
+            outputs = history[prompt_id].get("outputs", {})
+            for node_id, node_out in outputs.items():
+                for img in node_out.get("images", []):
+                    filename = img.get("filename", "")
+                    subfolder = img.get("subfolder", "")
+                    img_resp = await client.get(
+                        f"{comfyui_url}/view",
+                        params={"filename": filename, "subfolder": subfolder, "type": "output"},
+                    )
+                    if img_resp.status_code == 200:
+                        b64 = base64.b64encode(img_resp.content).decode()
+                        return f"data:image/png;base64,{b64}"
+
+        logger.warning(f"ComfyUI job timed out: {prompt_id}")
+        return None
+
+
 # ── Adult Opt-in (for Stripe Pro+ users) ──
 
 # Main plans that qualify for free adult access opt-in
@@ -574,12 +672,14 @@ async def generate_adult(
     fal_client = FalClient(settings)
     job_id = str(uuid.uuid4())
 
-    # Try vast.ai first (cheapest, no content filter)
-    if settings.vastai_api_key:
+    # ── ADULT GENERATION STRATEGY ──
+    # Priority: ComfyUI (highest quality, no filter) → Novita.ai (no filter) → fal.ai (filtered) → error
+
+    # ─── 0. ComfyUI via vast.ai (highest quality, zero content filter) ───
+    if settings.vastai_comfyui_url:
         try:
-            from app.services.vastai import VastAIClient
-            vast_client = VastAIClient(settings.vastai_api_key)
-            vast_result = await vast_client.submit_comfyui_workflow(
+            comfyui_result = await _generate_with_comfyui(
+                comfyui_url=settings.vastai_comfyui_url,
                 prompt=body.prompt,
                 negative_prompt=body.negative_prompt,
                 width=body.width,
@@ -587,26 +687,22 @@ async def generate_adult(
                 steps=body.steps,
                 cfg=body.cfg,
                 seed=body.seed,
+                model_id=model_id,
             )
-            if vast_result:
+            if comfyui_result:
                 from app.api.generate import _save_generation_to_db, _store_job_status
-                await _store_job_status(settings, job_id, "completed", {"url": vast_result, "backend": "vastai"})
+                await _store_job_status(settings, job_id, "completed", {"url": comfyui_result, "backend": "comfyui"})
                 await _save_generation_to_db(
                     settings, user.id, job_id, "txt2img", body.prompt,
-                    body.negative_prompt, model_id, body.model_dump(), vast_result, True,
+                    body.negative_prompt, model_id, body.model_dump(), comfyui_result, True,
                 )
+                logger.info(f"Adult generation via ComfyUI succeeded")
                 return GenerationResponse(
-                    job_id=job_id,
-                    status=JobStatus.completed,
-                    credits_used=base_cost,
-                    result_url=vast_result,
+                    job_id=job_id, status=JobStatus.completed,
+                    credits_used=base_cost, result_url=comfyui_result,
                 )
         except Exception as e:
-            logger.warning(f"vast.ai generation failed, falling back to fal.ai: {e}")
-
-    # ── ADULT GENERATION STRATEGY ──
-    # Priority: Novita.ai (zero filters) → fal.ai (with black image check) → error
-    # Novita.ai has NO safety filters at all — this is the whole point for adult content.
+            logger.warning(f"ComfyUI generation failed, falling back to Novita: {e}")
 
     from app.api.generate import _save_generation_to_db, _store_job_status
 
