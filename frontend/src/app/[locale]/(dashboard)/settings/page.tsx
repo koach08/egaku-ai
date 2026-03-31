@@ -241,6 +241,11 @@ function SettingsContent() {
           </CardContent>
         </Card>
 
+        {/* Adult Expression Opt-in (Pro/Unlimited/Studio only) */}
+        {["pro", "unlimited", "studio"].includes(currentPlan) && (
+          <AdultOptInCard session={session} />
+        )}
+
         {/* Upgrade Plans */}
         {currentPlan === "free" && (
           <Card>
@@ -341,5 +346,120 @@ function SettingsContent() {
         )}
       </div>
     </>
+  );
+}
+
+
+// ── Adult Expression Opt-in Component ──
+
+function AdultOptInCard({ session }: { session: { access_token: string } | null }) {
+  const [status, setStatus] = useState<"loading" | "inactive" | "active">("loading");
+  const [processing, setProcessing] = useState(false);
+  const [adultPlan, setAdultPlan] = useState("");
+
+  useEffect(() => {
+    if (!session) return;
+    api.getAdultSubscription(session.access_token)
+      .then((data: Record<string, unknown>) => {
+        if (data.adult_plan && data.adult_plan !== "none") {
+          setStatus("active");
+          setAdultPlan(data.adult_plan as string);
+        } else {
+          setStatus("inactive");
+        }
+      })
+      .catch(() => setStatus("inactive"));
+  }, [session]);
+
+  const handleOptIn = async () => {
+    if (!session) return;
+    const confirmed = window.confirm(
+      "Adult Expression contains explicit content (18+).\n\n" +
+      "By enabling this feature, you confirm:\n" +
+      "- You are 18 years or older\n" +
+      "- You understand the content may be sexually explicit\n" +
+      "- You agree to the Content Policy\n\n" +
+      "Enable Adult Expression?"
+    );
+    if (!confirmed) return;
+
+    setProcessing(true);
+    try {
+      await api.verifyAge(session.access_token, true);
+      const res = await api.adultOptIn(session.access_token);
+      if (res.status === "activated" || res.status === "already_active") {
+        setStatus("active");
+        setAdultPlan(res.adult_plan || "adult_creator");
+        toast.success("Adult Expression enabled! 500 credits added.");
+      }
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Failed to enable");
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  const handleOptOut = async () => {
+    if (!session) return;
+    if (!window.confirm("Disable Adult Expression?")) return;
+    setProcessing(true);
+    try {
+      await api.adultOptOut(session.access_token);
+      setStatus("inactive");
+      setAdultPlan("");
+      toast.success("Adult Expression disabled.");
+    } catch {
+      toast.error("Failed to disable");
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  if (status === "loading") return null;
+
+  return (
+    <Card className="mb-6 border-pink-500/20">
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-lg">Adult Expression</CardTitle>
+          <Badge variant={status === "active" ? "default" : "secondary"}
+                 className={status === "active" ? "bg-pink-600" : ""}>
+            {status === "active" ? "Enabled" : "Disabled"}
+          </Badge>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <p className="text-sm text-muted-foreground">
+          {status === "active"
+            ? "NSFW generation is enabled. Visit the Adult page to create content."
+            : "Included free with your plan. Enable to access NSFW AI generation (18+)."}
+        </p>
+        {status === "active" ? (
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">Access Level</span>
+              <span className="text-sm">Creator (500 credits/mo)</span>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full text-pink-400 border-pink-500/30 hover:bg-pink-500/10"
+              onClick={handleOptOut}
+              disabled={processing}
+            >
+              {processing ? "Processing..." : "Disable Adult Expression"}
+            </Button>
+          </div>
+        ) : (
+          <Button
+            className="w-full bg-pink-600 hover:bg-pink-700"
+            onClick={handleOptIn}
+            disabled={processing}
+          >
+            {processing ? "Processing..." : "Enable Adult Expression (Free)"}
+          </Button>
+        )}
+      </CardContent>
+    </Card>
   );
 }

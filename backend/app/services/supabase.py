@@ -52,7 +52,7 @@ async def ensure_user_exists(supabase: Client, user_id: str, email: str) -> dict
     try:
         supabase.table("credits").insert({
             "user_id": user_id,
-            "balance": 50,
+            "balance": 15,
             "lifetime_used": 0,
         }).execute()
     except Exception:

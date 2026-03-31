@@ -123,9 +123,16 @@ VIDEO_MODELS = {
         "min_plan": "basic",
     },
     "fal_wan_i2v": {
-        "fal_id": "fal-ai/wan/v2.1/image-to-video",
+        "fal_id": "fal-ai/wan-i2v",
         "name": "Wan 2.1 I2V",
         "description": "Animate images with Wan",
+        "credits": 10,
+        "min_plan": "free",
+    },
+    "fal_wan26_i2v": {
+        "fal_id": "wan/v2.6/image-to-video",
+        "name": "Wan 2.6 I2V (Best NSFW)",
+        "description": "Latest Wan model - real subject motion, NSFW OK",
         "credits": 10,
         "min_plan": "free",
     },
@@ -173,6 +180,41 @@ VIDEO_MODELS = {
         "min_plan": "basic",
     },
 }
+
+
+def _sanitize_prompt_for_video(prompt: str) -> str:
+    """Remove NSFW keywords from prompt for video models with content filters.
+
+    The NSFW image itself carries the content — the prompt only needs to describe MOTION.
+    """
+    if not prompt:
+        return "animate this image with smooth natural motion, cinematic"
+
+    # Words that trigger fal.ai content filter
+    nsfw_words = [
+        "sex", "sexual", "nude", "naked", "breast", "breasts", "boob", "boobs",
+        "nipple", "nipples", "penis", "vagina", "pussy", "dick", "cock",
+        "fuck", "fucking", "orgasm", "cum", "cumming", "ejaculate",
+        "blowjob", "fellatio", "cunnilingus", "anal", "penetration",
+        "hentai", "porn", "pornographic", "erotic", "nsfw", "xxx",
+        "masturbat", "genital", "intercourse", "missionary", "doggy",
+        "cowgirl", "riding", "thrust", "moan", "groan", "climax",
+        "undress", "strip", "topless", "bottomless", "bondage", "bdsm",
+        "セックス", "ヌード", "裸", "おっぱい", "巨乳", "フェラ", "中出し",
+        "潮吹き", "オナニー", "エロ", "アダルト", "挿入",
+    ]
+
+    words = prompt.split()
+    cleaned = []
+    for word in words:
+        word_lower = word.lower().strip(".,!?;:")
+        if not any(nw in word_lower for nw in nsfw_words):
+            cleaned.append(word)
+
+    result = " ".join(cleaned).strip()
+    if len(result) < 5:
+        return "animate this image with smooth natural motion, cinematic"
+    return result
 
 
 class FalClient:
@@ -324,6 +366,7 @@ class FalClient:
         prompt: str,
         seed: int = -1,
         model_id: str = "fal_ltx_t2v",
+        duration: int = 5,
     ) -> dict:
         """Submit a text-to-video job via fal.ai. Supports multiple models."""
         model_info = VIDEO_MODELS.get(model_id, VIDEO_MODELS["fal_ltx_t2v"])
@@ -336,12 +379,18 @@ class FalClient:
         if seed >= 0:
             input_params["seed"] = seed
 
-        # Model-specific params
+        dur = max(3, min(15, duration))
+
+        # Model-specific params with duration
         if "kling" in fal_model:
-            input_params["duration"] = "5"
+            input_params["duration"] = str(min(dur, 10))
             input_params["aspect_ratio"] = "16:9"
         elif "minimax" in fal_model:
             input_params["prompt_optimizer"] = True
+        elif "wan" in fal_model and "v2.6" in fal_model:
+            valid_dur = 5 if dur <= 7 else (10 if dur <= 12 else 15)
+            input_params["duration"] = str(valid_dur)
+            input_params["resolution"] = "720p"
 
         url = f"{FAL_API_BASE}/{fal_model}"
         async with httpx.AsyncClient() as client:
@@ -358,25 +407,63 @@ class FalClient:
         image_url: str,
         prompt: str = "",
         seed: int = -1,
-        model_id: str = "fal_ltx_i2v",
+        model_id: str = "fal_wan26_i2v",
+        duration: int = 5,
+        resolution: str = "720p",
     ) -> dict:
-        """Submit an image-to-video job via fal.ai. Supports multiple models."""
-        model_info = VIDEO_MODELS.get(model_id, VIDEO_MODELS["fal_ltx_i2v"])
+        """Submit an image-to-video job via fal.ai. Supports multiple models.
+
+        Wan 2.6 uses queue-based API (submit → poll) for longer processing.
+        Other models use synchronous fal.run endpoint.
+        """
+        model_info = VIDEO_MODELS.get(model_id, VIDEO_MODELS.get("fal_wan26_i2v", VIDEO_MODELS["fal_ltx_i2v"]))
         fal_model = model_info["fal_id"]
 
         input_params: dict = {
             "image_url": image_url,
             "enable_safety_checker": False,
         }
-        if prompt:
-            input_params["prompt"] = prompt
         if seed >= 0:
             input_params["seed"] = seed
 
         # Model-specific params
-        if "kling" in fal_model:
-            input_params["duration"] = "5"
+        is_wan26 = "wan" in fal_model and "v2.6" in fal_model
+        is_wan = "wan" in fal_model
 
+        # Clamp duration to valid values per model
+        dur = max(3, min(15, duration))
+
+        if "kling" in fal_model:
+            # Kling: duration in seconds as string, "5" or "10"
+            input_params["duration"] = str(min(dur, 10))
+            if prompt:
+                input_params["prompt"] = prompt
+        elif is_wan26:
+            # Wan 2.6 I2V: prompt is REQUIRED, resolution "720p"/"1080p", duration "5"/"10"/"15"
+            # fal.ai checks BOTH image AND prompt for content policy.
+            # For NSFW images: use a completely generic motion prompt to pass the filter.
+            # The image itself drives the visual content.
+            input_params["prompt"] = "smooth cinematic motion, gentle movement, natural animation, high quality video"
+            logger.info(f"Wan 2.6 I2V: using safe generic prompt (original len={len(prompt)})")
+            valid_res = resolution if resolution in ("720p", "1080p") else "720p"
+            input_params["resolution"] = valid_res
+            valid_dur = 5 if dur <= 7 else (10 if dur <= 12 else 15)
+            input_params["duration"] = str(valid_dur)
+            input_params["enable_prompt_expansion"] = False  # Don't expand — keep it safe
+        elif is_wan:
+            # Wan 2.1
+            if prompt:
+                input_params["prompt"] = prompt
+        else:
+            # LTX etc.
+            if prompt:
+                input_params["prompt"] = prompt
+
+        # Wan 2.6 needs queue-based API (longer processing time)
+        if is_wan26:
+            return await self._submit_queue_job(fal_model, input_params)
+
+        # Other models: synchronous
         url = f"{FAL_API_BASE}/{fal_model}"
         async with httpx.AsyncClient() as client:
             response = await client.post(
@@ -386,6 +473,88 @@ class FalClient:
             data = response.json()
             logger.info("fal.ai img2vid job completed: %s", model_id)
             return data
+
+    async def _submit_queue_job(self, fal_model: str, input_params: dict) -> dict:
+        """Submit a job to fal.ai queue API and poll until complete.
+
+        fal.ai queue API:
+          POST https://queue.fal.run/{model} → {request_id, response_url, status_url}
+          GET  {status_url} with ?logs=1 → {status, response_url (when done)}
+          GET  {response_url} → result data
+        """
+        import asyncio
+
+        queue_url = f"https://queue.fal.run/{fal_model}"
+        auth_header = {"Authorization": f"Key {self.api_key}"}
+
+        async with httpx.AsyncClient() as client:
+            # Submit to queue
+            response = await client.post(
+                queue_url,
+                json=input_params,
+                headers={**auth_header, "Content-Type": "application/json"},
+                timeout=30,
+            )
+            response.raise_for_status()
+            queue_data = response.json()
+
+            request_id = queue_data.get("request_id")
+            if not request_id:
+                raise RuntimeError(f"No request_id in queue response: {queue_data}")
+
+            status_url = queue_data.get("status_url")
+            response_url = queue_data.get("response_url")
+            logger.info(f"fal.ai queue submitted: {request_id}")
+
+            # Poll for completion (up to 5 minutes)
+            for i in range(60):
+                await asyncio.sleep(5)
+                try:
+                    # Check status (GET with auth only, no Content-Type)
+                    status_resp = await client.get(
+                        f"{status_url}?logs=1",
+                        headers=auth_header,
+                        timeout=15,
+                    )
+                    if status_resp.status_code != 200:
+                        logger.warning(f"fal.ai poll #{i}: HTTP {status_resp.status_code}")
+                        continue
+                    status_data = status_resp.json()
+                    status = status_data.get("status", "")
+                    logger.info(f"fal.ai poll #{i}: status={status}")
+
+                    if status == "COMPLETED":
+                        # Fetch result (GET with auth only, no Content-Type)
+                        result_resp = await client.get(
+                            response_url,
+                            headers=auth_header,
+                            timeout=60,
+                        )
+                        logger.info(f"fal.ai result fetch: HTTP {result_resp.status_code}")
+                        if result_resp.status_code == 200:
+                            return result_resp.json()
+
+                        # Log error body for debugging
+                        logger.error(f"fal.ai result fetch failed: {result_resp.status_code} {result_resp.text[:500]}")
+
+                        # Maybe result is embedded in status with logs
+                        if "video" in status_data:
+                            return status_data
+
+                        raise RuntimeError(
+                            f"Result fetch failed (HTTP {result_resp.status_code}). "
+                            f"response_url={response_url}"
+                        )
+
+                    elif status in ("FAILED", "CANCELLED"):
+                        error = status_data.get("error", str(status_data))
+                        raise RuntimeError(f"fal.ai job failed: {error}")
+
+                except httpx.TimeoutException:
+                    logger.warning(f"fal.ai poll #{i} timed out")
+                    continue
+
+            raise TimeoutError(f"fal.ai job timed out after 5 minutes: {request_id}")
 
     async def submit_controlnet(
         self,

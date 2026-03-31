@@ -122,6 +122,13 @@ export const api = {
     }),
   getStyles: () => fetchAPI("/generate/styles"),
 
+  // Anonymous generation (no auth required)
+  generateAnonymous: (prompt: string) =>
+    fetchAPI("/generate/anonymous", {
+      method: "POST",
+      body: JSON.stringify({ prompt }),
+    }),
+
   // Credits
   getBalance: (token: string) =>
     fetchAPI("/credits/balance", { headers: authHeaders(token) }),
@@ -143,6 +150,14 @@ export const api = {
     fetchAPI(`/gallery/${id}`, {
       method: "DELETE",
       headers: authHeaders(token),
+    }),
+
+  // Image-to-Video prompt suggestions
+  suggestI2VPrompts: (token: string, imageUrl: string, nsfw = false) =>
+    fetchAPI("/generate/img2vid/suggest-prompts", {
+      method: "POST",
+      headers: { ...authHeaders(token), "Content-Type": "application/json" },
+      body: JSON.stringify({ image_url: imageUrl, nsfw }),
     }),
 
   // Models & CivitAI
@@ -326,6 +341,10 @@ export const api = {
   getAdultPlans: () => fetchAPI("/adult/plans"),
   getAdultSubscription: (token: string) =>
     fetchAPI("/adult/subscription", { headers: authHeaders(token) }),
+  adultOptIn: (token: string) =>
+    fetchAPI("/adult/opt-in", { method: "POST", headers: authHeaders(token) }),
+  adultOptOut: (token: string) =>
+    fetchAPI("/adult/opt-out", { method: "POST", headers: authHeaders(token) }),
   createAdultCheckout: (token: string, plan: string) =>
     fetchAPI(`/adult/checkout?plan=${plan}`, {
       method: "POST",

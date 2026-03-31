@@ -79,12 +79,15 @@ REGION_PRICES: dict[str, dict[str, str]] = {
 LOCAL_LICENSE_PRICE_ID = "price_1T8GZxPShJirStHRCA15wd6k"
 
 # ── Adult Expression Plans (standalone subscription) ──
-# Stripe Price IDs — create these in Stripe Dashboard
+# IMPORTANT: Adult plans are NO LONGER on Stripe (BAN risk).
+# Payment via CCBill / NOWPayments (crypto) only.
+# These Stripe Price IDs are DEPRECATED and should be deleted from Stripe Dashboard.
 ADULT_PLAN_PRICES: dict[str, str] = {
-    "adult_starter": "price_1TEJeOPShJirStHR5mdU96ev",
-    "adult_creator": "price_1TEJeOPShJirStHRvCIqGObq",
-    "adult_studio": "price_1TEJePPShJirStHR9mbOrHhc",
-    "adult_patron": "price_1TEJeQPShJirStHR7hHv0R93",
+    # DEPRECATED — DO NOT USE WITH STRIPE
+    # "adult_starter": "price_1TEJeOPShJirStHR5mdU96ev",
+    # "adult_creator": "price_1TEJeOPShJirStHRvCIqGObq",
+    # "adult_studio": "price_1TEJePPShJirStHR9mbOrHhc",
+    # "adult_patron": "price_1TEJeQPShJirStHR7hHv0R93",
 }
 
 ADULT_PLAN_INFO = {

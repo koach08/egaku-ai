@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Header } from "@/components/layout/header";
 import { WebsiteJsonLd } from "@/components/json-ld";
 import { ShowcaseGallery } from "@/components/showcase-gallery";
+import { AnonGenerator } from "@/components/anon-generator";
 
 const planKeys = ["free", "lite", "basic", "pro", "unlimited", "studio"] as const;
 const planPrices: Record<string, string> = {
@@ -39,7 +40,11 @@ export default function LandingPage() {
           <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
             {t("hero.subtitle")}
           </p>
-          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+          {/* Free Generation — try before signup */}
+          <div className="mt-10 max-w-2xl mx-auto">
+            <AnonGenerator />
+          </div>
+          <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Button size="lg" className="text-lg px-8 py-6" render={<Link href="/register" />}>
               {t("common.startFree")} — 50 {t("common.credits")}
             </Button>

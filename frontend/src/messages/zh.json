@@ -28,7 +28,7 @@
   },
   "hero": {
     "title": "Sora 2 · Veo 3 · Nano Banana 2 · Grok — 一个平台搞定。",
-    "subtitle": "使用全球最顶尖的AI模型生成图像和视频。完全创作自由 — 无滤镜、无限制。ComfyUI的强大功能，无需配置。50积分免费，无需信用卡。",
+    "subtitle": "使用全球最顶尖的AI模型生成图像和视频。完全创作自由 — 无滤镜、无限制。ComfyUI的强大功能，无需配置。15积分免费，无需信用卡。",
     "viewPricing": "查看定价"
   },
   "features": {
@@ -93,7 +93,7 @@
   "plans": {
     "free": {
       "name": "Free",
-      "credits": "50 / 月",
+      "credits": "15 / 月",
       "features": [
         "Flux、SDXL、SD 3.5 等更多模型",
         "文本生成图像（10次/日）",
@@ -271,5 +271,22 @@
   "meta": {
     "title": "EGAKU AI - AI图像和视频生成器",
     "description": "使用 Flux、SDXL 和 Stable Diffusion 创建令人惊叹的AI生成图像和视频。支持 CivitAI 自定义模型。为经过年龄验证的成人用户提供完全的创作自由。"
+  },
+  "anon": {
+    "tryNow": "免费试用5张 — 注册获取更多",
+    "placeholder": "描述你想创建的内容...",
+    "generate": "生成",
+    "creating": "生成中...",
+    "aiCreating": "AI正在为您生成图像...",
+    "poweredBy": "由Flux Dev驱动 — 约10秒完成",
+    "enhancedPrompt": "AI增强提示词",
+    "remaining": "剩余{count}次免费生成",
+    "lastFree": "最后一次免费生成！",
+    "download": "下载",
+    "another": "再次生成",
+    "limitTitle": "您已用完5次免费生成！",
+    "limitDesc": "免费注册获得50积分，继续创作。",
+    "signupFree": "免费注册 — 50积分",
+    "wantMore": "想要更多？免费注册获得50积分"
   }
 }

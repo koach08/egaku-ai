@@ -601,10 +601,11 @@ async def delete_gallery_item(
     request: Request,
     settings: Settings = Depends(get_settings),
 ):
-    """Delete a gallery item. Only the owner can delete."""
+    """Delete a gallery item. Only the owner can delete. Checks both gallery and generations tables."""
     user, profile, supabase = await _auth_and_profile(request, settings)
 
-    # Verify ownership
+    # Verify ownership — check gallery table first, then generations as fallback
+    found_in = None
     try:
         item = (
             supabase.table("gallery")
@@ -614,11 +615,28 @@ async def delete_gallery_item(
             .single()
             .execute()
         )
+        if item.data:
+            found_in = "gallery"
     except Exception:
-        raise HTTPException(status_code=404, detail="Gallery item not found")
+        pass
 
-    if not item.data:
-        raise HTTPException(status_code=404, detail="Gallery item not found")
+    if not found_in:
+        try:
+            gen_item = (
+                supabase.table("generations")
+                .select("id, user_id")
+                .eq("id", gallery_id)
+                .eq("user_id", user.id)
+                .single()
+                .execute()
+            )
+            if gen_item.data:
+                found_in = "generations"
+        except Exception:
+            pass
+
+    if not found_in:
+        raise HTTPException(status_code=404, detail="Item not found")
 
     try:
         # Delete likes first
@@ -631,6 +649,12 @@ async def delete_gallery_item(
     except Exception as e:
         logger.error(f"Failed to delete gallery item: {e}")
         raise HTTPException(status_code=500, detail="Failed to delete")
+
+    # Also delete from generations table
+    try:
+        supabase.table("generations").delete().eq("id", gallery_id).execute()
+    except Exception:
+        pass  # Non-fatal, might not exist there
 
     return {"id": gallery_id, "deleted": True}
 

@@ -394,6 +394,156 @@ class VastAIClient:
 
         return None
 
+    async def submit_img2vid_workflow(
+        self,
+        image_b64: str,
+        prompt: str,
+        negative_prompt: str = "",
+        model: str = "realvisxlV50.safetensors",
+        width: int = 512,
+        height: int = 512,
+        steps: int = 20,
+        cfg: float = 7.0,
+        seed: int = -1,
+        frame_count: int = 16,
+        fps: int = 8,
+        denoise: float = 0.65,
+    ) -> str | None:
+        """Submit AnimateDiff img2vid workflow to vast.ai ComfyUI.
+
+        Uploads the image, then runs AnimateDiff with it as initial latent.
+        Returns video URL/data or None.
+        """
+        instance = await self.ensure_instance()
+        if not instance:
+            return None
+
+        comfyui_url = f"http://{instance.ip}:{instance.port}"
+
+        if seed == -1:
+            import random
+            seed = random.randint(0, 2**32 - 1)
+
+        try:
+            async with httpx.AsyncClient(timeout=600, follow_redirects=True) as client:
+                # Upload image
+                import io
+                import base64
+                img_bytes = base64.b64decode(image_b64)
+                files = {"image": ("input_img2vid.png", io.BytesIO(img_bytes), "image/png")}
+                upload_resp = await client.post(
+                    f"{comfyui_url}/upload/image",
+                    files=files,
+                    data={"overwrite": "true"},
+                )
+                if upload_resp.status_code != 200:
+                    logger.error(f"Image upload failed: {upload_resp.text}")
+                    return None
+                uploaded_name = upload_resp.json().get("name", "input_img2vid.png")
+
+                # AnimateDiff img2vid workflow
+                workflow = {
+                    "4": {"class_type": "CheckpointLoaderSimple", "inputs": {"ckpt_name": model}},
+                    "20": {
+                        "class_type": "ADE_AnimateDiffLoaderWithContext",
+                        "inputs": {
+                            "model": ["4", 0],
+                            "model_name": "mm_sd_v15_v2.ckpt",
+                            "beta_schedule": "sqrt_linear (AnimateDiff)",
+                            "context_options": ["21", 0],
+                        },
+                    },
+                    "21": {
+                        "class_type": "ADE_StandardStaticContextOptions",
+                        "inputs": {"context_length": 16, "context_overlap": 4},
+                    },
+                    "25": {"class_type": "LoadImage", "inputs": {"image": uploaded_name}},
+                    "26": {
+                        "class_type": "VAEEncode",
+                        "inputs": {"pixels": ["25", 0], "vae": ["4", 2]},
+                    },
+                    "27": {
+                        "class_type": "RepeatLatentBatch",
+                        "inputs": {"samples": ["26", 0], "amount": frame_count},
+                    },
+                    "6": {"class_type": "CLIPTextEncode", "inputs": {"text": prompt, "clip": ["4", 1]}},
+                    "7": {
+                        "class_type": "CLIPTextEncode",
+                        "inputs": {"text": negative_prompt or "worst quality, low quality", "clip": ["4", 1]},
+                    },
+                    "3": {
+                        "class_type": "KSampler",
+                        "inputs": {
+                            "seed": seed, "steps": steps, "cfg": cfg,
+                            "sampler_name": "euler_ancestral", "scheduler": "normal",
+                            "denoise": denoise,
+                            "model": ["20", 0],
+                            "positive": ["6", 0], "negative": ["7", 0],
+                            "latent_image": ["27", 0],
+                        },
+                    },
+                    "8": {"class_type": "VAEDecode", "inputs": {"samples": ["3", 0], "vae": ["4", 2]}},
+                    "30": {
+                        "class_type": "VHS_VideoCombine",
+                        "inputs": {
+                            "images": ["8", 0], "frame_rate": fps, "loop_count": 0,
+                            "filename_prefix": "img2vid", "format": "video/h264-mp4",
+                            "pingpong": False, "save_output": True,
+                        },
+                    },
+                }
+
+                # Submit
+                resp = await client.post(f"{comfyui_url}/prompt", json={"prompt": workflow})
+                if resp.status_code != 200:
+                    logger.error(f"ComfyUI img2vid prompt failed: {resp.text}")
+                    return None
+
+                prompt_id = resp.json().get("prompt_id")
+                if not prompt_id:
+                    return None
+
+                logger.info(f"ComfyUI img2vid submitted: {prompt_id}")
+
+                # Poll for completion
+                for i in range(120):
+                    await asyncio.sleep(5)
+                    history_resp = await client.get(f"{comfyui_url}/history/{prompt_id}")
+                    if history_resp.status_code != 200:
+                        continue
+                    history = history_resp.json()
+                    if prompt_id in history:
+                        outputs = history[prompt_id].get("outputs", {})
+                        for node_id, node_output in outputs.items():
+                            # VHS_VideoCombine outputs gifs/videos
+                            gifs = node_output.get("gifs", [])
+                            if gifs:
+                                vid = gifs[0]
+                                filename = vid.get("filename", "")
+                                subfolder = vid.get("subfolder", "")
+                                vid_resp = await client.get(
+                                    f"{comfyui_url}/view",
+                                    params={"filename": filename, "subfolder": subfolder, "type": "output"},
+                                )
+                                if vid_resp.status_code == 200:
+                                    b64 = base64.b64encode(vid_resp.content).decode()
+                                    self._last_used = time.time()
+                                    return f"data:video/mp4;base64,{b64}"
+                        # Check image outputs as fallback
+                        for node_id, node_output in outputs.items():
+                            images = node_output.get("images", [])
+                            if images:
+                                logger.info(f"ComfyUI img2vid completed (frames): {prompt_id}")
+                                self._last_used = time.time()
+                                return "frames_generated"
+
+                logger.error(f"ComfyUI img2vid timed out: {prompt_id}")
+
+        except Exception as e:
+            logger.error(f"ComfyUI img2vid failed: {e}")
+
+        return None
+
     async def cleanup_idle(self, idle_minutes: int = 30):
         """Destroy instances idle for too long (cost control)."""
         if not self._instance:

@@ -149,6 +149,10 @@ export default function GeneratePage() {
   const [videoModel, setVideoModel] = useState("fal_ltx_t2v");
   const [i2vModel, setI2vModel] = useState("fal_ltx_i2v");
 
+  // I2V prompt suggestions
+  const [i2vSuggestions, setI2vSuggestions] = useState<{label: string; prompt: string; icon: string}[]>([]);
+  const [suggestingPrompts, setSuggestingPrompts] = useState(false);
+
   // Video params
   const [frameCount, setFrameCount] = useState(16);
   const [fps, setFps] = useState(8);
@@ -205,6 +209,21 @@ export default function GeneratePage() {
       setInputImage(file);
       const url = URL.createObjectURL(file);
       setInputImagePreview(url);
+      // Auto-suggest i2v motion prompts (works from any tab with image upload)
+      if (session) {
+        setSuggestingPrompts(true);
+        setI2vSuggestions([]);
+        const reader = new FileReader();
+        reader.onload = async () => {
+          try {
+            const b64 = reader.result as string;
+            const data = await api.suggestI2VPrompts(session.access_token, b64, false);
+            setI2vSuggestions(data.suggestions || []);
+          } catch { /* ignore */ }
+          setSuggestingPrompts(false);
+        };
+        reader.readAsDataURL(file);
+      }
     }
   };
 
@@ -251,19 +270,118 @@ export default function GeneratePage() {
     };
   }, []);
 
+  // Anonymous generation state
+  const [anonResult, setAnonResult] = useState<string | null>(null);
+  const [anonEnhancedPrompt, setAnonEnhancedPrompt] = useState<string | null>(null);
+  const [anonRemaining, setAnonRemaining] = useState<number | null>(null);
+  const [anonLimitReached, setAnonLimitReached] = useState(false);
+  const [anonGenerating, setAnonGenerating] = useState(false);
+
+  const handleAnonGenerate = async () => {
+    if (!prompt.trim()) { toast.error("Please enter a prompt"); return; }
+    setAnonGenerating(true);
+    setAnonResult(null);
+    setAnonEnhancedPrompt(null);
+    setJob(null);
+    try {
+      const res = await api.generateAnonymous(prompt);
+      setAnonResult(resolveResultUrl(res.result_url) ?? null);
+      setAnonEnhancedPrompt(res.enhanced_prompt ?? null);
+      setAnonRemaining(res.remaining ?? 0);
+      if (res.remaining === 0) {
+        setAnonLimitReached(true);
+      }
+      toast.success("Generation complete!");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Generation failed";
+      if (msg.includes("FREE_LIMIT_REACHED")) {
+        setAnonLimitReached(true);
+        toast.error("Sign up to continue generating!");
+      } else {
+        toast.error(msg);
+      }
+    } finally {
+      setAnonGenerating(false);
+    }
+  };
+
   if (authLoading) return null;
 
+  // Anonymous user experience
   if (!user) {
     return (
       <>
         <Header />
-        <div className="flex min-h-[60vh] items-center justify-center">
-          <Card className="w-full max-w-md text-center">
-            <CardContent className="pt-6">
-              <p className="mb-4">Sign in to start generating</p>
-              <Button render={<a href="/login" />}>Sign In</Button>
+        <div className="max-w-2xl mx-auto px-4 py-8 space-y-6">
+          <div className="text-center space-y-2">
+            <h1 className="text-2xl font-bold">Try EGAKU AI — No sign-up needed</h1>
+            <p className="text-muted-foreground">
+              Enter any idea and watch AI create stunning images. {anonRemaining !== null ? `${anonRemaining} free ${anonRemaining === 1 ? "generation" : "generations"} remaining.` : "2 free generations to start."}
+            </p>
+          </div>
+
+          {/* Prompt input */}
+          <Card>
+            <CardContent className="pt-6 space-y-4">
+              <div>
+                <Label htmlFor="anon-prompt">Describe your image</Label>
+                <Textarea
+                  id="anon-prompt"
+                  placeholder="A cat sitting on a windowsill at sunset..."
+                  value={prompt}
+                  onChange={(e) => setPrompt(e.target.value)}
+                  rows={3}
+                  disabled={anonLimitReached}
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Your prompt will be automatically enhanced by AI for the best result.
+                </p>
+              </div>
+              <Button
+                onClick={handleAnonGenerate}
+                disabled={anonGenerating || anonLimitReached || !prompt.trim()}
+                className="w-full"
+              >
+                {anonGenerating ? "Generating..." : anonLimitReached ? "Sign up to continue" : "Generate for Free"}
+              </Button>
             </CardContent>
           </Card>
+
+          {/* Result display */}
+          {anonResult && (
+            <Card>
+              <CardContent className="pt-6 space-y-4">
+                <img
+                  src={anonResult}
+                  alt="Generated image"
+                  className="w-full rounded-lg"
+                />
+                {anonEnhancedPrompt && (
+                  <div className="bg-muted/50 rounded-lg p-3">
+                    <p className="text-xs text-muted-foreground mb-1">AI-enhanced prompt used:</p>
+                    <p className="text-sm">{anonEnhancedPrompt}</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Sign-up CTA */}
+          {(anonLimitReached || anonResult) && (
+            <Card className="border-purple-500/50 bg-purple-500/5">
+              <CardContent className="pt-6 text-center space-y-3">
+                <h2 className="text-lg font-semibold">
+                  {anonLimitReached ? "Want more? Sign up for free" : "Like what you see?"}
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  Get 15 free credits, access to 15+ AI models, video generation, and more.
+                </p>
+                <Button render={<a href="/register" />} className="bg-purple-600 hover:bg-purple-700">
+                  Create Free Account
+                </Button>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </>
     );
@@ -835,6 +953,27 @@ export default function GeneratePage() {
                   </Select>
                 </div>
                 {renderImageUpload()}
+                {/* I2V Motion Prompt Suggestions */}
+                {suggestingPrompts && (
+                  <p className="text-xs text-purple-400 animate-pulse">Analyzing image for motion suggestions...</p>
+                )}
+                {i2vSuggestions.length > 0 && (
+                  <div className="space-y-1">
+                    <p className="text-[10px] text-muted-foreground font-medium">Suggested motions (click to apply):</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {i2vSuggestions.map((s, i) => (
+                        <button
+                          key={i}
+                          onClick={() => setPrompt(s.prompt)}
+                          className="text-[11px] px-2 py-1 rounded-full border border-purple-500/30 bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 transition-colors cursor-pointer"
+                          title={s.prompt}
+                        >
+                          {s.icon} {s.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 <div>
                   <Label htmlFor="prompt-img2vid">Prompt (optional)</Label>
                   <Textarea

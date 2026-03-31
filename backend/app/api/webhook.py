@@ -152,8 +152,10 @@ async def stripe_webhook(request: Request, settings: Settings = Depends(get_sett
 
             if data.get("mode") == "subscription":
                 plan_type = metadata.get("type", "main")
+                # Adult plans are now on CCBill, NOT Stripe.
+                # If somehow an old adult checkout comes through, ignore it.
                 if plan_type == "adult":
-                    _update_adult_plan(supabase, user_id, plan)
+                    logger.warning(f"Ignoring Stripe adult checkout (deprecated): user={user_id}")
                 else:
                     _update_user_plan(supabase, user_id, plan)
             elif data.get("mode") == "payment":
@@ -247,5 +249,88 @@ async def nowpayments_webhook(request: Request, settings: Settings = Depends(get
                 # Regular plan: "main_{plan}_{user_id}"
                 _update_user_plan(supabase, user_id, plan_name)
                 logger.info(f"Crypto main plan confirmed: user={user_id} plan={plan_name}")
+
+    return {"ok": True}
+
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# CCBill Webhook — Adult Plan Payments
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+@router.post("/ccbill")
+async def ccbill_webhook(request: Request, settings: Settings = Depends(get_settings)):
+    """Handle CCBill webhook events for adult subscriptions.
+
+    CCBill sends POST with form-encoded data for these events:
+    - NewSaleSuccess: New subscription created
+    - NewSaleFailure: Payment failed
+    - RenewalSuccess: Recurring payment succeeded
+    - RenewalFailure: Recurring payment failed
+    - Cancellation: Subscription cancelled
+    - Chargeback: Dispute filed
+    - Refund: Refund issued
+
+    Webhook URL: https://api.egaku-ai.com/api/webhooks/ccbill
+    Configure in CCBill Admin → SubAccount → Webhooks
+    """
+    # CCBill sends form-encoded POST data
+    try:
+        form = await request.form()
+        data = dict(form)
+    except Exception:
+        body = await request.body()
+        data = dict(x.split("=", 1) for x in body.decode().split("&") if "=" in x)
+
+    event_type = data.get("eventType", "")
+    transaction_id = data.get("transactionId", data.get("subscription_id", ""))
+    user_id = data.get("X-customer_userId", data.get("customer_userId", ""))
+    plan = data.get("X-customer_plan", data.get("customer_plan", ""))
+
+    logger.info(f"CCBill webhook: type={event_type} tx={transaction_id} user={user_id} plan={plan}")
+
+    if not user_id:
+        logger.warning(f"CCBill webhook missing user_id: {data}")
+        return {"ok": True}  # Don't fail — CCBill retries on error
+
+    supabase = get_supabase(settings)
+
+    if event_type in ("NewSaleSuccess", "RenewalSuccess"):
+        # Activate or renew adult plan
+        if plan and plan.startswith("adult_"):
+            _update_adult_plan(supabase, user_id, plan)
+            logger.info(f"CCBill adult plan activated: user={user_id} plan={plan} tx={transaction_id}")
+
+            # Store CCBill subscription ID for cancellation management
+            try:
+                supabase.table("users").update({
+                    "ccbill_subscription_id": data.get("subscriptionId", transaction_id),
+                }).eq("id", user_id).execute()
+            except Exception as e:
+                logger.warning(f"Failed to store CCBill subscription ID: {e}")
+
+    elif event_type == "Cancellation":
+        # Downgrade to no adult plan
+        try:
+            supabase.table("users").update({
+                "adult_plan": "none",
+                "ccbill_subscription_id": None,
+            }).eq("id", user_id).execute()
+            logger.info(f"CCBill adult plan cancelled: user={user_id}")
+        except Exception as e:
+            logger.error(f"Failed to cancel adult plan: {e}")
+
+    elif event_type in ("Chargeback", "Refund"):
+        # Immediate plan removal on dispute/refund
+        try:
+            supabase.table("users").update({
+                "adult_plan": "none",
+                "ccbill_subscription_id": None,
+            }).eq("id", user_id).execute()
+            logger.warning(f"CCBill chargeback/refund: user={user_id} type={event_type}")
+        except Exception as e:
+            logger.error(f"Failed to handle chargeback/refund: {e}")
+
+    elif event_type in ("NewSaleFailure", "RenewalFailure"):
+        logger.warning(f"CCBill payment failed: user={user_id} type={event_type}")
 
     return {"ok": True}

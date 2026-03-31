@@ -106,6 +106,18 @@ export default function AdultPage() {
   const [sampler, setSampler] = useState("euler_ancestral");
   const [seed, setSeed] = useState(-1);
   const [mosaicEnabled, setMosaicEnabled] = useState(true);
+  // Video duration & resolution
+  const [videoDuration, setVideoDuration] = useState(5);
+  const [videoResolution, setVideoResolution] = useState("720p");
+  // Free model selection
+  const [customModelName, setCustomModelName] = useState("");
+  // LoRA support
+  const [loraModel, setLoraModel] = useState("");
+  const [loraStrength, setLoraStrength] = useState(0.8);
+
+  // I2V prompt suggestions
+  const [i2vSuggestions, setI2vSuggestions] = useState<{label: string; prompt: string; icon: string}[]>([]);
+  const [suggestingPrompts, setSuggestingPrompts] = useState(false);
 
   // Job state
   const [generating, setGenerating] = useState(false);
@@ -121,6 +133,8 @@ export default function AdultPage() {
 
   // Showcase gallery
   const [showcase, setShowcase] = useState<{ id: string; prompt: string; model: string; image_url?: string; video_url?: string }[]>([]);
+  // JP mosaic requirement (Article 175 Penal Code)
+  const [mosaicRequired, setMosaicRequired] = useState(false);
 
   // Load data on mount
   useEffect(() => {
@@ -145,6 +159,7 @@ export default function AdultPage() {
       .then((data) => {
         setRegionRules(data);
         setMosaicEnabled(data.mosaic_default);
+        if (data.mosaic_required) setMosaicRequired(true);
       })
       .catch(() => {});
 
@@ -153,7 +168,10 @@ export default function AdultPage() {
       .catch(() => {});
 
     api.getAdultShowcase()
-      .then((data) => setShowcase(data.items || []))
+      .then((data) => {
+        setShowcase(data.items || []);
+        if (data.mosaic_required) setMosaicRequired(true);
+      })
       .catch(() => {});
 
     api.getAvailableModels(session.access_token)
@@ -238,6 +256,8 @@ export default function AdultPage() {
           model: videoModel,
           seed,
           mosaic_enabled: mosaicEnabled,
+          duration: videoDuration,
+          resolution: videoResolution,
         };
         if (isI2V && inputImage) {
           const b64 = await fileToBase64(inputImage);
@@ -281,6 +301,9 @@ export default function AdultPage() {
           sampler,
           seed,
           mosaic_enabled: mosaicEnabled,
+          custom_model_name: customModelName || undefined,
+          lora_model: loraModel || undefined,
+          lora_strength: loraModel ? loraStrength : undefined,
         });
       }
 
@@ -434,6 +457,18 @@ export default function AdultPage() {
 
   return (
     <>
+      {/* SVG Mosaic filter for JP region (Article 175 Penal Code) */}
+      {mosaicRequired && (
+        <svg width="0" height="0" style={{ position: "absolute" }}>
+          <filter id="mosaic">
+            <feFlood x="4" y="4" height="2" width="2" />
+            <feComposite width="10" height="10" />
+            <feTile result="a" />
+            <feComposite in="SourceGraphic" in2="a" operator="in" />
+            <feMorphology operator="dilate" radius="5" />
+          </filter>
+        </svg>
+      )}
       <Header />
       <div className="container mx-auto max-w-6xl px-4 py-6">
         {/* Legal warnings banner */}
@@ -567,14 +602,17 @@ export default function AdultPage() {
                           className="w-full bg-pink-600 hover:bg-pink-700"
                           onClick={() => handleCheckout(key)}
                         >
-                          Subscribe
+                          Subscribe (Card)
                         </Button>
                         <button
                           onClick={() => handleCryptoCheckout(key)}
                           className="w-full text-[10px] text-muted-foreground hover:text-foreground mt-1 py-1 border border-muted rounded transition-colors"
                         >
-                          Pay with Crypto
+                          Pay with Crypto (240+ coins)
                         </button>
+                        <p className="text-[9px] text-muted-foreground mt-1 text-center">
+                          Secure payment via CCBill
+                        </p>
                       </CardContent>
                     </Card>
                   ))}
@@ -710,30 +748,69 @@ export default function AdultPage() {
               <Card>
                 <CardContent className="pt-4 space-y-3">
                   {mode === "image" && (
-                    <div>
-                      <Label className="text-xs">Image Model</Label>
-                      <Select value={model} onValueChange={(v) => v && setModel(v)}>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {models.map((m) => (
-                            <SelectItem key={m.id} value={m.id}>
-                              <span className="flex items-center gap-1.5">
-                                {m.name}
-                                <span className="text-[10px] text-muted-foreground">
-                                  ({m.credits} cr)
-                                </span>
-                                {m.badge && (
-                                  <span className="text-[10px] bg-pink-500/20 text-pink-400 px-1 rounded">
-                                    {m.badge}
+                    <div className="space-y-3">
+                      <div>
+                        <Label className="text-xs">Image Model</Label>
+                        <Select value={model} onValueChange={(v) => v && setModel(v)}>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {models.map((m) => (
+                              <SelectItem key={m.id} value={m.id}>
+                                <span className="flex items-center gap-1.5">
+                                  {m.name}
+                                  <span className="text-[10px] text-muted-foreground">
+                                    ({m.credits} cr)
                                   </span>
-                                )}
-                              </span>
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                                  {m.badge && (
+                                    <span className="text-[10px] bg-pink-500/20 text-pink-400 px-1 rounded">
+                                      {m.badge}
+                                    </span>
+                                  )}
+                                </span>
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      {/* Custom Model (any Novita.ai safetensors) */}
+                      <div>
+                        <Label className="text-xs">Custom Model (safetensors name)</Label>
+                        <Input
+                          placeholder="e.g. epicphotogasm_xPlusPlus.safetensors"
+                          value={customModelName}
+                          onChange={(e) => setCustomModelName(e.target.value)}
+                          className="mt-1 text-xs"
+                        />
+                        <p className="text-[10px] text-muted-foreground mt-0.5">
+                          Override preset model with any Novita.ai checkpoint. Leave empty to use the model above.
+                        </p>
+                      </div>
+                      {/* LoRA */}
+                      <div>
+                        <Label className="text-xs">LoRA (safetensors name)</Label>
+                        <Input
+                          placeholder="e.g. add_detail_xl.safetensors"
+                          value={loraModel}
+                          onChange={(e) => setLoraModel(e.target.value)}
+                          className="mt-1 text-xs"
+                        />
+                        {loraModel && (
+                          <div className="mt-1">
+                            <Label className="text-[10px]">LoRA Strength: {loraStrength}</Label>
+                            <input
+                              type="range"
+                              min={0}
+                              max={2}
+                              step={0.05}
+                              value={loraStrength}
+                              onChange={(e) => setLoraStrength(parseFloat(e.target.value))}
+                              className="w-full h-1.5 accent-pink-500"
+                            />
+                          </div>
+                        )}
+                      </div>
                     </div>
                   )}
                   {mode === "video" && (
@@ -777,16 +854,88 @@ export default function AdultPage() {
                             accept="image/*"
                             onChange={(e) => {
                               const file = e.target.files?.[0];
-                              if (file) { setInputImage(file); setInputImagePreview(URL.createObjectURL(file)); }
+                              if (file) {
+                                setInputImage(file);
+                                setInputImagePreview(URL.createObjectURL(file));
+                                // Auto-suggest i2v prompts
+                                if (session) {
+                                  setSuggestingPrompts(true);
+                                  setI2vSuggestions([]);
+                                  const reader = new FileReader();
+                                  reader.onload = async () => {
+                                    try {
+                                      const b64 = (reader.result as string);
+                                      const data = await api.suggestI2VPrompts(session.access_token, b64, true);
+                                      setI2vSuggestions(data.suggestions || []);
+                                    } catch { /* ignore */ }
+                                    setSuggestingPrompts(false);
+                                  };
+                                  reader.readAsDataURL(file);
+                                }
+                              }
                             }}
                             className="mt-1"
                           />
                           {inputImagePreview && <img src={inputImagePreview} alt="Preview" className="mt-2 rounded max-h-24 object-contain" />}
+                          {/* I2V Prompt Suggestions */}
+                          {suggestingPrompts && (
+                            <p className="text-xs text-pink-400 mt-2 animate-pulse">Analyzing image for motion suggestions...</p>
+                          )}
+                          {i2vSuggestions.length > 0 && (
+                            <div className="mt-2 space-y-1">
+                              <p className="text-[10px] text-muted-foreground font-medium">Click to apply motion prompt:</p>
+                              <div className="flex flex-wrap gap-1.5">
+                                {i2vSuggestions.map((s, i) => (
+                                  <button
+                                    key={i}
+                                    onClick={() => setPrompt(s.prompt)}
+                                    className="text-[11px] px-2 py-1 rounded-full border border-pink-500/30 bg-pink-500/10 hover:bg-pink-500/20 text-pink-300 transition-colors cursor-pointer"
+                                    title={s.prompt}
+                                  >
+                                    {s.icon} {s.label}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          )}
                           <p className="text-[10px] text-muted-foreground mt-1">
                             Tip: Generate a high-quality NSFW image first, then animate it here for best results.
                           </p>
                         </div>
                       )}
+                      {/* Duration & Resolution */}
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <Label className="text-xs">Duration: {videoDuration}s</Label>
+                          <input
+                            type="range"
+                            min={3}
+                            max={15}
+                            step={1}
+                            value={videoDuration}
+                            onChange={(e) => setVideoDuration(parseInt(e.target.value))}
+                            className="w-full h-1.5 accent-pink-500 mt-1"
+                          />
+                          <div className="flex justify-between text-[9px] text-muted-foreground">
+                            <span>3s</span><span>5s</span><span>10s</span><span>15s</span>
+                          </div>
+                        </div>
+                        <div>
+                          <Label className="text-xs">Resolution</Label>
+                          <Select value={videoResolution} onValueChange={(v) => v && setVideoResolution(v)}>
+                            <SelectTrigger className="mt-1">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="720p">720p (Fast)</SelectItem>
+                              <SelectItem value="1080p">1080p (HD)</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                      <p className="text-[10px] text-muted-foreground">
+                        Longer videos cost more credits. Wan 2.6: 5/10/15s. Kling: 5/10s.
+                      </p>
                     </div>
                   )}
                   {mode === "civitai" && (
@@ -1113,6 +1262,7 @@ export default function AdultPage() {
                     <video
                       src={item.video_url}
                       className={`w-full h-full object-cover ${!hasAccess ? "blur-xl" : ""}`}
+                      style={mosaicRequired && hasAccess ? { filter: "url(#mosaic)" } : undefined}
                       autoPlay
                       loop
                       muted
@@ -1123,6 +1273,7 @@ export default function AdultPage() {
                       src={item.image_url}
                       alt=""
                       className={`w-full h-full object-cover ${!hasAccess ? "blur-xl" : ""}`}
+                      style={mosaicRequired && hasAccess ? { filter: "url(#mosaic)" } : undefined}
                       loading="lazy"
                     />
                   ) : (

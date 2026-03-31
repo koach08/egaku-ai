@@ -28,7 +28,7 @@
   },
   "hero": {
     "title": "Sora 2 · Veo 3 · Nano Banana 2 · Grok — ひとつのプラットフォームで",
-    "subtitle": "世界最高のAIモデルで画像・動画を生成。フィルターなし、制限なし。ComfyUIの自由度を、セットアップ不要で。50クレジット無料、カード不要。",
+    "subtitle": "世界最高のAIモデルで画像・動画を生成。フィルターなし、制限なし。ComfyUIの自由度を、セットアップ不要で。15クレジット無料、カード不要。",
     "viewPricing": "料金プランを見る"
   },
   "features": {
@@ -93,7 +93,7 @@
   "plans": {
     "free": {
       "name": "Free",
-      "credits": "50 / 月",
+      "credits": "15 / 月",
       "features": [
         "Flux, SDXL, SD 3.5 等",
         "画像生成（10枚/日）",
@@ -271,5 +271,22 @@
   "meta": {
     "title": "EGAKU AI - AI画像・動画ジェネレーター",
     "description": "AIで画像や動画を自由に生成。Flux、SDXL、Stable Diffusionを搭載し、CivitAIのカスタムモデルにも対応。年齢確認済みユーザー向けに制限なしの表現の自由を提供。"
+  },
+  "anon": {
+    "tryNow": "5枚まで無料でお試し — もっと作るなら無料登録",
+    "placeholder": "作りたいものを入力してください...",
+    "generate": "生成する",
+    "creating": "生成中...",
+    "aiCreating": "AIが画像を生成しています...",
+    "poweredBy": "Flux Dev搭載 — 約10秒で完成",
+    "enhancedPrompt": "AI強化プロンプト",
+    "remaining": "残り{count}回無料生成できます",
+    "lastFree": "最後の無料生成です！",
+    "download": "ダウンロード",
+    "another": "もう一度生成",
+    "limitTitle": "無料生成5回分を使い切りました！",
+    "limitDesc": "無料登録で50クレジット獲得。もっと作れます。",
+    "signupFree": "無料登録 — 50クレジット",
+    "wantMore": "もっと作りたい？無料登録で50クレジット"
   }
 }

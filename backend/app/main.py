@@ -8,7 +8,7 @@ from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from app.api import adult, api_keys, auth, billing, chat, credits, download, explore, gallery, generate, generate_advanced, models, webhook
+from app.api import adult, anonymous, api_keys, auth, billing, chat, credits, download, explore, gallery, generate, generate_advanced, models, webhook
 from app.core.config import get_settings
 from app.core.security import get_client_ip
 
@@ -77,6 +77,7 @@ app.include_router(auth.router, prefix="/api")
 app.include_router(billing.router, prefix="/api")
 app.include_router(explore.router, prefix="/api")
 app.include_router(generate.router, prefix="/api")
+app.include_router(anonymous.router, prefix="/api")
 app.include_router(generate_advanced.router, prefix="/api")
 app.include_router(credits.router, prefix="/api")
 app.include_router(gallery.router, prefix="/api")

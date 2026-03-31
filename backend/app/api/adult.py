@@ -7,14 +7,12 @@ Requires age verification. CSAM is ALWAYS blocked.
 import logging
 import uuid
 
-import stripe
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, Field
 
 from app.api.billing import (
     ADULT_PLAN_CREDITS,
     ADULT_PLAN_INFO,
-    ADULT_PLAN_PRICES,
     REGION_PRICE_MULTIPLIER,
 )
 from app.core.config import Settings, get_settings
@@ -64,20 +62,22 @@ ADULT_MODELS = [
     {"id": "civitai_custom", "name": "CivitAI Custom Model (Patron)", "credits": 3, "badge": "Custom"},
 ]
 
-# Plans that can use CivitAI custom models
-CIVITAI_CUSTOM_PLANS = {"adult_patron"}
+# Plans that can use CivitAI custom models (expanded from Patron-only)
+CIVITAI_CUSTOM_PLANS = {"adult_creator", "adult_studio", "adult_patron"}
 
 ADULT_VIDEO_MODELS = [
-    # fal.ai HIGH QUALITY (verified NSFW-passing)
+    # ── Text to Video (t2v) ──
     {"id": "fal_kling_t2v", "name": "Kling v2 (Best Quality)", "credits": 15, "badge": "HD", "type": "t2v"},
     {"id": "fal_ltx_t2v", "name": "LTX 2.3 (Fast)", "credits": 5, "badge": "Fast", "type": "t2v"},
-    # fal.ai I2V (upload image → animate)
-    {"id": "fal_kling_i2v", "name": "Kling v2 I2V (Upload → Video)", "credits": 15, "badge": "HD", "type": "i2v"},
-    {"id": "fal_ltx_i2v", "name": "LTX 2 I2V (Upload → Video)", "credits": 5, "badge": "Fast", "type": "i2v"},
-    # Novita.ai AnimateDiff (NSFW guaranteed, lower quality)
     {"id": "novita_uber_realistic_porn", "name": "AnimateDiff NSFW (Guaranteed)", "credits": 5, "badge": "NSFW", "type": "t2v"},
     {"id": "novita_babes", "name": "AnimateDiff Babes", "credits": 5, "badge": "NSFW", "type": "t2v"},
     {"id": "novita_hassaku_hentai", "name": "AnimateDiff Hentai", "credits": 5, "badge": "Anime", "type": "t2v"},
+    # ── Image to Video (i2v) — Novita AnimateDiff (NSFW guaranteed, no content filter) ──
+    # fal.ai I2V blocks NSFW images — removed.
+    {"id": "novita_i2v_realistic", "name": "AnimateDiff NSFW (Upload Image)", "credits": 5, "badge": "NSFW", "type": "i2v"},
+    {"id": "novita_i2v_babes", "name": "AnimateDiff Babes (Upload Image)", "credits": 5, "badge": "NSFW", "type": "i2v"},
+    {"id": "novita_i2v_asian", "name": "AnimateDiff Asian (Upload Image)", "credits": 5, "badge": "Asian", "type": "i2v"},
+    {"id": "novita_i2v_hentai", "name": "AnimateDiff Hentai (Upload Image)", "credits": 5, "badge": "Anime", "type": "i2v"},
 ]
 
 ADULT_PLAN_RANK = {
@@ -104,6 +104,11 @@ class AdultGenerateRequest(BaseModel):
     scheduler: str = "normal"
     seed: int = -1
     mosaic_enabled: bool = True  # Default ON for safety
+    # Free model selection: specify any Novita.ai safetensors model name
+    custom_model_name: str = ""
+    # LoRA support: combine with any checkpoint
+    lora_model: str = ""
+    lora_strength: float = Field(0.8, ge=0.0, le=2.0)
 
 
 class AdultVideoRequest(BaseModel):
@@ -113,6 +118,8 @@ class AdultVideoRequest(BaseModel):
     image_url: str = ""  # For img2vid
     seed: int = -1
     mosaic_enabled: bool = True
+    duration: int = Field(5, ge=3, le=15)  # seconds (3-15)
+    resolution: str = "720p"  # "720p" or "1080p"
 
 
 def _check_adult_access(profile: dict) -> None:
@@ -157,6 +164,102 @@ def _check_adult_prompt(prompt: str) -> None:
         )
 
 
+# ── Adult Opt-in (for Stripe Pro+ users) ──
+
+# Main plans that qualify for free adult access opt-in
+ADULT_OPTIN_PLANS = {"pro", "unlimited", "studio"}
+
+# Credit grant when opting in (same as adult_creator tier)
+ADULT_OPTIN_CREDITS = 500
+
+
+@router.post("/opt-in")
+async def adult_opt_in(
+    request: Request,
+    settings: Settings = Depends(get_settings),
+):
+    """Enable adult features for Pro/Unlimited/Studio plan users.
+
+    No extra payment needed — adult access is a perk of paid plans.
+    Requires age verification. Stripe never sees 'adult' anywhere.
+    """
+    auth_header = request.headers.get("authorization", "")
+    if not auth_header.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Auth required")
+    token = auth_header.split(" ", 1)[1]
+
+    supabase = get_supabase(settings)
+    try:
+        user_response = supabase.auth.get_user(token)
+        user = user_response.user
+    except Exception:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+    profile = await get_user_profile(supabase, user.id)
+    if not profile:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    # Check main plan qualifies
+    main_plan = profile.get("plan", "free")
+    if main_plan not in ADULT_OPTIN_PLANS:
+        raise HTTPException(
+            status_code=403,
+            detail=f"Adult Expression requires Pro, Unlimited, or Studio plan. Current plan: {main_plan}",
+        )
+
+    # Check age verification
+    if not profile.get("age_verified"):
+        raise HTTPException(status_code=403, detail="Age verification required first")
+
+    # Already opted in?
+    current_adult = profile.get("adult_plan", "none")
+    if current_adult != "none":
+        return {"status": "already_active", "adult_plan": current_adult}
+
+    # Activate adult access (maps to adult_creator tier)
+    adult_plan = "adult_creator"
+    supabase.table("users").update({
+        "adult_plan": adult_plan,
+    }).eq("id", user.id).execute()
+
+    # Grant adult credits
+    current_credits = supabase.table("credits").select("balance").eq("user_id", user.id).maybe_single().execute()
+    new_balance = (current_credits.data["balance"] if current_credits.data else 0) + ADULT_OPTIN_CREDITS
+    supabase.table("credits").upsert({"user_id": user.id, "balance": new_balance}).execute()
+    supabase.table("credit_transactions").insert({
+        "user_id": user.id,
+        "amount": ADULT_OPTIN_CREDITS,
+        "type": "adult_optin",
+        "description": f"Adult Expression activated (included with {main_plan} plan)",
+    }).execute()
+
+    logger.info(f"Adult opt-in activated: user={user.id} main_plan={main_plan} adult_plan={adult_plan}")
+    return {"status": "activated", "adult_plan": adult_plan, "credits_added": ADULT_OPTIN_CREDITS}
+
+
+@router.post("/opt-out")
+async def adult_opt_out(
+    request: Request,
+    settings: Settings = Depends(get_settings),
+):
+    """Disable adult features."""
+    auth_header = request.headers.get("authorization", "")
+    if not auth_header.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Auth required")
+    token = auth_header.split(" ", 1)[1]
+
+    supabase = get_supabase(settings)
+    try:
+        user_response = supabase.auth.get_user(token)
+        user = user_response.user
+    except Exception:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+    supabase.table("users").update({"adult_plan": "none"}).eq("id", user.id).execute()
+    logger.info(f"Adult opt-out: user={user.id}")
+    return {"status": "deactivated"}
+
+
 # ── Plans & Billing ──
 
 @router.get("/plans")
@@ -189,12 +292,14 @@ async def create_adult_checkout(
     user=Depends(get_current_user),
     settings: Settings = Depends(get_settings),
 ):
-    """Create Stripe Checkout for adult subscription."""
-    stripe.api_key = settings.stripe_secret_key
-    if not settings.stripe_secret_key:
-        raise HTTPException(status_code=503, detail="Stripe not configured")
+    """Create checkout for adult subscription.
 
-    if plan not in ADULT_PLAN_PRICES:
+    Adult payments use cryptocurrency (NOWPayments) only.
+    Stripe is banned for adult content, CCBill rejected (Japan business).
+    This endpoint redirects to crypto checkout.
+    """
+    valid_plans = {"adult_starter", "adult_creator", "adult_studio", "adult_patron"}
+    if plan not in valid_plans:
         raise HTTPException(status_code=400, detail=f"Invalid adult plan: {plan}")
 
     supabase = get_supabase(settings)
@@ -205,49 +310,8 @@ async def create_adult_checkout(
     if not profile.get("age_verified"):
         raise HTTPException(status_code=403, detail="Age verification required before purchasing adult plan")
 
-    region = profile.get("region_code", "US")
-    multiplier = REGION_PRICE_MULTIPLIER.get(region, 1.0)
-
-    customer_id = profile.get("stripe_customer_id")
-    if not customer_id:
-        customer = stripe.Customer.create(
-            email=profile["email"],
-            metadata={"user_id": user.id, "region": region},
-        )
-        customer_id = customer.id
-        supabase.table("users").update(
-            {"stripe_customer_id": customer_id}
-        ).eq("id", user.id).execute()
-
-    origin = settings.cors_origins[0] if settings.cors_origins else "http://localhost:4000"
-
-    checkout_params = {
-        "customer": customer_id,
-        "mode": "subscription",
-        "line_items": [{"price": ADULT_PLAN_PRICES[plan], "quantity": 1}],
-        "metadata": {"user_id": user.id, "plan": plan, "type": "adult", "region": region},
-        "success_url": f"{origin}/adult?checkout=success&plan={plan}",
-        "cancel_url": f"{origin}/adult?checkout=cancel",
-        "allow_promotion_codes": True,
-    }
-
-    if multiplier < 1.0:
-        discount_pct = int((1 - multiplier) * 100)
-        coupon_id = f"ppp_{region}_{discount_pct}"
-        try:
-            stripe.Coupon.retrieve(coupon_id)
-        except stripe.error.InvalidRequestError:
-            stripe.Coupon.create(
-                id=coupon_id,
-                percent_off=discount_pct,
-                duration="forever",
-                name=f"Regional pricing ({region} -{discount_pct}%)",
-            )
-        checkout_params["discounts"] = [{"coupon": coupon_id}]
-        del checkout_params["allow_promotion_codes"]
-
-    session = stripe.checkout.Session.create(**checkout_params)
-    return {"checkout_url": session.url}
+    # Redirect to crypto checkout (only payment method for adult plans)
+    return {"redirect": "crypto", "detail": "Adult plans use cryptocurrency payment only."}
 
 
 @router.post("/checkout-crypto")
@@ -363,12 +427,21 @@ async def get_adult_models():
 async def get_adult_showcase(
     page: int = 1,
     limit: int = 20,
+    request: Request = None,
     settings: Settings = Depends(get_settings),
 ):
     """Return NSFW showcase items (public NSFW generations marked as featured).
 
-    Returns image_url/video_url for all items. Client handles blur for non-subscribers.
+    For JP region: mosaic_required=true is included in response.
+    Client must apply mosaic/pixelation on public NSFW images when mosaic_required.
     """
+    # Detect region for mosaic requirement
+    region = "US"
+    if request:
+        ip = get_client_ip(request)
+        region = detect_region(request, ip, settings)
+    mosaic_required = region in ("JP", "KR")
+
     supabase = get_supabase(settings)
     offset = (page - 1) * limit
 
@@ -394,7 +467,7 @@ async def get_adult_showcase(
             "created_at": row["created_at"],
         })
 
-    return {"items": items, "total": result.count or 0, "page": page}
+    return {"items": items, "total": result.count or 0, "page": page, "mosaic_required": mosaic_required, "region": region}
 
 
 @router.post("/showcase/publish/{generation_id}")
@@ -550,28 +623,82 @@ async def generate_adult(
 
     # ─── 1. ALWAYS try Novita.ai first for adult (NO safety filter) ───
     novita_model = model_id if model_id.startswith("novita_") else "novita_dreamshaper_xl"
+
+    # Handle custom model name (free model selection)
+    custom_model = body.custom_model_name.strip() if body.custom_model_name else ""
+    lora_model = body.lora_model.strip() if body.lora_model else ""
+
     if settings.novita_api_key:
         try:
-            from app.api.generate import _generate_with_novita_builtin
-            from app.models.schemas import ImageGenerateRequest
+            # If LoRA is specified, use generate_with_lora
+            if lora_model:
+                from app.services.novita import NovitaClient
+                novita = NovitaClient(settings)
+                # Determine checkpoint for LoRA
+                checkpoint = custom_model if custom_model else None
+                if not checkpoint:
+                    # Map model_id to safetensors name
+                    from app.services.novita import BUILTIN_MODELS
+                    checkpoint = BUILTIN_MODELS.get(novita_model, {}).get("model_name")
+                    if not checkpoint:
+                        checkpoint = "uberRealisticPornMerge_urpmv13.safetensors"
 
-            img_body = ImageGenerateRequest(
-                prompt=body.prompt,
-                negative_prompt=body.negative_prompt,
-                model=novita_model,
-                width=body.width,
-                height=body.height,
-                steps=body.steps,
-                cfg=body.cfg,
-                seed=body.seed,
-                nsfw=True,
-            )
-            result = await _generate_with_novita_builtin(
-                novita_model, img_body, img_body.model_dump(), job_id, settings, user.id, base_cost,
-            )
-            if result:
-                logger.info(f"Adult generation via Novita.ai succeeded ({novita_model})")
-                return result
+                result_urls = await novita.generate_with_lora(
+                    prompt=body.prompt,
+                    negative_prompt=body.negative_prompt,
+                    checkpoint_model=checkpoint,
+                    lora_model=lora_model,
+                    lora_strength=body.lora_strength,
+                    width=body.width,
+                    height=body.height,
+                    steps=body.steps,
+                    guidance_scale=body.cfg,
+                    seed=body.seed,
+                )
+                if result_urls:
+                    logger.info(f"Adult generation via Novita.ai LoRA succeeded ({checkpoint} + {lora_model})")
+                    return await _save_and_return(result_urls[0], "novita_lora")
+
+            # If custom model name is specified, use it directly via Novita
+            elif custom_model:
+                from app.services.novita import NovitaClient
+                novita = NovitaClient(settings)
+                result_urls = await novita.generate_with_checkpoint(
+                    prompt=body.prompt,
+                    negative_prompt=body.negative_prompt,
+                    model_name=custom_model,
+                    width=body.width,
+                    height=body.height,
+                    steps=body.steps,
+                    guidance_scale=body.cfg,
+                    seed=body.seed,
+                )
+                if result_urls:
+                    logger.info(f"Adult generation via Novita.ai custom model succeeded ({custom_model})")
+                    return await _save_and_return(result_urls[0], "novita_custom")
+
+            # Standard flow: use builtin model mapping
+            else:
+                from app.api.generate import _generate_with_novita_builtin
+                from app.models.schemas import ImageGenerateRequest
+
+                img_body = ImageGenerateRequest(
+                    prompt=body.prompt,
+                    negative_prompt=body.negative_prompt,
+                    model=novita_model,
+                    width=body.width,
+                    height=body.height,
+                    steps=body.steps,
+                    cfg=body.cfg,
+                    seed=body.seed,
+                    nsfw=True,
+                )
+                result = await _generate_with_novita_builtin(
+                    novita_model, img_body, img_body.model_dump(), job_id, settings, user.id, base_cost,
+                )
+                if result:
+                    logger.info(f"Adult generation via Novita.ai succeeded ({novita_model})")
+                    return result
         except Exception as e:
             logger.warning(f"Novita.ai adult generation failed, trying fal.ai: {e}")
 
@@ -680,23 +807,132 @@ async def generate_adult_video(
 
     is_i2v = bool(body.image_url)
 
-    # 5a-i2v. Novita.ai SVD for img2vid (NSFW, no filters on image input)
-    if is_i2v and settings.novita_api_key:
-        try:
-            from app.services.novita import NovitaClient
+    # ━━━━━━━ IMAGE-TO-VIDEO ━━━━━━━
+    # Priority: vast.ai ComfyUI AnimateDiff (real i2v, no filter) → Novita AnimateDiff (prompt-based fallback)
+    if is_i2v:
+        logger.info(f"img2vid: duration={body.duration}s")
 
+        # ── Try vast.ai ComfyUI AnimateDiff first (actual image animation) ──
+        if settings.vastai_comfyui_url:
+            try:
+                from app.services.vastai import VastAIClient
+                vast_client = VastAIClient(settings.vastai_api_key)
+                vast_client._instance = type('obj', (object,), {
+                    'ip': settings.vastai_comfyui_url.split('//')[1].split(':')[0],
+                    'port': int(settings.vastai_comfyui_url.split(':')[-1]),
+                })()
+
+                import base64 as _b64
+                if body.image_url.startswith("data:"):
+                    img_b64 = body.image_url.split(",", 1)[1]
+                else:
+                    import httpx as _hx
+                    _resp = await _hx.AsyncClient().get(body.image_url, timeout=30)
+                    img_b64 = _b64.b64encode(_resp.content).decode()
+
+                video_result = await vast_client.submit_img2vid_workflow(
+                    image_b64=img_b64,
+                    prompt=body.prompt or "smooth natural motion, cinematic",
+                    negative_prompt=body.negative_prompt or "worst quality, low quality",
+                    width=512, height=512, steps=20, cfg=7.0,
+                    seed=body.seed, frame_count=max(16, body.duration * 8),
+                    fps=8, denoise=0.65,
+                )
+                if video_result:
+                    await _store_job_status(settings, job_id, "completed", {"url": video_result, "backend": "vastai_animatediff"})
+                    await _save_generation_to_db(
+                        settings, user.id, job_id, "img2vid", body.prompt,
+                        body.negative_prompt, "vastai_animatediff", body.model_dump(), video_result, True,
+                    )
+                    return GenerationResponse(
+                        job_id=job_id, status=JobStatus.completed,
+                        credits_used=base_cost, result_url=video_result,
+                    )
+            except Exception as e:
+                logger.warning(f"vast.ai img2vid failed, falling back to Novita: {e}")
+
+        # ── Fallback: Novita AnimateDiff (prompt-based, AI Vision describes image) ──
+        if not settings.novita_api_key:
+            raise HTTPException(status_code=503, detail="No video backend available")
+
+        try:
+            from app.services.novita import NovitaClient, BUILTIN_MODELS
             novita = NovitaClient(settings)
-            video_url = await novita.img2video(
-                image_url=body.image_url,
-                steps=25,
-                frames=14,
-                fps=6,
+
+            # ── Step 1: AI Vision → describe the image in detail ──
+            video_prompt = body.prompt  # User's prompt as base
+            if settings.openai_api_key and body.image_url:
+                try:
+                    import httpx as _httpx
+                    vision_resp = await _httpx.AsyncClient().post(
+                        "https://api.openai.com/v1/chat/completions",
+                        headers={"Authorization": f"Bearer {settings.openai_api_key}"},
+                        json={
+                            "model": "gpt-4o-mini",
+                            "max_tokens": 300,
+                            "messages": [{
+                                "role": "user",
+                                "content": [
+                                    {"type": "text", "text": (
+                                        "Describe this image in detail for AI video generation. "
+                                        "Include: subject appearance (hair, body, clothing/nudity, pose), "
+                                        "setting, lighting, camera angle. Be explicit and detailed. "
+                                        "Output ONLY the description as comma-separated tags, no commentary. "
+                                        "Add motion description: what movement would look natural."
+                                    )},
+                                    {"type": "image_url", "image_url": {"url": body.image_url, "detail": "low"}},
+                                ],
+                            }],
+                        },
+                        timeout=30,
+                    )
+                    if vision_resp.status_code == 200:
+                        ai_desc = vision_resp.json()["choices"][0]["message"]["content"]
+                        # Combine user prompt + AI description
+                        if video_prompt:
+                            video_prompt = f"{video_prompt}, {ai_desc}"
+                        else:
+                            video_prompt = ai_desc
+                        logger.info(f"AI Vision described image: {video_prompt[:150]}...")
+                except Exception as ve:
+                    logger.warning(f"AI Vision failed (using user prompt only): {ve}")
+
+            if not video_prompt:
+                video_prompt = "beautiful woman, smooth cinematic motion, high quality"
+
+            neg = body.negative_prompt or "worst quality, low quality, deformed, ugly, bad anatomy"
+
+            # ── Step 2: Pick checkpoint ──
+            I2V_CHECKPOINTS = {
+                "novita_i2v_realistic": "uberRealisticPornMerge_urpmv13.safetensors",
+                "novita_i2v_babes": "babes_20.safetensors",
+                "novita_i2v_asian": "chilloutmix_NiPrunedFp32Fix.safetensors",
+                "novita_i2v_hentai": "hassakuHentaiModel_v13.safetensors",
+            }
+            checkpoint = I2V_CHECKPOINTS.get(model_id, "uberRealisticPornMerge_urpmv13.safetensors")
+            if model_id in BUILTIN_MODELS:
+                checkpoint = BUILTIN_MODELS[model_id]["model_name"]
+
+            # ── Step 3: Generate video with AnimateDiff ──
+            fps = 8
+            frames = max(16, min(body.duration * fps, 64))
+
+            video_url = await novita.generate_video(
+                prompt=video_prompt,
+                model_name=checkpoint,
+                width=512,
+                height=512,
+                steps=20,
+                guidance_scale=7.0,
+                frames=frames,
+                seed=body.seed,
+                negative_prompt=neg,
             )
             if video_url:
-                await _store_job_status(settings, job_id, "completed", {"url": video_url, "backend": "novita_svd"})
+                await _store_job_status(settings, job_id, "completed", {"url": video_url, "backend": "novita_animatediff"})
                 await _save_generation_to_db(
                     settings, user.id, job_id, "img2vid", body.prompt,
-                    body.negative_prompt, "novita_svd", body.model_dump(), video_url, True,
+                    body.negative_prompt, checkpoint, body.model_dump(), video_url, True,
                 )
                 return GenerationResponse(
                     job_id=job_id,
@@ -704,12 +940,17 @@ async def generate_adult_video(
                     credits_used=base_cost,
                     result_url=video_url,
                 )
+            raise RuntimeError("Novita AnimateDiff returned no video URL")
         except Exception as e:
-            logger.error(f"Novita.ai img2vid failed: {e}")
-            raise HTTPException(status_code=500, detail=f"Image-to-video failed: {e}")
+            logger.error(f"Novita AnimateDiff img2vid failed: {e}")
+            raise HTTPException(
+                status_code=500,
+                detail=f"Video generation failed: {e}",
+            )
 
+    # ━━━━━━━ TEXT-TO-VIDEO ━━━━━━━
     # 5a-t2v. Novita.ai AnimateDiff for txt2vid (NSFW, no filters)
-    if settings.novita_api_key and is_novita_model and not is_i2v:
+    if settings.novita_api_key and is_novita_model:
         try:
             from app.services.novita import BUILTIN_MODELS, NovitaClient
 
@@ -745,42 +986,28 @@ async def generate_adult_video(
         except Exception as e:
             logger.warning(f"Novita.ai video failed, trying fal.ai: {e}")
 
-    # 5b. Fallback: fal.ai video
+    # 5b. Fallback: fal.ai txt2vid (i2v is already handled above)
     from app.services.fal_ai import VIDEO_MODELS, FalClient
 
     fal_client = FalClient(settings)
     if not fal_client.is_available():
         raise HTTPException(status_code=503, detail="Video GPU backend unavailable")
 
-    # For I2V models, use the correct fal.ai model; for others default to ltx t2v
-    if model_id in VIDEO_MODELS:
-        fal_model = model_id
-    elif is_i2v:
-        fal_model = "fal_kling_i2v"
-    else:
-        fal_model = "fal_ltx_t2v"
+    fal_model = model_id if model_id in VIDEO_MODELS else "fal_ltx_t2v"
 
     try:
-        if is_i2v:
-            fal_result = await fal_client.submit_img2vid(
-                image_url=body.image_url,
-                prompt=body.prompt,
-                seed=body.seed,
-                model_id=fal_model,
-            )
-        else:
-            fal_result = await fal_client.submit_txt2vid(
-                prompt=body.prompt,
-                seed=body.seed,
-                model_id=fal_model,
-            )
+        fal_result = await fal_client.submit_txt2vid(
+            prompt=body.prompt,
+            seed=body.seed,
+            model_id=fal_model,
+            duration=body.duration,
+        )
 
         result_url = fal_client.extract_video_url(fal_result)
         if result_url:
-            gen_type = "img2vid" if is_i2v else "txt2vid"
             await _store_job_status(settings, job_id, "completed", {"url": result_url, "backend": "fal"})
             await _save_generation_to_db(
-                settings, user.id, job_id, gen_type, body.prompt,
+                settings, user.id, job_id, "txt2vid", body.prompt,
                 body.negative_prompt, fal_model, body.model_dump(), result_url, True,
             )
             return GenerationResponse(

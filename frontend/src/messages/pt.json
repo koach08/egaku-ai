@@ -93,7 +93,7 @@
   "plans": {
     "free": {
       "name": "Free",
-      "credits": "50 / mês",
+      "credits": "15 / mês",
       "features": [
         "Flux, SDXL, SD 3.5 e mais",
         "Texto para Imagem (10/dia)",
@@ -271,5 +271,22 @@
   "meta": {
     "title": "EGAKU AI - Gerador de Imagens e Vídeos com IA",
     "description": "Crie imagens e vídeos incríveis com IA usando Flux, SDXL e Stable Diffusion. Modelos personalizados do CivitAI. Liberdade criativa total para adultos verificados."
+  },
+  "anon": {
+    "tryNow": "Teste 5 imagens grátis — cadastre-se para mais",
+    "placeholder": "Descreva o que você quer criar...",
+    "generate": "Gerar",
+    "creating": "Criando...",
+    "aiCreating": "A IA está criando sua imagem...",
+    "poweredBy": "Powered by Flux Dev — leva ~10 segundos",
+    "enhancedPrompt": "Prompt aprimorado pela IA",
+    "remaining": "{count} geração(ões) gratuita(s) restante(s)",
+    "lastFree": "Última geração gratuita!",
+    "download": "Baixar",
+    "another": "Gerar outra",
+    "limitTitle": "Você usou suas 5 gerações gratuitas!",
+    "limitDesc": "Cadastre-se grátis para ganhar 50 créditos.",
+    "signupFree": "Cadastro Grátis — 50 Créditos",
+    "wantMore": "Quer mais? Cadastre-se grátis por 50 créditos"
   }
 }

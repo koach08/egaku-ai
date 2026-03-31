@@ -271,5 +271,22 @@
   "meta": {
     "title": "EGAKU AI - AI Image & Video Generator",
     "description": "Create stunning AI-generated images and videos with Flux, SDXL, and Stable Diffusion. Custom models from CivitAI. Full creative freedom for verified adults."
+  },
+  "anon": {
+    "tryNow": "Try 5 images free — sign up for more",
+    "placeholder": "Describe what you want to create...",
+    "generate": "Generate",
+    "creating": "Creating...",
+    "aiCreating": "AI is creating your image...",
+    "poweredBy": "Powered by Flux Dev — takes ~10 seconds",
+    "enhancedPrompt": "AI-enhanced prompt",
+    "remaining": "{count} free generation(s) remaining",
+    "lastFree": "Last free generation!",
+    "download": "Download",
+    "another": "Generate Another",
+    "limitTitle": "You used your 5 free generations!",
+    "limitDesc": "Sign up for free to get 50 credits and keep creating.",
+    "signupFree": "Sign Up Free — 50 Credits",
+    "wantMore": "Want more? Sign up for 50 free credits"
   }
 }

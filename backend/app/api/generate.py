@@ -676,6 +676,7 @@ async def _save_generation_to_db(
         # Also save to gallery table so it appears in My Gallery
         try:
             gallery_row = {
+                "id": job_id,  # Use same ID as generations for consistent delete
                 "user_id": user_id,
                 "job_id": job_id,
                 "prompt": prompt or "",
@@ -1252,3 +1253,114 @@ async def get_result_image(
             "Cache-Control": "public, max-age=3600",
         },
     )
+
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# Image-to-Video Prompt Suggestions
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+from pydantic import BaseModel, Field
+
+
+class I2VPromptRequest(BaseModel):
+    image_url: str = Field(..., description="Base64 data URL or HTTP URL of the image")
+    nsfw: bool = False
+
+
+class I2VPromptSuggestion(BaseModel):
+    label: str
+    prompt: str
+    icon: str = ""
+
+
+@router.post("/img2vid/suggest-prompts")
+async def suggest_img2vid_prompts(
+    body: I2VPromptRequest,
+    request: Request,
+    settings: Settings = Depends(get_settings),
+):
+    """Analyze an uploaded image and suggest motion prompts for img2vid.
+
+    Uses GPT-4o-mini Vision to understand the image content and suggest
+    4-6 motion-focused prompts that preserve the image's look/feel.
+    """
+    if not settings.openai_api_key:
+        # Return generic templates if no OpenAI key
+        return {"suggestions": _generic_motion_templates(body.nsfw)}
+
+    import httpx
+
+    system_prompt = (
+        "You are an AI video generation prompt expert. "
+        "Analyze this image and suggest 6 different motion prompts that would animate it naturally. "
+        "Each prompt should describe MOTION and CAMERA movement, NOT the image content itself. "
+        "The video model will use the image as the starting frame, so focus only on what MOVES.\n\n"
+        "Return EXACTLY 6 suggestions in this JSON format:\n"
+        '[{"label": "short 2-3 word label in Japanese", "prompt": "English motion prompt", "icon": "emoji"}]\n\n'
+        "Examples of good motion prompts:\n"
+        '- "gentle hair blowing in wind, subtle body sway, cinematic camera slowly zooming in"\n'
+        '- "slow camera orbit around subject, dramatic lighting shift, fabric flowing"\n'
+        '- "subject turns head slowly, eyes blink, lips part slightly, shallow breathing motion"\n\n'
+        "Make prompts specific to what you see in the image. Include camera movements, "
+        "body motions, environmental effects (wind, water, light). Keep each under 80 words."
+    )
+
+    if body.nsfw:
+        system_prompt += (
+            "\nThis is for adult content. You may include sensual/erotic motion descriptions "
+            "like body movements, breathing, intimate gestures. Be tasteful but explicit."
+        )
+
+    try:
+        async with httpx.AsyncClient() as client:
+            resp = await client.post(
+                "https://api.openai.com/v1/chat/completions",
+                headers={"Authorization": f"Bearer {settings.openai_api_key}"},
+                json={
+                    "model": "gpt-4o-mini",
+                    "max_tokens": 800,
+                    "response_format": {"type": "json_object"},
+                    "messages": [
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": [
+                            {"type": "text", "text": "Analyze this image and suggest 6 motion prompts for video generation. Return JSON array."},
+                            {"type": "image_url", "image_url": {"url": body.image_url, "detail": "low"}},
+                        ]},
+                    ],
+                },
+                timeout=30,
+            )
+
+        if resp.status_code == 200:
+            import json
+            data = resp.json()
+            content = data["choices"][0]["message"]["content"]
+            parsed = json.loads(content)
+            suggestions = parsed if isinstance(parsed, list) else parsed.get("suggestions", parsed.get("prompts", []))
+            if suggestions:
+                return {"suggestions": suggestions[:6]}
+
+    except Exception as e:
+        logger.warning(f"AI prompt suggestion failed: {e}")
+
+    return {"suggestions": _generic_motion_templates(body.nsfw)}
+
+
+def _generic_motion_templates(nsfw: bool = False) -> list[dict]:
+    """Fallback generic motion templates when AI Vision is unavailable."""
+    templates = [
+        {"label": "風になびく", "prompt": "gentle wind blowing through hair, subtle fabric movement, soft ambient motion, cinematic", "icon": "🌊"},
+        {"label": "カメラズーム", "prompt": "slow cinematic camera zoom in, depth of field shift, dramatic focus pull", "icon": "🎥"},
+        {"label": "カメラ回転", "prompt": "slow camera orbit around subject, 360 degree rotation, dramatic lighting shift", "icon": "🔄"},
+        {"label": "瞬き・微動", "prompt": "subtle eye blink, gentle breathing motion, slight head tilt, lifelike micro-movements", "icon": "👁"},
+        {"label": "光の変化", "prompt": "dynamic lighting shift, sun rays moving across scene, golden hour transition, lens flare", "icon": "✨"},
+        {"label": "自然な動き", "prompt": "natural body sway, hair flowing, fabric rippling, atmospheric particles floating", "icon": "🍃"},
+    ]
+
+    if nsfw:
+        templates.extend([
+            {"label": "セクシーポーズ", "prompt": "sensual slow movement, body gently swaying, seductive eye contact, intimate atmosphere", "icon": "💋"},
+            {"label": "ベッドシーン", "prompt": "gentle rolling motion on bed, sheets flowing, soft breathing, intimate close-up", "icon": "🛏"},
+        ])
+
+    return templates

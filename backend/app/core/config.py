@@ -43,12 +43,15 @@ class Settings(BaseSettings):
     # CivitAI (optional - for gated model downloads)
     civitai_api_key: str = ""
 
-    # vast.ai (GPU backend for adult/NSFW generation)
+    # vast.ai (GPU backend for adult/NSFW generation — AnimateDiff, no content filter)
     vastai_api_key: str = ""
+    vastai_comfyui_url: str = ""  # e.g. "http://38.64.28.7:8188"
 
     # NOWPayments (crypto payments for adult subscriptions)
     nowpayments_api_key: str = ""
     nowpayments_ipn_secret: str = ""
+
+    # CCBill — rejected (Japan business). Adult payments use crypto only.
 
     # Cloudflare R2 (cloud mode)
     r2_account_id: str = ""

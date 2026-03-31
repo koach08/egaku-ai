@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS public.users (
 -- Credits
 CREATE TABLE IF NOT EXISTS public.credits (
     user_id UUID PRIMARY KEY REFERENCES public.users(id) ON DELETE CASCADE,
-    balance INTEGER DEFAULT 50,
+    balance INTEGER DEFAULT 15,
     lifetime_used INTEGER DEFAULT 0
 );
 
