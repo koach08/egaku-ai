@@ -23,7 +23,7 @@ router = APIRouter(prefix="/generate", tags=["anonymous"])
 # In-memory tracking: IP → generation count
 # In production, use Redis for persistence across restarts
 _anon_usage: dict[str, int] = defaultdict(int)
-ANON_LIMIT = 5
+ANON_LIMIT = 2  # Free trial: 2 images only
 
 ENHANCE_SYSTEM_PROMPT = """You are an expert AI image generation prompt engineer. Your ONLY job is to take the user's idea and rewrite it as a high-quality image generation prompt.
 
@@ -108,9 +108,10 @@ async def generate_anonymous(
             detail="FREE_LIMIT_REACHED",
         )
 
-    # 3. Check GPU backend availability
+    # 3. Check GPU backend availability (fal.ai or Novita.ai)
     has_fal = bool(settings.fal_api_key)
-    if not has_fal:
+    has_novita = bool(settings.novita_api_key)
+    if not has_fal and not has_novita:
         raise HTTPException(
             status_code=503,
             detail="Generation service temporarily unavailable.",
@@ -119,62 +120,59 @@ async def generate_anonymous(
     # 4. Enhance the prompt
     enhanced_prompt = await _enhance_prompt(body.prompt, settings)
 
-    # 5. Generate with fal.ai (fastest, synchronous)
-    from app.services.fal_ai import FalClient
-
-    fal_client = FalClient(settings)
     job_id = str(uuid.uuid4())
 
-    try:
-        fal_result = await fal_client.submit_txt2img(
-            prompt=enhanced_prompt,
-            model_id="fal_flux_dev",  # Best quality model for first impression
-            width=1024,
-            height=1024,
-            steps=25,
-            cfg=7.0,
-            seed=-1,
-            negative_prompt="worst quality, low quality, blurry, distorted, deformed, ugly, bad anatomy",
-        )
-        result_url = fal_client.extract_image_url(fal_result)
-
-        if result_url:
-            # Check for black image (safety filter)
-            if await fal_client.is_black_image(result_url):
-                # Retry with flux_realism
-                try:
+    # 5a. Try fal.ai first (fastest, best quality for SFW)
+    if has_fal:
+        from app.services.fal_ai import FalClient
+        fal_client = FalClient(settings)
+        try:
+            fal_result = await fal_client.submit_txt2img(
+                prompt=enhanced_prompt,
+                model_id="fal_flux_dev",
+                width=1024, height=1024, steps=25, cfg=7.0, seed=-1,
+                negative_prompt="worst quality, low quality, blurry, distorted, deformed, ugly, bad anatomy",
+            )
+            result_url = fal_client.extract_image_url(fal_result)
+            if result_url:
+                if await fal_client.is_black_image(result_url):
                     retry_result = await fal_client.submit_txt2img(
-                        prompt=enhanced_prompt,
-                        model_id="fal_flux_realism",
-                        width=1024,
-                        height=1024,
-                        steps=25,
-                        cfg=7.0,
-                        seed=-1,
+                        prompt=enhanced_prompt, model_id="fal_flux_realism",
+                        width=1024, height=1024, steps=25, cfg=7.0, seed=-1,
                         negative_prompt="worst quality, low quality, blurry, distorted",
                     )
                     retry_url = fal_client.extract_image_url(retry_result)
                     if retry_url and not await fal_client.is_black_image(retry_url):
                         result_url = retry_url
-                except Exception:
-                    pass
 
-            # Increment usage counter
-            _anon_usage[ip] += 1
-            remaining = ANON_LIMIT - _anon_usage[ip]
+                _anon_usage[ip] += 1
+                return AnonGenerateResponse(
+                    job_id=job_id, status="completed",
+                    result_url=result_url, enhanced_prompt=enhanced_prompt,
+                    remaining=ANON_LIMIT - _anon_usage[ip],
+                )
+        except Exception as e:
+            logger.warning(f"fal.ai anonymous generation failed: {e}")
 
-            return AnonGenerateResponse(
-                job_id=job_id,
-                status="completed",
-                result_url=result_url,
-                enhanced_prompt=enhanced_prompt,
-                remaining=remaining,
+    # 5b. Fallback: Novita.ai (works without fal.ai key)
+    if has_novita:
+        from app.services.novita import NovitaClient
+        novita = NovitaClient(settings)
+        try:
+            urls = await novita.generate_with_checkpoint(
+                prompt=enhanced_prompt,
+                negative_prompt="worst quality, low quality, blurry, distorted, deformed, ugly, bad anatomy, text, watermark",
+                model_name="cyberrealistic_v40_151857.safetensors",
+                width=768, height=1024, steps=30, guidance_scale=7.0,
             )
+            if urls:
+                _anon_usage[ip] += 1
+                return AnonGenerateResponse(
+                    job_id=job_id, status="completed",
+                    result_url=urls[0], enhanced_prompt=enhanced_prompt,
+                    remaining=ANON_LIMIT - _anon_usage[ip],
+                )
+        except Exception as e:
+            logger.error(f"Novita anonymous generation failed: {e}")
 
-        raise HTTPException(status_code=500, detail="Generation returned no result")
-
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Anonymous generation failed: {e}")
-        raise HTTPException(status_code=500, detail="Generation failed. Please try again.")
+    raise HTTPException(status_code=500, detail="Generation failed. Please try again.")
