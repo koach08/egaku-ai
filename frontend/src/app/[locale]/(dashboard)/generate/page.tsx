@@ -374,7 +374,7 @@ export default function GeneratePage() {
                   {anonLimitReached ? "Want more? Sign up for free" : "Like what you see?"}
                 </h2>
                 <p className="text-sm text-muted-foreground">
-                  Get 15 free credits, access to 15+ AI models, video generation, and more.
+                  Get 50 free credits, access to 15+ AI models, video generation, and more.
                 </p>
                 <Button render={<a href="/register" />} className="bg-purple-600 hover:bg-purple-700">
                   Create Free Account

@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/webhooks", tags=["webhooks"])
 
 # Monthly credit allocations per plan
-PLAN_CREDITS = {"free": 15, "lite": 150, "basic": 500, "pro": 2000, "unlimited": 999999, "studio": 999999}
+PLAN_CREDITS = {"free": 50, "lite": 150, "basic": 500, "pro": 2000, "unlimited": 999999, "studio": 999999}
 ADULT_PLAN_CREDITS = {"adult_starter": 100, "adult_creator": 500, "adult_studio": 2000, "adult_patron": 999999}
 
 

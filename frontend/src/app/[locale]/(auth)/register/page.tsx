@@ -70,7 +70,7 @@ export default function RegisterPage() {
             <p className="text-sm text-muted-foreground">
               {hasPaidPlan
                 ? `Sign up to continue with the ${plan.charAt(0).toUpperCase() + plan.slice(1)} plan`
-                : "Start with 15 free credits"}
+                : "Start with 50 free credits"}
             </p>
           </CardHeader>
           <CardContent>

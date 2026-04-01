@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import { trackPurchase, trackBeginCheckout } from "@/components/analytics";
 
 const PLAN_DISPLAY: Record<string, { name: string; price: string; credits: string }> = {
-  free: { name: "Free", price: "¥0", credits: "15 / month" },
+  free: { name: "Free", price: "¥0", credits: "50 / month" },
   lite: { name: "Lite", price: "¥480/mo", credits: "150 / month" },
   basic: { name: "Basic", price: "¥980/mo", credits: "500 / month" },
   pro: { name: "Pro", price: "¥2,980/mo", credits: "2,000 / month" },
