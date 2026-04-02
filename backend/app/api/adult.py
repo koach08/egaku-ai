@@ -405,6 +405,9 @@ async def create_adult_checkout(
     if not profile:
         raise HTTPException(status_code=404, detail="User not found")
 
+    if not profile.get("email_verified", True):
+        raise HTTPException(status_code=403, detail="Please verify your email before purchasing")
+
     if not profile.get("age_verified"):
         raise HTTPException(status_code=403, detail="Age verification required before purchasing adult plan")
 
@@ -431,6 +434,9 @@ async def create_crypto_checkout(
     profile = await get_user_profile(supabase, user.id)
     if not profile:
         raise HTTPException(status_code=404, detail="User not found")
+
+    if not profile.get("email_verified", True):
+        raise HTTPException(status_code=403, detail="Please verify your email before purchasing")
 
     if not profile.get("age_verified"):
         raise HTTPException(status_code=403, detail="Age verification required")
@@ -479,19 +485,38 @@ async def get_adult_region_rules(
     request: Request,
     settings: Settings = Depends(get_settings),
 ):
-    """Return content rules for user's region (mosaic requirements, legal warnings)."""
+    """Return content rules for user's region (mosaic requirements, legal warnings).
+
+    Admins bypass mosaic requirements for site management.
+    """
     ip = get_client_ip(request)
     region = detect_region(request, ip, settings)
     rules = get_region_rules(region)
 
+    # Check if requester is admin (optional auth - no 401 if missing)
+    admin_bypass = False
+    auth_header = request.headers.get("authorization", "")
+    if auth_header.startswith("Bearer "):
+        try:
+            token = auth_header.split(" ", 1)[1]
+            supabase = get_supabase(settings)
+            user_resp = supabase.auth.get_user(token)
+            user_email = user_resp.user.email or ""
+            if is_admin(user_email):
+                admin_bypass = True
+        except Exception:
+            pass
+
+    mosaic_required = rules.get("mosaic_required", False) and not admin_bypass
+
     legal_warnings = []
-    if region == "JP":
+    if region == "JP" and not admin_bypass:
         legal_warnings.append(
             "Japanese law (Article 175 of the Penal Code) prohibits distribution of "
             "uncensored depictions of genitalia. Mosaic/censoring is required for any "
             "public distribution. Private use is at your own discretion."
         )
-    elif region == "KR":
+    elif region == "KR" and not admin_bypass:
         legal_warnings.append(
             "Korean law restricts distribution of obscene content. "
             "Public sharing of explicit content is prohibited."
@@ -504,8 +529,8 @@ async def get_adult_region_rules(
 
     return {
         "region": region,
-        "mosaic_required": rules.get("mosaic_required", False),
-        "mosaic_default": rules.get("mosaic_required", False),
+        "mosaic_required": mosaic_required,
+        "mosaic_default": mosaic_required,
         "nsfw_public_allowed": rules.get("nsfw_public_allowed", True),
         "legal_warnings": legal_warnings,
     }
@@ -538,7 +563,21 @@ async def get_adult_showcase(
     if request:
         ip = get_client_ip(request)
         region = detect_region(request, ip, settings)
-    mosaic_required = region in ("JP", "KR")
+
+    # Admin bypass for mosaic (optional auth)
+    admin_bypass = False
+    if request:
+        auth_header = request.headers.get("authorization", "")
+        if auth_header.startswith("Bearer "):
+            try:
+                token = auth_header.split(" ", 1)[1]
+                supabase_auth = get_supabase(settings)
+                user_resp = supabase_auth.auth.get_user(token)
+                if is_admin(user_resp.user.email or ""):
+                    admin_bypass = True
+            except Exception:
+                pass
+    mosaic_required = region in ("JP", "KR") and not admin_bypass
 
     supabase = get_supabase(settings)
     offset = (page - 1) * limit

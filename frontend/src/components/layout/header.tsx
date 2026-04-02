@@ -88,6 +88,10 @@ export function Header() {
           <Link href="/generate" className="hover:text-foreground/80">
             {t("nav.generate")}
           </Link>
+          <Link href="/storyboard" className="hover:text-foreground/80 flex items-center gap-1">
+            Storyboard
+            <span className="text-[9px] bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-400 px-1 rounded">New</span>
+          </Link>
           <Link href="/gallery" className="hover:text-foreground/80">
             {t("nav.gallery")}
           </Link>
@@ -156,6 +160,9 @@ export function Header() {
                 <DropdownMenuItem render={<Link href="/generate" />}>
                   {t("nav.generate")}
                 </DropdownMenuItem>
+                <DropdownMenuItem render={<Link href="/storyboard" />}>
+                  Storyboard
+                </DropdownMenuItem>
                 <DropdownMenuItem render={<Link href="/gallery" />}>
                   {t("nav.gallery")}
                 </DropdownMenuItem>
@@ -195,6 +202,9 @@ export function Header() {
           </Link>
           <Link href="/generate" onClick={() => setMobileOpen(false)} className="block py-2 text-sm hover:text-foreground/80">
             {t("nav.generate")}
+          </Link>
+          <Link href="/storyboard" onClick={() => setMobileOpen(false)} className="block py-2 text-sm hover:text-foreground/80">
+            Storyboard
           </Link>
           <Link href="/gallery" onClick={() => setMobileOpen(false)} className="block py-2 text-sm hover:text-foreground/80">
             {t("nav.gallery")}

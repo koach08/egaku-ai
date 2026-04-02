@@ -155,7 +155,7 @@ export default function AdultPage() {
       })
       .catch(() => {});
 
-    api.getAdultRegionRules()
+    api.getAdultRegionRules(session.access_token)
       .then((data) => {
         setRegionRules(data);
         setMosaicEnabled(data.mosaic_default);
@@ -167,7 +167,7 @@ export default function AdultPage() {
       .then((data) => setPlans(data))
       .catch(() => {});
 
-    api.getAdultShowcase()
+    api.getAdultShowcase(1, 20, session.access_token)
       .then((data) => {
         setShowcase(data.items || []);
         if (data.mosaic_required) setMosaicRequired(true);

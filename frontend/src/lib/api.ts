@@ -54,6 +54,11 @@ export const api = {
       headers: authHeaders(token),
       body: JSON.stringify(data),
     }),
+  markEmailVerified: (token: string) =>
+    fetchAPI("/auth/mark-email-verified", {
+      method: "POST",
+      headers: authHeaders(token),
+    }),
 
   // Generation
   generateImage: (token: string, params: Record<string, unknown>) =>
@@ -356,14 +361,15 @@ export const api = {
       headers: authHeaders(token),
     }),
   getAdultModels: () => fetchAPI("/adult/models"),
-  getAdultShowcase: (page = 1, limit = 20) =>
-    fetchAPI(`/adult/showcase?page=${page}&limit=${limit}`),
+  getAdultShowcase: (page = 1, limit = 20, token?: string) =>
+    fetchAPI(`/adult/showcase?page=${page}&limit=${limit}`, token ? { headers: authHeaders(token) } : {}),
   publishToAdultShowcase: (token: string, generationId: string) =>
     fetchAPI(`/adult/showcase/publish/${generationId}`, {
       method: "POST",
       headers: authHeaders(token),
     }),
-  getAdultRegionRules: () => fetchAPI("/adult/region-rules"),
+  getAdultRegionRules: (token?: string) =>
+    fetchAPI("/adult/region-rules", token ? { headers: authHeaders(token) } : {}),
   generateAdult: (token: string, params: Record<string, unknown>) =>
     fetchAPI("/adult/generate", {
       method: "POST",
@@ -406,4 +412,22 @@ export const api = {
       headers: authHeaders(token),
       body: JSON.stringify(params),
     }),
+
+  // TTS (Text-to-Speech)
+  getTTSVoices: () => fetchAPI("/tts/voices"),
+  synthesizeSpeech: async (
+    token: string,
+    params: { text: string; language?: string; engine?: string; voice_id?: string; reference_audio?: string }
+  ): Promise<Blob> => {
+    const res = await fetch(`${API_BASE}/tts/synthesize`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      body: JSON.stringify(params),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ detail: "TTS failed" }));
+      throw new Error(err.detail || "TTS failed");
+    }
+    return res.blob();
+  },
 };

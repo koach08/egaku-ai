@@ -65,6 +65,44 @@ const CONTROL_TYPES = [
   { id: "scribble", name: "Scribble" },
 ];
 
+// ── Color Grading Presets (CSS filter-based, client-side only) ──
+const COLOR_GRADES = [
+  { id: "none", name: "None", filter: "", minPlan: "free" },
+  { id: "teal_orange", name: "Teal & Orange", filter: "contrast(1.15) saturate(1.3) hue-rotate(-8deg)", minPlan: "free" },
+  { id: "vintage_warm", name: "Vintage Warm", filter: "sepia(0.25) contrast(1.1) brightness(1.05) saturate(0.9)", minPlan: "free" },
+  { id: "noir", name: "Film Noir", filter: "grayscale(1) contrast(1.4) brightness(0.9)", minPlan: "free" },
+  { id: "cold_blue", name: "Cold Blue", filter: "saturate(0.8) brightness(1.05) hue-rotate(15deg) contrast(1.05)", minPlan: "basic" },
+  { id: "golden_hour", name: "Golden Hour", filter: "sepia(0.15) saturate(1.3) brightness(1.1) contrast(1.05)", minPlan: "basic" },
+  { id: "bleach_bypass", name: "Bleach Bypass", filter: "saturate(0.4) contrast(1.5) brightness(0.95)", minPlan: "basic" },
+  { id: "cross_process", name: "Cross Process", filter: "hue-rotate(25deg) saturate(1.4) contrast(1.15) brightness(1.05)", minPlan: "basic" },
+  { id: "moody_dark", name: "Moody Dark", filter: "brightness(0.85) contrast(1.3) saturate(0.7) sepia(0.1)", minPlan: "pro" },
+  { id: "pastel_dream", name: "Pastel Dream", filter: "brightness(1.15) contrast(0.9) saturate(0.6) sepia(0.05)", minPlan: "pro" },
+  { id: "neon_glow", name: "Neon Glow", filter: "saturate(1.8) contrast(1.2) brightness(1.1) hue-rotate(-5deg)", minPlan: "pro" },
+  { id: "matte_film", name: "Matte Film", filter: "contrast(0.95) brightness(1.08) saturate(0.85) sepia(0.08)", minPlan: "pro" },
+  { id: "high_contrast_bw", name: "High Contrast B&W", filter: "grayscale(1) contrast(1.8) brightness(0.95)", minPlan: "pro" },
+  { id: "retro_fade", name: "Retro Fade", filter: "sepia(0.35) contrast(0.95) brightness(1.1) saturate(0.7) hue-rotate(5deg)", minPlan: "basic" },
+];
+
+// ── Cinema Camera Presets ──
+const CINEMA_PRESETS = [
+  { id: "none", name: "None", suffix: "", icon: "🎬", minPlan: "free" },
+  { id: "blockbuster", name: "Cinematic Blockbuster", suffix: ", shot on ARRI Alexa 35, Cooke S7/i 50mm T2.0, shallow depth of field, anamorphic lens flare, 2.39:1 cinematic framing", icon: "🎥", minPlan: "free" },
+  { id: "indie_a24", name: "Indie / A24", suffix: ", shot on ARRI AMIRA, Zeiss Super Speed 35mm T1.3, natural lighting, 16mm film grain, muted desaturated palette, handheld camera", icon: "🎞️", minPlan: "free" },
+  { id: "vintage_70s", name: "Vintage 70s", suffix: ", shot on Panavision Panaflex, anamorphic Panavision C-Series lenses, heavy halation, warm color cast, film grain, soft focus edges", icon: "📽️", minPlan: "free" },
+  { id: "music_video", name: "Music Video / Fashion", suffix: ", shot on RED V-Raptor 8K, Sigma Cine 85mm T1.5, extreme shallow DOF, high contrast, teal and orange grade, slow motion", icon: "💃", minPlan: "basic" },
+  { id: "documentary", name: "Documentary", suffix: ", shot on Sony FX6, Sony 24-70mm f/2.8 GM, available light, slight camera shake, realistic skin tones, broadcast look", icon: "📹", minPlan: "basic" },
+  { id: "horror", name: "Horror / Thriller", suffix: ", shot on RED Monstro 8K, Leica Summilux-C 29mm T1.4, dutch angle, underexposed, desaturated, green-tinted shadows, wide-angle distortion", icon: "👻", minPlan: "basic" },
+  { id: "wes_anderson", name: "Wes Anderson", suffix: ", shot on ARRI Alexa Mini, Zeiss Master Prime 40mm T1.3, perfectly symmetrical composition, pastel color palette, flat lighting, centered framing", icon: "🏨", minPlan: "basic" },
+  { id: "imax_epic", name: "IMAX Epic", suffix: ", shot on ARRI Alexa 65, Hasselblad Prime 65 50mm, IMAX aspect ratio, extreme resolution, vast depth of field f/8, sweeping crane shot", icon: "🏔️", minPlan: "pro" },
+  { id: "neon_noir", name: "Neon Noir / Cyberpunk", suffix: ", shot on Blackmagic URSA Mini Pro 12K, Sigma Art 35mm f/1.4, neon reflections on wet pavement, high contrast, deep blacks, cyan and magenta grade", icon: "🌃", minPlan: "pro" },
+  { id: "dreamy", name: "Dreamy / Ethereal", suffix: ", shot on Canon C500 Mark II, Canon CN-E 85mm T1.3, Pro-Mist diffusion filter, golden hour backlighting, lens flare, warm highlights, soft skin", icon: "✨", minPlan: "pro" },
+  { id: "tarantino", name: "Tarantino", suffix: ", shot on 35mm film, Panavision Ultra Speed 40mm T1.1, trunk shot POV, low angle, saturated reds, 1970s exploitation film aesthetic, visible film scratches", icon: "🩸", minPlan: "pro" },
+  { id: "spielberg", name: "Spielberg Classic", suffix: ", shot on Panavision Millennium XL2, anamorphic G-Series, lens flare, magic hour lighting, 2.39:1 widescreen, dolly zoom", icon: "🦖", minPlan: "pro" },
+  { id: "drone_aerial", name: "Drone / Aerial", suffix: ", shot on DJI Inspire 3, Zenmuse X9 24mm, aerial establishing shot, golden hour, sweeping orbital movement, vast landscape, tilt-shift", icon: "🚁", minPlan: "basic" },
+  { id: "surveillance", name: "Found Footage / CCTV", suffix: ", shot on low-resolution CCTV camera, wide-angle fisheye lens, infrared night vision, timestamp overlay, VHS tracking lines, high ISO noise", icon: "📷", minPlan: "basic" },
+  { id: "anime_cinema", name: "Anime Cinematic", suffix: ", anime feature film quality, Makoto Shinkai style lighting, detailed backgrounds, volumetric light rays, 2.39:1 cinematic letterbox, vibrant color palette", icon: "🌸", minPlan: "basic" },
+];
+
 const VIDEO_MODELS_T2V = [
   { id: "fal_ltx_t2v", name: "LTX 2.3", credits: 5, minPlan: "free", badge: "Fast" },
   { id: "fal_wan_t2v", name: "Wan 2.1", credits: 10, minPlan: "free" },
@@ -144,6 +182,12 @@ export default function GeneratePage() {
   // ControlNet
   const [controlType, setControlType] = useState("canny");
   const [controlStrength, setControlStrength] = useState(1.0);
+
+  // Cinema Preset
+  const [cinemaPreset, setCinemaPreset] = useState("none");
+
+  // Color Grading
+  const [colorGrade, setColorGrade] = useState("none");
 
   // Video model
   const [videoModel, setVideoModel] = useState("fal_ltx_t2v");
@@ -440,7 +484,7 @@ export default function GeneratePage() {
     setGenerating(true); setJob(null); setElapsed(0); setResultBlurred(nsfwMode);
     try {
       const res = await api.generateImage(session!.access_token, {
-        prompt, negative_prompt: negativePrompt, model, width, height, steps, cfg, sampler, seed, nsfw: nsfwMode,
+        prompt: buildPrompt(prompt), negative_prompt: negativePrompt, model, width, height, steps, cfg, sampler, seed, nsfw: nsfwMode,
       });
       // fal.ai returns completed immediately with result_url
       if (res.status === "completed" && res.result_url) {
@@ -470,7 +514,7 @@ export default function GeneratePage() {
     try {
       const b64 = await fileToBase64(inputImage);
       const res = await api.img2img(session!.access_token, {
-        prompt, negative_prompt: negativePrompt, model, image: b64,
+        prompt: buildPrompt(prompt), negative_prompt: negativePrompt, model, image: b64,
         width, height, steps, cfg, denoise, sampler, seed, nsfw: nsfwMode,
       });
       startJob(res.job_id, "image", res.credits_used);
@@ -499,7 +543,7 @@ export default function GeneratePage() {
     setGenerating(true); setJob(null); setElapsed(0); setResultBlurred(nsfwMode);
     try {
       const res = await api.generateVideo(session!.access_token, {
-        prompt, negative_prompt: negativePrompt, model: videoModel,
+        prompt: buildPrompt(prompt), negative_prompt: negativePrompt, model: videoModel,
         width: 512, height: 512, steps, cfg, sampler, seed,
         frame_count: frameCount, fps, nsfw: nsfwMode,
       });
@@ -515,7 +559,7 @@ export default function GeneratePage() {
     try {
       const b64 = await fileToBase64(inputImage);
       const res = await api.img2vid(session!.access_token, {
-        prompt, model: i2vModel, image: b64, width: 512, height: 512,
+        prompt: buildPrompt(prompt), model: i2vModel, image: b64, width: 512, height: 512,
         steps, cfg, denoise, sampler, seed,
         frame_count: frameCount, fps, nsfw: nsfwMode,
       });
@@ -564,7 +608,7 @@ export default function GeneratePage() {
       const imgB64 = await fileToBase64(inputImage);
       const maskB64 = await fileToBase64(maskImage);
       const res = await api.inpaint(session!.access_token, {
-        prompt, negative_prompt: negativePrompt, model,
+        prompt: buildPrompt(prompt), negative_prompt: negativePrompt, model,
         image: imgB64, mask: maskB64,
         width, height, steps, cfg, denoise, sampler, seed,
       });
@@ -581,7 +625,7 @@ export default function GeneratePage() {
     try {
       const b64 = await fileToBase64(inputImage);
       const res = await api.controlnet(session!.access_token, {
-        prompt, negative_prompt: negativePrompt, model,
+        prompt: buildPrompt(prompt), negative_prompt: negativePrompt, model,
         image: b64, control_type: controlType, control_strength: controlStrength,
         width, height, steps, cfg, sampler, seed,
       });
@@ -615,6 +659,13 @@ export default function GeneratePage() {
     </div>
   );
 
+  /** Build final prompt with cinema preset suffix appended */
+  const buildPrompt = (base: string) => {
+    const preset = CINEMA_PRESETS.find((p) => p.id === cinemaPreset);
+    if (!preset || preset.id === "none") return base;
+    return base + preset.suffix;
+  };
+
   const renderPromptInputs = () => (
     <>
       <div>
@@ -627,6 +678,37 @@ export default function GeneratePage() {
           rows={3}
         />
       </div>
+
+      {/* Cinema Camera Preset */}
+      <div>
+        <Label className="text-xs flex items-center gap-1.5">
+          <span>Cinema Preset</span>
+          <span className="text-[10px] bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-400 px-1.5 rounded">Film Look</span>
+        </Label>
+        <Select value={cinemaPreset} onValueChange={(v) => v && setCinemaPreset(v)}>
+          <SelectTrigger><SelectValue /></SelectTrigger>
+          <SelectContent>
+            {CINEMA_PRESETS.map((p) => {
+              const locked = PLAN_RANK[userPlan] < PLAN_RANK[p.minPlan];
+              return (
+                <SelectItem key={p.id} value={p.id} disabled={locked}>
+                  <span className="flex items-center gap-1.5">
+                    <span>{p.icon}</span>
+                    <span>{p.name}</span>
+                    {locked && <span className="text-[10px] text-amber-500">{p.minPlan}+</span>}
+                  </span>
+                </SelectItem>
+              );
+            })}
+          </SelectContent>
+        </Select>
+        {cinemaPreset !== "none" && (
+          <p className="text-[10px] text-muted-foreground mt-1 italic">
+            {CINEMA_PRESETS.find((p) => p.id === cinemaPreset)?.suffix.slice(2)}
+          </p>
+        )}
+      </div>
+
       <div>
         <Label htmlFor="negative">Negative Prompt</Label>
         <Textarea
@@ -1173,6 +1255,36 @@ export default function GeneratePage() {
                       <a href={job.resultUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:underline">Open full size</a>
                     </div>
                   </div>
+                  {/* Color Grading Selector */}
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <Label className="text-xs flex items-center gap-1.5">
+                      <span>Color Grade</span>
+                      <span className="text-[10px] bg-gradient-to-r from-cyan-500/20 to-purple-500/20 text-cyan-400 px-1.5 rounded">Post</span>
+                    </Label>
+                    <div className="flex gap-1 flex-wrap">
+                      {COLOR_GRADES.map((g) => {
+                        const locked = PLAN_RANK[userPlan] < PLAN_RANK[g.minPlan];
+                        return (
+                          <button
+                            key={g.id}
+                            onClick={() => !locked && setColorGrade(g.id)}
+                            disabled={locked}
+                            className={`text-[10px] px-2 py-1 rounded-md border transition-colors ${
+                              colorGrade === g.id
+                                ? "border-purple-500 bg-purple-500/20 text-purple-300"
+                                : locked
+                                ? "border-muted text-muted-foreground/40 cursor-not-allowed"
+                                : "border-muted hover:border-muted-foreground/30 text-muted-foreground"
+                            }`}
+                            title={locked ? `${g.minPlan}+ plan required` : g.name}
+                          >
+                            {g.name}{locked ? ` (${g.minPlan}+)` : ""}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
                   <div className="rounded-lg overflow-hidden bg-muted relative">
                     {job.type === "image" ? (
                       <img
@@ -1181,6 +1293,7 @@ export default function GeneratePage() {
                         className={`w-full max-h-[600px] object-contain transition-all duration-300 ${
                           nsfwMode && resultBlurred ? "blur-xl" : ""
                         }`}
+                        style={colorGrade !== "none" ? { filter: COLOR_GRADES.find((g) => g.id === colorGrade)?.filter } : undefined}
                       />
                     ) : (
                       <video
@@ -1192,6 +1305,7 @@ export default function GeneratePage() {
                         className={`w-full max-h-[600px] ${
                           nsfwMode && resultBlurred ? "blur-xl" : ""
                         }`}
+                        style={colorGrade !== "none" ? { filter: COLOR_GRADES.find((g) => g.id === colorGrade)?.filter } : undefined}
                       />
                     )}
                     {nsfwMode && resultBlurred && (
