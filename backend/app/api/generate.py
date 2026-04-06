@@ -647,6 +647,44 @@ async def _generate_with_novita_builtin(
     return None
 
 
+async def _persist_to_supabase_storage(supabase, result_url: str, job_id: str, is_video: bool = False) -> str:
+    """Download image/video from temporary URL and upload to Supabase Storage.
+    Returns permanent Supabase Storage URL, or original URL on failure."""
+    import httpx
+    try:
+        async with httpx.AsyncClient(timeout=60, follow_redirects=True) as client:
+            resp = await client.get(result_url, headers={"User-Agent": "Mozilla/5.0"})
+            resp.raise_for_status()
+            data = resp.content
+            content_type = resp.headers.get("content-type", "image/png")
+
+        # Determine extension
+        if is_video:
+            ext = "mp4"
+            folder = "videos"
+        elif "jpeg" in content_type or "jpg" in content_type:
+            ext = "jpg"
+            folder = "images"
+        elif "webp" in content_type:
+            ext = "webp"
+            folder = "images"
+        else:
+            ext = "png"
+            folder = "images"
+
+        storage_path = f"{folder}/{job_id}.{ext}"
+        supabase.storage.from_("self-hosted").upload(
+            storage_path, data,
+            file_options={"content-type": content_type, "upsert": "true"},
+        )
+        permanent_url = f"{supabase.supabase_url}/storage/v1/object/public/self-hosted/{storage_path}"
+        logger.info("Persisted to Supabase Storage: %s", permanent_url)
+        return permanent_url
+    except Exception as e:
+        logger.warning("Failed to persist to Supabase Storage (using original URL): %s", e)
+        return result_url
+
+
 async def _save_generation_to_db(
     settings, user_id: str, job_id: str, gen_type: str, prompt: str,
     negative_prompt: str, model: str, params: dict, result_url: str, nsfw: bool = False,
@@ -658,6 +696,10 @@ async def _save_generation_to_db(
         from app.services.supabase import get_supabase, save_generation
         supabase = get_supabase(settings)
         is_video = gen_type in ("txt2vid", "img2vid", "vid2vid")
+
+        # Persist to Supabase Storage (permanent URL)
+        permanent_url = await _persist_to_supabase_storage(supabase, result_url, job_id, is_video)
+
         await save_generation(supabase, {
             "id": job_id,
             "user_id": user_id,
@@ -666,8 +708,8 @@ async def _save_generation_to_db(
             "model": model or "",
             "params_json": params or {},
             "nsfw_flag": nsfw,
-            "image_url": result_url if not is_video else None,
-            "video_url": result_url if is_video else None,
+            "image_url": permanent_url if not is_video else None,
+            "video_url": permanent_url if is_video else None,
             "credits_used": 1,
             "is_public": True,
         })
@@ -676,7 +718,7 @@ async def _save_generation_to_db(
         # Also save to gallery table so it appears in My Gallery
         try:
             gallery_row = {
-                "id": job_id,  # Use same ID as generations for consistent delete
+                "id": job_id,
                 "user_id": user_id,
                 "job_id": job_id,
                 "prompt": prompt or "",
@@ -691,9 +733,9 @@ async def _save_generation_to_db(
                 "public": True,
             }
             if is_video:
-                gallery_row["video_url"] = result_url
+                gallery_row["video_url"] = permanent_url
             else:
-                gallery_row["image_url"] = result_url
+                gallery_row["image_url"] = permanent_url
             supabase.table("gallery").insert(gallery_row).execute()
             logger.info("Gallery item created: %s", job_id)
         except Exception as gallery_err:

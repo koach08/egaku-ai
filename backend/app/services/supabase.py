@@ -25,7 +25,7 @@ async def get_user_profile(supabase: Client, user_id: str) -> dict | None:
         return None
 
 
-async def ensure_user_exists(supabase: Client, user_id: str, email: str) -> dict:
+async def ensure_user_exists(supabase: Client, user_id: str, email: str, provider: str = "email") -> dict:
     """Create user record if it doesn't exist (first login)."""
     try:
         existing = supabase.table("users").select("*").eq("id", user_id).maybe_single().execute()
@@ -34,12 +34,16 @@ async def ensure_user_exists(supabase: Client, user_id: str, email: str) -> dict
     except Exception:
         pass
 
+    # OAuth providers (google, discord, github, twitter) already verify email
+    email_verified = provider != "email"
+
     new_user = {
         "id": user_id,
         "email": email,
         "plan": "free",
         "age_verified": False,
         "region_code": "US",
+        "email_verified": email_verified,
     }
     try:
         result = supabase.table("users").insert(new_user).execute()

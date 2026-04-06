@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
+import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001/api";
 
@@ -16,143 +17,197 @@ interface ShowcaseItem {
   author_name: string;
   title: string;
   tags: string[];
+  model: string;
 }
 
 interface ShowcaseGalleryProps {
   title?: string;
 }
 
-const PLACEHOLDER_GRADIENTS = [
-  "from-purple-600/40 to-pink-600/40",
-  "from-blue-600/40 to-purple-600/40",
-  "from-pink-600/40 to-orange-600/40",
-  "from-cyan-600/40 to-blue-600/40",
-  "from-violet-600/40 to-fuchsia-600/40",
-  "from-emerald-600/40 to-teal-600/40",
-  "from-rose-600/40 to-pink-600/40",
-  "from-indigo-600/40 to-violet-600/40",
-];
-
-function SkeletonCard() {
-  return (
-    <div className="aspect-square rounded-lg bg-muted/50 animate-pulse">
-      <div className="w-full h-full rounded-lg bg-gradient-to-br from-muted/30 to-muted/60" />
-    </div>
-  );
-}
-
-function PlaceholderCard({ gradient }: { gradient: string }) {
-  return (
-    <div
-      className={`aspect-square rounded-lg bg-gradient-to-br ${gradient} flex items-center justify-center border border-white/5`}
-    >
-      <p className="text-sm text-white/60 text-center px-4 font-medium">
-        Your art could be here
-      </p>
-    </div>
-  );
-}
+const HQ_MODELS = new Set([
+  "fal_flux_dev", "fal_flux_realism", "fal_nano_banana_2", "fal_grok_imagine",
+  "flux_dev", "flux_realism", "nano_banana_2", "grok_imagine",
+  "fal_kling25_t2v", "fal_kling_t2v", "fal_veo3_t2v", "fal_sora2_t2v", "fal_grok_t2v",
+  "pro",
+]);
 
 export function ShowcaseGallery({ title = "Recent Creations" }: ShowcaseGalleryProps) {
   const [items, setItems] = useState<ShowcaseItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [failed, setFailed] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+  const autoScrollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     let cancelled = false;
 
     async function fetchShowcase() {
       try {
-        // Fetch from gallery API (has likes_count for curation)
         const res = await fetch(
           `${API_BASE}/gallery/?page=1&limit=100&sort=popular&nsfw=false`
         );
         if (!res.ok) throw new Error("API error");
         const data = await res.json();
-
         if (cancelled) return;
 
-        const allItems: (ShowcaseItem & { likes_count?: number })[] = (data.items || [])
-          .filter(
-            (item: ShowcaseItem) => (item.image_url != null || item.video_url != null) && !item.nsfw
-          );
+        const allItems: ShowcaseItem[] = (data.items || []).filter(
+          (item: ShowcaseItem) =>
+            (item.image_url != null || item.video_url != null) &&
+            !item.nsfw &&
+            (HQ_MODELS.has(item.model) || item.title)
+        );
 
-        // Quality curation: liked items first, then admin, then newest
-        const CURATED_AUTHORS = new Set(["japanesebusinessman4"]);
         const liked = allItems.filter((item) => (item.likes_count || 0) > 0);
-        const adminItems = allItems.filter((item) =>
-          (item.likes_count || 0) === 0 && CURATED_AUTHORS.has(item.author_name)
-        );
-        const rest = allItems.filter((item) =>
-          (item.likes_count || 0) === 0 && !CURATED_AUTHORS.has(item.author_name)
-        );
-        // Sort liked by count descending
+        const hq = allItems.filter((item) => (item.likes_count || 0) === 0 && HQ_MODELS.has(item.model));
+        const rest = allItems.filter((item) => (item.likes_count || 0) === 0 && !HQ_MODELS.has(item.model) && item.title);
         liked.sort((a, b) => (b.likes_count || 0) - (a.likes_count || 0));
-        const filtered = [...liked, ...adminItems, ...rest].slice(0, 8);
 
-        setItems(filtered);
+        setItems([...liked, ...hq, ...rest].slice(0, 24));
       } catch {
-        if (!cancelled) {
-          setFailed(true);
-        }
+        // silent fail
       } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
+        if (!cancelled) setLoading(false);
       }
     }
 
     fetchShowcase();
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, []);
 
-  const showPlaceholders = failed || (!loading && items.length === 0);
+  const updateScrollButtons = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 10);
+    setCanScrollRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 10);
+  }, []);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    el.addEventListener("scroll", updateScrollButtons);
+    updateScrollButtons();
+    return () => el.removeEventListener("scroll", updateScrollButtons);
+  }, [items, updateScrollButtons]);
+
+  // Auto-scroll
+  useEffect(() => {
+    if (items.length === 0) return;
+    autoScrollRef.current = setInterval(() => {
+      const el = scrollRef.current;
+      if (!el) return;
+      if (el.scrollLeft >= el.scrollWidth - el.clientWidth - 10) {
+        el.scrollTo({ left: 0, behavior: "smooth" });
+      } else {
+        el.scrollBy({ left: 320, behavior: "smooth" });
+      }
+    }, 4000);
+    return () => { if (autoScrollRef.current) clearInterval(autoScrollRef.current); };
+  }, [items]);
+
+  const scroll = (direction: "left" | "right") => {
+    const el = scrollRef.current;
+    if (!el) return;
+    if (autoScrollRef.current) clearInterval(autoScrollRef.current);
+    el.scrollBy({ left: direction === "left" ? -640 : 640, behavior: "smooth" });
+  };
+
+  if (loading) {
+    return (
+      <section className="container mx-auto px-4 py-16">
+        <h2 className="text-3xl font-bold text-center mb-10">{title}</h2>
+        <div className="flex gap-4 overflow-hidden">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="flex-none w-72 aspect-[4/5] rounded-xl bg-muted/50 animate-pulse" />
+          ))}
+        </div>
+      </section>
+    );
+  }
+
+  if (items.length === 0) return null;
 
   return (
     <section className="container mx-auto px-4 py-16">
-      <h2 className="text-3xl font-bold text-center mb-10">{title}</h2>
+      <div className="flex items-center justify-between mb-8">
+        <h2 className="text-3xl font-bold">{title}</h2>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => scroll("left")}
+            disabled={!canScrollLeft}
+            className="p-2 rounded-full bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          >
+            <ChevronLeftIcon className="size-5" />
+          </button>
+          <button
+            onClick={() => scroll("right")}
+            disabled={!canScrollRight}
+            className="p-2 rounded-full bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          >
+            <ChevronRightIcon className="size-5" />
+          </button>
+        </div>
+      </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {loading
-          ? Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} />)
-          : showPlaceholders
-            ? PLACEHOLDER_GRADIENTS.map((gradient, i) => (
-                <PlaceholderCard key={i} gradient={gradient} />
-              ))
-            : items.map((item) => (
-                <Link
-                  key={item.id}
-                  href={`/gallery/${item.id}`}
-                  className="group block"
-                >
-                  <div className="aspect-square rounded-lg overflow-hidden relative bg-muted">
-                    {item.image_url ? (
-                      <img
-                        src={item.image_url}
-                        alt={item.title || item.prompt.slice(0, 60)}
-                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                        loading="lazy"
-                      />
-                    ) : item.video_url ? (
-                      <video
-                        src={item.video_url}
-                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                        loop
-                        muted
-                        autoPlay
-                        playsInline
-                      />
-                    ) : null}
-                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent p-3 pt-8 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <p className="text-xs text-white/90 line-clamp-2 leading-relaxed">
-                        {item.prompt}
-                      </p>
-                    </div>
-                  </div>
-                </Link>
-              ))}
+      <div
+        ref={scrollRef}
+        className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth snap-x snap-mandatory pb-4"
+        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+        onMouseEnter={() => { if (autoScrollRef.current) clearInterval(autoScrollRef.current); }}
+        onMouseLeave={() => {
+          autoScrollRef.current = setInterval(() => {
+            const el = scrollRef.current;
+            if (!el) return;
+            if (el.scrollLeft >= el.scrollWidth - el.clientWidth - 10) {
+              el.scrollTo({ left: 0, behavior: "smooth" });
+            } else {
+              el.scrollBy({ left: 320, behavior: "smooth" });
+            }
+          }, 4000);
+        }}
+      >
+        {items.map((item) => (
+          <Link
+            key={item.id}
+            href={`/gallery/${item.id}`}
+            className="group flex-none snap-start"
+          >
+            <div className="w-72 aspect-[4/5] rounded-xl overflow-hidden relative bg-muted/30">
+              {item.image_url ? (
+                <img
+                  src={item.image_url}
+                  alt={item.title || item.prompt.slice(0, 60)}
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  loading="lazy"
+                />
+              ) : item.video_url ? (
+                <video
+                  src={item.video_url}
+                  className="w-full h-full object-cover"
+                  loop
+                  muted
+                  autoPlay
+                  playsInline
+                />
+              ) : null}
+
+              {/* Gradient overlay - always visible at bottom, full on hover */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+
+              {/* Title + prompt on hover */}
+              <div className="absolute inset-x-0 bottom-0 p-4">
+                {item.title && (
+                  <h3 className="text-sm font-semibold text-white mb-1 drop-shadow-lg">
+                    {item.title}
+                  </h3>
+                )}
+                <p className="text-xs text-white/70 line-clamp-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  {item.prompt.slice(0, 80)}
+                </p>
+              </div>
+            </div>
+          </Link>
+        ))}
       </div>
 
       <div className="flex justify-center mt-10">

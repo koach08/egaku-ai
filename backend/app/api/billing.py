@@ -157,6 +157,10 @@ async def create_checkout(
     if not profile:
         raise HTTPException(status_code=404, detail="User not found")
 
+    # Require email verification before paid checkout
+    if not profile.get("email_verified", True):
+        raise HTTPException(status_code=403, detail="Please verify your email before upgrading")
+
     # Detect user region for PPP pricing
     region = profile.get("region_code", "US")
     multiplier = REGION_PRICE_MULTIPLIER.get(region, 1.0)
@@ -235,6 +239,11 @@ async def create_crypto_checkout(
     """Create crypto payment for a regular plan via NOWPayments."""
     if not settings.nowpayments_api_key:
         raise HTTPException(status_code=503, detail="Crypto payments coming soon")
+
+    supabase = get_supabase(settings)
+    profile = await get_user_profile(supabase, user.id)
+    if profile and not profile.get("email_verified", True):
+        raise HTTPException(status_code=403, detail="Please verify your email before upgrading")
 
     plan_usd = {
         "lite": 3.20, "basic": 6.50, "pro": 19.80,

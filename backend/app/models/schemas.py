@@ -329,6 +329,7 @@ class UserProfile(BaseModel):
     email: str
     display_name: str | None = None
     age_verified: bool = False
+    email_verified: bool = True
     region_code: str = "US"
     plan: PlanType = PlanType.free
     created_at: datetime

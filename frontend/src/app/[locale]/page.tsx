@@ -17,7 +17,7 @@ const planPrices: Record<string, string> = {
   unlimited: "5,980",
   studio: "9,980",
 };
-const popularPlan = "pro";
+
 
 const featureKeys = [
   "txt2img", "img2img", "style", "txt2vid", "img2vid", "vid2vid",
@@ -168,24 +168,14 @@ export default function LandingPage() {
           </p>
           <div className="grid gap-6 md:grid-cols-3 lg:grid-cols-6">
             {planKeys.map((planKey) => {
-              const isPopular = planKey === popularPlan;
               const price = planPrices[planKey];
               const features = t.raw(`plans.${planKey}.features`) as string[];
               return (
                 <Card
                   key={planKey}
-                  className={
-                    isPopular
-                      ? "border-purple-500 shadow-lg shadow-purple-500/20"
-                      : ""
-                  }
+                  className=""
                 >
                   <CardHeader className="text-center">
-                    {isPopular && (
-                      <Badge className="mx-auto mb-2 bg-purple-500">
-                        {t("common.mostPopular")}
-                      </Badge>
-                    )}
                     <CardTitle>{t(`plans.${planKey}.name`)}</CardTitle>
                     <div className="mt-2">
                       <span className="text-3xl font-bold">

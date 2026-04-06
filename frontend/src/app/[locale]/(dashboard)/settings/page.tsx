@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
+import { createClient } from "@/lib/supabase";
 import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -47,6 +48,8 @@ function SettingsContent() {
   const [credits, setCredits] = useState<{ balance: number; lifetime_used: number } | null>(null);
   const [loading, setLoading] = useState(false);
   const [upgrading, setUpgrading] = useState<string | null>(null);
+  const [emailVerified, setEmailVerified] = useState(true);
+  const [sendingVerification, setSendingVerification] = useState(false);
 
   useEffect(() => {
     const checkout = searchParams.get("checkout");
@@ -82,8 +85,31 @@ function SettingsContent() {
     Promise.all([
       api.getSubscription(token).then(setSubscription).catch(() => {}),
       api.getBalance(token).then(setCredits).catch(() => {}),
+      api.getMe(token).then((me: { email_verified?: boolean }) => {
+        setEmailVerified(me.email_verified !== false);
+      }).catch(() => {}),
     ]);
   }, [session]);
+
+  const handleSendVerification = async () => {
+    if (!user?.email) return;
+    setSendingVerification(true);
+    try {
+      const supabase = createClient();
+      await supabase.auth.signInWithOtp({
+        email: user.email,
+        options: {
+          shouldCreateUser: false,
+          emailRedirectTo: `${window.location.origin}/verify-email`,
+        },
+      });
+      toast.success("Verification email sent! Check your inbox.");
+    } catch {
+      toast.error("Failed to send verification email");
+    } finally {
+      setSendingVerification(false);
+    }
+  };
 
   const handleUpgrade = async (plan: string) => {
     if (!session) return;
@@ -152,6 +178,31 @@ function SettingsContent() {
       <Header />
       <div className="container mx-auto px-4 py-8 max-w-2xl">
         <h1 className="text-2xl font-bold mb-6">Settings</h1>
+
+        {/* Email Verification Banner */}
+        {!emailVerified && (
+          <Card className="mb-6 border-amber-500/50 bg-amber-500/5">
+            <CardContent className="py-4">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className="font-medium text-sm">Verify your email</p>
+                  <p className="text-xs text-muted-foreground">
+                    Email verification is required to upgrade your plan.
+                  </p>
+                </div>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="shrink-0 border-amber-500/30 hover:bg-amber-500/10"
+                  onClick={handleSendVerification}
+                  disabled={sendingVerification}
+                >
+                  {sendingVerification ? "Sending..." : "Send Verification Email"}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Account */}
         <Card className="mb-6">
@@ -268,20 +319,34 @@ function SettingsContent() {
                         </p>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Button
-                          size="sm"
-                          onClick={() => handleUpgrade(plan)}
-                          disabled={upgrading !== null}
-                        >
-                          {upgrading === plan ? "Loading..." : "Upgrade"}
-                        </Button>
-                        <button
-                          onClick={() => handleCryptoUpgrade(plan)}
-                          disabled={upgrading !== null}
-                          className="text-[10px] text-muted-foreground hover:text-foreground px-2 py-1 border rounded transition-colors disabled:opacity-50"
-                        >
-                          Crypto
-                        </button>
+                        {!emailVerified ? (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="border-amber-500/30 text-amber-600"
+                            onClick={handleSendVerification}
+                            disabled={sendingVerification}
+                          >
+                            {sendingVerification ? "Sending..." : "Verify Email First"}
+                          </Button>
+                        ) : (
+                          <>
+                            <Button
+                              size="sm"
+                              onClick={() => handleUpgrade(plan)}
+                              disabled={upgrading !== null}
+                            >
+                              {upgrading === plan ? "Loading..." : "Upgrade"}
+                            </Button>
+                            <button
+                              onClick={() => handleCryptoUpgrade(plan)}
+                              disabled={upgrading !== null}
+                              className="text-[10px] text-muted-foreground hover:text-foreground px-2 py-1 border rounded transition-colors disabled:opacity-50"
+                            >
+                              Crypto
+                            </button>
+                          </>
+                        )}
                       </div>
                     </div>
                   );

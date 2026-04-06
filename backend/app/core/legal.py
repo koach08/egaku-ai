@@ -9,13 +9,23 @@ NSFW Policy:
 """
 
 PROHIBITED_KEYWORDS = [
+    # English - minors
     "child", "children", "kid", "kids", "minor", "minors",
     "underage", "loli", "lolita", "shota", "shotacon",
     "preteen", "toddler", "infant", "baby",
     "young girl", "young boy", "little girl", "little boy",
     "elementary school", "middle school",
+    "year-old girl", "year old girl", "year-old boy", "year old boy",
+    "teenage girl", "teenage boy", "teen girl", "teen boy",
+    "no panties", "no underwear",
+    "schoolgirl", "school girl", "school uniform",
+    # Japanese
     "小学生", "中学生", "幼女", "幼児", "ロリ", "ショタ",
-    "児童", "未成年",
+    "児童", "未成年", "女児", "男児", "園児", "高校生",
+    "パンツなし", "下着なし", "制服",
+    # Age patterns (caught by check function below)
+    "1yo", "2yo", "3yo", "4yo", "5yo", "6yo", "7yo", "8yo", "9yo",
+    "10yo", "11yo", "12yo", "13yo", "14yo", "15yo", "16yo", "17yo",
 ]
 
 # Admin emails that bypass region-based NSFW restrictions
@@ -33,6 +43,14 @@ REGION_RULES = {
 }
 
 
+import re
+
+# Regex to catch age patterns like "3 year old", "11-year-old", "5 yo", etc.
+_AGE_PATTERN = re.compile(
+    r'\b(\d{1,2})\s*[-]?\s*(?:year[s]?\s*[-]?\s*old|yo|y\.o\.?)\b', re.IGNORECASE
+)
+
+
 def check_prompt_compliance(prompt: str) -> tuple[bool, list[str]]:
     """Check if a prompt contains prohibited content keywords.
     Returns (is_safe, flagged_terms).
@@ -40,6 +58,13 @@ def check_prompt_compliance(prompt: str) -> tuple[bool, list[str]]:
     """
     prompt_lower = prompt.lower()
     flagged = [kw for kw in PROHIBITED_KEYWORDS if kw.lower() in prompt_lower]
+
+    # Check age patterns — block any reference to persons under 18
+    for match in _AGE_PATTERN.finditer(prompt_lower):
+        age = int(match.group(1))
+        if age < 18:
+            flagged.append(f"age_reference:{match.group(0)}")
+
     return len(flagged) == 0, flagged
 
 
