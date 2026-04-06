@@ -10,6 +10,7 @@ from app.core.config import Settings, get_settings
 from app.core.legal import check_prompt_compliance
 from app.models.schemas import (
     CREDIT_COSTS,
+    ConsistentCharacterRequest,
     ControlNetRequest,
     FaceSwapRequest,
     GenerationResponse,
@@ -679,6 +680,74 @@ async def face_swap(
     except Exception as e:
         logger.error("Face swap failed: %s", e)
         raise HTTPException(status_code=500, detail=f"Face swap failed: {str(e)}")
+
+
+# ─── Consistent Character (PuLID) ───
+
+@router.post("/consistent-character", response_model=GenerationResponse)
+async def consistent_character(
+    body: ConsistentCharacterRequest,
+    request: Request,
+    settings: Settings = Depends(get_settings),
+):
+    """Generate image preserving character identity from reference photo. Pro+ only."""
+    user, profile, supabase = await _auth_and_profile(request, settings)
+
+    plan = profile["plan"]
+    if PLAN_RANK.get(plan, 0) < PLAN_RANK["pro"]:
+        raise HTTPException(status_code=403, detail="Consistent Character requires Pro plan or higher")
+
+    if not body.reference_image:
+        raise HTTPException(status_code=400, detail="Reference image is required")
+
+    from app.services.fal_ai import FalClient
+    from app.services.supabase import deduct_credits, save_generation
+
+    fal_client = FalClient(settings)
+    if not fal_client.is_available():
+        raise HTTPException(status_code=503, detail="Service temporarily unavailable")
+
+    credits_needed = CREDIT_COSTS["consistent_character"]
+    success = await deduct_credits(supabase, user.id, credits_needed, "Consistent character (PuLID)")
+    if not success:
+        raise HTTPException(status_code=402, detail="Insufficient credits")
+
+    ref_url = _b64_to_data_url(body.reference_image)
+    job_id = str(uuid.uuid4())
+
+    try:
+        result = await fal_client.consistent_character(
+            prompt=body.prompt,
+            reference_image_url=ref_url,
+            width=body.width,
+            height=body.height,
+            seed=body.seed,
+            id_weight=body.id_weight,
+        )
+
+        image_url = fal_client.extract_image_url(result)
+        if not image_url:
+            raise RuntimeError("No image returned")
+
+        await save_generation(supabase, {
+            "id": job_id,
+            "user_id": user.id,
+            "type": "consistent_character",
+            "prompt": body.prompt,
+            "model": "fal_pulid",
+            "image_url": image_url,
+            "nsfw": body.nsfw,
+            "status": "completed",
+        })
+
+        return GenerationResponse(
+            job_id=job_id, status=JobStatus.completed,
+            credits_used=credits_needed, result_url=image_url,
+        )
+
+    except Exception as e:
+        logger.error("Consistent character failed: %s", e)
+        raise HTTPException(status_code=500, detail=f"Generation failed: {str(e)}")
 
 
 # ─── Available styles list ───

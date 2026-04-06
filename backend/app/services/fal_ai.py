@@ -671,6 +671,34 @@ class FalClient:
             return image
         return None
 
+    async def consistent_character(
+        self,
+        prompt: str,
+        reference_image_url: str,
+        width: int = 1024,
+        height: int = 1024,
+        seed: int = -1,
+        id_weight: float = 1.0,
+    ) -> dict:
+        """Generate image with consistent character identity via PuLID.
+
+        PuLID preserves the face/identity from the reference image while
+        generating a new scene based on the prompt.
+        """
+        fal_model = "fal-ai/pulid"
+        input_params: dict = {
+            "prompt": prompt,
+            "reference_images": [{"url": reference_image_url}],
+            "image_size": {"width": width, "height": height},
+            "num_inference_steps": 20,
+            "id_weight": id_weight,
+            "enable_safety_checker": False,
+        }
+        if seed >= 0:
+            input_params["seed"] = seed
+
+        return await self._submit_queue_job(fal_model, input_params)
+
     async def face_swap(
         self,
         source_image_url: str,

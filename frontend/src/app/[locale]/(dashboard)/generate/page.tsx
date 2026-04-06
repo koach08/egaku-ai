@@ -186,6 +186,10 @@ export default function GeneratePage() {
   // Face Swap
   const [faceSourceFile, setFaceSourceFile] = useState<File | null>(null);
 
+  // Consistent Character
+  const [characterRef, setCharacterRef] = useState<File | null>(null);
+  const [idWeight, setIdWeight] = useState(1.0);
+
   // Cinema Preset
   const [cinemaPreset, setCinemaPreset] = useState("none");
 
@@ -650,6 +654,32 @@ export default function GeneratePage() {
     }
   };
 
+  const handleConsistentCharacter = async () => {
+    if (!characterRef) { toast.error("Please upload a reference face photo"); return; }
+    if (!prompt.trim()) { toast.error("Please enter a scene description"); return; }
+    setGenerating(true); setJob(null); setElapsed(0); setResultBlurred(nsfwMode);
+    try {
+      const refB64 = await fileToBase64(characterRef);
+      const res = await api.consistentCharacter(session!.access_token, {
+        prompt: buildPrompt(prompt),
+        reference_image: refB64,
+        width: Number(width),
+        height: Number(height),
+        id_weight: idWeight,
+        seed: Number(seed),
+        nsfw: nsfwMode,
+      });
+      if (res.result_url) {
+        setJob({ jobId: res.job_id, status: "completed", resultUrl: res.result_url, progress: 1, type: "image", startedAt: Date.now() });
+        setGenerating(false);
+      } else {
+        startJob(res.job_id, "image", res.credits_used);
+      }
+    } catch (err: unknown) {
+      showError(err);
+    }
+  };
+
   const handleFaceSwap = async () => {
     if (!faceSourceFile) { toast.error("Please upload your face photo"); return; }
     if (!inputImage) { toast.error("Please upload a target image"); return; }
@@ -965,6 +995,9 @@ export default function GeneratePage() {
                   <TabsTrigger value="faceswap" className="text-xs px-3 py-1.5 h-auto">
                     Face Swap
                   </TabsTrigger>
+                  <TabsTrigger value="character" className="text-xs px-3 py-1.5 h-auto">
+                    Character Lock
+                  </TabsTrigger>
                 </TabsList>
               </div>
 
@@ -1224,6 +1257,33 @@ export default function GeneratePage() {
                 <Button onClick={handleRemoveBg} disabled={generating} className="w-full" size="lg">
                   {generating ? "Processing..." : "Remove Background (1 credit)"}
                 </Button>
+              </TabsContent>
+
+              {/* Consistent Character (PuLID) */}
+              <TabsContent value="character" className="space-y-4">
+                <div className="rounded-lg border border-dashed p-3 bg-muted/30">
+                  <p className="text-sm font-medium">Character Lock (PuLID)</p>
+                  <p className="text-xs text-muted-foreground">Upload a face photo, then describe any scene. The AI will generate the scene with your character&apos;s face preserved. Perfect for storyboards, comics, and consistent multi-scene projects.</p>
+                </div>
+                <div>
+                  <Label className="text-xs">Reference Face Photo</Label>
+                  <Input type="file" accept="image/*" onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) setCharacterRef(file);
+                  }} className="mt-1" />
+                  {characterRef && <p className="text-xs text-muted-foreground mt-1">{characterRef.name}</p>}
+                </div>
+                {renderPromptInputs()}
+                <div>
+                  <Label className="text-xs">Identity Strength ({idWeight})</Label>
+                  <Input type="range" min={0.1} max={2} step={0.1} value={idWeight}
+                    onChange={(e) => setIdWeight(Number(e.target.value))} />
+                  <p className="text-[10px] text-muted-foreground">Higher = more faithful to reference face, lower = more creative freedom</p>
+                </div>
+                <Button onClick={handleConsistentCharacter} disabled={generating} className="w-full" size="lg">
+                  {generating ? "Generating..." : "Generate with Character Lock (5 credits)"}
+                </Button>
+                <p className="text-xs text-muted-foreground">Requires Pro plan or higher</p>
               </TabsContent>
 
               {/* Face Swap */}

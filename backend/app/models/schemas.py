@@ -195,6 +195,16 @@ class FaceSwapRequest(BaseModel):
     nsfw: bool = False
 
 
+class ConsistentCharacterRequest(BaseModel):
+    prompt: str = Field(..., min_length=1, max_length=2000)
+    reference_image: str = ""  # base64 encoded face/character reference
+    width: int = Field(1024, ge=512, le=2048)
+    height: int = Field(1024, ge=512, le=2048)
+    id_weight: float = Field(1.0, ge=0.1, le=2.0)  # how strongly to preserve identity
+    seed: int = -1
+    nsfw: bool = False
+
+
 class GenerationResponse(BaseModel):
     job_id: str
     status: JobStatus = JobStatus.queued
@@ -372,6 +382,7 @@ CREDIT_COSTS = {
     "remove_bg": 1,
     "style_transfer": 3,
     "face_swap": 3,
+    "consistent_character": 5,
 }
 
 
