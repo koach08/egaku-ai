@@ -56,6 +56,19 @@ const COLOR_GRADES = [
   { id: "matte_film", name: "Matte Film", filter: "contrast(0.95) brightness(1.08) saturate(0.85) sepia(0.08)" },
 ];
 
+// BGM presets — royalty-free music from Pixabay (CC0 / Pixabay License)
+const BGM_PRESETS = [
+  { id: "none", name: "No BGM", url: "" },
+  { id: "cinematic_epic", name: "Cinematic Epic", url: "https://cdn.pixabay.com/audio/2024/11/29/audio_7e42a90175.mp3" },
+  { id: "ambient_calm", name: "Ambient Calm", url: "https://cdn.pixabay.com/audio/2024/09/10/audio_6e8cd58e22.mp3" },
+  { id: "electronic_beat", name: "Electronic Beat", url: "https://cdn.pixabay.com/audio/2024/11/21/audio_42f55fbb7b.mp3" },
+  { id: "piano_emotional", name: "Piano Emotional", url: "https://cdn.pixabay.com/audio/2024/02/14/audio_08625c674c.mp3" },
+  { id: "lofi_chill", name: "Lo-Fi Chill", url: "https://cdn.pixabay.com/audio/2024/09/03/audio_f1afef2ddb.mp3" },
+  { id: "dark_tension", name: "Dark Tension", url: "https://cdn.pixabay.com/audio/2024/04/17/audio_61d02fd9b0.mp3" },
+  { id: "upbeat_pop", name: "Upbeat Pop", url: "https://cdn.pixabay.com/audio/2024/09/28/audio_16d54fffa4.mp3" },
+  { id: "orchestral_drama", name: "Orchestral Drama", url: "https://cdn.pixabay.com/audio/2023/10/01/audio_dc34cfab40.mp3" },
+];
+
 type Scene = {
   id: string;
   prompt: string;
@@ -91,6 +104,9 @@ export default function StoryboardPage() {
   const [ttsEngine, setTtsEngine] = useState("openai");
   const [ttsVoice, setTtsVoice] = useState("nova");
   const [ttsLang, setTtsLang] = useState("en");
+
+  // BGM
+  const [bgmPreset, setBgmPreset] = useState("none");
 
   // Export
   const [exporting, setExporting] = useState(false);
@@ -271,34 +287,60 @@ export default function StoryboardPage() {
       const concatContent = fileList.map((f) => `file '${f}'`).join("\n");
       await ffmpeg.writeFile("concat.txt", new TextEncoder().encode(concatContent));
 
-      // If narration audio exists, download it too
+      // Audio tracks: narration and/or BGM
       const narrationScenes = doneScenes.filter((s) => s.narrationAudioUrl);
       let hasNarration = false;
+      let hasBgm = false;
+      const selectedBgm = BGM_PRESETS.find((b) => b.id === bgmPreset);
 
       if (narrationScenes.length > 0) {
-        // For simplicity, use the first narration as background audio
         setExportProgress("Processing narration...");
         const narrationData = await fetchFile(narrationScenes[0].narrationAudioUrl!);
         await ffmpeg.writeFile("narration.mp3", narrationData);
         hasNarration = true;
       }
 
+      if (selectedBgm && selectedBgm.url) {
+        setExportProgress("Downloading BGM...");
+        const bgmData = await fetchFile(selectedBgm.url);
+        await ffmpeg.writeFile("bgm.mp3", bgmData);
+        hasBgm = true;
+      }
+
       setExportProgress("Stitching video...");
 
-      if (hasNarration) {
-        // Concat videos + overlay narration audio
+      if (hasNarration && hasBgm) {
+        // Video + narration + BGM (mix audio tracks)
         await ffmpeg.exec([
           "-f", "concat", "-safe", "0", "-i", "concat.txt",
           "-i", "narration.mp3",
+          "-i", "bgm.mp3",
+          "-filter_complex", "[1:a]volume=1.0[narr];[2:a]volume=0.3[bgm];[narr][bgm]amix=inputs=2:duration=shortest[aout]",
           "-c:v", "copy",
-          "-c:a", "aac",
           "-map", "0:v:0",
-          "-map", "1:a:0",
+          "-map", "[aout]",
+          "-shortest",
+          "-y", "output.mp4",
+        ]);
+      } else if (hasNarration) {
+        await ffmpeg.exec([
+          "-f", "concat", "-safe", "0", "-i", "concat.txt",
+          "-i", "narration.mp3",
+          "-c:v", "copy", "-c:a", "aac",
+          "-map", "0:v:0", "-map", "1:a:0",
+          "-shortest",
+          "-y", "output.mp4",
+        ]);
+      } else if (hasBgm) {
+        await ffmpeg.exec([
+          "-f", "concat", "-safe", "0", "-i", "concat.txt",
+          "-i", "bgm.mp3",
+          "-c:v", "copy", "-c:a", "aac",
+          "-map", "0:v:0", "-map", "1:a:0",
           "-shortest",
           "-y", "output.mp4",
         ]);
       } else {
-        // Concat videos only
         await ffmpeg.exec([
           "-f", "concat", "-safe", "0", "-i", "concat.txt",
           "-c", "copy",
@@ -330,6 +372,9 @@ export default function StoryboardPage() {
       try { await ffmpeg.deleteFile("output.mp4"); } catch {}
       if (hasNarration) {
         try { await ffmpeg.deleteFile("narration.mp3"); } catch {}
+      }
+      if (hasBgm) {
+        try { await ffmpeg.deleteFile("bgm.mp3"); } catch {}
       }
 
       toast.success("Video exported!");
@@ -431,9 +476,30 @@ export default function StoryboardPage() {
           </div>
         </div>
 
-        {/* TTS Global Settings */}
+        {/* Audio Settings: TTS + BGM */}
         <Card className="border-cyan-500/20">
-          <CardContent className="pt-4">
+          <CardContent className="pt-4 space-y-3">
+            <div className="flex items-center gap-4 flex-wrap">
+              <Label className="text-xs whitespace-nowrap">BGM:</Label>
+              <Select value={bgmPreset} onValueChange={(v) => v && setBgmPreset(v)}>
+                <SelectTrigger className="w-[180px] h-8 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {BGM_PRESETS.map((b) => (
+                    <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {bgmPreset !== "none" && (
+                <audio
+                  src={BGM_PRESETS.find((b) => b.id === bgmPreset)?.url}
+                  controls
+                  className="h-8"
+                  style={{ maxWidth: 200 }}
+                />
+              )}
+            </div>
             <div className="flex items-center gap-4 flex-wrap">
               <Label className="text-xs whitespace-nowrap">Narration Voice:</Label>
               <Select value={ttsEngine} onValueChange={(v) => v && setTtsEngine(v)}>
