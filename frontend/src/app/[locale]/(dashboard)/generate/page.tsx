@@ -183,6 +183,9 @@ export default function GeneratePage() {
   const [controlType, setControlType] = useState("canny");
   const [controlStrength, setControlStrength] = useState(1.0);
 
+  // Face Swap
+  const [faceSourceFile, setFaceSourceFile] = useState<File | null>(null);
+
   // Cinema Preset
   const [cinemaPreset, setCinemaPreset] = useState("none");
 
@@ -647,6 +650,29 @@ export default function GeneratePage() {
     }
   };
 
+  const handleFaceSwap = async () => {
+    if (!faceSourceFile) { toast.error("Please upload your face photo"); return; }
+    if (!inputImage) { toast.error("Please upload a target image"); return; }
+    setGenerating(true); setJob(null); setElapsed(0); setResultBlurred(nsfwMode);
+    try {
+      const sourceB64 = await fileToBase64(faceSourceFile);
+      const targetB64 = await fileToBase64(inputImage);
+      const res = await api.faceSwap(session!.access_token, {
+        source_image: sourceB64,
+        target_image: targetB64,
+        nsfw: nsfwMode,
+      });
+      if (res.result_url) {
+        setJob({ id: res.job_id, status: "completed", resultUrl: res.result_url, progress: 1, type: "image" });
+        setGenerating(false);
+      } else {
+        startJob(res.job_id, "image", res.credits_used);
+      }
+    } catch (err: unknown) {
+      showError(err);
+    }
+  };
+
   // ─── Reusable sub-components ───
 
   const renderImageUpload = (label = "Upload Image") => (
@@ -936,6 +962,9 @@ export default function GeneratePage() {
                   <TabsTrigger value="controlnet" className="text-xs px-3 py-1.5 h-auto">
                     ControlNet
                   </TabsTrigger>
+                  <TabsTrigger value="faceswap" className="text-xs px-3 py-1.5 h-auto">
+                    Face Swap
+                  </TabsTrigger>
                 </TabsList>
               </div>
 
@@ -1195,6 +1224,34 @@ export default function GeneratePage() {
                 <Button onClick={handleRemoveBg} disabled={generating} className="w-full" size="lg">
                   {generating ? "Processing..." : "Remove Background (1 credit)"}
                 </Button>
+              </TabsContent>
+
+              {/* Face Swap */}
+              <TabsContent value="faceswap" className="space-y-4">
+                <div className="rounded-lg border border-dashed p-3 bg-muted/30">
+                  <p className="text-sm font-medium">AI Face Swap</p>
+                  <p className="text-xs text-muted-foreground">Upload your face photo and a target image. Your face will be seamlessly placed onto the target. Basic plan required.</p>
+                </div>
+                <div>
+                  <Label className="text-xs">Source Face (your photo)</Label>
+                  <Input type="file" accept="image/*" onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) setFaceSourceFile(file);
+                  }} className="mt-1" />
+                  {faceSourceFile && <p className="text-xs text-muted-foreground mt-1">{faceSourceFile.name}</p>}
+                </div>
+                <div>
+                  <Label className="text-xs">Target Image (where to put your face)</Label>
+                  <Input type="file" accept="image/*" onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) setInputImage(file);
+                  }} className="mt-1" />
+                  {inputImage && <p className="text-xs text-muted-foreground mt-1">{inputImage.name}</p>}
+                </div>
+                <Button onClick={handleFaceSwap} disabled={generating} className="w-full" size="lg">
+                  {generating ? "Swapping..." : "Swap Face (3 credits)"}
+                </Button>
+                <p className="text-xs text-muted-foreground">Requires Basic plan or higher</p>
               </TabsContent>
             </Tabs>
 

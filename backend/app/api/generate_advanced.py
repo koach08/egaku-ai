@@ -11,6 +11,7 @@ from app.core.legal import check_prompt_compliance
 from app.models.schemas import (
     CREDIT_COSTS,
     ControlNetRequest,
+    FaceSwapRequest,
     GenerationResponse,
     Img2ImgRequest,
     Img2VidRequest,
@@ -610,6 +611,74 @@ async def style_transfer(
         return GenerationResponse(job_id=job_id, status=JobStatus.queued, credits_used=credits_needed)
 
     raise HTTPException(status_code=503, detail="Style transfer service is temporarily unavailable.")
+
+
+# ─── Face Swap ───
+
+@router.post("/face-swap", response_model=GenerationResponse)
+async def face_swap(
+    body: FaceSwapRequest,
+    request: Request,
+    settings: Settings = Depends(get_settings),
+):
+    """Swap a face from source image onto a target image. Pro+ only."""
+    user, profile, supabase = await _auth_and_profile(request, settings)
+
+    plan = profile["plan"]
+    if PLAN_RANK.get(plan, 0) < PLAN_RANK["basic"]:
+        raise HTTPException(status_code=403, detail="Face Swap requires Basic plan or higher")
+
+    if not body.source_image or not body.target_image:
+        raise HTTPException(status_code=400, detail="Both source and target images are required")
+
+    from app.services.fal_ai import FalClient
+    from app.services.supabase import deduct_credits
+
+    fal_client = FalClient(settings)
+    if not fal_client.is_available():
+        raise HTTPException(status_code=503, detail="Face swap service is temporarily unavailable")
+
+    credits_needed = CREDIT_COSTS["face_swap"]
+    success = await deduct_credits(supabase, user.id, credits_needed, "Face swap")
+    if not success:
+        raise HTTPException(status_code=402, detail="Insufficient credits")
+
+    source_url = _b64_to_data_url(body.source_image)
+    target_url = _b64_to_data_url(body.target_image)
+
+    job_id = str(uuid.uuid4())
+
+    try:
+        result = await fal_client.face_swap(
+            source_image_url=source_url,
+            target_image_url=target_url,
+        )
+
+        image_url = fal_client.extract_image_url(result)
+        if not image_url:
+            raise RuntimeError("No image returned from face swap")
+
+        # Store result
+        from app.services.supabase import save_generation
+        await save_generation(supabase, {
+            "id": job_id,
+            "user_id": user.id,
+            "type": "face_swap",
+            "prompt": "Face swap",
+            "model": "fal_face_swap",
+            "image_url": image_url,
+            "nsfw": body.nsfw,
+            "status": "completed",
+        })
+
+        return GenerationResponse(
+            job_id=job_id, status=JobStatus.completed,
+            credits_used=credits_needed, result_url=image_url,
+        )
+
+    except Exception as e:
+        logger.error("Face swap failed: %s", e)
+        raise HTTPException(status_code=500, detail=f"Face swap failed: {str(e)}")
 
 
 # ─── Available styles list ───

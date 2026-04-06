@@ -189,6 +189,12 @@ class StyleTransferRequest(BaseModel):
     nsfw: bool = False
 
 
+class FaceSwapRequest(BaseModel):
+    source_image: str = ""  # base64 encoded source image (contains face to paste)
+    target_image: str = ""  # base64 encoded target image (destination)
+    nsfw: bool = False
+
+
 class GenerationResponse(BaseModel):
     job_id: str
     status: JobStatus = JobStatus.queued
@@ -365,6 +371,7 @@ CREDIT_COSTS = {
     "controlnet": 3,
     "remove_bg": 1,
     "style_transfer": 3,
+    "face_swap": 3,
 }
 
 

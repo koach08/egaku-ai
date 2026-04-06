@@ -670,3 +670,18 @@ class FalClient:
         if isinstance(image, str):
             return image
         return None
+
+    async def face_swap(
+        self,
+        source_image_url: str,
+        target_image_url: str,
+    ) -> dict:
+        """Swap face from source image onto target image via fal.ai."""
+        fal_model = "fal-ai/face-swap"
+        input_params = {
+            "base_image_url": target_image_url,
+            "swap_image_url": source_image_url,
+        }
+
+        # Face swap can take longer — use queue API
+        return await self._submit_queue_job(fal_model, input_params)

@@ -125,6 +125,12 @@ export const api = {
       headers: authHeaders(token),
       body: JSON.stringify(params),
     }),
+  faceSwap: (token: string, params: Record<string, unknown>) =>
+    fetchAPI("/generate/face-swap", {
+      method: "POST",
+      headers: authHeaders(token),
+      body: JSON.stringify(params),
+    }),
   getStyles: () => fetchAPI("/generate/styles"),
 
   // Anonymous generation (no auth required)
