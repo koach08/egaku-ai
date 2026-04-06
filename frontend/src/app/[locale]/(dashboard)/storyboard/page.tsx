@@ -18,6 +18,8 @@ import {
 import { Header } from "@/components/layout/header";
 import { toast } from "sonner";
 import Link from "next/link";
+import { FFmpeg } from "@ffmpeg/ffmpeg";
+import { fetchFile, toBlobURL } from "@ffmpeg/util";
 
 // ── Cinema Camera Presets (shared with generate page) ──
 const CINEMA_PRESETS = [
@@ -89,6 +91,11 @@ export default function StoryboardPage() {
   const [ttsEngine, setTtsEngine] = useState("openai");
   const [ttsVoice, setTtsVoice] = useState("nova");
   const [ttsLang, setTtsLang] = useState("en");
+
+  // Export
+  const [exporting, setExporting] = useState(false);
+  const [exportProgress, setExportProgress] = useState("");
+  const ffmpegRef = useRef<FFmpeg | null>(null);
 
   useEffect(() => {
     if (!session) return;
@@ -221,6 +228,118 @@ export default function StoryboardPage() {
     } catch (err) {
       const msg = err instanceof Error ? err.message : "TTS failed";
       toast.error(msg);
+    }
+  };
+
+  // Export stitched video via ffmpeg.wasm
+  const exportVideo = async () => {
+    const doneScenes = scenes.filter((s) => s.status === "done" && s.videoUrl);
+    if (doneScenes.length === 0) {
+      toast.error("No completed scenes to export");
+      return;
+    }
+
+    setExporting(true);
+    setExportProgress("Loading ffmpeg...");
+
+    try {
+      // Load ffmpeg if not already loaded
+      if (!ffmpegRef.current) {
+        const ffmpeg = new FFmpeg();
+        const baseURL = "https://unpkg.com/@ffmpeg/core@0.12.6/dist/esm";
+        await ffmpeg.load({
+          coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, "text/javascript"),
+          wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, "application/wasm"),
+        });
+        ffmpegRef.current = ffmpeg;
+      }
+
+      const ffmpeg = ffmpegRef.current;
+
+      // Download all scene videos and write to ffmpeg filesystem
+      const fileList: string[] = [];
+      for (let i = 0; i < doneScenes.length; i++) {
+        const scene = doneScenes[i];
+        setExportProgress(`Downloading scene ${i + 1}/${doneScenes.length}...`);
+        const videoData = await fetchFile(scene.videoUrl!);
+        const inputName = `scene_${i}.mp4`;
+        await ffmpeg.writeFile(inputName, videoData);
+        fileList.push(inputName);
+      }
+
+      // Build concat file for ffmpeg
+      const concatContent = fileList.map((f) => `file '${f}'`).join("\n");
+      await ffmpeg.writeFile("concat.txt", new TextEncoder().encode(concatContent));
+
+      // If narration audio exists, download it too
+      const narrationScenes = doneScenes.filter((s) => s.narrationAudioUrl);
+      let hasNarration = false;
+
+      if (narrationScenes.length > 0) {
+        // For simplicity, use the first narration as background audio
+        setExportProgress("Processing narration...");
+        const narrationData = await fetchFile(narrationScenes[0].narrationAudioUrl!);
+        await ffmpeg.writeFile("narration.mp3", narrationData);
+        hasNarration = true;
+      }
+
+      setExportProgress("Stitching video...");
+
+      if (hasNarration) {
+        // Concat videos + overlay narration audio
+        await ffmpeg.exec([
+          "-f", "concat", "-safe", "0", "-i", "concat.txt",
+          "-i", "narration.mp3",
+          "-c:v", "copy",
+          "-c:a", "aac",
+          "-map", "0:v:0",
+          "-map", "1:a:0",
+          "-shortest",
+          "-y", "output.mp4",
+        ]);
+      } else {
+        // Concat videos only
+        await ffmpeg.exec([
+          "-f", "concat", "-safe", "0", "-i", "concat.txt",
+          "-c", "copy",
+          "-y", "output.mp4",
+        ]);
+      }
+
+      setExportProgress("Preparing download...");
+      const outputData = await ffmpeg.readFile("output.mp4");
+      // ffmpeg.readFile returns FileData which may be Uint8Array — convert to standard ArrayBuffer
+      const bytes = outputData instanceof Uint8Array ? outputData : new TextEncoder().encode(outputData as string);
+      const blob = new Blob([bytes.buffer], { type: "video/mp4" });
+      const url = URL.createObjectURL(blob);
+
+      // Trigger download
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${projectTitle.replace(/[^a-zA-Z0-9]/g, "_")}_storyboard.mp4`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      // Cleanup ffmpeg filesystem
+      for (const f of fileList) {
+        try { await ffmpeg.deleteFile(f); } catch {}
+      }
+      try { await ffmpeg.deleteFile("concat.txt"); } catch {}
+      try { await ffmpeg.deleteFile("output.mp4"); } catch {}
+      if (hasNarration) {
+        try { await ffmpeg.deleteFile("narration.mp3"); } catch {}
+      }
+
+      toast.success("Video exported!");
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Export failed";
+      toast.error(msg);
+      console.error("Export error:", err);
+    } finally {
+      setExporting(false);
+      setExportProgress("");
     }
   };
 
@@ -530,10 +649,20 @@ export default function StoryboardPage() {
                   </div>
                 ))}
               </div>
-              <p className="text-xs text-muted-foreground mt-3">
-                Total: {scenes.filter((s) => s.status === "done").reduce((sum, s) => sum + s.duration, 0)}s |
-                Video stitching (ffmpeg.wasm) coming soon
-              </p>
+              <div className="flex items-center justify-between mt-3">
+                <p className="text-xs text-muted-foreground">
+                  Total: {scenes.filter((s) => s.status === "done").reduce((sum, s) => sum + s.duration, 0)}s |
+                  {scenes.filter((s) => s.status === "done").length} scenes ready
+                </p>
+                <Button
+                  onClick={exportVideo}
+                  disabled={exporting || completedScenes === 0}
+                  className="bg-gradient-to-r from-green-600 to-emerald-600"
+                  size="sm"
+                >
+                  {exporting ? exportProgress || "Exporting..." : "Export Video (.mp4)"}
+                </Button>
+              </div>
             </CardContent>
           </Card>
         )}

@@ -663,7 +663,7 @@ export default function GeneratePage() {
         nsfw: nsfwMode,
       });
       if (res.result_url) {
-        setJob({ id: res.job_id, status: "completed", resultUrl: res.result_url, progress: 1, type: "image" });
+        setJob({ jobId: res.job_id, status: "completed", resultUrl: res.result_url, progress: 1, type: "image", startedAt: Date.now() });
         setGenerating(false);
       } else {
         startJob(res.job_id, "image", res.credits_used);
