@@ -294,17 +294,28 @@ class FalClient:
 
         url = f"{FAL_API_BASE}/{fal_model}"
 
-        async with httpx.AsyncClient() as client:
-            response = await client.post(
-                url,
-                json=input_params,
-                headers=self.headers,
-                timeout=120,
-            )
-            response.raise_for_status()
-            data = response.json()
-            logger.info("fal.ai job completed: model=%s", fal_model)
-            return data
+        # Retry up to 2 times for transient errors
+        last_error = None
+        for attempt in range(3):
+            try:
+                async with httpx.AsyncClient() as client:
+                    response = await client.post(
+                        url,
+                        json=input_params,
+                        headers=self.headers,
+                        timeout=120,
+                    )
+                    response.raise_for_status()
+                    data = response.json()
+                    logger.info("fal.ai job completed: model=%s", fal_model)
+                    return data
+            except (httpx.TimeoutException, httpx.ConnectError) as e:
+                last_error = e
+                logger.warning("fal.ai attempt %d failed: %s", attempt + 1, e)
+                if attempt < 2:
+                    import asyncio
+                    await asyncio.sleep(2 * (attempt + 1))
+        raise RuntimeError(f"fal.ai failed after 3 attempts: {last_error}")
 
     async def submit_txt2img_with_lora(
         self,

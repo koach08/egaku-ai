@@ -55,6 +55,24 @@ export default function LandingPage() {
           <p className="mt-4 text-sm text-muted-foreground">
             No credit card required. Create your first image in 30 seconds.
           </p>
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
+            {[
+              { label: "Photo Booth", href: "/photo-booth", color: "from-green-500/20 to-emerald-500/20 text-green-400" },
+              { label: "Video Shorts", href: "/shorts", color: "from-pink-500/20 to-red-500/20 text-pink-400" },
+              { label: "Face Swap", href: "/generate", color: "from-blue-500/20 to-cyan-500/20 text-blue-400" },
+              { label: "Storyboard", href: "/storyboard", color: "from-purple-500/20 to-violet-500/20 text-purple-400" },
+              { label: "Character Lock", href: "/generate", color: "from-amber-500/20 to-orange-500/20 text-amber-400" },
+              { label: "25+ AI Models", href: "/generate", color: "from-gray-500/20 to-gray-400/20 text-gray-400" },
+            ].map((f) => (
+              <Link
+                key={f.label}
+                href={f.href}
+                className={`text-xs px-3 py-1.5 rounded-full bg-gradient-to-r ${f.color} border border-white/5 hover:border-white/20 transition-colors`}
+              >
+                {f.label}
+              </Link>
+            ))}
+          </div>
         </section>
 
         {/* How it works */}
