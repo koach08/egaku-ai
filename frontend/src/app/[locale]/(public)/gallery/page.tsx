@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Header } from "@/components/layout/header";
 import { toast } from "sonner";
-import { HeartIcon, EyeIcon, EyeOffIcon, Loader2Icon } from "lucide-react";
+import { HeartIcon, EyeIcon, EyeOffIcon, Loader2Icon, SparklesIcon } from "lucide-react";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -391,28 +391,38 @@ export default function GalleryPage() {
                               e.stopPropagation();
                               window.location.href = `/user/${item.user_id}`;
                             }}
-                            className="text-xs text-muted-foreground truncate max-w-[60%] cursor-pointer hover:text-foreground transition-colors"
+                            className="text-xs text-muted-foreground truncate max-w-[40%] cursor-pointer hover:text-foreground transition-colors"
                           >
                             {item.author_name}
                           </span>
-                          <button
-                            onClick={(e) => handleLike(e, item)}
-                            className={`flex items-center gap-1 text-xs transition-colors ${
-                              item.liked_by_me
-                                ? "text-pink-500"
-                                : "text-muted-foreground hover:text-pink-500"
-                            }`}
-                            disabled={likingIds.has(item.id)}
-                          >
-                            <HeartIcon
-                              className={`size-3.5 ${
-                                item.liked_by_me ? "fill-pink-500" : ""
+                          <div className="flex items-center gap-2">
+                            <Link
+                              href={`/generate?prompt=${encodeURIComponent(item.prompt)}&model=${item.model}`}
+                              onClick={(e) => e.stopPropagation()}
+                              className="flex items-center gap-1 text-xs text-muted-foreground hover:text-purple-400 transition-colors"
+                              title="Remix with same settings"
+                            >
+                              <SparklesIcon className="size-3.5" />
+                            </Link>
+                            <button
+                              onClick={(e) => handleLike(e, item)}
+                              className={`flex items-center gap-1 text-xs transition-colors ${
+                                item.liked_by_me
+                                  ? "text-pink-500"
+                                  : "text-muted-foreground hover:text-pink-500"
                               }`}
-                            />
-                            {item.likes_count > 0 && (
-                              <span>{item.likes_count}</span>
-                            )}
-                          </button>
+                              disabled={likingIds.has(item.id)}
+                            >
+                              <HeartIcon
+                                className={`size-3.5 ${
+                                  item.liked_by_me ? "fill-pink-500" : ""
+                                }`}
+                              />
+                              {item.likes_count > 0 && (
+                                <span>{item.likes_count}</span>
+                              )}
+                            </button>
+                          </div>
                         </div>
                       </CardContent>
                     </Card>

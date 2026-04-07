@@ -153,6 +153,9 @@ async function fileToBase64(file: File): Promise<string> {
 export default function GeneratePage() {
   const { user, session, loading: authLoading } = useAuth();
 
+  // Read remix params from URL (1-Click Remix from gallery)
+  const [remixLoaded, setRemixLoaded] = useState(false);
+
   // Common params
   const [prompt, setPrompt] = useState("");
   const [negativePrompt, setNegativePrompt] = useState("");
@@ -252,6 +255,41 @@ export default function GeneratePage() {
       .catch(() => {});
     fetchCustomModels();
   }, [session, fetchCustomModels]);
+
+  // Auto-claim daily free credits on page load
+  useEffect(() => {
+    if (!session) return;
+    api.claimDailyCredits(session.access_token)
+      .then((data) => {
+        if (data.claimed) {
+          toast.success(`Daily bonus: +${data.amount} credit! Balance: ${data.new_balance}`);
+        }
+      })
+      .catch(() => {}); // silent fail
+  }, [session]);
+
+  // Load remix params from URL (?prompt=...&model=...)
+  useEffect(() => {
+    if (remixLoaded) return;
+    const params = new URLSearchParams(window.location.search);
+    const p = params.get("prompt");
+    if (p) {
+      setPrompt(p);
+      const m = params.get("model");
+      if (m) setModel(m);
+      const np = params.get("negative_prompt");
+      if (np) setNegativePrompt(np);
+      const w = params.get("width");
+      if (w) setWidth(Number(w));
+      const h = params.get("height");
+      if (h) setHeight(Number(h));
+      const s = params.get("steps");
+      if (s) setSteps(Number(s));
+      const c = params.get("cfg");
+      if (c) setCfg(Number(c));
+    }
+    setRemixLoaded(true);
+  }, [remixLoaded]);
 
   // Handle image file selection
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -1368,8 +1406,19 @@ export default function GeneratePage() {
                           Add blur
                         </button>
                       )}
-                      <button onClick={() => { import("@/lib/utils").then(m => m.downloadFile(job.resultUrl!, job.type === "video" ? "egaku-video.mp4" : "egaku-image.png")); }} className="text-xs text-purple-500 hover:underline font-medium">Download</button>
+                      <button onClick={() => { const addWatermark = PLAN_RANK[userPlan] < PLAN_RANK["basic"]; import("@/lib/utils").then(m => m.downloadFile(job.resultUrl!, job.type === "video" ? "egaku-video.mp4" : "egaku-image.png", addWatermark)); }} className="text-xs text-purple-500 hover:underline font-medium">Download{PLAN_RANK[userPlan] < PLAN_RANK["basic"] ? " (watermark)" : ""}</button>
                       <a href={job.resultUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:underline">Open full size</a>
+                      <button
+                        onClick={() => {
+                          const text = `Created with EGAKU AI\n${window.location.origin}`;
+                          const xUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(job.resultUrl!)}`;
+                          window.open(xUrl, '_blank', 'width=600,height=400');
+                        }}
+                        className="text-xs text-muted-foreground hover:text-blue-400 transition-colors"
+                        title="Share on X"
+                      >
+                        Share
+                      </button>
                     </div>
                   </div>
                   {/* Color Grading Selector */}

@@ -137,6 +137,11 @@ export const api = {
       headers: authHeaders(token),
       body: JSON.stringify(params),
     }),
+  claimDailyCredits: (token: string) =>
+    fetchAPI("/credits/daily", {
+      method: "POST",
+      headers: authHeaders(token),
+    }),
   getStyles: () => fetchAPI("/generate/styles"),
 
   // Anonymous generation (no auth required)
