@@ -168,11 +168,27 @@ def _check_adult_prompt(prompt: str) -> None:
 
 # Map model_id to ComfyUI checkpoint filename
 COMFYUI_CHECKPOINT_MAP = {
-    "novita_uber_realistic_porn": "uberRealisticPorn.safetensors",
+    # Realistic NSFW (SD1.5)
+    "novita_uber_realistic_porn": "epicphotogasm.safetensors",
     "novita_epicphotogasm": "epicphotogasm.safetensors",
+    "novita_babes": "epicphotogasm.safetensors",
+    "novita_realistic_vision_v6": "epicphotogasm.safetensors",
+    "novita_cyberrealistic": "epicphotogasm.safetensors",
+    "novita_majicmix": "chilloutmix.safetensors",
+    # Asian
     "novita_chilloutmix": "chilloutmix.safetensors",
-    "novita_hassaku_hentai": "hassakuHentai.safetensors",
-    "civitai_custom": "epicphotogasm.safetensors",  # default
+    # Anime / Hentai (Pony)
+    "novita_hassaku_hentai": "cyberrealisticPony.safetensors",
+    "novita_meinahentai": "cyberrealisticPony.safetensors",
+    "novita_anything_v5": "cyberrealisticPony.safetensors",
+    # SDXL
+    "novita_protovision_xl": "realvisxlV50.safetensors",
+    "novita_helloworld_xl": "realvisxlV50.safetensors",
+    "novita_sdxl_base": "realvisxlV50.safetensors",
+    # Flux (fallback to SDXL)
+    "fal_flux_realism": "realvisxlV50.safetensors",
+    # Custom
+    "civitai_custom": "epicphotogasm.safetensors",
 }
 COMFYUI_DEFAULT_CHECKPOINT = "epicphotogasm.safetensors"
 
@@ -222,7 +238,8 @@ async def _generate_with_comfyui(
         "9": {"class_type": "SaveImage", "inputs": {"filename_prefix": "egaku", "images": ["8", 0]}},
     }
 
-    async with httpx.AsyncClient(timeout=120) as client:
+    headers = {"User-Agent": "Mozilla/5.0 EGAKU-AI/1.0"}
+    async with httpx.AsyncClient(timeout=120, headers=headers) as client:
         # Submit workflow
         resp = await client.post(f"{comfyui_url}/prompt", json={"prompt": workflow})
         resp.raise_for_status()
@@ -943,11 +960,46 @@ async def generate_adult_video(
     is_i2v = bool(body.image_url)
 
     # ━━━━━━━ IMAGE-TO-VIDEO ━━━━━━━
-    # Priority: vast.ai ComfyUI AnimateDiff (real i2v, no filter) → Novita AnimateDiff (prompt-based fallback)
+    # Priority: fal.ai I2V (real image animation, NSFW OK) → vast.ai → Novita fallback
     if is_i2v:
         logger.info(f"img2vid: duration={body.duration}s")
 
-        # ── Try vast.ai ComfyUI AnimateDiff first (actual image animation) ──
+        # ── Try fal.ai I2V first (LTX 2 = NSFW-friendly, uses actual image) ──
+        if settings.fal_api_key:
+            try:
+                from app.services.fal_ai import FalClient
+                fal_client = FalClient(settings)
+
+                # Use the user-selected model if it's a fal I2V model, otherwise default to LTX
+                fal_i2v_model = model_id if model_id.startswith("fal_") and "i2v" in model_id else "fal_ltx_i2v"
+
+                motion_prompt = body.prompt or "smooth natural motion, cinematic animation"
+
+                result = await fal_client.submit_img2vid(
+                    image_url=body.image_url,
+                    prompt=motion_prompt,
+                    seed=body.seed,
+                    model_id=fal_i2v_model,
+                    duration=body.duration,
+                    resolution=getattr(body, "resolution", "720p") or "720p",
+                )
+
+                video_url = fal_client.extract_video_url(result)
+                if video_url:
+                    await _store_job_status(settings, job_id, "completed", {"url": video_url, "backend": f"fal_{fal_i2v_model}"})
+                    await _save_generation_to_db(
+                        settings, user.id, job_id, "img2vid", body.prompt,
+                        body.negative_prompt, fal_i2v_model, body.model_dump(), video_url, True,
+                    )
+                    return GenerationResponse(
+                        job_id=job_id, status=JobStatus.completed,
+                        credits_used=base_cost, result_url=video_url,
+                    )
+                logger.warning("fal.ai I2V returned no video URL, falling back")
+            except Exception as e:
+                logger.warning(f"fal.ai I2V failed, falling back: {e}")
+
+        # ── Try vast.ai ComfyUI AnimateDiff (actual image animation) ──
         if settings.vastai_comfyui_url:
             try:
                 from app.services.vastai import VastAIClient
