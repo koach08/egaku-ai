@@ -207,7 +207,7 @@ export default function LandingPage() {
                     </ul>
                     <Button
                       className="w-full mt-6"
-                      variant={isPopular ? "default" : "outline"}
+                      variant="outline"
                       render={<Link href={price === "0" ? "/register" : `/register?plan=${planKey}`} />}
                     >
                       {price === "0"
@@ -278,6 +278,30 @@ export default function LandingPage() {
               </div>
             </div>
           </Link>
+        </section>
+
+        {/* FAQ Section */}
+        <section className="container mx-auto px-4 py-16">
+          <h2 className="text-3xl font-bold text-center mb-10">Frequently Asked Questions</h2>
+          <div className="max-w-3xl mx-auto space-y-4">
+            {[
+              { q: "Is EGAKU AI really free?", a: "Yes! You get 50 free credits per month, plus 1 bonus credit every day you log in. No credit card required to start. That's enough to generate 50+ images with our fast models." },
+              { q: "What makes EGAKU AI different from Midjourney or Leonardo?", a: "We offer 25+ AI models (Flux, Sora 2, Veo 3, Kling, SDXL, and more) in one platform with regional pricing — up to 80% cheaper based on your location. Plus features like Face Swap, Character Lock, Photo Booth, Video Shorts, and Storyboard Studio that most competitors don't have." },
+              { q: "Can I generate NSFW / adult content?", a: "Yes. EGAKU AI supports unrestricted creative freedom for verified 18+ users. We offer dedicated NSFW models with no content filters, available on Basic plan and above. Adult content uses crypto payments for privacy." },
+              { q: "What's the quality like compared to Midjourney?", a: "We use the same cutting-edge models (Flux Dev, Nano Banana 2 by Google, Grok Imagine by xAI) that produce results comparable to or better than Midjourney v6. Plus we offer video generation with Sora 2, Veo 3, and Kling 2.5." },
+              { q: "Can I use my own CivitAI models?", a: "Yes! Basic plan and above can use any CivitAI checkpoint model. Just paste the model name and generate. We also support custom LoRA training on Studio plan." },
+              { q: "Is there an API?", a: "Yes. Pro plan and above get REST API access with API key authentication. Generate images, videos, upscale, remove backgrounds, and more programmatically." },
+              { q: "Do you support languages other than English?", a: "Yes! You can write prompts in Japanese, Chinese, Korean, Spanish, or any language. Our AI automatically translates your prompt to get the best results from the image models." },
+            ].map((faq, i) => (
+              <details key={i} className="group rounded-lg border border-muted bg-card">
+                <summary className="flex items-center justify-between p-4 cursor-pointer font-medium text-sm hover:text-purple-400 transition-colors">
+                  {faq.q}
+                  <span className="text-muted-foreground group-open:rotate-180 transition-transform">▼</span>
+                </summary>
+                <p className="px-4 pb-4 text-sm text-muted-foreground leading-relaxed">{faq.a}</p>
+              </details>
+            ))}
+          </div>
         </section>
 
         {/* SEO Internal Links */}

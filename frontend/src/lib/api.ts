@@ -11,19 +11,49 @@ export function resolveResultUrl(url: string | undefined): string | undefined {
   return url;
 }
 
-async function fetchAPI(path: string, options: RequestInit = {}) {
-  const res = await fetch(`${API_BASE}${path}`, {
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
-  if (!res.ok) {
-    const error = await res.json().catch(() => ({ detail: res.statusText }));
-    throw new Error(error.detail || "API error");
+const USER_FRIENDLY_ERRORS: Record<number, string> = {
+  401: "Please sign in to continue",
+  402: "Not enough credits. Please upgrade your plan or wait for daily bonus.",
+  403: "This feature requires a higher plan. Check pricing for details.",
+  429: "Too many requests. Please wait a moment and try again.",
+  500: "Something went wrong on our end. Please try again.",
+  503: "This service is temporarily busy. Please try again in a moment.",
+};
+
+async function fetchAPI(path: string, options: RequestInit = {}, retries = 2) {
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      const res = await fetch(`${API_BASE}${path}`, {
+        ...options,
+        headers: {
+          "Content-Type": "application/json",
+          ...options.headers,
+        },
+      });
+      if (!res.ok) {
+        // Don't retry client errors (4xx)
+        if (res.status >= 400 && res.status < 500) {
+          const error = await res.json().catch(() => ({ detail: res.statusText }));
+          throw new Error(error.detail || USER_FRIENDLY_ERRORS[res.status] || "Request failed");
+        }
+        // Retry server errors (5xx)
+        if (attempt < retries) {
+          await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
+          continue;
+        }
+        const error = await res.json().catch(() => ({ detail: res.statusText }));
+        throw new Error(error.detail || USER_FRIENDLY_ERRORS[res.status] || "Server error. Please try again.");
+      }
+      return res.json();
+    } catch (err) {
+      if (err instanceof TypeError && attempt < retries) {
+        // Network error — retry
+        await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
+        continue;
+      }
+      throw err;
+    }
   }
-  return res.json();
 }
 
 function authHeaders(token: string) {

@@ -763,6 +763,17 @@ export default function GeneratePage() {
     return base + preset.suffix;
   };
 
+  const PROMPT_TEMPLATES = [
+    { label: "🏔 Landscape", prompt: "Breathtaking mountain landscape at golden hour, crystal clear lake reflection, dramatic clouds, shot on Hasselblad, 8K" },
+    { label: "👤 Portrait", prompt: "Stunning portrait photograph, beautiful soft lighting, shallow depth of field, professional studio quality, shot on Canon EOS R5, 85mm f/1.2, 8K" },
+    { label: "🌆 Cyberpunk", prompt: "Neon-lit cyberpunk city at night in rain, holographic signs, flying cars, wet streets reflecting colorful lights, Blade Runner atmosphere, 8K" },
+    { label: "🎌 Anime", prompt: "Beautiful anime illustration, detailed eyes, flowing hair, vibrant colors, Studio Ghibli meets Makoto Shinkai quality, 4K" },
+    { label: "🍣 Food", prompt: "Ultra-premium food photography, perfectly plated dish, dramatic directional lighting, dark background, Michelin star restaurant quality, 8K" },
+    { label: "🚀 Sci-Fi", prompt: "Epic sci-fi concept art, massive space station orbiting an alien planet, volumetric lighting, cinematic composition, 8K" },
+    { label: "🐉 Fantasy", prompt: "Majestic fantasy scene, ancient dragon perched on a mountain peak, magical aurora in the sky, detailed scales, epic composition, 8K" },
+    { label: "📸 Product", prompt: "Professional product photography, luxury item on clean background, dramatic studio lighting, sharp focus, commercial quality, 8K" },
+  ];
+
   const renderPromptInputs = () => (
     <>
       <div>
@@ -774,6 +785,19 @@ export default function GeneratePage() {
           onChange={(e) => setPrompt(e.target.value)}
           rows={3}
         />
+        {!prompt.trim() && (
+          <div className="flex flex-wrap gap-1.5 mt-2">
+            {PROMPT_TEMPLATES.map((t) => (
+              <button
+                key={t.label}
+                onClick={() => setPrompt(t.prompt)}
+                className="text-[11px] px-2 py-1 rounded-full border border-muted hover:border-purple-500/40 hover:text-purple-400 transition-colors"
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Cinema Camera Preset */}

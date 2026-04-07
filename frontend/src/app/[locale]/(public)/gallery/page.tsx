@@ -263,6 +263,33 @@ export default function GalleryPage() {
               </button>
             ))}
           </div>
+
+          {/* Trending Prompts */}
+          <div className="rounded-lg border border-muted bg-card/50 p-3">
+            <p className="text-xs font-medium text-muted-foreground mb-2">Trending prompts — click to generate</p>
+            <div className="flex flex-wrap gap-1.5">
+              {[
+                "Cyberpunk Tokyo at night",
+                "Anime warrior girl",
+                "Golden hour portrait",
+                "Fantasy dragon",
+                "Product photography",
+                "Underwater scene",
+                "Samurai in cherry blossoms",
+                "Futuristic city",
+                "Oil painting style",
+                "Neon noir aesthetic",
+              ].map((p) => (
+                <Link
+                  key={p}
+                  href={`/generate?prompt=${encodeURIComponent(p + ", masterpiece, best quality, 8K")}`}
+                  className="text-[11px] px-2 py-1 rounded-full border border-muted hover:border-purple-500/40 hover:text-purple-400 transition-colors"
+                >
+                  {p}
+                </Link>
+              ))}
+            </div>
+          </div>
         </div>
 
         {/* Grid */}
