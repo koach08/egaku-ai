@@ -88,14 +88,9 @@ export function Header() {
           <Link href="/generate" className="hover:text-foreground/80">
             {t("nav.generate")}
           </Link>
-          <Link href="/storyboard" className="hover:text-foreground/80 flex items-center gap-1">
-            Storyboard
-          </Link>
-          <Link href="/photo-booth" className="hover:text-foreground/80">
-            Photo Booth
-          </Link>
-          <Link href="/shorts" className="hover:text-foreground/80">
-            Shorts
+          <Link href="/tools" className="hover:text-foreground/80 flex items-center gap-1 font-medium">
+            Tools
+            <span className="text-[9px] bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-400 px-1 rounded">20+</span>
           </Link>
           <Link href="/battle" className="hover:text-foreground/80 flex items-center gap-1">
             Battle

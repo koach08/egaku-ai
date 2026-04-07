@@ -57,12 +57,12 @@ export default function LandingPage() {
           </p>
           <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
             {[
-              { label: "Photo Booth", href: "/photo-booth", color: "from-green-500/20 to-emerald-500/20 text-green-400" },
-              { label: "Video Shorts", href: "/shorts", color: "from-pink-500/20 to-red-500/20 text-pink-400" },
-              { label: "Face Swap", href: "/generate", color: "from-blue-500/20 to-cyan-500/20 text-blue-400" },
-              { label: "Storyboard", href: "/storyboard", color: "from-purple-500/20 to-violet-500/20 text-purple-400" },
-              { label: "Character Lock", href: "/generate", color: "from-amber-500/20 to-orange-500/20 text-amber-400" },
-              { label: "25+ AI Models", href: "/generate", color: "from-gray-500/20 to-gray-400/20 text-gray-400" },
+              { label: "⚔️ Prompt Battle", href: "/battle", color: "from-red-500/20 to-orange-500/20 text-red-400" },
+              { label: "📸 Photo Booth", href: "/photo-booth", color: "from-green-500/20 to-emerald-500/20 text-green-400" },
+              { label: "😂 Meme Generator", href: "/meme", color: "from-yellow-500/20 to-amber-500/20 text-yellow-400" },
+              { label: "✏️ Logo Maker", href: "/logo", color: "from-violet-500/20 to-purple-500/20 text-violet-400" },
+              { label: "📱 Video Shorts", href: "/shorts", color: "from-pink-500/20 to-red-500/20 text-pink-400" },
+              { label: "🖼️ Wallpaper", href: "/wallpaper", color: "from-cyan-500/20 to-blue-500/20 text-cyan-400" },
             ].map((f) => (
               <Link
                 key={f.label}
@@ -72,6 +72,11 @@ export default function LandingPage() {
                 {f.label}
               </Link>
             ))}
+          </div>
+          <div className="mt-3">
+            <Link href="/tools" className="text-xs text-muted-foreground hover:text-purple-400 transition-colors underline underline-offset-4">
+              View all 20+ AI tools →
+            </Link>
           </div>
         </section>
 
