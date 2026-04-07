@@ -45,6 +45,9 @@ const MODELS = [
   { id: "proteus", name: "Proteus v0.3", type: "Anime", credits: 2, minPlan: "free" },
   { id: "fal_nano_banana_2", name: "Nano Banana 2 (Google)", type: "Premium", credits: 8, minPlan: "lite", badge: "★" },
   { id: "fal_grok_imagine", name: "Grok Imagine (xAI)", type: "Premium", credits: 8, minPlan: "lite", badge: "★" },
+  { id: "fal_flux_pro", name: "Flux Pro v1.1", type: "Premium", credits: 5, minPlan: "basic", badge: "★ Best" },
+  { id: "fal_ideogram", name: "Ideogram v3 (Text)", type: "Premium", credits: 5, minPlan: "lite", badge: "★ Text" },
+  { id: "fal_luma_photon", name: "Luma Photon", type: "Premium", credits: 5, minPlan: "lite", badge: "New" },
 ];
 
 const STYLES = [
@@ -112,6 +115,9 @@ const VIDEO_MODELS_T2V = [
   { id: "fal_grok_t2v", name: "Grok Video (xAI)", credits: 30, minPlan: "basic", badge: "★ Audio" },
   { id: "fal_veo3_t2v", name: "Veo 3 (Google)", credits: 40, minPlan: "pro", badge: "★ Audio" },
   { id: "fal_sora2_t2v", name: "Sora 2 (OpenAI)", credits: 50, minPlan: "pro", badge: "★ Best" },
+  { id: "fal_luma_t2v", name: "Luma Dream Machine", credits: 20, minPlan: "basic", badge: "New" },
+  { id: "fal_hunyuan_t2v", name: "Hunyuan (Tencent)", credits: 15, minPlan: "basic", badge: "New" },
+  { id: "fal_mochi_t2v", name: "Mochi v1 (Genmo)", credits: 10, minPlan: "free", badge: "New" },
 ];
 
 const VIDEO_MODELS_I2V = [
@@ -191,6 +197,11 @@ export default function GeneratePage() {
 
   // Batch
   const [batchSize, setBatchSize] = useState(1);
+
+  // Compare mode
+  const [compareModels, setCompareModels] = useState(["fal_flux_dev", "fal_flux_pro", "fal_ideogram"]);
+  const [compareResults, setCompareResults] = useState<Record<string, string | null>>({});
+  const [comparing, setComparing] = useState(false);
 
   // Consistent Character
   const [characterRef, setCharacterRef] = useState<File | null>(null);
@@ -702,6 +713,45 @@ export default function GeneratePage() {
     }
   };
 
+  const handleCompare = async () => {
+    if (!prompt.trim() || !session) { toast.error("Enter a prompt"); return; }
+    setComparing(true);
+    setCompareResults({});
+
+    const results: Record<string, string | null> = {};
+
+    // Generate with each selected model in parallel
+    const promises = compareModels.map(async (modelId) => {
+      try {
+        const res = await api.generateImage(session.access_token, {
+          prompt: buildPrompt(prompt), negative_prompt: negativePrompt,
+          model: modelId, width, height, steps, cfg, sampler, seed: -1, nsfw: nsfwMode,
+        });
+        if (res.status === "completed" && res.result_url) {
+          results[modelId] = resolveResultUrl(res.result_url) || null;
+        } else {
+          // Poll for result
+          for (let i = 0; i < 60; i++) {
+            await new Promise((r) => setTimeout(r, 3000));
+            const status = await api.getJobStatus(session.access_token, res.job_id);
+            if (status.status === "completed" && status.result_url) {
+              results[modelId] = resolveResultUrl(status.result_url) || null;
+              break;
+            }
+            if (status.status === "failed") break;
+          }
+        }
+      } catch {
+        results[modelId] = null;
+      }
+      setCompareResults({ ...results });
+    });
+
+    await Promise.all(promises);
+    setComparing(false);
+    toast.success("Comparison complete!");
+  };
+
   const handleConsistentCharacter = async () => {
     if (!characterRef) { toast.error("Please upload a reference face photo"); return; }
     if (!prompt.trim()) { toast.error("Please enter a scene description"); return; }
@@ -1070,6 +1120,9 @@ export default function GeneratePage() {
                   <TabsTrigger value="character" className="text-xs px-3 py-1.5 h-auto">
                     Character Lock
                   </TabsTrigger>
+                  <TabsTrigger value="compare" className="text-xs px-3 py-1.5 h-auto">
+                    Compare
+                  </TabsTrigger>
                 </TabsList>
               </div>
 
@@ -1342,6 +1395,71 @@ export default function GeneratePage() {
                 <Button onClick={handleRemoveBg} disabled={generating} className="w-full" size="lg">
                   {generating ? "Processing..." : "Remove Background (1 credit)"}
                 </Button>
+              </TabsContent>
+
+              {/* Multi-Model Compare */}
+              <TabsContent value="compare" className="space-y-4">
+                <div className="rounded-lg border border-dashed p-3 bg-muted/30">
+                  <p className="text-sm font-medium">Multi-Model Compare</p>
+                  <p className="text-xs text-muted-foreground">Same prompt, multiple models, side by side. See which model works best for your idea.</p>
+                </div>
+                {renderPromptInputs()}
+                <div>
+                  <Label className="text-xs">Models to compare (select up to 3)</Label>
+                  <div className="flex flex-wrap gap-1.5 mt-1">
+                    {MODELS.filter((m) => PLAN_RANK[userPlan] >= PLAN_RANK[m.minPlan]).map((m) => {
+                      const selected = compareModels.includes(m.id);
+                      return (
+                        <button
+                          key={m.id}
+                          onClick={() => {
+                            if (selected) {
+                              setCompareModels((prev) => prev.filter((id) => id !== m.id));
+                            } else if (compareModels.length < 3) {
+                              setCompareModels((prev) => [...prev, m.id]);
+                            }
+                          }}
+                          className={`text-[11px] px-2 py-1 rounded-full border transition-colors ${
+                            selected ? "bg-purple-500/20 border-purple-500/50 text-purple-400" : "border-muted hover:border-purple-500/30"
+                          }`}
+                        >
+                          {m.name} ({m.credits}cr)
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+                <Button
+                  onClick={handleCompare}
+                  disabled={comparing || compareModels.length === 0 || !prompt.trim()}
+                  className="w-full bg-gradient-to-r from-indigo-600 to-purple-600"
+                  size="lg"
+                >
+                  {comparing ? "Comparing..." : `Compare ${compareModels.length} Models (${compareModels.length * 3}+ credits)`}
+                </Button>
+                {/* Results grid */}
+                {Object.keys(compareResults).length > 0 && (
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    {compareModels.map((modelId) => {
+                      const modelInfo = MODELS.find((m) => m.id === modelId);
+                      const resultUrl = compareResults[modelId];
+                      return (
+                        <div key={modelId} className="rounded-lg border overflow-hidden">
+                          <div className="p-2 bg-muted text-xs font-medium text-center">{modelInfo?.name || modelId}</div>
+                          {resultUrl ? (
+                            <img src={resultUrl} alt={modelInfo?.name} className="w-full aspect-square object-cover" />
+                          ) : comparing ? (
+                            <div className="w-full aspect-square flex items-center justify-center bg-muted/50">
+                              <div className="w-6 h-6 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
+                            </div>
+                          ) : (
+                            <div className="w-full aspect-square flex items-center justify-center bg-muted/50 text-xs text-muted-foreground">Failed</div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </TabsContent>
 
               {/* Consistent Character (PuLID) */}

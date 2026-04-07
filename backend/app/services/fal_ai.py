@@ -76,6 +76,30 @@ MODELS = {
         "min_plan": "lite",
         "credits": 8,
     },
+    "fal_flux_pro": {
+        "fal_id": "fal-ai/flux-pro/v1.1",
+        "name": "Flux Pro v1.1",
+        "category": "premium",
+        "description": "Highest quality Flux — superior detail, composition, and prompt adherence",
+        "min_plan": "basic",
+        "credits": 5,
+    },
+    "fal_ideogram": {
+        "fal_id": "fal-ai/ideogram/v3",
+        "name": "Ideogram v3",
+        "category": "premium",
+        "description": "Best-in-class text rendering in images — logos, typography, posters",
+        "min_plan": "lite",
+        "credits": 5,
+    },
+    "fal_luma_photon": {
+        "fal_id": "fal-ai/luma-photon",
+        "name": "Luma Photon",
+        "category": "premium",
+        "description": "Luma AI's fast image model — cinematic lighting, natural composition",
+        "min_plan": "lite",
+        "credits": 5,
+    },
 }
 
 # fal.ai video models
@@ -178,6 +202,27 @@ VIDEO_MODELS = {
         "description": "xAI video with native audio, 720p",
         "credits": 30,
         "min_plan": "basic",
+    },
+    "fal_luma_t2v": {
+        "fal_id": "fal-ai/luma-dream-machine",
+        "name": "Luma Dream Machine",
+        "description": "Luma AI's cinematic video generation, smooth motion",
+        "credits": 20,
+        "min_plan": "basic",
+    },
+    "fal_hunyuan_t2v": {
+        "fal_id": "fal-ai/hunyuan-video",
+        "name": "Hunyuan Video (Tencent)",
+        "description": "Tencent's open-source video model, high quality motion",
+        "credits": 15,
+        "min_plan": "basic",
+    },
+    "fal_mochi_t2v": {
+        "fal_id": "fal-ai/mochi-v1",
+        "name": "Mochi v1 (Genmo)",
+        "description": "Genmo's video model, natural motion and physics",
+        "credits": 10,
+        "min_plan": "free",
     },
 }
 
