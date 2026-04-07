@@ -236,6 +236,10 @@ async def _generate_image_cloud(body: ImageGenerateRequest, request: Request, se
     if body.nsfw and not profile.get("age_verified") and not is_admin(user_email):
         raise HTTPException(status_code=403, detail="Age verification required for NSFW content")
 
+    # Auto-translate non-English prompts
+    from app.services.prompt_translate import auto_translate_prompt
+    body.prompt = await auto_translate_prompt(body.prompt, settings.openai_api_key)
+
     # Check model access
     if body.model:
         _check_model_access(body.model, plan)
@@ -304,6 +308,26 @@ async def _generate_image_cloud(body: ImageGenerateRequest, request: Request, se
     params = body.model_dump()
     params["steps"] = params.get("steps", 20)
 
+    # ─── Smart Prompt Optimization ───
+    try:
+        from app.services.prompt_optimizer import optimize_prompt
+        opt = optimize_prompt(
+            prompt=body.prompt,
+            model_id=model_id,
+            nsfw=body.nsfw,
+            auto_enhance=True,
+        )
+        # Use optimized prompt for generation (original stored for DB)
+        original_prompt = body.prompt
+        body.prompt = opt["prompt"]
+        if not body.negative_prompt:
+            body.negative_prompt = opt["negative_prompt"]
+        params["prompt"] = body.prompt
+        params["negative_prompt"] = body.negative_prompt
+        logger.info(f"Prompt optimized: {opt['content_type']} / {opt['model_family']}")
+    except Exception as opt_err:
+        logger.debug(f"Prompt optimization skipped: {opt_err}")
+
     job_id = str(uuid.uuid4())
 
     # ─── CivitAI custom model (LoRA via fal.ai, Checkpoint via Novita.ai) ───
@@ -331,7 +355,35 @@ async def _generate_image_cloud(body: ImageGenerateRequest, request: Request, se
             logger.error(f"Novita.ai built-in generation failed: {novita_err}")
             # Fall through to standard generation
 
-    # ─── ALWAYS try fal.ai first (synchronous, fastest, most reliable) ───
+    # ─── NSFW: try ComfyUI first (zero content filter, highest quality) ───
+    if body.nsfw and settings.vastai_comfyui_url:
+        try:
+            from app.api.adult import _generate_with_comfyui, COMFYUI_CHECKPOINT_MAP, COMFYUI_DEFAULT_CHECKPOINT
+            comfyui_result = await _generate_with_comfyui(
+                comfyui_url=settings.vastai_comfyui_url,
+                prompt=body.prompt,
+                negative_prompt=body.negative_prompt,
+                width=params["width"],
+                height=params["height"],
+                steps=params["steps"],
+                cfg=params["cfg"],
+                seed=body.seed or -1,
+                model_id=model_id,
+            )
+            if comfyui_result:
+                await _store_job_status(settings, job_id, "completed", {"url": comfyui_result, "backend": "comfyui"})
+                await _save_generation_to_db(
+                    settings, user.id, job_id, "txt2img", body.prompt,
+                    body.negative_prompt, model_id, params, comfyui_result, body.nsfw,
+                )
+                return GenerationResponse(
+                    job_id=job_id, status=JobStatus.completed,
+                    credits_used=credits_needed, result_url=comfyui_result,
+                )
+        except Exception as comfyui_err:
+            logger.warning(f"ComfyUI generation failed, falling back: {comfyui_err}")
+
+    # ─── Try fal.ai (synchronous, fastest for SFW) ───
     if fal_client.is_available():
         # Map any model to its fal.ai equivalent
         fal_model_id = model_id if is_fal_model else _get_fal_equivalent(model_id)
@@ -649,14 +701,23 @@ async def _generate_with_novita_builtin(
 
 async def _persist_to_supabase_storage(supabase, result_url: str, job_id: str, is_video: bool = False) -> str:
     """Download image/video from temporary URL and upload to Supabase Storage.
+    Handles both HTTP URLs and base64 data URLs.
     Returns permanent Supabase Storage URL, or original URL on failure."""
     import httpx
     try:
-        async with httpx.AsyncClient(timeout=60, follow_redirects=True) as client:
-            resp = await client.get(result_url, headers={"User-Agent": "Mozilla/5.0"})
-            resp.raise_for_status()
-            data = resp.content
-            content_type = resp.headers.get("content-type", "image/png")
+        # Handle base64 data URLs (from ComfyUI)
+        if result_url.startswith("data:"):
+            import base64 as b64mod
+            # Parse data:image/png;base64,XXXXX
+            header, b64data = result_url.split(",", 1)
+            data = b64mod.b64decode(b64data)
+            content_type = header.split(":")[1].split(";")[0] if ":" in header else "image/png"
+        else:
+            async with httpx.AsyncClient(timeout=60, follow_redirects=True) as client:
+                resp = await client.get(result_url, headers={"User-Agent": "Mozilla/5.0"})
+                resp.raise_for_status()
+                data = resp.content
+                content_type = resp.headers.get("content-type", "image/png")
 
         # Determine extension
         if is_video:

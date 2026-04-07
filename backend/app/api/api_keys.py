@@ -35,8 +35,8 @@ async def create_api_key(
         raise HTTPException(status_code=404, detail="User not found")
 
     plan = profile.get("plan", "free")
-    if PLAN_RANK.get(plan, 0) < PLAN_RANK["studio"]:
-        raise HTTPException(status_code=403, detail="API access requires Studio plan")
+    if PLAN_RANK.get(plan, 0) < PLAN_RANK["pro"]:
+        raise HTTPException(status_code=403, detail="API access requires Pro plan or higher")
 
     # Check existing key count (max 3)
     existing = supabase.table("api_keys").select("id").eq("user_id", user.id).eq("revoked", False).execute()
@@ -100,6 +100,33 @@ async def revoke_api_key(
     if not result.data:
         raise HTTPException(status_code=404, detail="API key not found")
     return {"status": "revoked"}
+
+
+@router.get("/docs")
+async def api_docs():
+    """Public API documentation."""
+    return {
+        "name": "EGAKU AI API",
+        "version": "v1",
+        "base_url": "https://ai-studio-api-production.up.railway.app/api",
+        "auth": "Bearer <your_api_key> (get key at /api-keys/create)",
+        "endpoints": [
+            {"method": "POST", "path": "/image", "description": "Generate image from text", "credits": "1-8"},
+            {"method": "POST", "path": "/video", "description": "Generate video from text", "credits": "5-50"},
+            {"method": "POST", "path": "/generate/img2img", "description": "Image-to-image transformation", "credits": "2"},
+            {"method": "POST", "path": "/generate/img2vid", "description": "Image-to-video animation", "credits": "5-25"},
+            {"method": "POST", "path": "/generate/upscale", "description": "Upscale image 2x or 4x", "credits": "1"},
+            {"method": "POST", "path": "/generate/remove-bg", "description": "Remove image background", "credits": "1"},
+            {"method": "POST", "path": "/generate/face-swap", "description": "Swap face between images", "credits": "3"},
+            {"method": "POST", "path": "/generate/consistent-character", "description": "Generate with character identity lock (PuLID)", "credits": "5"},
+            {"method": "POST", "path": "/generate/style-transfer", "description": "Apply artistic style", "credits": "3"},
+            {"method": "POST", "path": "/generate/controlnet", "description": "Guided generation with ControlNet", "credits": "3"},
+            {"method": "GET", "path": "/credits/balance", "description": "Check credit balance"},
+            {"method": "GET", "path": "/credits/costs", "description": "Credit cost table"},
+        ],
+        "rate_limit": "60 requests/minute",
+        "plan_required": "Pro or higher",
+    }
 
 
 async def validate_api_key(request: Request, settings: Settings) -> dict | None:

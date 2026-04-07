@@ -189,6 +189,9 @@ export default function GeneratePage() {
   // Face Swap
   const [faceSourceFile, setFaceSourceFile] = useState<File | null>(null);
 
+  // Batch
+  const [batchSize, setBatchSize] = useState(1);
+
   // Consistent Character
   const [characterRef, setCharacterRef] = useState<File | null>(null);
   const [idWeight, setIdWeight] = useState(1.0);
@@ -405,7 +408,7 @@ export default function GeneratePage() {
           <div className="text-center space-y-2">
             <h1 className="text-2xl font-bold">Try EGAKU AI — No sign-up needed</h1>
             <p className="text-muted-foreground">
-              Enter any idea and watch AI create stunning images. {anonRemaining !== null ? `${anonRemaining} free ${anonRemaining === 1 ? "generation" : "generations"} remaining.` : "2 free generations to start."}
+              Enter any idea and watch AI create stunning images. {anonRemaining !== null ? `${anonRemaining} free ${anonRemaining === 1 ? "generation" : "generations"} remaining.` : "5 free generations to start."}
             </p>
           </div>
 
@@ -529,7 +532,7 @@ export default function GeneratePage() {
     setGenerating(true); setJob(null); setElapsed(0); setResultBlurred(nsfwMode);
     try {
       const res = await api.generateImage(session!.access_token, {
-        prompt: buildPrompt(prompt), negative_prompt: negativePrompt, model, width, height, steps, cfg, sampler, seed, nsfw: nsfwMode,
+        prompt: buildPrompt(prompt), negative_prompt: negativePrompt, model, width, height, steps, cfg, sampler, seed, nsfw: nsfwMode, batch_size: batchSize,
       });
       // fal.ai returns completed immediately with result_url
       if (res.status === "completed" && res.result_url) {
@@ -1042,9 +1045,22 @@ export default function GeneratePage() {
               {/* txt2img */}
               <TabsContent value="txt2img" className="space-y-4">
                 {renderPromptInputs()}
-                <Button onClick={handleTxt2Img} disabled={generating} className="w-full" size="lg">
-                  {generating ? "Generating..." : "Generate Image"}
-                </Button>
+                <div className="flex items-center gap-3">
+                  <Button onClick={handleTxt2Img} disabled={generating} className="flex-1" size="lg">
+                    {generating ? "Generating..." : `Generate${batchSize > 1 ? ` (${batchSize} images)` : ""}`}
+                  </Button>
+                  <div className="flex items-center gap-1">
+                    <Label className="text-[10px] text-muted-foreground">Batch</Label>
+                    <Select value={String(batchSize)} onValueChange={(v) => setBatchSize(Number(v))}>
+                      <SelectTrigger className="w-[60px] h-9 text-xs"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1">1x</SelectItem>
+                        <SelectItem value="2">2x</SelectItem>
+                        <SelectItem value="4">4x</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
               </TabsContent>
 
               {/* img2img */}

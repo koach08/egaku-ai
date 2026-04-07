@@ -90,7 +90,13 @@ export function Header() {
           </Link>
           <Link href="/storyboard" className="hover:text-foreground/80 flex items-center gap-1">
             Storyboard
-            <span className="text-[9px] bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-400 px-1 rounded">New</span>
+          </Link>
+          <Link href="/photo-booth" className="hover:text-foreground/80">
+            Photo Booth
+          </Link>
+          <Link href="/shorts" className="hover:text-foreground/80 flex items-center gap-1">
+            Shorts
+            <span className="text-[9px] bg-gradient-to-r from-pink-500/20 to-red-500/20 text-pink-400 px-1 rounded">New</span>
           </Link>
           <Link href="/gallery" className="hover:text-foreground/80">
             {t("nav.gallery")}
@@ -163,6 +169,9 @@ export function Header() {
                 <DropdownMenuItem render={<Link href="/storyboard" />}>
                   Storyboard
                 </DropdownMenuItem>
+                <DropdownMenuItem render={<Link href="/photo-booth" />}>
+                  Photo Booth
+                </DropdownMenuItem>
                 <DropdownMenuItem render={<Link href="/gallery" />}>
                   {t("nav.gallery")}
                 </DropdownMenuItem>
@@ -205,6 +214,9 @@ export function Header() {
           </Link>
           <Link href="/storyboard" onClick={() => setMobileOpen(false)} className="block py-2 text-sm hover:text-foreground/80">
             Storyboard
+          </Link>
+          <Link href="/photo-booth" onClick={() => setMobileOpen(false)} className="block py-2 text-sm hover:text-foreground/80">
+            Photo Booth
           </Link>
           <Link href="/gallery" onClick={() => setMobileOpen(false)} className="block py-2 text-sm hover:text-foreground/80">
             {t("nav.gallery")}
