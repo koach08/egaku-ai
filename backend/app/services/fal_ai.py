@@ -440,16 +440,17 @@ class FalClient:
                 input_params["prompt"] = prompt
         elif is_wan26:
             # Wan 2.6 I2V: prompt is REQUIRED, resolution "720p"/"1080p", duration "5"/"10"/"15"
-            # fal.ai checks BOTH image AND prompt for content policy.
-            # For NSFW images: use a completely generic motion prompt to pass the filter.
-            # The image itself drives the visual content.
-            input_params["prompt"] = "smooth cinematic motion, gentle movement, natural animation, high quality video"
-            logger.info(f"Wan 2.6 I2V: using safe generic prompt (original len={len(prompt)})")
+            # Sanitize explicit words but keep the motion/scene description intact
+            safe_prompt = _sanitize_prompt_for_video(prompt) if prompt else ""
+            if not safe_prompt or len(safe_prompt) < 5:
+                safe_prompt = "smooth cinematic motion, gentle movement, natural animation, high quality video"
+            input_params["prompt"] = safe_prompt
+            logger.info(f"Wan 2.6 I2V: sanitized prompt='{safe_prompt[:60]}' (original len={len(prompt)})")
             valid_res = resolution if resolution in ("720p", "1080p") else "720p"
             input_params["resolution"] = valid_res
             valid_dur = 5 if dur <= 7 else (10 if dur <= 12 else 15)
             input_params["duration"] = str(valid_dur)
-            input_params["enable_prompt_expansion"] = False  # Don't expand — keep it safe
+            input_params["enable_prompt_expansion"] = False
         elif is_wan:
             # Wan 2.1
             if prompt:
