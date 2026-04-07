@@ -27,6 +27,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: "/ai/ai-hentai-generator", priority: 0.7, changeFrequency: "monthly" as const },
     { path: "/ai/ai-nsfw-video-generator", priority: 0.7, changeFrequency: "monthly" as const },
     { path: "/adult", priority: 0.6, changeFrequency: "weekly" as const },
+    // New feature pages
+    { path: "/photo-booth", priority: 0.8, changeFrequency: "weekly" as const },
+    { path: "/shorts", priority: 0.8, changeFrequency: "weekly" as const },
+    { path: "/storyboard", priority: 0.7, changeFrequency: "weekly" as const },
     // Legal pages
     { path: "/content-policy", priority: 0.4, changeFrequency: "yearly" as const },
     { path: "/terms", priority: 0.3, changeFrequency: "yearly" as const },

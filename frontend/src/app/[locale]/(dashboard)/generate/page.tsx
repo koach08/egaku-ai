@@ -224,6 +224,7 @@ export default function GeneratePage() {
   const [resultBlurred, setResultBlurred] = useState(true);
 
   const [userPlan, setUserPlan] = useState("free");
+  const [creditBalance, setCreditBalance] = useState<number | null>(null);
   const [generating, setGenerating] = useState(false);
   const [job, setJob] = useState<JobState | null>(null);
   const [elapsed, setElapsed] = useState(0);
@@ -259,16 +260,22 @@ export default function GeneratePage() {
     fetchCustomModels();
   }, [session, fetchCustomModels]);
 
-  // Auto-claim daily free credits on page load
+  // Fetch credit balance + auto-claim daily bonus
   useEffect(() => {
     if (!session) return;
+    // Fetch balance
+    api.getBalance(session.access_token)
+      .then((data) => setCreditBalance(data.balance ?? null))
+      .catch(() => {});
+    // Auto-claim daily bonus
     api.claimDailyCredits(session.access_token)
       .then((data) => {
         if (data.claimed) {
           toast.success(`Daily bonus: +${data.amount} credit! Balance: ${data.new_balance}`);
+          setCreditBalance(data.new_balance);
         }
       })
-      .catch(() => {}); // silent fail
+      .catch(() => {});
   }, [session]);
 
   // Load remix params from URL (?prompt=...&model=...)
@@ -1428,7 +1435,14 @@ export default function GeneratePage() {
               <Card className="border-green-500/30">
                 <CardContent className="pt-5 space-y-3">
                   <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium text-green-500">Complete! ({elapsed}s)</p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-medium text-green-500">Complete! ({elapsed}s)</p>
+                      {creditBalance !== null && (
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
+                          {creditBalance} credits left
+                        </span>
+                      )}
+                    </div>
                     <div className="flex items-center gap-3">
                       {nsfwMode && resultBlurred && (
                         <button
@@ -1525,6 +1539,19 @@ export default function GeneratePage() {
                       </div>
                     )}
                   </div>
+
+                  {/* Upgrade CTA for free/lite users */}
+                  {PLAN_RANK[userPlan] < PLAN_RANK["basic"] && (
+                    <div className="rounded-lg bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20 p-3 flex items-center justify-between">
+                      <div>
+                        <p className="text-xs font-medium">Want more? Upgrade to Basic for 500 credits/month</p>
+                        <p className="text-[10px] text-muted-foreground">Unlock Kling 2.5, ControlNet, Inpainting, Face Swap, and more</p>
+                      </div>
+                      <a href="/#pricing" className="text-xs bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap">
+                        View Plans
+                      </a>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             )}
