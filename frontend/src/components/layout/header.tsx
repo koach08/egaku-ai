@@ -94,9 +94,12 @@ export function Header() {
           <Link href="/photo-booth" className="hover:text-foreground/80">
             Photo Booth
           </Link>
-          <Link href="/shorts" className="hover:text-foreground/80 flex items-center gap-1">
+          <Link href="/shorts" className="hover:text-foreground/80">
             Shorts
-            <span className="text-[9px] bg-gradient-to-r from-pink-500/20 to-red-500/20 text-pink-400 px-1 rounded">New</span>
+          </Link>
+          <Link href="/battle" className="hover:text-foreground/80 flex items-center gap-1">
+            Battle
+            <span className="text-[9px] bg-gradient-to-r from-red-500/20 to-orange-500/20 text-red-400 px-1 rounded">New</span>
           </Link>
           <Link href="/gallery" className="hover:text-foreground/80">
             {t("nav.gallery")}
@@ -172,6 +175,18 @@ export function Header() {
                 <DropdownMenuItem render={<Link href="/photo-booth" />}>
                   Photo Booth
                 </DropdownMenuItem>
+                <DropdownMenuItem render={<Link href="/meme" />}>
+                  Meme Generator
+                </DropdownMenuItem>
+                <DropdownMenuItem render={<Link href="/logo" />}>
+                  Logo Maker
+                </DropdownMenuItem>
+                <DropdownMenuItem render={<Link href="/wallpaper" />}>
+                  Wallpaper
+                </DropdownMenuItem>
+                <DropdownMenuItem render={<Link href="/battle" />}>
+                  Prompt Battle
+                </DropdownMenuItem>
                 <DropdownMenuItem render={<Link href="/gallery" />}>
                   {t("nav.gallery")}
                 </DropdownMenuItem>
@@ -217,6 +232,18 @@ export function Header() {
           </Link>
           <Link href="/photo-booth" onClick={() => setMobileOpen(false)} className="block py-2 text-sm hover:text-foreground/80">
             Photo Booth
+          </Link>
+          <Link href="/meme" onClick={() => setMobileOpen(false)} className="block py-2 text-sm hover:text-foreground/80">
+            Meme Generator
+          </Link>
+          <Link href="/logo" onClick={() => setMobileOpen(false)} className="block py-2 text-sm hover:text-foreground/80">
+            Logo Maker
+          </Link>
+          <Link href="/wallpaper" onClick={() => setMobileOpen(false)} className="block py-2 text-sm hover:text-foreground/80">
+            Wallpaper
+          </Link>
+          <Link href="/battle" onClick={() => setMobileOpen(false)} className="block py-2 text-sm hover:text-foreground/80">
+            Prompt Battle
           </Link>
           <Link href="/gallery" onClick={() => setMobileOpen(false)} className="block py-2 text-sm hover:text-foreground/80">
             {t("nav.gallery")}
