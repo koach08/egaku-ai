@@ -146,6 +146,40 @@ export default function LandingPage() {
           </div>
         </section>
 
+        {/* Creative Tools — Main Navigation Hub */}
+        <section className="container mx-auto px-4 py-16">
+          <h2 className="text-3xl font-bold text-center mb-3">Creative Tools</h2>
+          <p className="text-center text-muted-foreground mb-10">Everything you need to create — all in one platform.</p>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 max-w-5xl mx-auto">
+            {[
+              { name: "AI Image Generator", desc: "20+ models including Flux Pro, Sora 2, SDXL", href: "/generate", icon: "🎨", gradient: "from-purple-600 to-pink-600" },
+              { name: "Prompt Battle", desc: "Challenge friends to AI art duels — vote for the winner!", href: "/battle", icon: "⚔️", gradient: "from-red-600 to-orange-600" },
+              { name: "Photo Booth", desc: "Selfie → professional portrait for LinkedIn, dating, social", href: "/photo-booth", icon: "📸", gradient: "from-green-600 to-emerald-600" },
+              { name: "Logo Maker", desc: "Brand name → 3 professional logo variations instantly", href: "/logo", icon: "✏️", gradient: "from-violet-600 to-purple-600" },
+              { name: "Meme Generator", desc: "AI creates the image, you add the punchline", href: "/meme", icon: "😂", gradient: "from-yellow-600 to-amber-600" },
+              { name: "Video Shorts", desc: "TikTok / Reels / Shorts vertical video in seconds", href: "/shorts", icon: "📱", gradient: "from-pink-600 to-red-600" },
+              { name: "Wallpaper Generator", desc: "Perfect wallpapers for iPhone, Android, Desktop, 4K", href: "/wallpaper", icon: "🖼️", gradient: "from-cyan-600 to-blue-600" },
+              { name: "Storyboard Studio", desc: "Multi-scene video with BGM and narration", href: "/storyboard", icon: "🎞️", gradient: "from-amber-600 to-orange-600" },
+              { name: "Explore Gallery", desc: "Browse 200+ community creations, remix any prompt", href: "/gallery", icon: "🌐", gradient: "from-gray-600 to-slate-600" },
+            ].map((tool) => (
+              <Link
+                key={tool.name}
+                href={tool.href}
+                className="group relative overflow-hidden rounded-xl border border-muted p-5 hover:border-purple-500/30 transition-all hover:shadow-lg"
+              >
+                <div className="flex items-start gap-3">
+                  <span className="text-3xl flex-shrink-0">{tool.icon}</span>
+                  <div>
+                    <h3 className="font-bold text-sm group-hover:text-purple-400 transition-colors">{tool.name}</h3>
+                    <p className="text-xs text-muted-foreground mt-1">{tool.desc}</p>
+                  </div>
+                </div>
+                <div className={`absolute inset-0 bg-gradient-to-br ${tool.gradient} opacity-0 group-hover:opacity-5 transition-opacity`} />
+              </Link>
+            ))}
+          </div>
+        </section>
+
         {/* Features */}
         <section className="container mx-auto px-4 py-16">
           <h2 className="text-3xl font-bold text-center mb-12">
