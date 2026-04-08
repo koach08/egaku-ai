@@ -66,7 +66,7 @@ const TAG_FILTERS = [
   { value: "abstract", label: "Abstract" },
 ];
 
-const PER_PAGE = 24;
+const PER_PAGE = 48;
 
 // ---------------------------------------------------------------------------
 // Component
@@ -79,7 +79,7 @@ export default function GalleryPage() {
   const [items, setItems] = useState<GalleryItem[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
-  const [sort, setSort] = useState("latest");
+  const [sort, setSort] = useState("popular");
   const [tag, setTag] = useState("all");
   const [showNsfw, setShowNsfw] = useState(false);
   const [nsfwRevealed, setNsfwRevealed] = useState<Set<string>>(new Set());
