@@ -118,6 +118,10 @@ const VIDEO_MODELS_T2V = [
   { id: "fal_luma_t2v", name: "Luma Dream Machine", credits: 20, minPlan: "basic", badge: "New" },
   { id: "fal_hunyuan_t2v", name: "Hunyuan (Tencent)", credits: 15, minPlan: "basic", badge: "New" },
   { id: "fal_mochi_t2v", name: "Mochi v1 (Genmo)", credits: 10, minPlan: "free", badge: "New" },
+  { id: "fal_seedance_t2v", name: "Seedance (ByteDance)", credits: 20, minPlan: "basic", badge: "★ TikTok" },
+  { id: "fal_pika_t2v", name: "Pika v2", credits: 20, minPlan: "basic", badge: "★ Cinema" },
+  { id: "fal_vidu_t2v", name: "Vidu Q1 (Kuaishou)", credits: 15, minPlan: "basic", badge: "New" },
+  { id: "fal_luma15_t2v", name: "Luma v1.5", credits: 20, minPlan: "basic", badge: "★ Best" },
 ];
 
 const VIDEO_MODELS_I2V = [

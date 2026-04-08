@@ -224,6 +224,34 @@ VIDEO_MODELS = {
         "credits": 10,
         "min_plan": "free",
     },
+    "fal_seedance_t2v": {
+        "fal_id": "fal-ai/bytedance/seedance",
+        "name": "Seedance (ByteDance)",
+        "description": "ByteDance's latest — cinematic dance and motion, TikTok quality",
+        "credits": 20,
+        "min_plan": "basic",
+    },
+    "fal_pika_t2v": {
+        "fal_id": "fal-ai/pika/v2",
+        "name": "Pika v2",
+        "description": "Pika's cinematic video with motion control",
+        "credits": 20,
+        "min_plan": "basic",
+    },
+    "fal_vidu_t2v": {
+        "fal_id": "fal-ai/vidu/q1",
+        "name": "Vidu Q1 (Kuaishou)",
+        "description": "Kuaishou's video model — fast, high quality motion",
+        "credits": 15,
+        "min_plan": "basic",
+    },
+    "fal_luma15_t2v": {
+        "fal_id": "fal-ai/luma-dream-machine/v1.5",
+        "name": "Luma v1.5",
+        "description": "Latest Luma Dream Machine — improved motion and consistency",
+        "credits": 20,
+        "min_plan": "basic",
+    },
 }
 
 
