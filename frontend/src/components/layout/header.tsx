@@ -82,19 +82,12 @@ export function Header() {
 
         {/* Desktop nav */}
         <nav className="hidden md:flex items-center gap-6 text-sm">
-          <Link href="/explore" className="hover:text-foreground/80">
-            {t("nav.explore")}
-          </Link>
           <Link href="/generate" className="hover:text-foreground/80">
             {t("nav.generate")}
           </Link>
           <Link href="/tools" className="hover:text-foreground/80 flex items-center gap-1 font-medium">
             Tools
             <span className="text-[9px] bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-400 px-1 rounded">20+</span>
-          </Link>
-          <Link href="/battle" className="hover:text-foreground/80 flex items-center gap-1">
-            Battle
-            <span className="text-[9px] bg-gradient-to-r from-red-500/20 to-orange-500/20 text-red-400 px-1 rounded">New</span>
           </Link>
           <Link href="/gallery" className="hover:text-foreground/80">
             {t("nav.gallery")}
@@ -158,9 +151,6 @@ export function Header() {
                   {user.email}
                 </div>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem render={<Link href="/explore" />}>
-                  {t("nav.explore")}
-                </DropdownMenuItem>
                 <DropdownMenuItem render={<Link href="/generate" />}>
                   {t("nav.generate")}
                 </DropdownMenuItem>
@@ -216,8 +206,8 @@ export function Header() {
       {/* Mobile menu */}
       {mobileOpen && (
         <nav className="md:hidden border-t bg-background px-4 py-3 space-y-1">
-          <Link href="/explore" onClick={() => setMobileOpen(false)} className="block py-2 text-sm hover:text-foreground/80">
-            {t("nav.explore")}
+          <Link href="/gallery" onClick={() => setMobileOpen(false)} className="block py-2 text-sm hover:text-foreground/80">
+            {t("nav.gallery")}
           </Link>
           <Link href="/generate" onClick={() => setMobileOpen(false)} className="block py-2 text-sm hover:text-foreground/80">
             {t("nav.generate")}
