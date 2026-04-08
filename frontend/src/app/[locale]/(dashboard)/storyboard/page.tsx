@@ -352,7 +352,7 @@ export default function StoryboardPage() {
       const outputData = await ffmpeg.readFile("output.mp4");
       // ffmpeg.readFile returns FileData which may be Uint8Array — convert to standard ArrayBuffer
       const bytes = outputData instanceof Uint8Array ? outputData : new TextEncoder().encode(outputData as string);
-      const blob = new Blob([bytes.buffer], { type: "video/mp4" });
+      const blob = new Blob([new Uint8Array(bytes)], { type: "video/mp4" });
       const url = URL.createObjectURL(blob);
 
       // Trigger download
