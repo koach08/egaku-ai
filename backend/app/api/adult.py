@@ -893,16 +893,35 @@ async def generate_adult(
                 if retry_url and not await fal_client.is_black_image(retry_url):
                     return await _save_and_return(retry_url, "fal")
 
-            # Still black → if we got a URL, DON'T return it (it's black)
-            logger.warning("fal.ai returned black image even after retry — all backends failed")
+            # Still black → last resort: Novita UberRealisticPorn (never filters)
+            logger.warning("fal.ai returned black image — last resort Novita")
+            if settings.novita_api_key:
+                try:
+                    from app.services.novita import NovitaClient
+                    novita_last = NovitaClient(settings)
+                    last_urls = await novita_last.generate_with_checkpoint(
+                        prompt=body.prompt,
+                        model_name="uberRealisticPornMerge_urpmv13.safetensors",
+                        width=min(body.width, 768),
+                        height=min(body.height, 768),
+                        steps=25,
+                        guidance_scale=7.0,
+                        seed=body.seed,
+                        negative_prompt=body.negative_prompt or "worst quality, low quality, deformed",
+                    )
+                    if last_urls:
+                        logger.info("Last resort Novita UberRealisticPorn succeeded")
+                        return await _save_and_return(last_urls[0], "novita_urp_fallback")
+                except Exception as ne:
+                    logger.error(f"Last resort Novita also failed: {ne}")
 
         except Exception as e:
             logger.error(f"fal.ai adult generation failed: {e}")
 
     raise HTTPException(
         status_code=503,
-        detail="Generation was blocked by safety filters on all backends. "
-               "Try adjusting your prompt or using a different model.",
+        detail="Generation was blocked by safety filters. "
+               "Try using a Novita model (e.g. UberRealisticPorn) directly for explicit content.",
     )
 
 
