@@ -722,14 +722,10 @@ async def generate_adult(
     if not success:
         raise HTTPException(status_code=402, detail="Insufficient credits")
 
-    # 6. Generate via GPU backends (priority: vast.ai → fal.ai → novita)
-    from app.services.fal_ai import FalClient
-
-    fal_client = FalClient(settings)
+    # 6. Generate via GPU backends
+    # NSFW ONLY uses: vast.ai ComfyUI → Novita.ai CivitAI models
+    # NEVER uses Flux/fal.ai — those models block NSFW content
     job_id = str(uuid.uuid4())
-
-    # ── ADULT GENERATION STRATEGY ──
-    # Priority: ComfyUI (highest quality, no filter) → Novita.ai (no filter) → fal.ai (filtered) → error
 
     # ─── 0. ComfyUI via vast.ai (highest quality, zero content filter) ───
     if settings.vastai_comfyui_url:
@@ -852,76 +848,50 @@ async def generate_adult(
                     logger.info(f"Adult generation via Novita.ai succeeded ({novita_model})")
                     return result
         except Exception as e:
-            logger.warning(f"Novita.ai adult generation failed, trying fal.ai: {e}")
+            logger.error(f"Novita.ai adult generation failed: {e}")
 
-    # ─── 2. Fallback: fal.ai with NSFW-friendly model ───
-    if fal_client.is_available():
-        nsfw_model = model_id if model_id.startswith("fal_") else "fal_flux_realism"
-        NSFW_SAFE = {"fal_flux_realism", "fal_flux_dev", "fal_sdxl"}
-        if nsfw_model not in NSFW_SAFE:
-            nsfw_model = "fal_flux_realism"
+    # ─── 2. Novita.ai CivitAI models — SDXL first (high quality), SD1.5 fallback ───
+    if settings.novita_api_key:
+        # SDXL models (1024x1024, high quality NSFW)
+        CIVITAI_SDXL_NSFW = [
+            ("protovisionXLHighFidelity3D_release0630Bakedvae_154359.safetensors", 1024, 1024),
+            ("leosamsHelloworldSDXL_helloworldSDXL50_268813.safetensors", 1024, 1024),
+            ("sd_xl_base_1.0.safetensors", 1024, 1024),
+        ]
+        # SD1.5 models (512x768, lower quality but fully uncensored)
+        CIVITAI_SD15_NSFW = [
+            ("uberRealisticPornMerge_urpmv13.safetensors", 512, 768),
+            ("babes_20.safetensors", 512, 768),
+            ("chilloutmix_NiPrunedFp32Fix.safetensors", 512, 768),
+        ]
 
-        try:
-            fal_result = await fal_client.submit_txt2img(
-                prompt=body.prompt,
-                model_id=nsfw_model,
-                width=body.width,
-                height=body.height,
-                steps=body.steps,
-                cfg=body.cfg,
-                seed=body.seed,
-                negative_prompt=body.negative_prompt,
-            )
-            result_url = fal_client.extract_image_url(fal_result)
-
-            if result_url and not await fal_client.is_black_image(result_url):
-                return await _save_and_return(result_url, "fal")
-
-            # Black image from fal → try flux_realism as last resort
-            if nsfw_model != "fal_flux_realism":
-                retry = await fal_client.submit_txt2img(
+        all_models = CIVITAI_SDXL_NSFW + CIVITAI_SD15_NSFW
+        for civitai_model, max_w, max_h in all_models:
+            try:
+                from app.services.novita import NovitaClient
+                novita = NovitaClient(settings)
+                result_urls = await novita.generate_with_checkpoint(
                     prompt=body.prompt,
-                    model_id="fal_flux_realism",
-                    width=body.width,
-                    height=body.height,
-                    steps=body.steps,
-                    cfg=body.cfg,
+                    model_name=civitai_model,
+                    width=min(body.width, max_w),
+                    height=min(body.height, max_h),
+                    steps=30 if max_w >= 1024 else 25,
+                    guidance_scale=7.0,
                     seed=body.seed,
-                    negative_prompt=body.negative_prompt,
+                    negative_prompt=body.negative_prompt or "(worst quality, low quality, deformed, bad anatomy:1.3), extra fingers, bad hands",
                 )
-                retry_url = fal_client.extract_image_url(retry)
-                if retry_url and not await fal_client.is_black_image(retry_url):
-                    return await _save_and_return(retry_url, "fal")
+                if result_urls:
+                    logger.info(f"Adult NSFW via CivitAI succeeded: {civitai_model} ({max_w}x{max_h})")
+                    return await _save_and_return(result_urls[0], f"novita_{civitai_model}")
+            except Exception as e:
+                logger.warning(f"CivitAI {civitai_model} failed: {e}")
+                continue
 
-            # Still black → last resort: Novita UberRealisticPorn (never filters)
-            logger.warning("fal.ai returned black image — last resort Novita")
-            if settings.novita_api_key:
-                try:
-                    from app.services.novita import NovitaClient
-                    novita_last = NovitaClient(settings)
-                    last_urls = await novita_last.generate_with_checkpoint(
-                        prompt=body.prompt,
-                        model_name="uberRealisticPornMerge_urpmv13.safetensors",
-                        width=min(body.width, 768),
-                        height=min(body.height, 768),
-                        steps=25,
-                        guidance_scale=7.0,
-                        seed=body.seed,
-                        negative_prompt=body.negative_prompt or "worst quality, low quality, deformed",
-                    )
-                    if last_urls:
-                        logger.info("Last resort Novita UberRealisticPorn succeeded")
-                        return await _save_and_return(last_urls[0], "novita_urp_fallback")
-                except Exception as ne:
-                    logger.error(f"Last resort Novita also failed: {ne}")
-
-        except Exception as e:
-            logger.error(f"fal.ai adult generation failed: {e}")
-
+    # NEVER fall back to Flux/fal.ai for NSFW — it does not work.
     raise HTTPException(
         status_code=503,
-        detail="Generation was blocked by safety filters. "
-               "Try using a Novita model (e.g. UberRealisticPorn) directly for explicit content.",
+        detail="NSFW generation requires Novita.ai or ComfyUI backend. "
+               "Please try again or contact support.",
     )
 
 
