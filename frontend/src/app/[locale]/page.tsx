@@ -7,6 +7,7 @@ import { Header } from "@/components/layout/header";
 import { WebsiteJsonLd } from "@/components/json-ld";
 import { ShowcaseGallery } from "@/components/showcase-gallery";
 import { AnonGenerator } from "@/components/anon-generator";
+import { AnnouncementBanner } from "@/components/announcement-banner";
 
 const planKeys = ["free", "lite", "basic", "pro", "unlimited", "studio"] as const;
 const planPrices: Record<string, string> = {
@@ -32,6 +33,7 @@ export default function LandingPage() {
       <WebsiteJsonLd />
       <Header />
       <main>
+        <AnnouncementBanner location="home" />
         {/* Hero */}
         <section className="container mx-auto px-4 py-20 text-center">
           <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">

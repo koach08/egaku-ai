@@ -93,6 +93,9 @@ app.include_router(optimize.router, prefix="/api")
 from app.api import projects
 app.include_router(projects.router, prefix="/api")
 
+from app.api import announcements
+app.include_router(announcements.router, prefix="/api")
+
 
 @app.get("/api/health")
 async def health():

@@ -9,6 +9,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Header } from "@/components/layout/header";
+import { AnnouncementBanner } from "@/components/announcement-banner";
 import { toast } from "sonner";
 import { HeartIcon, EyeIcon, EyeOffIcon, Loader2Icon, SparklesIcon } from "lucide-react";
 
@@ -205,6 +206,7 @@ export default function GalleryPage() {
   return (
     <>
       <Header />
+      <AnnouncementBanner location="gallery" />
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-6">
