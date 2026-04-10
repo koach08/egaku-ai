@@ -204,13 +204,62 @@ async def publish_to_gallery(
         pass  # Table might not exist yet; continue
 
     # NSFW region check (admins bypass)
+    region = profile.get("region_code", "US")
+    user_email = profile.get("email", "")
+    is_admin_user = bool(user_email and user_email in {"kshgks59@gmail.com", "japanesebusinessman4@gmail.com"})
+
     if body.nsfw:
-        region = profile.get("region_code", "US")
-        user_email = profile.get("email", "")
         if not can_publish_nsfw(region, user_email):
             raise HTTPException(
                 status_code=403,
                 detail="NSFW content cannot be published publicly in your region.",
+            )
+
+    # JP NSFW: apply auto-mosaic to image when publishing publicly (legal compliance)
+    # Original uncensored image stays in user's private generations.
+    public_image_url = gen.get("image_url")
+    if body.nsfw and body.public and region == "JP" and not is_admin_user and public_image_url:
+        try:
+            import httpx as _hx
+            from app.services.mosaic import apply_mosaic_to_image
+
+            # Download original
+            with _hx.Client(timeout=30, follow_redirects=True) as client:
+                resp = client.get(public_image_url)
+                resp.raise_for_status()
+                original_bytes = resp.content
+
+            # Apply mosaic
+            censored_bytes = apply_mosaic_to_image(original_bytes, intensity="strong")
+
+            # Upload censored version to Supabase storage
+            import uuid as _uuid
+            fname = f"censored_{_uuid.uuid4().hex[:16]}.png"
+            from app.core.config import get_settings as _gs
+            _settings = _gs()
+            sb_url = _settings.supabase_url
+            sb_key = _settings.supabase_service_role_key
+            uh = {
+                "apikey": sb_key,
+                "Authorization": f"Bearer {sb_key}",
+                "Content-Type": "image/png",
+                "x-upsert": "true",
+            }
+            with _hx.Client(timeout=60) as client:
+                up = client.post(
+                    f"{sb_url}/storage/v1/object/self-hosted/showcase/{fname}",
+                    content=censored_bytes,
+                    headers=uh,
+                )
+                up.raise_for_status()
+            public_image_url = f"{sb_url}/storage/v1/object/public/self-hosted/showcase/{fname}"
+            logger.info(f"JP NSFW auto-mosaic applied: {fname}")
+        except Exception as e:
+            # Safety: if mosaic fails, REJECT the publish to avoid legal risk
+            logger.error(f"Mosaic failed for JP NSFW publish, rejecting: {e}")
+            raise HTTPException(
+                status_code=503,
+                detail="Mosaic processing failed. NSFW content from Japan must be censored before public posting. Please try again or save privately instead.",
             )
 
     # Extract generation parameters
@@ -226,7 +275,7 @@ async def publish_to_gallery(
         "seed": params.get("seed", -1),
         "width": params.get("width", 0),
         "height": params.get("height", 0),
-        "image_url": gen.get("image_url"),
+        "image_url": public_image_url,
         "title": body.title,
         "description": body.description,
         "tags": body.tags[:10],  # limit to 10 tags
@@ -280,6 +329,22 @@ async def list_gallery(
             current_user_id = user_response.user.id
         except Exception:
             pass  # Not logged in or invalid token; continue without user context
+
+    # Region-based NSFW filter (legal compliance)
+    # KR: NSFW publicly forbidden — never show NSFW to KR viewers
+    # Other regions follow user's nsfw query parameter
+    viewer_region = "US"
+    if request:
+        try:
+            from app.core.security import get_client_ip
+            from app.core.region import detect_region
+            ip = get_client_ip(request)
+            viewer_region = detect_region(request, ip, settings)
+        except Exception:
+            pass
+
+    if viewer_region == "KR":
+        nsfw = False  # Force SFW for KR viewers (Korean law)
 
     query = (
         supabase.table("gallery")
