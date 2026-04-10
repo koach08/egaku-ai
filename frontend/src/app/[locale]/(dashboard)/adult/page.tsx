@@ -495,6 +495,48 @@ export default function AdultPage() {
           </div>
         )}
 
+        {/* Region rules — collapsible, low-key */}
+        {regionRules && (
+          <details className="mb-4 rounded-lg border border-muted bg-card/30">
+            <summary className="cursor-pointer p-3 text-xs text-muted-foreground hover:text-foreground transition-colors">
+              📋 Rules for your region ({regionRules.region}) — click to expand
+            </summary>
+            <div className="px-3 pb-3 text-xs text-muted-foreground space-y-2 border-t border-muted/50 pt-3">
+              {regionRules.region === "JP" && (
+                <>
+                  <p><strong className="text-foreground">日本のユーザー向けルール:</strong></p>
+                  <ul className="list-disc list-inside space-y-1 ml-2">
+                    <li>個人で楽しむ生成・保存は<strong>自己責任</strong>で自由（モザイクなし可）</li>
+                    <li>ギャラリー公開時は<strong>自動でモザイク処理</strong>が適用されます（刑法175条準拠）</li>
+                    <li>原本（モザイクなし）はあなただけがアクセス可能で、ダウンロードできます</li>
+                    <li>第三者への配布・公開には必ずモザイク版が使用されます</li>
+                  </ul>
+                </>
+              )}
+              {regionRules.region === "KR" && (
+                <>
+                  <p><strong className="text-foreground">韓国のユーザー向けルール:</strong></p>
+                  <p>韓国刑法243-244条により、わいせつ物の制作・所持・頒布が禁止されているため、NSFWコンテンツの生成は提供しておりません。</p>
+                </>
+              )}
+              {regionRules.region !== "JP" && regionRules.region !== "KR" && (
+                <>
+                  <p><strong className="text-foreground">Rules for your region:</strong></p>
+                  <ul className="list-disc list-inside space-y-1 ml-2">
+                    <li>NSFW content generation is permitted with age verification</li>
+                    <li>Personal use and downloads are at your own discretion</li>
+                    <li>Public gallery posts must be tagged R18/NSFW</li>
+                    <li>Child exploitation content is always blocked, no exceptions</li>
+                  </ul>
+                </>
+              )}
+              <p className="pt-2">
+                <a href="/content-policy" className="text-purple-400 hover:underline">Full content policy →</a>
+              </p>
+            </div>
+          </details>
+        )}
+
         <div className="flex items-center gap-3 mb-6">
           <h1 className="text-2xl font-bold bg-gradient-to-r from-pink-500 to-rose-500 bg-clip-text text-transparent">
             Adult Expression
