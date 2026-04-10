@@ -82,6 +82,9 @@ export default function LandingPage() {
           </div>
         </section>
 
+        {/* Community Gallery — moved to top so users see real examples immediately */}
+        <ShowcaseGallery title={t("gallery.title")} />
+
         {/* How it works */}
         <section className="container mx-auto px-4 py-12">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 max-w-3xl mx-auto text-center">
@@ -212,9 +215,6 @@ export default function LandingPage() {
             ))}
           </div>
         </section>
-
-        {/* Showcase Gallery */}
-        <ShowcaseGallery title={t("gallery.title")} />
 
         {/* Pricing */}
         <section id="pricing" className="container mx-auto px-4 py-16">
