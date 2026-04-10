@@ -159,6 +159,16 @@ def _check_adult_access(profile: dict) -> None:
     if is_admin(profile.get("email", "")):
         return
 
+    # Region restriction: Korean law (Criminal Code Art. 243-244) prohibits
+    # creation, possession, and distribution of obscene material.
+    # Block adult generation entirely for KR users.
+    region = profile.get("region_code", "")
+    if region == "KR":
+        raise HTTPException(
+            status_code=451,  # Unavailable For Legal Reasons
+            detail="Adult content generation is not available in your region due to local laws (Korean Criminal Code Art. 243-244).",
+        )
+
     if not profile.get("age_verified"):
         raise HTTPException(
             status_code=403,

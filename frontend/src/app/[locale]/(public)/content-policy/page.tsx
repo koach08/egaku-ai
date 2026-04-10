@@ -76,11 +76,16 @@ export default function ContentPolicyPage() {
             <strong>Japan (JP):</strong> Nude content may be published with an R18 tag.
             Depiction of uncensored genitalia in publicly shared content requires
             obscuration (mosaic) in compliance with Japanese obscenity laws (Article 175
-            of the Penal Code).
+            of the Penal Code). <strong>EGAKU AI applies automatic mosaic processing
+            to NSFW content when published publicly from Japan.</strong> The original
+            uncensored version remains accessible only to you (the creator) for private
+            use. The public gallery only displays the censored version.
           </li>
           <li>
-            <strong>South Korea (KR):</strong> Public NSFW content is restricted in
-            compliance with Korean information and communications laws.
+            <strong>South Korea (KR):</strong> Korean Criminal Code Articles 243-244
+            prohibit creation, possession, and distribution of obscene material. NSFW
+            generation is not available for users in South Korea. NSFW content is also
+            hidden from KR viewers in the public gallery.
           </li>
         </ul>
         <p>
@@ -96,6 +101,18 @@ export default function ContentPolicyPage() {
           responsibility</strong>. EGAKU AI does not apply regional content
           restrictions (such as mosaic processing) to privately generated or
           downloaded content.
+        </p>
+        <p>
+          <strong>Japanese users:</strong> Even when public versions are auto-mosaiced,
+          you can still access the original uncensored version of your own generations
+          for private use. Personal possession is at your own discretion under Japanese
+          law (which generally permits private possession of obscene material — only
+          public distribution is prohibited under Article 175).
+        </p>
+        <p>
+          <strong>Korean users:</strong> NSFW generation is blocked entirely. Korean
+          Criminal Code prohibits both creation and possession of obscene material.
+          We cannot offer NSFW generation to KR users as a result.
         </p>
         <p>
           By downloading or saving generated content for personal use, you
