@@ -681,9 +681,30 @@ export default function AdultPage() {
                     style={{ minHeight: 400 }}
                   >
                     {generating ? (
-                      <div className="text-center space-y-3">
-                        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-pink-500 mx-auto" />
-                        <p className="text-sm text-muted-foreground">Generating... {elapsed}s</p>
+                      <div className="text-center space-y-4 py-8">
+                        <div className="relative h-16 w-16 mx-auto">
+                          <div className="absolute inset-0 rounded-full border-4 border-pink-500/20" />
+                          <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-pink-500 border-r-rose-500 animate-spin" />
+                        </div>
+                        <div>
+                          <p className="text-base font-bold text-pink-300">
+                            🎨 Generating your content...
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {elapsed}s elapsed
+                            {elapsed > 30 && " — Videos can take 1-3 minutes"}
+                            {elapsed > 90 && " — Complex prompts take longer"}
+                          </p>
+                        </div>
+                        <div className="max-w-xs mx-auto h-2 bg-muted rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-gradient-to-r from-pink-500 via-rose-500 to-pink-500 rounded-full bg-[length:200%_100%] animate-[shimmer_2s_linear_infinite]"
+                            style={{ width: `${Math.min(15 + (elapsed / 60) * 80, 90)}%` }}
+                          />
+                        </div>
+                        <p className="text-[10px] text-muted-foreground">
+                          Please don&apos;t close this tab.
+                        </p>
                       </div>
                     ) : resultUrl ? (
                       <div className="relative">

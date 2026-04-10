@@ -1566,32 +1566,42 @@ export default function GeneratePage() {
               </TabsContent>
             </Tabs>
 
-            {/* Generation Progress */}
-            {job && job.status !== "completed" && job.status !== "failed" && (
-              <Card className="border-purple-500/30 bg-purple-500/5">
+            {/* Generation Progress — shown from button click until complete */}
+            {(generating || (job && job.status !== "completed" && job.status !== "failed")) && (
+              <Card className="border-purple-500/30 bg-purple-500/5 animate-pulse-slow">
                 <CardContent className="pt-5 space-y-3">
                   <div className="flex items-center gap-3">
-                    <div className="relative h-10 w-10 shrink-0">
+                    <div className="relative h-12 w-12 shrink-0">
                       <div className="absolute inset-0 rounded-full border-4 border-purple-500/20" />
-                      <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-purple-500 animate-spin" />
+                      <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-purple-500 border-r-pink-500 animate-spin" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium">
-                        {job.status === "queued" ? "Waiting in queue..." : "Generating..."}
+                      <p className="text-sm font-bold text-purple-300">
+                        {!job ? "🎨 Sending request to AI..." :
+                         job.status === "queued" ? "⏳ Waiting in queue..." :
+                         "🎨 Generating your content..."}
                       </p>
-                      <p className="text-xs text-muted-foreground">{elapsed}s elapsed</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {elapsed > 0 ? `${elapsed}s elapsed` : "Just started"}
+                        {elapsed > 30 && " — Videos can take 1-3 minutes"}
+                        {elapsed > 90 && " — Complex prompts take longer"}
+                      </p>
                     </div>
                   </div>
                   <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full transition-all duration-500"
+                      className="h-full bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500 rounded-full transition-all duration-500 bg-[length:200%_100%] animate-[shimmer_2s_linear_infinite]"
                       style={{
-                        width: job.status === "queued" ? "5%" :
+                        width: !job ? "8%" :
+                          job.status === "queued" ? "12%" :
                           job.progress > 0 ? `${Math.min(job.progress * 100, 95)}%` :
                           `${Math.min(15 + (elapsed / 60) * 80, 90)}%`,
                       }}
                     />
                   </div>
+                  <p className="text-[10px] text-muted-foreground text-center">
+                    Please don&apos;t close this tab. Your generation is processing.
+                  </p>
                 </CardContent>
               </Card>
             )}
