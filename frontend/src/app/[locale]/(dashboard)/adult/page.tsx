@@ -117,6 +117,7 @@ export default function AdultPage() {
 
   // I2V prompt suggestions
   const [i2vSuggestions, setI2vSuggestions] = useState<{label: string; prompt: string; icon: string}[]>([]);
+  const [i2vMode, setI2vMode] = useState<"animate" | "reimagine">("animate");
   const [suggestingPrompts, setSuggestingPrompts] = useState(false);
 
   // Job state
@@ -262,6 +263,7 @@ export default function AdultPage() {
         if (isI2V && inputImage) {
           const b64 = await fileToBase64(inputImage);
           videoParams.image_url = `data:image/png;base64,${b64}`;
+          videoParams.mode = i2vMode;
         }
         res = await api.generateAdultVideo(session.access_token, videoParams);
       } else if (mode === "img2img" && inputImage) {
@@ -845,9 +847,36 @@ export default function AdultPage() {
                           </SelectContent>
                         </Select>
                       </div>
-                      {/* I2V: image upload */}
+                      {/* I2V: mode selector + image upload */}
                       {videoModels.find((m) => m.id === videoModel)?.type === "i2v" && (
                         <div>
+                          {/* Mode Selector */}
+                          <div className="grid grid-cols-2 gap-2 mb-3">
+                            <button
+                              type="button"
+                              onClick={() => setI2vMode("animate")}
+                              className={`p-2.5 rounded-lg border text-left transition-all ${
+                                i2vMode === "animate"
+                                  ? "border-pink-500 bg-pink-500/10"
+                                  : "border-muted hover:border-pink-500/30"
+                              }`}
+                            >
+                              <p className="text-xs font-semibold">🎬 Animate</p>
+                              <p className="text-[10px] text-muted-foreground">Preserve image, add motion</p>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setI2vMode("reimagine")}
+                              className={`p-2.5 rounded-lg border text-left transition-all ${
+                                i2vMode === "reimagine"
+                                  ? "border-purple-500 bg-purple-500/10"
+                                  : "border-muted hover:border-purple-500/30"
+                              }`}
+                            >
+                              <p className="text-xs font-semibold">✨ Reimagine</p>
+                              <p className="text-[10px] text-muted-foreground">New scene from image</p>
+                            </button>
+                          </div>
                           <Label className="text-xs">Upload Image (for Image-to-Video)</Label>
                           <Input
                             type="file"

@@ -202,6 +202,9 @@ export default function GeneratePage() {
   // Batch
   const [batchSize, setBatchSize] = useState(1);
 
+  // I2V mode: animate (preserve image) or reimagine (create new from image)
+  const [i2vMode, setI2vMode] = useState<"animate" | "reimagine">("animate");
+
   // Compare mode
   const [compareModels, setCompareModels] = useState(["fal_flux_dev", "fal_flux_pro", "fal_ideogram"]);
   const [compareResults, setCompareResults] = useState<Record<string, string | null>>({});
@@ -632,6 +635,7 @@ export default function GeneratePage() {
         prompt: buildPrompt(prompt), model: i2vModel, image: b64, width: 512, height: 512,
         steps, cfg, denoise, sampler, seed,
         frame_count: frameCount, fps, nsfw: nsfwMode,
+        mode: i2vMode,
       });
       startJob(res.job_id, "video", res.credits_used);
     } catch (err: unknown) {
@@ -1217,6 +1221,31 @@ export default function GeneratePage() {
 
               {/* img2vid */}
               <TabsContent value="img2vid" className="space-y-4">
+                {/* Mode Selector — Animate vs Reimagine */}
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    onClick={() => setI2vMode("animate")}
+                    className={`p-3 rounded-lg border text-left transition-all ${
+                      i2vMode === "animate"
+                        ? "border-purple-500 bg-purple-500/10"
+                        : "border-muted hover:border-purple-500/30"
+                    }`}
+                  >
+                    <p className="text-sm font-semibold">🎬 Animate</p>
+                    <p className="text-[10px] text-muted-foreground mt-0.5">Preserve image, add natural motion</p>
+                  </button>
+                  <button
+                    onClick={() => setI2vMode("reimagine")}
+                    className={`p-3 rounded-lg border text-left transition-all ${
+                      i2vMode === "reimagine"
+                        ? "border-pink-500 bg-pink-500/10"
+                        : "border-muted hover:border-pink-500/30"
+                    }`}
+                  >
+                    <p className="text-sm font-semibold">✨ Reimagine</p>
+                    <p className="text-[10px] text-muted-foreground mt-0.5">New video inspired by image</p>
+                  </button>
+                </div>
                 <div>
                   <Label className="text-xs">Video Model</Label>
                   <Select value={i2vModel} onValueChange={(v) => v && setI2vModel(v)}>

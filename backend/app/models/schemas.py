@@ -103,6 +103,8 @@ class Img2VidRequest(BaseModel):
     model: str = ""
     motion_model: str = "mm_sd_v15_v2.ckpt"
     image: str = ""  # base64 encoded input image
+    # mode: "animate" (preserve image, add motion) or "reimagine" (use as inspiration for new video)
+    mode: str = "animate"
     width: int = Field(512, ge=256, le=1024)
     height: int = Field(512, ge=256, le=1024)
     steps: int = Field(20, ge=1, le=100)
@@ -113,6 +115,8 @@ class Img2VidRequest(BaseModel):
     seed: int = -1
     frame_count: int = Field(16, ge=8, le=32)
     fps: int = Field(8, ge=4, le=30)
+    duration: int = Field(5, ge=3, le=15)
+    resolution: str = "720p"
     output_format: str = "gif"
     nsfw: bool = False
 

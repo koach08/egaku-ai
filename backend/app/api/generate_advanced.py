@@ -264,6 +264,11 @@ async def generate_img2vid(
     job_id = str(uuid.uuid4())
     image_url = _b64_to_data_url(body.image)
 
+    # Two modes:
+    # - "animate": preserve image, just add motion (true I2V)
+    # - "reimagine": use as inspiration, generate new video with similar theme
+    mode = getattr(body, "mode", "animate") or "animate"
+
     # ─── Try fal.ai first (synchronous, accepts data URLs, NSFW-friendly) ───
     from app.services.fal_ai import VIDEO_MODELS, FalClient
     fal_client = FalClient(settings)
@@ -271,11 +276,49 @@ async def generate_img2vid(
     # Resolve i2v model (use body.model if valid, otherwise default)
     video_model_id = body.model if body.model in VIDEO_MODELS else "fal_ltx_i2v"
 
+    # Build prompt based on mode
+    if mode == "reimagine" and settings.openai_api_key:
+        # Use Vision API to describe + creatively expand
+        try:
+            import httpx as _hx
+            vresp = await _hx.AsyncClient().post(
+                "https://api.openai.com/v1/chat/completions",
+                headers={"Authorization": f"Bearer {settings.openai_api_key}"},
+                json={
+                    "model": "gpt-4o-mini",
+                    "max_tokens": 200,
+                    "messages": [{
+                        "role": "user",
+                        "content": [
+                            {"type": "text", "text": (
+                                "Look at this image and create a creative video concept INSPIRED by it. "
+                                "Don't just describe — imagine a new dynamic scene with similar mood. "
+                                "Output a vivid video prompt focused on motion and action. "
+                                "Combine with user's idea: " + (body.prompt or "")
+                            )},
+                            {"type": "image_url", "image_url": {"url": image_url, "detail": "low"}},
+                        ],
+                    }],
+                },
+                timeout=20,
+            )
+            if vresp.status_code == 200:
+                expanded = vresp.json()["choices"][0]["message"]["content"]
+                effective_prompt = expanded
+                logger.info(f"Reimagine mode: {expanded[:80]}...")
+            else:
+                effective_prompt = body.prompt or "creative cinematic motion"
+        except Exception:
+            effective_prompt = body.prompt or "creative cinematic motion"
+    else:
+        # Animate mode: minimal motion prompt to preserve image
+        effective_prompt = body.prompt or "smooth natural motion, gentle camera movement"
+
     if fal_client.is_available():
         try:
             fal_result = await fal_client.submit_img2vid(
                 image_url=image_url,
-                prompt=body.prompt or "",
+                prompt=effective_prompt,
                 seed=body.seed,
                 model_id=video_model_id,
             )

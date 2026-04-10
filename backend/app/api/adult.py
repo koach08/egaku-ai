@@ -146,6 +146,8 @@ class AdultVideoRequest(BaseModel):
     negative_prompt: str = ""
     model: str = "fal_ltx_t2v"
     image_url: str = ""  # For img2vid
+    # mode: "animate" (preserve image, just add motion) or "reimagine" (use as inspiration)
+    mode: str = "animate"
     seed: int = -1
     mosaic_enabled: bool = True
     duration: int = Field(5, ge=3, le=15)  # seconds (3-15)
@@ -979,12 +981,17 @@ async def generate_adult_video(
     is_i2v = bool(body.image_url)
 
     # ━━━━━━━ IMAGE-TO-VIDEO ━━━━━━━
-    # Priority: fal.ai I2V (real image animation, NSFW OK) → vast.ai → Novita fallback
+    # Two modes:
+    #   - "animate": preserve image content, just add natural motion (Canva/Firefly style)
+    #     → Use real I2V models (Kling, Wan, LTX) that take image as starting frame
+    #   - "reimagine": use image as inspiration, generate new video with similar theme
+    #     → Use Vision API to describe image, then text-to-video with creative expansion
     if is_i2v:
-        logger.info(f"img2vid: duration={body.duration}s")
+        mode = getattr(body, "mode", "animate") or "animate"
+        logger.info(f"img2vid: mode={mode}, duration={body.duration}s")
 
-        # ── Try fal.ai I2V first (LTX 2 = NSFW-friendly, uses actual image) ──
-        if settings.fal_api_key:
+        # ━━━ MODE: ANIMATE (preserve image, add motion) ━━━
+        if mode == "animate" and settings.fal_api_key:
             try:
                 from app.services.fal_ai import FalClient
                 fal_client = FalClient(settings)
@@ -992,7 +999,8 @@ async def generate_adult_video(
                 # Use the user-selected model if it's a fal I2V model, otherwise default to LTX
                 fal_i2v_model = model_id if model_id.startswith("fal_") and "i2v" in model_id else "fal_ltx_i2v"
 
-                motion_prompt = body.prompt or "smooth natural motion, cinematic animation"
+                # Animate mode: minimal motion prompt, preserve image content
+                motion_prompt = body.prompt or "smooth natural motion, gentle camera movement, preserve subject"
 
                 result = await fal_client.submit_img2vid(
                     image_url=body.image_url,
@@ -1018,8 +1026,8 @@ async def generate_adult_video(
             except Exception as e:
                 logger.warning(f"fal.ai I2V failed, falling back: {e}")
 
-        # ── Try vast.ai ComfyUI AnimateDiff (actual image animation) ──
-        if settings.vastai_comfyui_url:
+        # ── Try vast.ai ComfyUI AnimateDiff (actual image animation, animate mode only) ──
+        if mode == "animate" and settings.vastai_comfyui_url:
             try:
                 from app.services.vastai import VastAIClient
                 vast_client = VastAIClient(settings.vastai_api_key)
@@ -1057,7 +1065,7 @@ async def generate_adult_video(
             except Exception as e:
                 logger.warning(f"vast.ai img2vid failed, falling back to Novita: {e}")
 
-        # ── Fallback: Novita AnimateDiff (prompt-based, AI Vision describes image) ──
+        # ── Reimagine mode (or fallback for animate): Novita AnimateDiff with Vision ──
         if not settings.novita_api_key:
             raise HTTPException(status_code=503, detail="No video backend available")
 
@@ -1066,7 +1074,26 @@ async def generate_adult_video(
             novita = NovitaClient(settings)
 
             # ── Step 1: AI Vision → describe the image in detail ──
-            video_prompt = body.prompt  # User's prompt as base
+            # Different prompts based on mode:
+            # - animate: describe to recreate similar scene with motion
+            # - reimagine: describe to create a NEW scene inspired by the image
+            video_prompt = body.prompt
+            if mode == "reimagine":
+                vision_instruction = (
+                    "Look at this image and create a creative video concept INSPIRED by it. "
+                    "Don't just describe what's there — imagine a new scene with similar mood, style, and theme. "
+                    "Output a vivid video prompt as comma-separated tags. "
+                    "Focus on: dynamic motion, cinematic action, what could happen NEXT."
+                )
+            else:  # animate
+                vision_instruction = (
+                    "Describe this image in detail for AI video generation. "
+                    "Include: subject appearance (hair, body, clothing/nudity, pose), "
+                    "setting, lighting, camera angle. Be explicit and detailed. "
+                    "Output ONLY the description as comma-separated tags, no commentary. "
+                    "Add motion description: what subtle movement would look natural while preserving the scene."
+                )
+
             if settings.openai_api_key and body.image_url:
                 try:
                     import httpx as _httpx
@@ -1079,13 +1106,7 @@ async def generate_adult_video(
                             "messages": [{
                                 "role": "user",
                                 "content": [
-                                    {"type": "text", "text": (
-                                        "Describe this image in detail for AI video generation. "
-                                        "Include: subject appearance (hair, body, clothing/nudity, pose), "
-                                        "setting, lighting, camera angle. Be explicit and detailed. "
-                                        "Output ONLY the description as comma-separated tags, no commentary. "
-                                        "Add motion description: what movement would look natural."
-                                    )},
+                                    {"type": "text", "text": vision_instruction},
                                     {"type": "image_url", "image_url": {"url": body.image_url, "detail": "low"}},
                                 ],
                             }],
