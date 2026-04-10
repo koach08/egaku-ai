@@ -231,6 +231,8 @@ export default function GeneratePage() {
   // Video params
   const [frameCount, setFrameCount] = useState(16);
   const [fps, setFps] = useState(8);
+  const [videoDuration, setVideoDuration] = useState(5); // seconds (3-15)
+  const [videoResolution, setVideoResolution] = useState("720p");
 
   // Upscale
   const [upscaleScale, setUpscaleScale] = useState(2);
@@ -619,6 +621,7 @@ export default function GeneratePage() {
         prompt: buildPrompt(prompt), negative_prompt: negativePrompt, model: videoModel,
         width: 512, height: 512, steps, cfg, sampler, seed,
         frame_count: frameCount, fps, nsfw: nsfwMode,
+        duration: videoDuration, resolution: videoResolution,
       });
       startJob(res.job_id, "video", res.credits_used);
     } catch (err: unknown) {
@@ -636,6 +639,7 @@ export default function GeneratePage() {
         steps, cfg, denoise, sampler, seed,
         frame_count: frameCount, fps, nsfw: nsfwMode,
         mode: i2vMode,
+        duration: videoDuration, resolution: videoResolution,
       });
       startJob(res.job_id, "video", res.credits_used);
     } catch (err: unknown) {
@@ -1214,6 +1218,24 @@ export default function GeneratePage() {
                   </Select>
                 </div>
                 {renderPromptInputs()}
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label className="text-xs">Duration: {videoDuration}s</Label>
+                    <Input type="range" min={3} max={15} step={1} value={videoDuration}
+                      onChange={(e) => setVideoDuration(Number(e.target.value))} />
+                    <p className="text-[10px] text-muted-foreground mt-0.5">3-15 seconds</p>
+                  </div>
+                  <div>
+                    <Label className="text-xs">Resolution</Label>
+                    <Select value={videoResolution} onValueChange={(v) => v && setVideoResolution(v)}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="720p">720p</SelectItem>
+                        <SelectItem value="1080p">1080p</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
                 <Button onClick={handleTxt2Vid} disabled={generating} className="w-full" size="lg">
                   {generating ? "Generating..." : `Generate Video (${VIDEO_MODELS_T2V.find((m) => m.id === videoModel)?.credits ?? 5} credits)`}
                 </Button>
@@ -1299,33 +1321,26 @@ export default function GeneratePage() {
                     rows={2}
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <Label className="text-xs">Frames</Label>
-                    <Select value={String(frameCount)} onValueChange={(v) => v && setFrameCount(Number(v))}>
-                      <SelectTrigger><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="8">8</SelectItem>
-                        <SelectItem value="16">16</SelectItem>
-                        <SelectItem value="24">24</SelectItem>
-                        <SelectItem value="32">32</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <Label className="text-xs">Duration: {videoDuration}s</Label>
+                    <Input type="range" min={3} max={15} step={1} value={videoDuration}
+                      onChange={(e) => setVideoDuration(Number(e.target.value))} />
+                    <p className="text-[10px] text-muted-foreground mt-0.5">3-15 seconds</p>
                   </div>
                   <div>
-                    <Label className="text-xs">FPS</Label>
-                    <Select value={String(fps)} onValueChange={(v) => v && setFps(Number(v))}>
+                    <Label className="text-xs">Resolution</Label>
+                    <Select value={videoResolution} onValueChange={(v) => v && setVideoResolution(v)}>
                       <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="4">4</SelectItem>
-                        <SelectItem value="8">8</SelectItem>
-                        <SelectItem value="12">12</SelectItem>
+                        <SelectItem value="720p">720p</SelectItem>
+                        <SelectItem value="1080p">1080p</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                 </div>
                 <Button onClick={handleImg2Vid} disabled={generating} className="w-full" size="lg">
-                  {generating ? "Generating..." : `Animate Image (${frameCount > 16 ? 10 : 5} credits)`}
+                  {generating ? "Generating..." : `Animate Image (${videoDuration > 10 ? 15 : videoDuration > 5 ? 10 : 5} credits)`}
                 </Button>
               </TabsContent>
 

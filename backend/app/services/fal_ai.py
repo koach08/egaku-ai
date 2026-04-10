@@ -475,6 +475,11 @@ class FalClient:
             valid_dur = 5 if dur <= 7 else (10 if dur <= 12 else 15)
             input_params["duration"] = str(valid_dur)
             input_params["resolution"] = "720p"
+        elif "wan" in fal_model:
+            # Wan 2.1 t2v supports duration in seconds
+            input_params["num_frames"] = min(dur * 16, 240)
+        elif "ltx" in fal_model:
+            input_params["num_frames"] = min(dur * 24, 360)
 
         url = f"{FAL_API_BASE}/{fal_model}"
         async with httpx.AsyncClient() as client:

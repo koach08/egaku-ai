@@ -77,6 +77,8 @@ class VideoGenerateRequest(BaseModel):
     seed: int = -1
     frame_count: int = Field(16, ge=8, le=32)
     fps: int = Field(8, ge=4, le=30)
+    duration: int = Field(5, ge=3, le=15)  # seconds
+    resolution: str = "720p"
     output_format: str = "gif"
     nsfw: bool = False
 

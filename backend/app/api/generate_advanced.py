@@ -321,6 +321,8 @@ async def generate_img2vid(
                 prompt=effective_prompt,
                 seed=body.seed,
                 model_id=video_model_id,
+                duration=body.duration,
+                resolution=body.resolution,
             )
             result_url = fal_client.extract_video_url(fal_result)
             if result_url:

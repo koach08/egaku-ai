@@ -1047,12 +1047,15 @@ async def _generate_video_cloud(body: VideoGenerateRequest, request: Request, se
                     prompt=body.prompt,
                     seed=body.seed,
                     model_id=video_model_id,
+                    duration=body.duration,
+                    resolution=body.resolution,
                 )
             else:
                 fal_result = await fal_client.submit_txt2vid(
                     prompt=body.prompt,
                     seed=body.seed,
                     model_id=video_model_id,
+                    duration=body.duration,
                 )
             result_url = fal_client.extract_video_url(fal_result)
             gen_type_label = "img2vid" if is_img2vid else "txt2vid"
