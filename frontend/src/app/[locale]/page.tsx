@@ -313,30 +313,6 @@ export default function LandingPage() {
             </CardContent>
           </Card>
 
-          {/* Adult Expression */}
-          <Link href="/adult" className="block mt-10 max-w-2xl mx-auto group">
-            <div className="relative overflow-hidden rounded-xl border border-pink-500/20 bg-gradient-to-r from-pink-950/30 via-rose-950/20 to-purple-950/30 p-6 transition-all hover:border-pink-500/40 hover:shadow-lg hover:shadow-pink-500/10">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-sm font-bold text-pink-400 tracking-wide">ADULT EXPRESSION</span>
-                    <span className="text-[10px] font-medium bg-pink-500/20 text-pink-300 px-1.5 py-0.5 rounded">18+</span>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    No filters. No limits. Uncensored AI generation for mature creators.
-                  </p>
-                  <p className="text-xs text-muted-foreground/60 mt-1">
-                    Age-verified subscribers only. From {"\u00A5"}980/mo.
-                  </p>
-                </div>
-                <div className="text-pink-400/60 group-hover:text-pink-400 transition-colors">
-                  <svg className="h-8 w-8" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                  </svg>
-                </div>
-              </div>
-            </div>
-          </Link>
         </section>
 
         {/* FAQ Section */}
@@ -397,36 +373,6 @@ export default function LandingPage() {
               className="text-muted-foreground hover:text-foreground transition-colors"
             >
               Ghibli Style AI
-            </Link>
-            <Link
-              href="/ai/unrestricted-ai-art-generator"
-              className="text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Unrestricted AI Art
-            </Link>
-            <Link
-              href="/ai/ai-nsfw-generator"
-              className="text-muted-foreground hover:text-foreground transition-colors"
-            >
-              AI NSFW Generator
-            </Link>
-            <Link
-              href="/ai/ai-hentai-generator"
-              className="text-muted-foreground hover:text-foreground transition-colors"
-            >
-              AI Hentai Generator
-            </Link>
-            <Link
-              href="/ai/ai-nsfw-video-generator"
-              className="text-muted-foreground hover:text-foreground transition-colors"
-            >
-              AI NSFW Video
-            </Link>
-            <Link
-              href="/adult"
-              className="text-muted-foreground/60 hover:text-pink-400/80 transition-colors"
-            >
-              Adult Expression (18+)
             </Link>
             <Link
               href="/ai/ai-video-generator"

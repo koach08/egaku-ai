@@ -1006,8 +1006,14 @@ async def generate_adult_video(
                 from app.services.fal_ai import FalClient
                 fal_client = FalClient(settings)
 
-                # Use the user-selected model if it's a fal I2V model, otherwise default to LTX
-                fal_i2v_model = model_id if model_id.startswith("fal_") and "i2v" in model_id else "fal_ltx_i2v"
+                # For NSFW img2vid, Wan 2.1 is the best — it respects both image and prompt
+                # without aggressive filtering (Wan 2.6 has stricter filters that block NSFW).
+                # Use user's selected model if it's a fal I2V model, otherwise default to Wan 2.1
+                fal_i2v_model = model_id if model_id.startswith("fal_") and "i2v" in model_id else "fal_wan_i2v"
+                # If user chose Wan 2.6, force downgrade to 2.1 for NSFW reliability
+                if fal_i2v_model == "fal_wan26_i2v":
+                    fal_i2v_model = "fal_wan_i2v"
+                    logger.info("Downgraded Wan 2.6 → Wan 2.1 for NSFW reliability")
 
                 # Animate mode: minimal motion prompt, preserve image content
                 motion_prompt = body.prompt or "smooth natural motion, gentle camera movement, preserve subject"
