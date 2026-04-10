@@ -30,6 +30,36 @@ from app.services.supabase import get_supabase, get_user_profile
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/adult", tags=["adult"])
 
+
+@router.get("/backend-status")
+async def adult_backend_status(settings = Depends(get_settings)):
+    """Diagnostic: check which NSFW backends are reachable."""
+    import httpx
+    result = {"comfyui": "not configured", "novita": "not configured"}
+
+    if settings.vastai_comfyui_url:
+        try:
+            async with httpx.AsyncClient() as client:
+                r = await client.get(
+                    f"{settings.vastai_comfyui_url}/system_stats",
+                    headers={"User-Agent": "AI-diffusion/1.0"},
+                    timeout=10,
+                )
+                if r.status_code == 200:
+                    stats = r.json()
+                    gpu = stats.get("devices", [{}])[0].get("name", "unknown")
+                    result["comfyui"] = f"online ({gpu})"
+                else:
+                    result["comfyui"] = f"error (HTTP {r.status_code})"
+        except Exception as e:
+            result["comfyui"] = f"unreachable ({type(e).__name__})"
+
+    if settings.novita_api_key:
+        result["novita"] = "configured (key present)"
+
+    return result
+
+
 # Additional CSAM / real-person keywords for adult context
 ADULT_PROHIBITED_KEYWORDS = [
     "deepfake", "revenge porn", "non-consensual",
