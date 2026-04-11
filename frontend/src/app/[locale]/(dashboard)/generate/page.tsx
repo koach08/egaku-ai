@@ -118,7 +118,9 @@ const VIDEO_MODELS_T2V = [
   { id: "fal_luma_t2v", name: "Luma Dream Machine", credits: 20, minPlan: "basic", badge: "New", maxDuration: 5 },
   { id: "fal_hunyuan_t2v", name: "Hunyuan (Tencent)", credits: 15, minPlan: "basic", badge: "New", maxDuration: 5 },
   { id: "fal_mochi_t2v", name: "Mochi v1 (Genmo)", credits: 10, minPlan: "free", badge: "New", maxDuration: 5 },
-  { id: "fal_seedance_t2v", name: "Seedance (ByteDance)", credits: 20, minPlan: "basic", badge: "★ TikTok", maxDuration: 10 },
+  { id: "fal_seedance_t2v", name: "Seedance 1 (ByteDance)", credits: 20, minPlan: "basic", badge: "★ TikTok", maxDuration: 10 },
+  { id: "fal_seedance2_t2v", name: "Seedance 2 (ByteDance)", credits: 60, minPlan: "pro", badge: "★ Audio · Best", maxDuration: 15 },
+  { id: "fal_seedance2_fast_t2v", name: "Seedance 2 Fast (ByteDance)", credits: 50, minPlan: "basic", badge: "★ Fast", maxDuration: 15 },
   { id: "fal_pika_t2v", name: "Pika v2", credits: 20, minPlan: "basic", badge: "★ Cinema", maxDuration: 6 },
   { id: "fal_vidu_t2v", name: "Vidu Q1 (Kuaishou)", credits: 15, minPlan: "basic", badge: "New", maxDuration: 8 },
   { id: "fal_luma15_t2v", name: "Luma v1.5", credits: 20, minPlan: "basic", badge: "New", maxDuration: 5 },
@@ -131,6 +133,8 @@ const VIDEO_MODELS_I2V = [
   { id: "fal_kling_i2v", name: "Kling v2 I2V", credits: 15, minPlan: "basic", badge: "HD", maxDuration: 10 },
   { id: "fal_kling25_i2v", name: "Kling 2.5 Pro I2V", credits: 25, minPlan: "basic", badge: "★ Cinema", maxDuration: 10 },
   { id: "fal_sora2_i2v", name: "Sora 2 I2V", credits: 50, minPlan: "pro", badge: "★ Best 20s", maxDuration: 20 },
+  { id: "fal_seedance2_i2v", name: "Seedance 2 I2V (ByteDance)", credits: 60, minPlan: "pro", badge: "★ Audio · Best", maxDuration: 15 },
+  { id: "fal_seedance2_fast_i2v", name: "Seedance 2 Fast I2V", credits: 50, minPlan: "basic", badge: "★ Fast", maxDuration: 15 },
 ];
 
 const PLAN_RANK: Record<string, number> = {

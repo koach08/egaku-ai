@@ -226,9 +226,37 @@ VIDEO_MODELS = {
     },
     "fal_seedance_t2v": {
         "fal_id": "fal-ai/bytedance/seedance",
-        "name": "Seedance (ByteDance)",
-        "description": "ByteDance's latest — cinematic dance and motion, TikTok quality",
+        "name": "Seedance 1 (ByteDance)",
+        "description": "ByteDance's Seedance v1 — cinematic motion, TikTok quality",
         "credits": 20,
+        "min_plan": "basic",
+    },
+    "fal_seedance2_t2v": {
+        "fal_id": "fal-ai/bytedance/seedance-2.0/text-to-video",
+        "name": "Seedance 2 (ByteDance)",
+        "description": "ByteDance's flagship — cinematic quality with native audio, multi-shot, physics-aware camera control",
+        "credits": 60,  # ~$1.52 raw at 720p 5s
+        "min_plan": "pro",
+    },
+    "fal_seedance2_fast_t2v": {
+        "fal_id": "fal-ai/bytedance/seedance-2.0/fast/text-to-video",
+        "name": "Seedance 2 Fast (ByteDance)",
+        "description": "Seedance 2 fast tier — lower latency and cost, great quality",
+        "credits": 50,  # ~$1.21 raw at 720p 5s
+        "min_plan": "basic",
+    },
+    "fal_seedance2_i2v": {
+        "fal_id": "fal-ai/bytedance/seedance-2.0/image-to-video",
+        "name": "Seedance 2 I2V (ByteDance)",
+        "description": "Animate stills into cinematic video with synced audio, start/end frame control",
+        "credits": 60,
+        "min_plan": "pro",
+    },
+    "fal_seedance2_fast_i2v": {
+        "fal_id": "fal-ai/bytedance/seedance-2.0/fast/image-to-video",
+        "name": "Seedance 2 Fast I2V (ByteDance)",
+        "description": "Seedance 2 fast image-to-video, lower cost variant",
+        "credits": 50,
         "min_plan": "basic",
     },
     "fal_pika_t2v": {
@@ -474,7 +502,14 @@ class FalClient:
         dur = max(3, min(15, duration))
 
         # Model-specific params with duration
-        if "kling" in fal_model:
+        if "seedance-2.0" in fal_model:
+            # Seedance 2.0: resolution 480p/720p, duration "4"-"15" or "auto", aspect_ratio, generate_audio
+            valid_dur = max(4, min(15, dur))
+            input_params["duration"] = str(valid_dur)
+            input_params["resolution"] = "720p"
+            input_params["aspect_ratio"] = "16:9"
+            input_params["generate_audio"] = True
+        elif "kling" in fal_model:
             input_params["duration"] = str(min(dur, 10))
             input_params["aspect_ratio"] = "16:9"
         elif "minimax" in fal_model:
@@ -488,6 +523,10 @@ class FalClient:
             input_params["num_frames"] = min(dur * 16, 240)
         elif "ltx" in fal_model:
             input_params["num_frames"] = min(dur * 24, 360)
+
+        # Seedance 2 is slow (typically 1-3 min) — route via queue to avoid HTTP timeouts
+        if "seedance-2.0" in fal_model:
+            return await self._submit_queue_job(fal_model, input_params)
 
         url = f"{FAL_API_BASE}/{fal_model}"
         async with httpx.AsyncClient() as client:
@@ -530,7 +569,16 @@ class FalClient:
         # Clamp duration to valid values per model
         dur = max(3, min(15, duration))
 
-        if "kling" in fal_model:
+        if "seedance-2.0" in fal_model:
+            # Seedance 2.0 i2v: resolution 480p/720p, duration "4"-"15" or "auto", aspect_ratio, generate_audio
+            valid_dur = max(4, min(15, dur))
+            input_params["duration"] = str(valid_dur)
+            input_params["resolution"] = resolution if resolution in ("480p", "720p") else "720p"
+            input_params["aspect_ratio"] = "16:9"
+            input_params["generate_audio"] = True
+            if prompt:
+                input_params["prompt"] = prompt
+        elif "kling" in fal_model:
             # Kling: duration in seconds as string, "5" or "10"
             input_params["duration"] = str(min(dur, 10))
             if prompt:
@@ -557,8 +605,8 @@ class FalClient:
             if prompt:
                 input_params["prompt"] = prompt
 
-        # Wan 2.6 needs queue-based API (longer processing time)
-        if is_wan26:
+        # Wan 2.6 and Seedance 2 need queue-based API (longer processing time)
+        if is_wan26 or "seedance-2.0" in fal_model:
             return await self._submit_queue_job(fal_model, input_params)
 
         # Other models: synchronous

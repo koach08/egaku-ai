@@ -116,6 +116,7 @@ export default function LandingPage() {
             <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-muted-foreground">
               <span className="text-lg font-semibold text-purple-400">Sora 2</span>
               <span className="text-lg font-semibold text-purple-400">Veo 3</span>
+              <span className="text-lg font-semibold text-purple-400">Seedance 2</span>
               <span className="text-lg font-semibold text-purple-400">Nano Banana 2</span>
               <span className="text-lg font-semibold text-purple-400">Grok Imagine</span>
               <span className="text-lg font-semibold">Flux</span>
