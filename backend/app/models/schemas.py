@@ -124,20 +124,21 @@ class Img2VidRequest(BaseModel):
 
 
 class Vid2VidRequest(BaseModel):
+    """Video-to-video style transfer (WAN 2.7 Edit Video via fal.ai).
+
+    `video` may be:
+      - an HTTPS URL to a public MP4/MOV (preferred)
+      - a base64 data URL `data:video/mp4;base64,...` (auto-uploaded to
+        Supabase Storage by the backend)
+    Video must be 2-10 seconds, max 100 MB.
+    """
     prompt: str = Field(..., min_length=1, max_length=2000)
-    negative_prompt: str = ""
-    model: str = ""
-    video: str = ""  # base64 encoded input video
-    width: int = Field(512, ge=256, le=1024)
-    height: int = Field(512, ge=256, le=1024)
-    steps: int = Field(20, ge=1, le=100)
-    cfg: float = Field(7.5, ge=1.0, le=30.0)
-    denoise: float = Field(0.6, ge=0.0, le=1.0)
-    sampler: str = "euler_ancestral"
-    scheduler: str = "normal"
+    video: str = Field(..., min_length=1)
+    reference_image: str = ""  # optional style reference (URL or base64 data URL)
+    model: str = "fal_wan27_v2v"
+    resolution: str = "720p"  # "720p" or "1080p"
+    duration: int = Field(0, ge=0, le=10)  # 0 = match input
     seed: int = -1
-    fps: int = Field(8, ge=4, le=30)
-    output_format: str = "gif"
     nsfw: bool = False
 
 
@@ -381,7 +382,7 @@ CREDIT_COSTS = {
     "txt2vid_sora2": 50,
     "img2vid_kling25": 25,
     "img2vid_sora2": 50,
-    "vid2vid": 15,
+    "vid2vid": 40,  # WAN 2.7 edit-video, ~5s output
     "upscale": 1,
     "inpaint": 2,
     "controlnet": 3,

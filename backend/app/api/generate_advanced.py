@@ -363,13 +363,61 @@ async def generate_img2vid(
 
 # ─── vid2vid ───
 
+async def _resolve_video_url(supabase, video: str, user_id: str, job_id: str) -> str:
+    """Accept either an HTTP(S) URL or a base64 data URL.
+
+    - HTTP URLs are returned as-is (fal.ai fetches them directly).
+    - Data URLs are decoded and uploaded to Supabase Storage, then the public
+      URL is returned.
+    """
+    if video.startswith(("http://", "https://")):
+        return video
+
+    if not video.startswith("data:"):
+        raise HTTPException(
+            status_code=400,
+            detail="Video must be an HTTP(S) URL or a base64 data URL (data:video/mp4;base64,...)",
+        )
+
+    try:
+        header, b64data = video.split(",", 1)
+        import base64 as _b64
+        data = _b64.b64decode(b64data)
+    except Exception:
+        raise HTTPException(status_code=400, detail="Failed to decode video data URL")
+
+    if len(data) > 100 * 1024 * 1024:
+        raise HTTPException(status_code=413, detail="Video exceeds 100 MB limit")
+
+    content_type = "video/mp4"
+    if ":" in header and ";" in header:
+        content_type = header.split(":", 1)[1].split(";", 1)[0] or "video/mp4"
+    ext = "mov" if "quicktime" in content_type or "mov" in content_type else "mp4"
+
+    storage_path = f"vid2vid-input/{user_id}/{job_id}.{ext}"
+    try:
+        supabase.storage.from_("self-hosted").upload(
+            storage_path, data,
+            file_options={"content-type": content_type, "upsert": "true"},
+        )
+    except Exception as e:
+        logger.error(f"Failed to upload vid2vid input to Supabase: {e}")
+        raise HTTPException(status_code=500, detail="Failed to stage input video")
+
+    return f"{supabase.supabase_url}/storage/v1/object/public/self-hosted/{storage_path}"
+
+
 @router.post("/vid2vid", response_model=GenerationResponse)
 async def generate_vid2vid(
     body: Vid2VidRequest,
     request: Request,
     settings: Settings = Depends(get_settings),
 ):
-    """Video-to-video style transfer."""
+    """Video-to-video style transfer via fal.ai WAN 2.7 Edit Video.
+
+    Input video must be 2-10 seconds, max 100 MB, MP4/MOV.
+    Accepts either a public HTTP(S) URL or a base64 data URL.
+    """
     is_safe, flagged = check_prompt_compliance(body.prompt)
     if not is_safe:
         raise HTTPException(status_code=400, detail=f"Content policy violation: {', '.join(flagged)}")
@@ -377,12 +425,100 @@ async def generate_vid2vid(
     _check_infra(settings)
     user, profile, supabase = await _auth_and_profile(request, settings)
 
+    # Admin bypass for plan gate
+    from app.core.legal import is_admin
+    user_email = profile.get("email", "")
     plan = profile["plan"]
-    if PLAN_RANK.get(plan, 0) < PLAN_RANK["pro"]:
-        raise HTTPException(status_code=403, detail="Vid2vid requires Pro plan or above")
+    if PLAN_RANK.get(plan, 0) < PLAN_RANK["pro"] and not is_admin(user_email):
+        raise HTTPException(status_code=403, detail="Video-to-video requires Pro plan or above")
 
-    # vid2vid requires AnimateDiff + SD1.5 models (coming soon with Network Volume)
-    raise HTTPException(status_code=503, detail="Video-to-video is coming soon. Additional models are being set up.")
+    # NSFW gate (same rules as other endpoints)
+    if body.nsfw and not profile.get("age_verified") and not is_admin(user_email):
+        raise HTTPException(status_code=403, detail="Age verification required for NSFW content")
+
+    from app.services.fal_ai import FalClient, VIDEO_MODELS
+    from app.services.supabase import deduct_credits
+
+    fal_client = FalClient(settings)
+    if not fal_client.is_available():
+        raise HTTPException(status_code=503, detail="Video editing service is temporarily unavailable")
+
+    # Resolve credits from model config
+    model_key = body.model if body.model in VIDEO_MODELS else "fal_wan27_v2v"
+    model_info = VIDEO_MODELS[model_key]
+    credits_needed = model_info.get("credits", CREDIT_COSTS["vid2vid"])
+
+    success = await deduct_credits(supabase, user.id, credits_needed, "vid2vid generation")
+    if not success:
+        raise HTTPException(status_code=402, detail="Insufficient credits")
+
+    job_id = str(uuid.uuid4())
+
+    try:
+        # Upload video if base64; otherwise pass URL through
+        video_url = await _resolve_video_url(supabase, body.video, str(user.id), job_id)
+
+        # Optional reference image (base64 → data URL, URL → passthrough)
+        reference_image_url = ""
+        if body.reference_image:
+            if body.reference_image.startswith(("http://", "https://", "data:")):
+                reference_image_url = body.reference_image
+            else:
+                reference_image_url = _b64_to_data_url(body.reference_image)
+
+        fal_result = await fal_client.submit_vid2vid(
+            video_url=video_url,
+            prompt=body.prompt,
+            resolution=body.resolution,
+            duration=body.duration,
+            reference_image_url=reference_image_url,
+            seed=body.seed,
+            model_id=model_key,
+        )
+
+        result_url = fal_client.extract_video_url(fal_result)
+        if not result_url:
+            logger.error(f"vid2vid: no video URL in fal.ai response: {fal_result}")
+            raise HTTPException(status_code=502, detail="Video editing produced no output")
+
+        # Persist to Supabase Storage for permanence
+        from app.api.generate import _persist_to_supabase_storage, _save_generation_to_db, _store_job_status
+        permanent_url = await _persist_to_supabase_storage(supabase, result_url, job_id, is_video=True)
+
+        await _store_job_status(settings, job_id, "completed", {"url": permanent_url, "backend": "fal"})
+        await _save_generation_to_db(
+            settings, str(user.id), job_id, "vid2vid", body.prompt,
+            "", model_key,
+            {"seed": body.seed, "resolution": body.resolution, "duration": body.duration},
+            permanent_url, body.nsfw,
+        )
+
+        return GenerationResponse(
+            job_id=job_id, status=JobStatus.completed,
+            credits_used=credits_needed, result_url=permanent_url,
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.exception(f"vid2vid failed: {e}")
+        # Refund credits on failure (unlimited/studio plans bypass deduct so refund is a no-op for them)
+        try:
+            from app.services.supabase import get_credit_balance
+            if profile.get("plan") not in ("unlimited", "studio"):
+                current = await get_credit_balance(supabase, user.id)
+                if current:
+                    supabase.table("credits").update({
+                        "balance": current["balance"] + credits_needed,
+                    }).eq("user_id", user.id).execute()
+                    supabase.table("credit_transactions").insert({
+                        "user_id": str(user.id),
+                        "amount": credits_needed,
+                        "type": "refund",
+                        "description": "vid2vid refund (failure)",
+                    }).execute()
+        except Exception:
+            pass
+        raise HTTPException(status_code=500, detail=f"Video editing failed: {e}")
 
 
 # ─── Upscale ───

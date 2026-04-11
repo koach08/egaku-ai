@@ -54,8 +54,8 @@
       "desc": "Animate still images into videos. Bring your photos to life."
     },
     "vid2vid": {
-      "title": "Video-to-Video (Coming Soon)",
-      "desc": "Transform existing videos with style transfer. Change the look of any video."
+      "title": "Video-to-Video",
+      "desc": "Upload a clip and restyle it — watercolor, anime, cyberpunk, and more. Powered by WAN 2.7."
     },
     "upscale": {
       "title": "Upscale",

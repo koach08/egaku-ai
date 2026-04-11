@@ -192,28 +192,37 @@ export default function LandingPage() {
             {t("features.title")}
           </h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {featureKeys.map((key) => (
-              <Card key={key}>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-base">
-                    {t(`features.${key}.title`)}
-                  </CardTitle>
-                  {key === "vid2vid" && (
-                    <Badge variant="outline" className="w-fit text-[10px] border-amber-500 text-amber-500">
-                      {t("common.soon")}
-                    </Badge>
-                  )}
-                  {key === "apiAccess" && (
-                    <Badge variant="outline" className="w-fit text-[10px]">
-                      Studio
-                    </Badge>
-                  )}
-                </CardHeader>
-                <CardContent className="text-sm text-muted-foreground">
-                  {t(`features.${key}.desc`)}
-                </CardContent>
-              </Card>
-            ))}
+            {featureKeys.map((key) => {
+              const href =
+                key === "vid2vid" ? "/vid2vid" :
+                key === "txt2vid" || key === "img2vid" ? "/generate" :
+                key === "apiAccess" ? "/settings" :
+                "/generate";
+              return (
+                <Link key={key} href={href}>
+                  <Card className="h-full hover:border-purple-500/50 transition-colors">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-base">
+                        {t(`features.${key}.title`)}
+                      </CardTitle>
+                      {key === "vid2vid" && (
+                        <Badge variant="outline" className="w-fit text-[10px] border-purple-500 text-purple-400">
+                          New · Pro
+                        </Badge>
+                      )}
+                      {key === "apiAccess" && (
+                        <Badge variant="outline" className="w-fit text-[10px]">
+                          Studio
+                        </Badge>
+                      )}
+                    </CardHeader>
+                    <CardContent className="text-sm text-muted-foreground">
+                      {t(`features.${key}.desc`)}
+                    </CardContent>
+                  </Card>
+                </Link>
+              );
+            })}
           </div>
         </section>
 

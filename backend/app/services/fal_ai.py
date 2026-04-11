@@ -252,6 +252,14 @@ VIDEO_MODELS = {
         "credits": 20,
         "min_plan": "basic",
     },
+    # --- Video-to-video (style transfer / restyle) ---
+    "fal_wan27_v2v": {
+        "fal_id": "fal-ai/wan/v2.7/edit-video",
+        "name": "WAN 2.7 Edit Video",
+        "description": "Video-to-video style transfer and instruction-based editing",
+        "credits": 40,  # ~5s output (fal.ai $0.10/s × 5s = $0.50 raw)
+        "min_plan": "pro",
+    },
 }
 
 
@@ -564,6 +572,53 @@ class FalClient:
             logger.info("fal.ai img2vid job completed: %s", model_id)
             return data
 
+    async def submit_vid2vid(
+        self,
+        video_url: str,
+        prompt: str,
+        resolution: str = "720p",
+        duration: int = 0,
+        reference_image_url: str = "",
+        seed: int = -1,
+        model_id: str = "fal_wan27_v2v",
+    ) -> dict:
+        """Submit a video-to-video edit job via fal.ai WAN 2.7 edit-video.
+
+        Input video must be 2-10s MP4/MOV, max 100 MB. Uses queue API because
+        video editing is slow (30s-3min typical).
+
+        Args:
+            video_url: HTTP(S) URL or data URL of input video
+            prompt: Editing instruction / style transfer description
+            resolution: "720p" or "1080p"
+            duration: Output seconds (0-10). 0 = match input.
+            reference_image_url: Optional style reference image
+            seed: Random seed, -1 = random
+            model_id: Internal model key (only fal_wan27_v2v for now)
+
+        Returns:
+            fal.ai response dict with `video` field.
+        """
+        model_info = VIDEO_MODELS.get(model_id, VIDEO_MODELS["fal_wan27_v2v"])
+        fal_model = model_info["fal_id"]
+
+        input_params: dict = {
+            "video_url": video_url,
+            "prompt": prompt,
+            "resolution": resolution if resolution in ("720p", "1080p") else "720p",
+            "enable_safety_checker": False,
+        }
+        if duration and 0 < duration <= 10:
+            input_params["duration"] = str(duration)
+        if reference_image_url:
+            input_params["reference_image_url"] = reference_image_url
+        if seed >= 0:
+            input_params["seed"] = seed
+
+        logger.info(f"fal.ai vid2vid submit: model={fal_model} prompt={prompt[:60]!r} res={resolution}")
+        # Always queue: video editing is slow (typical 30s-3min)
+        return await self._submit_queue_job(fal_model, input_params)
+
     async def _submit_queue_job(self, fal_model: str, input_params: dict) -> dict:
         """Submit a job to fal.ai queue API and poll until complete.
 
@@ -596,8 +651,8 @@ class FalClient:
             response_url = queue_data.get("response_url")
             logger.info(f"fal.ai queue submitted: {request_id}")
 
-            # Poll for completion (up to 5 minutes)
-            for i in range(60):
+            # Poll for completion (up to 10 minutes — video editing is slow)
+            for i in range(120):
                 await asyncio.sleep(5)
                 try:
                     # Check status (GET with auth only, no Content-Type)
@@ -606,10 +661,16 @@ class FalClient:
                         headers=auth_header,
                         timeout=15,
                     )
-                    if status_resp.status_code != 200:
+                    # fal.ai returns 200 when job is done, 202 while IN_QUEUE / IN_PROGRESS.
+                    # Both carry a JSON body with a `status` field. Only skip on real errors.
+                    if status_resp.status_code not in (200, 202):
                         logger.warning(f"fal.ai poll #{i}: HTTP {status_resp.status_code}")
                         continue
-                    status_data = status_resp.json()
+                    try:
+                        status_data = status_resp.json()
+                    except Exception:
+                        logger.warning(f"fal.ai poll #{i}: non-JSON body on HTTP {status_resp.status_code}")
+                        continue
                     status = status_data.get("status", "")
                     logger.info(f"fal.ai poll #{i}: status={status}")
 
@@ -644,7 +705,7 @@ class FalClient:
                     logger.warning(f"fal.ai poll #{i} timed out")
                     continue
 
-            raise TimeoutError(f"fal.ai job timed out after 5 minutes: {request_id}")
+            raise TimeoutError(f"fal.ai job timed out after 10 minutes: {request_id}")
 
     async def submit_controlnet(
         self,
