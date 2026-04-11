@@ -107,29 +107,30 @@ const CINEMA_PRESETS = [
 ];
 
 const VIDEO_MODELS_T2V = [
-  { id: "fal_ltx_t2v", name: "LTX 2.3", credits: 5, minPlan: "free", badge: "Fast" },
-  { id: "fal_wan_t2v", name: "Wan 2.1", credits: 10, minPlan: "free" },
-  { id: "fal_kling_t2v", name: "Kling v2", credits: 15, minPlan: "basic", badge: "HD" },
-  { id: "fal_minimax_t2v", name: "Minimax Hailuo", credits: 15, minPlan: "basic", badge: "HD" },
-  { id: "fal_kling25_t2v", name: "Kling 2.5 Pro", credits: 25, minPlan: "basic", badge: "★ Cinema" },
-  { id: "fal_grok_t2v", name: "Grok Video (xAI)", credits: 30, minPlan: "basic", badge: "★ Audio" },
-  { id: "fal_veo3_t2v", name: "Veo 3 (Google)", credits: 40, minPlan: "pro", badge: "★ Audio" },
-  { id: "fal_sora2_t2v", name: "Sora 2 (OpenAI)", credits: 50, minPlan: "pro", badge: "★ Best" },
-  { id: "fal_luma_t2v", name: "Luma Dream Machine", credits: 20, minPlan: "basic", badge: "New" },
-  { id: "fal_hunyuan_t2v", name: "Hunyuan (Tencent)", credits: 15, minPlan: "basic", badge: "New" },
-  { id: "fal_mochi_t2v", name: "Mochi v1 (Genmo)", credits: 10, minPlan: "free", badge: "New" },
-  { id: "fal_seedance_t2v", name: "Seedance (ByteDance)", credits: 20, minPlan: "basic", badge: "★ TikTok" },
-  { id: "fal_pika_t2v", name: "Pika v2", credits: 20, minPlan: "basic", badge: "★ Cinema" },
-  { id: "fal_vidu_t2v", name: "Vidu Q1 (Kuaishou)", credits: 15, minPlan: "basic", badge: "New" },
-  { id: "fal_luma15_t2v", name: "Luma v1.5", credits: 20, minPlan: "basic", badge: "★ Best" },
+  { id: "fal_ltx_t2v", name: "LTX 2.3", credits: 5, minPlan: "free", badge: "Fast", maxDuration: 5 },
+  { id: "fal_wan_t2v", name: "Wan 2.1", credits: 10, minPlan: "free", maxDuration: 5 },
+  { id: "fal_kling_t2v", name: "Kling v2", credits: 15, minPlan: "basic", badge: "HD", maxDuration: 10 },
+  { id: "fal_minimax_t2v", name: "Minimax Hailuo", credits: 15, minPlan: "basic", badge: "HD", maxDuration: 6 },
+  { id: "fal_kling25_t2v", name: "Kling 2.5 Pro", credits: 25, minPlan: "basic", badge: "★ Cinema", maxDuration: 10 },
+  { id: "fal_grok_t2v", name: "Grok Video (xAI)", credits: 30, minPlan: "basic", badge: "★ Audio", maxDuration: 6 },
+  { id: "fal_veo3_t2v", name: "Veo 3 (Google)", credits: 40, minPlan: "pro", badge: "★ Audio", maxDuration: 8 },
+  { id: "fal_sora2_t2v", name: "Sora 2 (OpenAI)", credits: 50, minPlan: "pro", badge: "★ Best 20s", maxDuration: 20 },
+  { id: "fal_luma_t2v", name: "Luma Dream Machine", credits: 20, minPlan: "basic", badge: "New", maxDuration: 5 },
+  { id: "fal_hunyuan_t2v", name: "Hunyuan (Tencent)", credits: 15, minPlan: "basic", badge: "New", maxDuration: 5 },
+  { id: "fal_mochi_t2v", name: "Mochi v1 (Genmo)", credits: 10, minPlan: "free", badge: "New", maxDuration: 5 },
+  { id: "fal_seedance_t2v", name: "Seedance (ByteDance)", credits: 20, minPlan: "basic", badge: "★ TikTok", maxDuration: 10 },
+  { id: "fal_pika_t2v", name: "Pika v2", credits: 20, minPlan: "basic", badge: "★ Cinema", maxDuration: 6 },
+  { id: "fal_vidu_t2v", name: "Vidu Q1 (Kuaishou)", credits: 15, minPlan: "basic", badge: "New", maxDuration: 8 },
+  { id: "fal_luma15_t2v", name: "Luma v1.5", credits: 20, minPlan: "basic", badge: "New", maxDuration: 5 },
 ];
 
 const VIDEO_MODELS_I2V = [
-  { id: "fal_ltx_i2v", name: "LTX 2 I2V", credits: 5, minPlan: "free", badge: "Fast" },
-  { id: "fal_wan_i2v", name: "Wan 2.1 I2V", credits: 10, minPlan: "free" },
-  { id: "fal_kling_i2v", name: "Kling v2 I2V", credits: 15, minPlan: "basic", badge: "HD" },
-  { id: "fal_kling25_i2v", name: "Kling 2.5 Pro I2V", credits: 25, minPlan: "basic", badge: "★ Cinema" },
-  { id: "fal_sora2_i2v", name: "Sora 2 I2V", credits: 50, minPlan: "pro", badge: "★ Best" },
+  { id: "fal_ltx_i2v", name: "LTX 2 I2V", credits: 5, minPlan: "free", badge: "Fast", maxDuration: 5 },
+  { id: "fal_wan_i2v", name: "Wan 2.1 I2V", credits: 10, minPlan: "free", maxDuration: 5 },
+  { id: "fal_wan26_i2v", name: "Wan 2.6 I2V", credits: 12, minPlan: "free", badge: "★ 15s", maxDuration: 15 },
+  { id: "fal_kling_i2v", name: "Kling v2 I2V", credits: 15, minPlan: "basic", badge: "HD", maxDuration: 10 },
+  { id: "fal_kling25_i2v", name: "Kling 2.5 Pro I2V", credits: 25, minPlan: "basic", badge: "★ Cinema", maxDuration: 10 },
+  { id: "fal_sora2_i2v", name: "Sora 2 I2V", credits: 50, minPlan: "pro", badge: "★ Best 20s", maxDuration: 20 },
 ];
 
 const PLAN_RANK: Record<string, number> = {
@@ -231,8 +232,12 @@ export default function GeneratePage() {
   // Video params
   const [frameCount, setFrameCount] = useState(16);
   const [fps, setFps] = useState(8);
-  const [videoDuration, setVideoDuration] = useState(5); // seconds (3-15)
+  const [videoDuration, setVideoDuration] = useState(5); // seconds
   const [videoResolution, setVideoResolution] = useState("720p");
+
+  // Computed max duration per model
+  const txt2vidMaxDuration = VIDEO_MODELS_T2V.find((m) => m.id === videoModel)?.maxDuration ?? 5;
+  const img2vidMaxDuration = VIDEO_MODELS_I2V.find((m) => m.id === i2vModel)?.maxDuration ?? 5;
 
   // Upscale
   const [upscaleScale, setUpscaleScale] = useState(2);
@@ -621,7 +626,7 @@ export default function GeneratePage() {
         prompt: buildPrompt(prompt), negative_prompt: negativePrompt, model: videoModel,
         width: 512, height: 512, steps, cfg, sampler, seed,
         frame_count: frameCount, fps, nsfw: nsfwMode,
-        duration: videoDuration, resolution: videoResolution,
+        duration: Math.min(videoDuration, txt2vidMaxDuration), resolution: videoResolution,
       });
       startJob(res.job_id, "video", res.credits_used);
     } catch (err: unknown) {
@@ -639,7 +644,7 @@ export default function GeneratePage() {
         steps, cfg, denoise, sampler, seed,
         frame_count: frameCount, fps, nsfw: nsfwMode,
         mode: i2vMode,
-        duration: videoDuration, resolution: videoResolution,
+        duration: Math.min(videoDuration, img2vidMaxDuration), resolution: videoResolution,
       });
       startJob(res.job_id, "video", res.credits_used);
     } catch (err: unknown) {
@@ -1207,7 +1212,7 @@ export default function GeneratePage() {
                           <SelectItem key={m.id} value={m.id} disabled={locked}>
                             <span className="flex items-center gap-1.5">
                               {m.name}
-                              <span className="text-[10px] text-muted-foreground">({m.credits} cr)</span>
+                              <span className="text-[10px] text-muted-foreground">({m.credits} cr · max {m.maxDuration}s)</span>
                               {m.badge && <span className="text-[10px] bg-purple-500/20 text-purple-400 px-1 rounded">{m.badge}</span>}
                               {locked && <span className="text-[10px] text-amber-500">{m.minPlan}+</span>}
                             </span>
@@ -1220,10 +1225,12 @@ export default function GeneratePage() {
                 {renderPromptInputs()}
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <Label className="text-xs">Duration: {videoDuration}s</Label>
-                    <Input type="range" min={3} max={15} step={1} value={videoDuration}
+                    <Label className="text-xs">Duration: {Math.min(videoDuration, txt2vidMaxDuration)}s</Label>
+                    <Input type="range" min={3} max={txt2vidMaxDuration} step={1} value={Math.min(videoDuration, txt2vidMaxDuration)}
                       onChange={(e) => setVideoDuration(Number(e.target.value))} />
-                    <p className="text-[10px] text-muted-foreground mt-0.5">3-15 seconds</p>
+                    <p className="text-[10px] text-muted-foreground mt-0.5">
+                      Max {txt2vidMaxDuration}s for this model
+                    </p>
                   </div>
                   <div>
                     <Label className="text-xs">Resolution</Label>
@@ -1279,7 +1286,7 @@ export default function GeneratePage() {
                           <SelectItem key={m.id} value={m.id} disabled={locked}>
                             <span className="flex items-center gap-1.5">
                               {m.name}
-                              <span className="text-[10px] text-muted-foreground">({m.credits} cr)</span>
+                              <span className="text-[10px] text-muted-foreground">({m.credits} cr · max {m.maxDuration}s)</span>
                               {m.badge && <span className="text-[10px] bg-purple-500/20 text-purple-400 px-1 rounded">{m.badge}</span>}
                               {locked && <span className="text-[10px] text-amber-500">{m.minPlan}+</span>}
                             </span>
@@ -1323,10 +1330,12 @@ export default function GeneratePage() {
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <Label className="text-xs">Duration: {videoDuration}s</Label>
-                    <Input type="range" min={3} max={15} step={1} value={videoDuration}
+                    <Label className="text-xs">Duration: {Math.min(videoDuration, img2vidMaxDuration)}s</Label>
+                    <Input type="range" min={3} max={img2vidMaxDuration} step={1} value={Math.min(videoDuration, img2vidMaxDuration)}
                       onChange={(e) => setVideoDuration(Number(e.target.value))} />
-                    <p className="text-[10px] text-muted-foreground mt-0.5">3-15 seconds</p>
+                    <p className="text-[10px] text-muted-foreground mt-0.5">
+                      Max {img2vidMaxDuration}s for this model
+                    </p>
                   </div>
                   <div>
                     <Label className="text-xs">Resolution</Label>
