@@ -20,8 +20,12 @@ interface ShowcaseItem {
   model: string;
 }
 
+type MediaFilter = "all" | "image" | "video";
+
 interface ShowcaseGalleryProps {
   title?: string;
+  filter?: MediaFilter;
+  maxItems?: number;
 }
 
 const HQ_MODELS = new Set([
@@ -31,7 +35,11 @@ const HQ_MODELS = new Set([
   "pro",
 ]);
 
-export function ShowcaseGallery({ title = "Recent Creations" }: ShowcaseGalleryProps) {
+export function ShowcaseGallery({
+  title = "Recent Creations",
+  filter = "all",
+  maxItems = 24,
+}: ShowcaseGalleryProps) {
   const [items, setItems] = useState<ShowcaseItem[]>([]);
   const [loading, setLoading] = useState(true);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -52,10 +60,18 @@ export function ShowcaseGallery({ title = "Recent Creations" }: ShowcaseGalleryP
         if (cancelled) return;
 
         const allItems: ShowcaseItem[] = (data.items || []).filter(
-          (item: ShowcaseItem) =>
-            (item.image_url != null || item.video_url != null) &&
-            !item.nsfw &&
-            (HQ_MODELS.has(item.model) || item.title)
+          (item: ShowcaseItem) => {
+            if (item.nsfw) return false;
+            if (!(HQ_MODELS.has(item.model) || item.title)) return false;
+            // Media-type filter
+            if (filter === "image") {
+              return item.image_url != null && item.video_url == null;
+            }
+            if (filter === "video") {
+              return item.video_url != null;
+            }
+            return item.image_url != null || item.video_url != null;
+          }
         );
 
         const liked = allItems.filter((item) => (item.likes_count || 0) > 0);
@@ -63,7 +79,7 @@ export function ShowcaseGallery({ title = "Recent Creations" }: ShowcaseGalleryP
         const rest = allItems.filter((item) => (item.likes_count || 0) === 0 && !HQ_MODELS.has(item.model) && item.title);
         liked.sort((a, b) => (b.likes_count || 0) - (a.likes_count || 0));
 
-        setItems([...liked, ...hq, ...rest].slice(0, 24));
+        setItems([...liked, ...hq, ...rest].slice(0, maxItems));
       } catch {
         // silent fail
       } finally {
@@ -73,7 +89,7 @@ export function ShowcaseGallery({ title = "Recent Creations" }: ShowcaseGalleryP
 
     fetchShowcase();
     return () => { cancelled = true; };
-  }, []);
+  }, [filter, maxItems]);
 
   const updateScrollButtons = useCallback(() => {
     const el = scrollRef.current;

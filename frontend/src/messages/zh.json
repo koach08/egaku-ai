@@ -27,8 +27,8 @@
     "settings": "设置"
   },
   "hero": {
-    "title": "Sora 2 · Veo 3 · Nano Banana 2 · Grok — 一个平台搞定。",
-    "subtitle": "使用全球最顶尖的AI模型生成图像和视频。完全创作自由 — 无滤镜、无限制。ComfyUI的强大功能，无需配置。50积分免费，无需信用卡。",
+    "title": "Sora 2 · Veo 3 · Flux · Kling 2.5 + 25个模型 — 一个平台全搞定。",
+    "subtitle": "使用25+顶尖AI模型生成精美图像与电影级视频。Face Swap、Photo Booth、Video Shorts、Storyboard Studio — 独家工具。区域定价最高直降80%。50积分免费。",
     "viewPricing": "查看定价"
   },
   "features": {
@@ -234,6 +234,8 @@
   },
   "gallery": {
     "title": "社区画廊",
+    "imagesTitle": "社区画廊 — 图像",
+    "videosTitle": "社区画廊 — 视频",
     "explore": "探索",
     "noResults": "未找到作品",
     "likes": "喜欢",

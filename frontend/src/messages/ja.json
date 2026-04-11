@@ -27,8 +27,8 @@
     "settings": "設定"
   },
   "hero": {
-    "title": "Sora 2 · Veo 3 · Nano Banana 2 · Grok — ひとつのプラットフォームで",
-    "subtitle": "世界最高のAIモデルで画像・動画を生成。フィルターなし、制限なし。ComfyUIの自由度を、セットアップ不要で。50クレジット無料、カード不要。",
+    "title": "Sora 2 · Veo 3 · Flux · Kling 2.5 + 25モデル — すべて1つのプラットフォームで。",
+    "subtitle": "25種類以上のAIモデルで高品質な画像とシネマティックな動画を生成。Face Swap、Photo Booth、Video Shorts、Storyboard Studio — 他にはないツール。地域別価格で最大80%オフ。50クレジット無料。",
     "viewPricing": "料金プランを見る"
   },
   "features": {
@@ -234,6 +234,8 @@
   },
   "gallery": {
     "title": "コミュニティギャラリー",
+    "imagesTitle": "コミュニティギャラリー — 画像",
+    "videosTitle": "コミュニティギャラリー — 動画",
     "explore": "ギャラリー探索",
     "noResults": "作品が見つかりませんでした",
     "likes": "いいね",

@@ -234,6 +234,8 @@
   },
   "gallery": {
     "title": "Community Gallery",
+    "imagesTitle": "Community Gallery — Images",
+    "videosTitle": "Community Gallery — Videos",
     "explore": "Explore",
     "noResults": "No artworks found",
     "likes": "likes",

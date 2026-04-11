@@ -82,8 +82,9 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Community Gallery — moved to top so users see real examples immediately */}
-        <ShowcaseGallery title={t("gallery.title")} />
+        {/* Community Gallery — split into Images + Videos so visitors instantly see both capabilities */}
+        <ShowcaseGallery title={t("gallery.imagesTitle")} filter="image" maxItems={24} />
+        <ShowcaseGallery title={t("gallery.videosTitle")} filter="video" maxItems={18} />
 
         {/* How it works */}
         <section className="container mx-auto px-4 py-12">
