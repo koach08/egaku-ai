@@ -509,6 +509,13 @@ class FalClient:
             input_params["resolution"] = "720p"
             input_params["aspect_ratio"] = "16:9"
             input_params["generate_audio"] = True
+        elif "sora-2" in fal_model:
+            # Sora 2: duration as string, supports up to 20s
+            input_params["duration"] = str(min(max(4, dur), 20))
+            input_params["aspect_ratio"] = "16:9"
+        elif "veo3" in fal_model or "veo-3" in fal_model:
+            # Veo 3: duration as string
+            input_params["duration"] = str(min(max(4, dur), 8))
         elif "kling" in fal_model:
             input_params["duration"] = str(min(dur, 10))
             input_params["aspect_ratio"] = "16:9"
@@ -578,6 +585,12 @@ class FalClient:
             input_params["generate_audio"] = True
             if prompt:
                 input_params["prompt"] = prompt
+        elif "sora-2" in fal_model:
+            # Sora 2 I2V: duration is a string enum, supports up to 20s
+            valid_dur = str(min(max(4, dur), 20))
+            input_params["duration"] = valid_dur
+            if prompt:
+                input_params["prompt"] = prompt
         elif "kling" in fal_model:
             # Kling: duration in seconds as string, "5" or "10"
             input_params["duration"] = str(min(dur, 10))
@@ -597,11 +610,16 @@ class FalClient:
             input_params["duration"] = str(valid_dur)
             input_params["enable_prompt_expansion"] = False
         elif is_wan:
-            # Wan 2.1
+            # Wan 2.1 I2V — accepts num_frames (~16 fps)
+            input_params["num_frames"] = min(max(dur * 16, 16), 240)
+            if prompt:
+                input_params["prompt"] = prompt
+        elif "ltx" in fal_model:
+            # LTX 2 I2V — accepts num_frames (~24 fps)
+            input_params["num_frames"] = min(max(dur * 24, 24), 360)
             if prompt:
                 input_params["prompt"] = prompt
         else:
-            # LTX etc.
             if prompt:
                 input_params["prompt"] = prompt
 

@@ -64,6 +64,24 @@ function authHeaders(token: string) {
 export const api = {
   health: () => fetchAPI("/health"),
 
+  // Feedback (works authenticated or anonymous)
+  submitFeedback: (
+    token: string | null,
+    body: {
+      feature: string;
+      category: "bug" | "feature_request" | "praise" | "general";
+      message: string;
+      rating?: number;
+      page_url?: string;
+      user_agent?: string;
+    },
+  ) =>
+    fetchAPI("/feedback", {
+      method: "POST",
+      headers: token ? authHeaders(token) : {},
+      body: JSON.stringify(body),
+    }),
+
   // Auth
   initUser: (token: string) =>
     fetchAPI("/auth/init", { method: "POST", headers: authHeaders(token) }),

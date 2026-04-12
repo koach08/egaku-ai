@@ -8,7 +8,7 @@ from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from app.api import adult, anonymous, api_keys, auth, billing, chat, credits, download, explore, gallery, generate, generate_advanced, models, optimize, tts, webhook
+from app.api import adult, anonymous, api_keys, auth, billing, chat, credits, download, explore, feedback, gallery, generate, generate_advanced, models, optimize, tts, webhook
 from app.core.config import get_settings
 from app.core.security import get_client_ip
 
@@ -95,6 +95,8 @@ app.include_router(projects.router, prefix="/api")
 
 from app.api import announcements
 app.include_router(announcements.router, prefix="/api")
+
+app.include_router(feedback.router, prefix="/api")
 
 
 @app.get("/api/health")
