@@ -566,6 +566,237 @@ const PAGES: Record<
     minPlan: "Adult Starter ($6.50/mo)",
     credits: "5-15",
   },
+  "ai-portrait-generator": {
+    title: "Free AI Portrait Generator - Professional Headshots & Portraits",
+    h1: "AI Portrait Generator",
+    description:
+      "Generate professional AI portraits and headshots in seconds. Perfect for LinkedIn, resumes, and social media profiles. Studio-quality results from text prompts or photo uploads. No photographer needed.",
+    keywords: [
+      "ai portrait generator", "ai headshot generator", "professional photo ai",
+      "ai portrait maker", "ai profile picture generator", "ai headshot free",
+      "linkedin photo ai", "ai professional portrait", "ai selfie generator",
+      "portrait ai online",
+    ],
+    features: [
+      "Studio-quality AI headshots for LinkedIn and resumes",
+      "Photo Booth mode with 20+ curated portrait styles",
+      "Upload a reference photo for consistent likeness",
+      "Multiple lighting presets: studio, natural, dramatic, Rembrandt",
+      "Background options: solid, gradient, office, outdoor",
+      "High-resolution output up to 1024x1024 for print",
+    ],
+    prompts: [
+      "professional headshot, man in navy suit, soft studio lighting, neutral gray background, sharp focus, 85mm portrait lens",
+      "corporate portrait, woman with confident smile, modern office background, warm natural lighting, professional photography",
+      "creative portrait, artist with paint-stained hands, dramatic side lighting, dark moody background, cinematic",
+      "linkedin profile photo, young professional, friendly expression, clean white background, soft diffused lighting",
+    ],
+    faq: [
+      {
+        q: "Can I use AI portraits for LinkedIn?",
+        a: "Yes. EGAKU AI generates studio-quality headshots that look natural and professional. Many users create LinkedIn profile photos, resume headshots, and business card portraits with our AI.",
+      },
+      {
+        q: "How realistic are AI-generated portraits?",
+        a: "Our Flux Realism and SDXL models produce photorealistic portraits with accurate skin texture, natural lighting, and professional composition. Results are comparable to professional studio photography.",
+      },
+      {
+        q: "Can I upload my own photo as a reference?",
+        a: "Yes. Use the Photo Booth feature to upload a selfie or existing photo. The AI generates new professional portraits while maintaining your likeness across different styles and backgrounds.",
+      },
+      {
+        q: "How much does AI portrait generation cost?",
+        a: "Portrait generation uses 2-3 credits. Free plan includes 50 credits/month. Photo Booth batch generation is available on Lite plan and above.",
+      },
+    ],
+    category: "feature",
+    minPlan: "Free",
+    credits: "2-3",
+  },
+  "ai-logo-maker": {
+    title: "Free AI Logo Generator - Create Brand Logos with AI | EGAKU AI",
+    h1: "AI Logo Maker",
+    description:
+      "Design professional logos with AI in seconds. Generate unique brand logos, wordmarks, and icons for your business. Multiple styles from minimalist to 3D. Free to try, no design skills needed.",
+    keywords: [
+      "ai logo generator", "ai logo maker free", "brand logo ai",
+      "ai logo design", "logo creator ai", "free logo maker ai",
+      "ai logo generator free", "business logo ai", "ai brand logo",
+      "logo design ai online",
+    ],
+    features: [
+      "Dedicated Logo Generator tool with style presets",
+      "Minimalist, 3D, vintage, hand-drawn, and gradient styles",
+      "Wordmark and icon-based logo generation",
+      "Transparent PNG output for immediate use",
+      "Background removal built-in for clean logos",
+      "Upscale logos to print-ready resolution with AI upscaler",
+    ],
+    prompts: [
+      "minimalist logo for a tech startup called 'Nexus', clean geometric shapes, flat design, navy blue and white, vector style",
+      "vintage hand-drawn logo for a coffee shop called 'Roast & Bloom', warm earthy tones, rustic typography, badge style",
+      "modern 3d logo icon for a fitness app, abstract flame shape, gradient orange to red, glossy finish, white background",
+      "elegant wordmark logo for a fashion brand called 'Atelier', serif typography, gold and black, luxury feel",
+    ],
+    faq: [
+      {
+        q: "Can I use AI-generated logos commercially?",
+        a: "Yes. All images generated on EGAKU AI are yours to use, including for commercial purposes like business logos, websites, and marketing materials. Paid plans include full commercial rights.",
+      },
+      {
+        q: "What logo styles are available?",
+        a: "EGAKU AI supports minimalist, 3D, vintage, hand-drawn, gradient, geometric, and many more styles. The dedicated Logo tool includes curated presets optimized for brand identity design.",
+      },
+      {
+        q: "Can I get a transparent background logo?",
+        a: "Yes. Use the built-in AI Background Remover to get a transparent PNG instantly. This works on any generated logo with just one click.",
+      },
+      {
+        q: "How is this different from Canva or other logo makers?",
+        a: "EGAKU AI generates completely unique logos from scratch using AI, rather than rearranging templates. Every logo is one-of-a-kind. You can also iterate with different prompts until you find the perfect design.",
+      },
+    ],
+    category: "feature",
+    minPlan: "Free",
+    credits: "2-3",
+  },
+  "ai-meme-generator": {
+    title: "Free AI Meme Generator - Create Viral Memes with AI | EGAKU AI",
+    h1: "AI Meme Generator",
+    description:
+      "Create hilarious memes with AI in seconds. Generate custom meme images from text prompts, add captions, and share. Trending formats, original characters, and viral-ready output. Free to use.",
+    keywords: [
+      "ai meme generator", "meme maker ai", "ai meme creator",
+      "ai meme generator free", "create memes with ai",
+      "meme generator online", "ai meme maker free", "funny meme ai",
+      "custom meme generator ai",
+    ],
+    features: [
+      "Dedicated Meme Generator with caption overlay",
+      "AI-generated original meme images from any prompt",
+      "Classic meme format templates built-in",
+      "Custom text placement: top, bottom, or both",
+      "One-click social media sharing",
+      "No watermark on generated memes",
+    ],
+    prompts: [
+      "a confused cat sitting at a business meeting, surrounded by paperwork, office environment, photorealistic, meme style",
+      "a dog wearing a tiny top hat and monocle, judging the viewer, studio lighting, humorous portrait",
+      "two astronauts on the moon, one pointing at Earth, dramatic space scene, wait its all meme format",
+      "a medieval knight trying to use a laptop, frustrated expression, castle interior, clash of eras, funny",
+    ],
+    faq: [
+      {
+        q: "Is the AI Meme Generator free?",
+        a: "Yes. Meme generation uses 1-2 credits per image. Free plan includes 50 credits/month and a daily bonus credit. No credit card required.",
+      },
+      {
+        q: "Can I add custom text to AI memes?",
+        a: "Yes. The Meme Generator tool lets you add top and bottom captions with customizable font size and style. You can also regenerate just the image while keeping your caption.",
+      },
+      {
+        q: "Can I share memes directly to social media?",
+        a: "Yes. Generated memes include one-click sharing to Twitter/X, Reddit, and other platforms. You can also download the image to share anywhere.",
+      },
+    ],
+    category: "feature",
+    minPlan: "Free",
+    credits: "1-2",
+  },
+  "video-style-transfer": {
+    title: "AI Video Style Transfer - Restyle Videos with AI | EGAKU AI",
+    h1: "AI Video Style Transfer",
+    description:
+      "Transform videos into any artistic style with AI. Video-to-video style transfer turns ordinary footage into anime, oil painting, cyberpunk, or cinematic looks. Upload a video and restyle it in seconds.",
+    keywords: [
+      "video style transfer ai", "ai video restyle", "video to video ai",
+      "ai video style transfer", "video ai filter", "ai video transformation",
+      "restyle video ai", "video to video style transfer",
+      "ai video effect generator",
+    ],
+    features: [
+      "Video-to-Video AI style transfer",
+      "20+ style presets: anime, oil painting, watercolor, cyberpunk, noir",
+      "Adjustable style strength for subtle to dramatic effects",
+      "Frame-by-frame AI processing for smooth results",
+      "Supports uploaded video clips up to 10 seconds",
+      "Combine with text prompts for precise style direction",
+    ],
+    prompts: [
+      "convert to studio ghibli anime style, hand-painted, soft watercolor colors, whimsical atmosphere",
+      "transform into cyberpunk neon aesthetic, glowing edges, dark background, futuristic city overlay",
+      "restyle as oil painting, impressionist brushstrokes, rich warm colors, museum-quality texture",
+      "apply cinematic film noir look, high contrast black and white, dramatic shadows, vintage grain",
+    ],
+    faq: [
+      {
+        q: "How does AI video style transfer work?",
+        a: "Upload a video clip, choose a style preset or describe the style in a text prompt. The AI processes each frame, applying consistent stylistic transformation while preserving motion and structure.",
+      },
+      {
+        q: "What video lengths are supported?",
+        a: "Currently supports clips up to 10 seconds. Each video uses 5-10 credits depending on length and resolution. Longer videos can be processed in segments.",
+      },
+      {
+        q: "Can I use my own style reference?",
+        a: "Yes. Upload a reference image as a style guide, and the AI will apply that visual style to your video. This works great for matching a specific artistic look or brand aesthetic.",
+      },
+      {
+        q: "What is the difference between video style transfer and text-to-video?",
+        a: "Video style transfer takes an existing video and changes its visual style. Text-to-video creates entirely new video from a text description. EGAKU AI offers both features.",
+      },
+    ],
+    category: "feature",
+    minPlan: "Basic",
+    credits: "5-10",
+  },
+  "ai-face-swap-online": {
+    title: "Free AI Face Swap Online - Swap Faces in Photos Instantly | EGAKU AI",
+    h1: "AI Face Swap Online",
+    description:
+      "Swap faces in photos instantly with AI. Upload two images and the AI seamlessly blends faces with natural skin tone, lighting, and expression matching. Free online tool, no download required.",
+    keywords: [
+      "ai face swap", "face swap online free", "face swap ai",
+      "ai face swap online", "face swap generator", "face swap photo ai",
+      "ai face changer", "swap face online", "face swap app online",
+      "free face swap ai",
+    ],
+    features: [
+      "One-click AI face swap between two photos",
+      "Natural skin tone and lighting matching",
+      "Preserves facial expressions and head angles",
+      "Works with any face: selfies, group photos, portraits",
+      "High-resolution output with seamless blending",
+      "Combine with AI portrait styles for creative results",
+    ],
+    prompts: [
+      "Upload a source face photo and a target photo - the AI handles alignment, skin matching, and blending automatically",
+      "Swap faces in group photos - select which face to replace for precise control",
+      "Combine face swap with style transfer for creative portraits in any artistic style",
+      "Use with AI-generated images to place your face into fantasy, sci-fi, or historical scenes",
+    ],
+    faq: [
+      {
+        q: "Is AI face swap free?",
+        a: "Yes. Face swap uses 2 credits per swap. Free plan includes 50 credits/month plus daily bonus credits. No credit card required to start.",
+      },
+      {
+        q: "How accurate is the face swap?",
+        a: "EGAKU AI uses advanced face detection and blending algorithms. The result matches skin tone, lighting direction, and facial proportions for a natural, seamless swap.",
+      },
+      {
+        q: "Can I swap faces in group photos?",
+        a: "Yes. The AI detects multiple faces in a photo. You can select which face to swap, making it easy to work with group shots and complex scenes.",
+      },
+      {
+        q: "Is face swap ethical to use?",
+        a: "Face swap is a creative tool. EGAKU AI prohibits using it for deception, harassment, or non-consensual impersonation. Always use face swap responsibly and with respect for others.",
+      },
+    ],
+    category: "feature",
+    minPlan: "Free",
+    credits: "2",
+  },
 };
 
 // ─── Static Params ───

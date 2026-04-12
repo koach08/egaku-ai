@@ -74,6 +74,10 @@ async function fileToBase64(file: File): Promise<string> {
   });
 }
 
+const PLAN_RANK: Record<string, number> = {
+  free: 0, lite: 1, basic: 2, pro: 3, unlimited: 4, studio: 5,
+};
+
 export default function PhotoBoothPage() {
   const { user, session, loading: authLoading } = useAuth();
   const [selfie, setSelfie] = useState<File | null>(null);
@@ -82,6 +86,16 @@ export default function PhotoBoothPage() {
   const [customPrompt, setCustomPrompt] = useState("");
   const [generating, setGenerating] = useState(false);
   const [resultUrl, setResultUrl] = useState<string | null>(null);
+  const [userPlan, setUserPlan] = useState("free");
+
+  useEffect(() => {
+    if (!session) return;
+    api.getSubscription(session.access_token)
+      .then((data: { plan?: string }) => setUserPlan(data.plan || "free"))
+      .catch(() => {});
+  }, [session]);
+
+  const isProOrAbove = PLAN_RANK[userPlan] >= PLAN_RANK["pro"];
 
   const handleSelfieSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -200,12 +214,20 @@ export default function PhotoBoothPage() {
 
             <Button
               onClick={handleGenerate}
-              disabled={generating || !selfie}
+              disabled={generating || !selfie || !isProOrAbove}
               className="w-full bg-gradient-to-r from-purple-600 to-pink-600"
               size="lg"
             >
-              {generating ? "Generating portrait..." : "Generate Portrait (5 credits)"}
+              {generating ? "Generating portrait..." : isProOrAbove ? "Generate Portrait (5 credits)" : "Upgrade to Pro to use Photo Booth"}
             </Button>
+            {!isProOrAbove && (
+              <p className="text-xs text-center text-muted-foreground mt-1">
+                Requires Pro plan or higher.{" "}
+                <Link href="/#pricing" className="underline text-purple-400 hover:text-purple-300">
+                  View Plans
+                </Link>
+              </p>
+            )}
           </div>
 
           {/* Right: Result */}

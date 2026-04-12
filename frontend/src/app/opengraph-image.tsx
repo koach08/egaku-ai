@@ -58,14 +58,14 @@ export default async function Image() {
           }}
         >
           {[
+            "Sora 2",
+            "Veo 3",
             "Flux",
+            "Kling 2.5",
             "SDXL",
-            "SD 3.5",
-            "CivitAI LoRA",
-            "Style Transfer",
-            "Video Gen",
-            "Upscale",
-            "ControlNet",
+            "CivitAI",
+            "Vid2Vid",
+            "Face Swap",
           ].map((label) => (
             <div
               key={label}
@@ -94,7 +94,7 @@ export default async function Image() {
             display: "flex",
           }}
         >
-          15+ AI Models | Free to Start | egaku-ai.com
+          25+ AI Models | Free to Start | egaku-ai.com
         </div>
       </div>
     ),

@@ -50,27 +50,18 @@ export const metadata: Metadata = {
   openGraph: {
     title: "EGAKU AI - Free AI Image & Video Generator",
     description:
-      "Create stunning AI art with 15+ models. Flux, SDXL, SD 3.5, CivitAI LoRA. Text-to-image, video, style transfer, upscaling & more. Free to start.",
+      "Create stunning AI art and cinematic videos with 25+ models. Sora 2, Veo 3, Flux, Kling 2.5, CivitAI. Face Swap, Vid2Vid, Photo Booth & more. Free to start.",
     url: "https://egaku-ai.com",
     siteName: "EGAKU AI",
     type: "website",
     locale: "en_US",
     alternateLocale: ["ja_JP", "es_ES", "zh_CN", "pt_BR"],
-    images: [
-      {
-        url: "https://egaku-ai.com/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: "EGAKU AI - AI Image & Video Generator",
-      },
-    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "EGAKU AI - Free AI Image & Video Generator",
     description:
-      "Create stunning AI art with 15+ models. Flux, SDXL, CivitAI LoRA. Free to start.",
-    images: ["https://egaku-ai.com/og-image.png"],
+      "Create stunning AI art with 25+ models. Sora 2, Veo 3, Flux, Kling 2.5, CivitAI. Free to start.",
   },
   robots: {
     index: true,

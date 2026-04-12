@@ -26,6 +26,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: "/ai/ai-nsfw-generator", priority: 0.7, changeFrequency: "monthly" as const },
     { path: "/ai/ai-hentai-generator", priority: 0.7, changeFrequency: "monthly" as const },
     { path: "/ai/ai-nsfw-video-generator", priority: 0.7, changeFrequency: "monthly" as const },
+    // New SEO landing pages
+    { path: "/ai/ai-portrait-generator", priority: 0.8, changeFrequency: "monthly" as const },
+    { path: "/ai/ai-logo-maker", priority: 0.8, changeFrequency: "monthly" as const },
+    { path: "/ai/ai-meme-generator", priority: 0.8, changeFrequency: "monthly" as const },
+    { path: "/ai/video-style-transfer", priority: 0.7, changeFrequency: "monthly" as const },
+    { path: "/ai/ai-face-swap-online", priority: 0.8, changeFrequency: "monthly" as const },
     { path: "/adult", priority: 0.6, changeFrequency: "weekly" as const },
     // New feature pages
     { path: "/photo-booth", priority: 0.8, changeFrequency: "weekly" as const },

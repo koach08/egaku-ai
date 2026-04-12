@@ -66,21 +66,25 @@ export default function WallpaperPage() {
         steps: 28, cfg: 7, sampler: "euler_ancestral", seed: -1, nsfw: false,
       });
 
+      let finalUrl: string | null = null;
+
       if (res.status === "completed" && res.result_url) {
-        setResultUrl(resolveResultUrl(res.result_url) || null);
+        finalUrl = resolveResultUrl(res.result_url) || null;
+        setResultUrl(finalUrl);
       } else {
         for (let i = 0; i < 60; i++) {
           await new Promise((r) => setTimeout(r, 3000));
           const status = await api.getJobStatus(session.access_token, res.job_id);
           if (status.status === "completed" && status.result_url) {
-            setResultUrl(resolveResultUrl(status.result_url) || null);
+            finalUrl = resolveResultUrl(status.result_url) || null;
+            setResultUrl(finalUrl);
             break;
           }
           if (status.status === "failed") break;
         }
       }
 
-      if (resultUrl) toast.success("Wallpaper ready!");
+      if (finalUrl) toast.success("Wallpaper ready!");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed");
     } finally {
