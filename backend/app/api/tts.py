@@ -53,7 +53,7 @@ async def synthesize_speech(
     - Pro+: Chatterbox (voice cloning, multilingual)
     """
     supabase = get_supabase(settings)
-    profile = get_user_profile(supabase, user.id)
+    profile = await get_user_profile(supabase, user.id)
     if not profile:
         raise HTTPException(status_code=404, detail="Profile not found")
 

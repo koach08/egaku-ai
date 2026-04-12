@@ -916,6 +916,83 @@ class FalClient:
 
         return await self._submit_queue_job(fal_model, input_params)
 
+    async def submit_img2img(
+        self,
+        image_url: str,
+        prompt: str,
+        strength: float = 0.75,
+        seed: int = -1,
+        negative_prompt: str = "",
+    ) -> dict:
+        """Image-to-image generation via fal.ai Flux Dev img2img."""
+        fal_model = "fal-ai/flux/dev/image-to-image"
+        input_params: dict = {
+            "image_url": image_url,
+            "prompt": prompt,
+            "strength": max(0.0, min(1.0, strength)),
+            "num_inference_steps": 28,
+            "enable_safety_checker": False,
+            "safety_tolerance": 6,
+        }
+        if seed >= 0:
+            input_params["seed"] = seed
+        if negative_prompt:
+            input_params["negative_prompt"] = negative_prompt
+
+        return await self._submit_queue_job(fal_model, input_params)
+
+    async def submit_upscale(
+        self,
+        image_url: str,
+        scale: int = 2,
+    ) -> dict:
+        """Upscale an image via fal.ai Clarity Upscaler."""
+        fal_model = "fal-ai/clarity-upscaler"
+        input_params: dict = {
+            "image_url": image_url,
+            "scale_factor": max(1, min(4, scale)),
+            "enable_safety_checker": False,
+        }
+
+        return await self._submit_queue_job(fal_model, input_params)
+
+    async def submit_inpaint(
+        self,
+        image_url: str,
+        mask_url: str,
+        prompt: str,
+        negative_prompt: str = "",
+        strength: float = 0.85,
+        seed: int = -1,
+    ) -> dict:
+        """Inpaint masked regions via fal.ai flux-fill (Flux inpainting)."""
+        fal_model = "fal-ai/flux-fill"
+        input_params: dict = {
+            "image_url": image_url,
+            "mask_url": mask_url,
+            "prompt": prompt,
+            "enable_safety_checker": False,
+            "safety_tolerance": 6,
+        }
+        if negative_prompt:
+            input_params["negative_prompt"] = negative_prompt
+        if seed >= 0:
+            input_params["seed"] = seed
+
+        return await self._submit_queue_job(fal_model, input_params)
+
+    async def submit_remove_bg(
+        self,
+        image_url: str,
+    ) -> dict:
+        """Remove background from an image via fal.ai BiRefNet."""
+        fal_model = "fal-ai/birefnet"
+        input_params: dict = {
+            "image_url": image_url,
+        }
+
+        return await self._submit_queue_job(fal_model, input_params)
+
     async def face_swap(
         self,
         source_image_url: str,

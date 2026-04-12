@@ -211,7 +211,35 @@ async def generate_img2img(
     plan = profile["plan"]
     image_url = _b64_to_data_url(body.image)
 
-    # Use Replicate for img2img
+    # Try fal.ai first
+    from app.services.fal_ai import FalClient
+    fal_client = FalClient(settings)
+    if fal_client.is_available():
+        try:
+            result = await fal_client.submit_img2img(
+                image_url=image_url,
+                prompt=body.prompt,
+                strength=body.denoise,
+                seed=body.seed,
+                negative_prompt=body.negative_prompt,
+            )
+            img_url = fal_client.extract_image_url(result)
+            if img_url:
+                from app.api.generate import _save_generation_to_db, _store_job_status
+                await _store_job_status(settings, job_id, "completed", {"url": img_url, "backend": "fal"})
+                await _save_generation_to_db(
+                    settings, str(user.id), job_id, "img2img", body.prompt,
+                    body.negative_prompt, "fal_flux_dev_img2img", body.model_dump(),
+                    img_url, body.nsfw,
+                )
+                return GenerationResponse(
+                    job_id=job_id, status=JobStatus.completed,
+                    credits_used=credits_needed, result_url=img_url,
+                )
+        except Exception as fal_err:
+            logger.error(f"fal.ai img2img failed: {fal_err}")
+
+    # Fallback: Replicate
     from app.services.replicate import ReplicateClient
     rep_client = ReplicateClient(settings)
     if rep_client.is_available():
@@ -535,12 +563,9 @@ async def generate_upscale(
     if not body.image:
         raise HTTPException(status_code=400, detail="Input image is required")
 
-    from app.services.replicate import ReplicateClient
-    from app.services.supabase import deduct_credits
+    _check_infra(settings)
 
-    rep_client = ReplicateClient(settings)
-    if not rep_client.is_available():
-        raise HTTPException(status_code=503, detail="Upscale service is temporarily unavailable.")
+    from app.services.supabase import deduct_credits
 
     credits_needed = CREDIT_COSTS["upscale"]
     success = await deduct_credits(supabase, user.id, credits_needed, f"Upscale x{body.scale}")
@@ -551,16 +576,46 @@ async def generate_upscale(
     plan = profile["plan"]
     image_url = _b64_to_data_url(body.image)
 
-    await _submit_to_replicate(
-        settings, job_id,
-        job_data={"type": "upscale", "user_id": user.id},
-        priority=PLAN_PRIORITY[plan],
-        replicate_fn=rep_client.submit_upscale,
-        image_url=image_url,
-        scale=body.scale,
-    )
+    # Try fal.ai first
+    from app.services.fal_ai import FalClient
+    fal_client = FalClient(settings)
+    if fal_client.is_available():
+        try:
+            result = await fal_client.submit_upscale(
+                image_url=image_url,
+                scale=body.scale,
+            )
+            img_url = fal_client.extract_image_url(result)
+            if img_url:
+                from app.api.generate import _save_generation_to_db, _store_job_status
+                await _store_job_status(settings, job_id, "completed", {"url": img_url, "backend": "fal"})
+                await _save_generation_to_db(
+                    settings, str(user.id), job_id, "upscale", f"Upscale x{body.scale}",
+                    "", "fal_clarity_upscaler", {"scale": body.scale},
+                    img_url, False,
+                )
+                return GenerationResponse(
+                    job_id=job_id, status=JobStatus.completed,
+                    credits_used=credits_needed, result_url=img_url,
+                )
+        except Exception as fal_err:
+            logger.error(f"fal.ai upscale failed: {fal_err}")
 
-    return GenerationResponse(job_id=job_id, status=JobStatus.queued, credits_used=credits_needed)
+    # Fallback: Replicate
+    from app.services.replicate import ReplicateClient
+    rep_client = ReplicateClient(settings)
+    if rep_client.is_available():
+        await _submit_to_replicate(
+            settings, job_id,
+            job_data={"type": "upscale", "user_id": user.id},
+            priority=PLAN_PRIORITY[plan],
+            replicate_fn=rep_client.submit_upscale,
+            image_url=image_url,
+            scale=body.scale,
+        )
+        return GenerationResponse(job_id=job_id, status=JobStatus.queued, credits_used=credits_needed)
+
+    raise HTTPException(status_code=503, detail="Upscale service is temporarily unavailable.")
 
 
 # ─── Inpaint ───
@@ -582,12 +637,7 @@ async def generate_inpaint(
     if not body.image or not body.mask:
         raise HTTPException(status_code=400, detail="Both image and mask are required")
 
-    from app.services.replicate import ReplicateClient
     from app.services.supabase import deduct_credits
-
-    rep_client = ReplicateClient(settings)
-    if not rep_client.is_available():
-        raise HTTPException(status_code=503, detail="Inpaint service is temporarily unavailable.")
 
     credits_needed = CREDIT_COSTS["inpaint"]
     success = await deduct_credits(supabase, user.id, credits_needed, "Inpaint generation")
@@ -599,22 +649,56 @@ async def generate_inpaint(
     image_url = _b64_to_data_url(body.image)
     mask_url = _b64_to_data_url(body.mask)
 
-    await _submit_to_replicate(
-        settings, job_id,
-        job_data={"type": "inpaint", "user_id": user.id},
-        priority=PLAN_PRIORITY[plan],
-        replicate_fn=rep_client.submit_inpaint,
-        image_url=image_url,
-        mask_url=mask_url,
-        prompt=body.prompt,
-        negative_prompt=body.negative_prompt,
-        strength=body.denoise,
-        steps=body.steps,
-        cfg=body.cfg,
-        seed=body.seed,
-    )
+    # Try fal.ai first
+    from app.services.fal_ai import FalClient
+    fal_client = FalClient(settings)
+    if fal_client.is_available():
+        try:
+            result = await fal_client.submit_inpaint(
+                image_url=image_url,
+                mask_url=mask_url,
+                prompt=body.prompt,
+                negative_prompt=body.negative_prompt,
+                strength=body.denoise,
+                seed=body.seed,
+            )
+            img_url = fal_client.extract_image_url(result)
+            if img_url:
+                from app.api.generate import _save_generation_to_db, _store_job_status
+                await _store_job_status(settings, job_id, "completed", {"url": img_url, "backend": "fal"})
+                await _save_generation_to_db(
+                    settings, str(user.id), job_id, "inpaint", body.prompt,
+                    body.negative_prompt, "fal_flux_fill", body.model_dump(),
+                    img_url, body.nsfw,
+                )
+                return GenerationResponse(
+                    job_id=job_id, status=JobStatus.completed,
+                    credits_used=credits_needed, result_url=img_url,
+                )
+        except Exception as fal_err:
+            logger.error(f"fal.ai inpaint failed: {fal_err}")
 
-    return GenerationResponse(job_id=job_id, status=JobStatus.queued, credits_used=credits_needed)
+    # Fallback: Replicate
+    from app.services.replicate import ReplicateClient
+    rep_client = ReplicateClient(settings)
+    if rep_client.is_available():
+        await _submit_to_replicate(
+            settings, job_id,
+            job_data={"type": "inpaint", "user_id": user.id},
+            priority=PLAN_PRIORITY[plan],
+            replicate_fn=rep_client.submit_inpaint,
+            image_url=image_url,
+            mask_url=mask_url,
+            prompt=body.prompt,
+            negative_prompt=body.negative_prompt,
+            strength=body.denoise,
+            steps=body.steps,
+            cfg=body.cfg,
+            seed=body.seed,
+        )
+        return GenerationResponse(job_id=job_id, status=JobStatus.queued, credits_used=credits_needed)
+
+    raise HTTPException(status_code=503, detail="Inpaint service is temporarily unavailable.")
 
 
 # ─── ControlNet ───
@@ -716,12 +800,9 @@ async def remove_background(
     if not body.image:
         raise HTTPException(status_code=400, detail="Input image is required")
 
-    from app.services.replicate import ReplicateClient
-    from app.services.supabase import deduct_credits
+    _check_infra(settings)
 
-    rep_client = ReplicateClient(settings)
-    if not rep_client.is_available():
-        raise HTTPException(status_code=503, detail="Background removal service is temporarily unavailable.")
+    from app.services.supabase import deduct_credits
 
     credits_needed = CREDIT_COSTS["remove_bg"]
     success = await deduct_credits(supabase, user.id, credits_needed, "Background removal")
@@ -732,15 +813,44 @@ async def remove_background(
     plan = profile["plan"]
     image_url = _b64_to_data_url(body.image)
 
-    await _submit_to_replicate(
-        settings, job_id,
-        job_data={"type": "remove_bg", "user_id": user.id},
-        priority=PLAN_PRIORITY[plan],
-        replicate_fn=rep_client.submit_remove_bg,
-        image_url=image_url,
-    )
+    # Try fal.ai first
+    from app.services.fal_ai import FalClient
+    fal_client = FalClient(settings)
+    if fal_client.is_available():
+        try:
+            result = await fal_client.submit_remove_bg(
+                image_url=image_url,
+            )
+            img_url = fal_client.extract_image_url(result)
+            if img_url:
+                from app.api.generate import _save_generation_to_db, _store_job_status
+                await _store_job_status(settings, job_id, "completed", {"url": img_url, "backend": "fal"})
+                await _save_generation_to_db(
+                    settings, str(user.id), job_id, "remove_bg", "Background removal",
+                    "", "fal_birefnet", {},
+                    img_url, False,
+                )
+                return GenerationResponse(
+                    job_id=job_id, status=JobStatus.completed,
+                    credits_used=credits_needed, result_url=img_url,
+                )
+        except Exception as fal_err:
+            logger.error(f"fal.ai remove-bg failed: {fal_err}")
 
-    return GenerationResponse(job_id=job_id, status=JobStatus.queued, credits_used=credits_needed)
+    # Fallback: Replicate
+    from app.services.replicate import ReplicateClient
+    rep_client = ReplicateClient(settings)
+    if rep_client.is_available():
+        await _submit_to_replicate(
+            settings, job_id,
+            job_data={"type": "remove_bg", "user_id": user.id},
+            priority=PLAN_PRIORITY[plan],
+            replicate_fn=rep_client.submit_remove_bg,
+            image_url=image_url,
+        )
+        return GenerationResponse(job_id=job_id, status=JobStatus.queued, credits_used=credits_needed)
+
+    raise HTTPException(status_code=503, detail="Background removal service is temporarily unavailable.")
 
 
 # ─── Style Transfer ───
@@ -758,7 +868,6 @@ async def style_transfer(
     if not body.image:
         raise HTTPException(status_code=400, detail="Input image is required")
 
-    from app.services.replicate import ReplicateClient
     from app.services.supabase import deduct_credits
 
     credits_needed = CREDIT_COSTS["style_transfer"]
@@ -775,6 +884,36 @@ async def style_transfer(
     plan = profile["plan"]
     image_url = _b64_to_data_url(body.image)
 
+    # Try fal.ai first (img2img with style prompt)
+    from app.services.fal_ai import FalClient
+    fal_client = FalClient(settings)
+    if fal_client.is_available():
+        try:
+            result = await fal_client.submit_img2img(
+                image_url=image_url,
+                prompt=prompt,
+                strength=denoise,
+                seed=body.seed,
+                negative_prompt=negative,
+            )
+            img_url = fal_client.extract_image_url(result)
+            if img_url:
+                from app.api.generate import _save_generation_to_db, _store_job_status
+                await _store_job_status(settings, job_id, "completed", {"url": img_url, "backend": "fal"})
+                await _save_generation_to_db(
+                    settings, str(user.id), job_id, "style_transfer", prompt,
+                    negative, "fal_flux_dev_img2img", {"style": body.style, "strength": denoise},
+                    img_url, body.nsfw,
+                )
+                return GenerationResponse(
+                    job_id=job_id, status=JobStatus.completed,
+                    credits_used=credits_needed, result_url=img_url,
+                )
+        except Exception as fal_err:
+            logger.error(f"fal.ai style transfer failed: {fal_err}")
+
+    # Fallback: Replicate
+    from app.services.replicate import ReplicateClient
     rep_client = ReplicateClient(settings)
     if rep_client.is_available():
         await _submit_to_replicate(
