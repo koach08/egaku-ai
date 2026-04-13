@@ -14,7 +14,7 @@ export function trackEvent(action: string, category: string, label?: string, val
 }
 
 // Google Ads conversion labels
-const CONV_LABEL_SIGNUP = process.env.NEXT_PUBLIC_GADS_CONV_SIGNUP || "";
+const CONV_LABEL_SIGNUP = "QphICPjPt5scEM-L8MJB";
 const CONV_LABEL_PURCHASE = "VeAGCN3TjYwcEM-L8MJB";
 
 // Track Google Ads conversions
