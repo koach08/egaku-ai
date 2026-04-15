@@ -547,6 +547,50 @@ export const api = {
       body: JSON.stringify(params),
     }),
 
+  // Prompt Battle
+  createBattle: (
+    token: string,
+    params: { theme: string; prompt: string; nsfw?: boolean },
+  ) =>
+    fetchAPI("/battle/create", {
+      method: "POST",
+      headers: authHeaders(token),
+      body: JSON.stringify(params),
+    }),
+  acceptBattle: (
+    token: string,
+    id: string,
+    params: { prompt: string },
+  ) =>
+    fetchAPI(`/battle/${id}/accept`, {
+      method: "POST",
+      headers: authHeaders(token),
+      body: JSON.stringify(params),
+    }),
+  listBattles: (
+    status: "waiting_opponent" | "voting" | "completed" = "voting",
+    page = 1,
+    limit = 20,
+    nsfw = false,
+    token?: string,
+  ) =>
+    fetchAPI(
+      `/battle/list?status=${status}&page=${page}&limit=${limit}&nsfw=${nsfw}`,
+      token ? { headers: authHeaders(token) } : {},
+    ),
+  getBattle: (token: string | null, id: string) =>
+    fetchAPI(`/battle/${id}`, token ? { headers: authHeaders(token) } : {}),
+  voteBattle: (token: string, id: string, voted_for: "A" | "B") =>
+    fetchAPI(`/battle/${id}/vote`, {
+      method: "POST",
+      headers: authHeaders(token),
+      body: JSON.stringify({ voted_for }),
+    }),
+  battleLeaderboard: (limit = 20) =>
+    fetchAPI(`/battle/leaderboard?limit=${limit}`),
+  myBattles: (token: string) =>
+    fetchAPI("/battle/me", { headers: authHeaders(token) }),
+
   // TTS (Text-to-Speech)
   getTTSVoices: () => fetchAPI("/tts/voices"),
   synthesizeSpeech: async (

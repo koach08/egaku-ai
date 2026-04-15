@@ -454,6 +454,7 @@ CREDIT_COSTS = {
     "lora_generate": 3,    # per image generated with a user-trained LoRA
     "character_video": 100,  # fal-ai/pixverse/c1/reference-to-video — ~5s @720p
     "voice_clone": 20,  # base cost for up to 500 chars
+    "battle_create": 2,  # image generation cost for creating/accepting a prompt battle
 }
 
 
@@ -542,6 +543,20 @@ class CharacterVideoRequest(BaseModel):
 
 
 # --- Voice Cloning (fal-ai/chatterbox) ---
+
+class BattleCreateRequest(BaseModel):
+    theme: str = Field(..., min_length=1, max_length=200)
+    prompt: str = Field(..., min_length=3, max_length=1000)
+    nsfw: bool = False
+
+
+class BattleAcceptRequest(BaseModel):
+    prompt: str = Field(..., min_length=3, max_length=1000)
+
+
+class BattleVoteRequest(BaseModel):
+    voted_for: str = Field(..., pattern="^[AB]$")
+
 
 class VoiceCloneRequest(BaseModel):
     """Voice cloning / TTS via fal-ai/chatterbox.

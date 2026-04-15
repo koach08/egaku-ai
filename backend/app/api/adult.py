@@ -5,6 +5,9 @@ Requires age verification. CSAM is ALWAYS blocked.
 """
 
 import logging
+import os
+import time
+import urllib.request
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, Request
@@ -96,6 +99,9 @@ ADULT_MODELS = [
 CIVITAI_CUSTOM_PLANS = {"adult_creator", "adult_studio", "adult_patron"}
 
 ADULT_VIDEO_MODELS = [
+    # ── 🔥 Wan 2.2 NSFW Lightning (TOP TIER, dedicated ComfyUI backend) ──
+    {"id": "wan22_nsfw_t2v", "name": "🔥 Wan 2.2 NSFW Lightning T2V (Best)", "credits": 10, "badge": "FLAGSHIP", "type": "t2v"},
+    {"id": "wan22_nsfw_i2v", "name": "🔥 Wan 2.2 NSFW Lightning I2V (Best)", "credits": 10, "badge": "FLAGSHIP", "type": "i2v"},
     # ── Text to Video (t2v) ──
     {"id": "fal_kling_t2v", "name": "Kling v2 (Best Quality)", "credits": 15, "badge": "HD", "type": "t2v"},
     {"id": "fal_ltx_t2v", "name": "LTX 2.3 (Fast)", "credits": 5, "badge": "Fast", "type": "t2v"},
@@ -118,8 +124,19 @@ ADULT_PLAN_RANK = {
     "adult_patron": 4,
 }
 
-# Main EGAKU plans that include adult access (Premium+)
+# Main EGAKU plans that include UNLIMITED adult access (Premium+)
 MAIN_PLANS_WITH_ADULT = {"pro", "unlimited", "studio"}
+
+# Free tier: daily NSFW quota for plans that are not paid-adult.
+# Letting free/lite/basic users try a few NSFW generations per day drives
+# conversions AND exposes people to the feature. Cost covered as initial
+# investment (vast.ai ComfyUI is cheap per image).
+FREE_TIER_ADULT_QUOTA = {
+    "free":  {"images": 3,  "videos": 0},
+    "lite":  {"images": 10, "videos": 1},
+    "basic": {"images": 20, "videos": 3},
+    # pro/unlimited/studio = unlimited (short-circuit above)
+}
 
 
 class AdultGenerateRequest(BaseModel):
@@ -154,18 +171,31 @@ class AdultVideoRequest(BaseModel):
     resolution: str = "720p"  # "720p" or "1080p"
 
 
-def _check_adult_access(profile: dict) -> None:
-    """Check if user has adult content access (adult sub OR main Pro+)."""
+async def _check_adult_access(
+    profile: dict,
+    settings: "Settings | None" = None,
+    media: str = "images",
+) -> None:
+    """Check if user has adult content access.
+
+    Access tiers (in order):
+      1. Admin emails bypass everything.
+      2. KR region: blocked entirely (Korean law).
+      3. age_verified required always.
+      4. Pro/Unlimited/Studio plans OR adult subscribers: unlimited access.
+      5. Free/Lite/Basic: allowed with daily quota (FREE_TIER_ADULT_QUOTA).
+         Quota tracked in Redis per user per day. Quota is separate for
+         images vs videos because videos cost ~20x more.
+
+    `media` is "images" or "videos" — determines which quota bucket to check.
+    """
     if is_admin(profile.get("email", "")):
         return
 
-    # Region restriction: Korean law (Criminal Code Art. 243-244) prohibits
-    # creation, possession, and distribution of obscene material.
-    # Block adult generation entirely for KR users.
     region = profile.get("region_code", "")
     if region == "KR":
         raise HTTPException(
-            status_code=451,  # Unavailable For Legal Reasons
+            status_code=451,
             detail="Adult content generation is not available in your region due to local laws (Korean Criminal Code Art. 243-244).",
         )
 
@@ -181,11 +211,78 @@ def _check_adult_access(profile: dict) -> None:
     has_main_access = main_plan in MAIN_PLANS_WITH_ADULT
     has_adult_sub = adult_plan != "none" and adult_plan in ADULT_PLAN_RANK
 
-    if not has_main_access and not has_adult_sub:
+    # Unlimited paid access — no quota
+    if has_main_access or has_adult_sub:
+        return
+
+    # Free tier: check daily quota
+    quota = FREE_TIER_ADULT_QUOTA.get(main_plan, FREE_TIER_ADULT_QUOTA["free"])
+    daily_cap = quota.get(media, 0)
+
+    if daily_cap <= 0:
         raise HTTPException(
             status_code=403,
-            detail="Adult content requires an Adult Expression subscription or Pro+ plan.",
+            detail=(
+                f"Adult {media} require a higher plan. "
+                "Upgrade to unlock more daily generations, or subscribe to Adult Expression."
+            ),
         )
+
+    # Read current usage from Redis (best-effort — if Redis is down, allow the request)
+    try:
+        from app.services.queue import JobQueue
+        import datetime as _dt
+
+        if settings is None:
+            from app.core.config import get_settings as _gs
+            settings = _gs()
+        jq = JobQueue(settings)
+        today = _dt.date.today().isoformat()
+        user_id = profile.get("id") or profile.get("user_id")
+        key = f"daily_nsfw_{media}:{user_id}:{today}"
+        current = await jq.redis.get(key)
+        current_count = int(current) if current else 0
+        if current_count >= daily_cap:
+            raise HTTPException(
+                status_code=429,
+                detail=(
+                    f"Daily NSFW {media} limit reached ({daily_cap}/day on {main_plan} plan). "
+                    "Upgrade your plan or subscribe to Adult Expression for more."
+                ),
+            )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.warning(f"Adult quota check failed (Redis): {e} — allowing request")
+
+
+async def _increment_adult_usage(profile: dict, settings, media: str = "images") -> None:
+    """Increment the per-day NSFW usage counter for a free-tier user.
+    No-op for unlimited plans. Best-effort (Redis failure is non-fatal)."""
+    if is_admin(profile.get("email", "")):
+        return
+    main_plan = profile.get("plan", "free")
+    adult_plan = profile.get("adult_plan", "none")
+    if main_plan in MAIN_PLANS_WITH_ADULT or (adult_plan != "none" and adult_plan in ADULT_PLAN_RANK):
+        return
+    try:
+        from app.services.queue import JobQueue
+        import datetime as _dt
+        jq = JobQueue(settings)
+        today = _dt.date.today().isoformat()
+        user_id = profile.get("id") or profile.get("user_id")
+        key = f"daily_nsfw_{media}:{user_id}:{today}"
+        new_val = await jq.redis.incr(key)
+        if new_val == 1:
+            await jq.redis.expire(key, 60 * 60 * 26)  # 26h TTL so it survives DST
+    except Exception as e:
+        logger.warning(f"Failed to increment NSFW usage counter: {e}")
+
+
+# Backwards-compat sync wrapper (existing callers may still invoke the
+# non-async signature with just `profile`). Treat as image check with no
+# quota gating when settings is unavailable.
+_original_check_adult_access = _check_adult_access  # noqa: F841
 
 
 def _check_adult_prompt(prompt: str) -> None:
@@ -743,8 +840,8 @@ async def generate_adult(
     if not profile:
         raise HTTPException(status_code=404, detail="User not found")
 
-    # 3. Access check (adult sub or Pro+ plan)
-    _check_adult_access(profile)
+    # 3. Access check (adult sub or Pro+ plan; free/lite/basic allowed with daily quota)
+    await _check_adult_access(profile, settings, media="images")
 
     # 4. Region rules
     ip = get_client_ip(request)
@@ -968,8 +1065,8 @@ async def generate_adult_video(
     if not profile:
         raise HTTPException(status_code=404, detail="User not found")
 
-    # 3. Access check
-    _check_adult_access(profile)
+    # 3. Access check (video has stricter quota than images for free tier)
+    await _check_adult_access(profile, settings, media="videos")
 
     # 4. Credits
     model_id = body.model or "fal_ltx_t2v"
@@ -987,8 +1084,86 @@ async def generate_adult_video(
 
     job_id = str(uuid.uuid4())
     is_novita_model = model_id.startswith("novita_")
+    is_wan22_model = model_id.startswith("wan22_nsfw")
 
     is_i2v = bool(body.image_url)
+
+    # ━━━━━━━ Wan 2.2 NSFW Lightning (dedicated ComfyUI backend) ━━━━━━━
+    # Top-tier NSFW video model — routes to separate vast.ai RTX 3090 instance.
+    if is_wan22_model:
+        wan22_url = getattr(settings, "wan22_comfyui_url", None) or os.environ.get("WAN22_COMFYUI_URL", "")
+        if not wan22_url:
+            raise HTTPException(
+                status_code=503,
+                detail="Wan 2.2 NSFW backend not configured. Set WAN22_COMFYUI_URL.",
+            )
+        try:
+            from app.services.wan22_comfyui import generate_wan22_t2v, generate_wan22_i2v
+
+            if is_i2v and body.image_url:
+                # Download image to temp file first
+                import tempfile
+                with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tf:
+                    req = urllib.request.Request(body.image_url, headers={"User-Agent": "EGAKU-AI/1.0"})
+                    with urllib.request.urlopen(req, timeout=60) as resp:
+                        tf.write(resp.read())
+                    tmp_path = tf.name
+                try:
+                    video_bytes = generate_wan22_i2v(
+                        comfyui_url=wan22_url,
+                        image_path=tmp_path,
+                        prompt=body.prompt or "",
+                        negative_prompt=body.negative_prompt or "",
+                        duration=body.duration,
+                        seed=body.seed,
+                    )
+                finally:
+                    try: os.unlink(tmp_path)
+                    except Exception: pass
+                backend_label = "wan22_i2v"
+            else:
+                video_bytes = generate_wan22_t2v(
+                    comfyui_url=wan22_url,
+                    prompt=body.prompt,
+                    negative_prompt=body.negative_prompt or "",
+                    duration=body.duration,
+                    seed=body.seed,
+                )
+                backend_label = "wan22_t2v"
+
+            # Upload video to storage
+            from app.services.storage import upload_bytes
+            ts = int(time.time())
+            video_url = await upload_bytes(
+                settings,
+                video_bytes,
+                f"adult-videos/{user.id}/{job_id}.mp4",
+                content_type="video/mp4",
+            )
+
+            await _store_job_status(settings, job_id, "completed", {"url": video_url, "backend": backend_label})
+            await _save_generation_to_db(
+                settings, user.id, job_id,
+                "img2vid" if is_i2v else "txt2vid",
+                body.prompt, body.negative_prompt,
+                model_id, body.model_dump(), video_url, True,
+            )
+            return GenerationResponse(
+                job_id=job_id, status=JobStatus.completed,
+                credits_used=base_cost, result_url=video_url,
+            )
+        except Exception as e:
+            logger.error(f"Wan 2.2 generation failed: {e}", exc_info=True)
+            # Refund credits on hard failure
+            try:
+                from app.services.supabase import refund_credits
+                await refund_credits(supabase, user.id, base_cost, f"Wan 2.2 failed: {str(e)[:80]}")
+            except Exception:
+                pass
+            raise HTTPException(
+                status_code=500,
+                detail=f"Wan 2.2 generation failed: {str(e)[:200]}",
+            )
 
     # ━━━━━━━ IMAGE-TO-VIDEO ━━━━━━━
     # Two modes:
@@ -1308,7 +1483,7 @@ async def generate_with_civitai(
     if not profile:
         raise HTTPException(status_code=404, detail="User not found")
 
-    _check_adult_access(profile)
+    await _check_adult_access(profile, settings, media="images")
 
     # Patron-only check for custom CivitAI models
     adult_plan = profile.get("adult_plan", "none")
@@ -1435,7 +1610,7 @@ async def _adult_auth(request: Request, settings: Settings):
     profile = await get_user_profile(supabase, user.id)
     if not profile:
         raise HTTPException(status_code=404, detail="User not found")
-    _check_adult_access(profile)
+    await _check_adult_access(profile, settings, media="images")
     return user, profile, supabase
 
 
