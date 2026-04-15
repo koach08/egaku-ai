@@ -73,6 +73,10 @@
       "title": "Character Video",
       "desc": "Upload 1-3 character images. Get videos where they stay consistent across every frame — no more morphing faces."
     },
+    "voiceClone": {
+      "title": "Voice Cloning",
+      "desc": "Upload a 5-10 sec voice sample, type text, and hear them say it. Perfect for narration, dubbing, and character voices."
+    },
     "upscale": {
       "title": "Upscale",
       "desc": "Enhance resolution up to 4x with AI. RealESRGAN for sharp, detailed results."

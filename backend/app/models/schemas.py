@@ -453,6 +453,7 @@ CREDIT_COSTS = {
     "lora_training": 300,  # fal-ai/flux-lora-fast-training — ~$2 raw per run
     "lora_generate": 3,    # per image generated with a user-trained LoRA
     "character_video": 100,  # fal-ai/pixverse/c1/reference-to-video — ~5s @720p
+    "voice_clone": 20,  # base cost for up to 500 chars
 }
 
 
@@ -538,3 +539,21 @@ class CharacterVideoRequest(BaseModel):
     generate_audio: bool = False
     seed: int = -1
     nsfw: bool = False
+
+
+# --- Voice Cloning (fal-ai/chatterbox) ---
+
+class VoiceCloneRequest(BaseModel):
+    """Voice cloning / TTS via fal-ai/chatterbox.
+
+    `reference_audio` may be:
+      - an HTTPS URL to a public audio file
+      - a base64 data URL (auto-uploaded to Supabase)
+      - empty string (uses default Chatterbox voice)
+    """
+    text: str = Field(..., min_length=1, max_length=5000)
+    reference_audio: str = ""
+    exaggeration: float = Field(0.5, ge=0.0, le=1.0)
+    temperature: float = Field(0.8, ge=0.05, le=2.0)
+    cfg: float = Field(0.5, ge=0.1, le=1.0)
+    seed: int = -1

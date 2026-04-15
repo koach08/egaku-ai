@@ -22,6 +22,7 @@ from . import (
     tts,
     webhook,
     character_video,
+    voice_clone,
 )
 
 __all__ = [
@@ -46,4 +47,5 @@ __all__ = [
     "tts",
     "webhook",
     "character_video",
+    "voice_clone",
 ]

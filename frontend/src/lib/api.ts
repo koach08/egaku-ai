@@ -498,6 +498,14 @@ export const api = {
       body: JSON.stringify(params),
     }),
 
+  // Voice Cloning (fal-ai/chatterbox)
+  voiceClone: (token: string, params: Record<string, unknown>) =>
+    fetchAPI("/generate/voice-clone", {
+      method: "POST",
+      headers: authHeaders(token),
+      body: JSON.stringify(params),
+    }),
+
   // User-trained LoRA models
   trainLora: (
     token: string,

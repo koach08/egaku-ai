@@ -73,6 +73,10 @@
       "title": "Video con Personajes",
       "desc": "Sube de 1 a 3 imágenes de referencia. Obtén videos donde tus personajes se mantienen coherentes en cada fotograma, sin rostros cambiantes."
     },
+    "voiceClone": {
+      "title": "Clonación de Voz",
+      "desc": "Sube una muestra de voz de 5-10 segundos, escribe el texto y escúchalo hablar. Perfecto para narración, doblaje y voces de personajes."
+    },
     "upscale": {
       "title": "Escalado",
       "desc": "Mejora la resolución hasta 4x con IA. RealESRGAN para resultados nítidos y detallados."

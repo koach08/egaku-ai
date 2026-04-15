@@ -20,8 +20,20 @@ const TOOLS = [
     items: [
       { name: "Text to Video", desc: "Generate videos with Sora 2, Veo 3, Kling 2.5, and more", href: "/generate?tab=txt2vid", icon: "🎬", badge: "Core" },
       { name: "Image to Video", desc: "Animate any image into a video clip", href: "/generate?tab=img2vid", icon: "▶️", badge: "" },
+      { name: "Video-to-Video", desc: "Upload a clip, restyle it — watercolor, anime, cyberpunk", href: "/vid2vid", icon: "🎨", badge: "New" },
+      { name: "Character Video", desc: "1-3 reference images → consistent character video (PixVerse C1)", href: "/character-video", icon: "🎭", badge: "New" },
+      { name: "Lip Sync", desc: "Any face video + any audio = perfect lip sync", href: "/lip-sync", icon: "👄", badge: "New" },
+      { name: "Talking Avatar", desc: "Character image + audio → cinematic talking video", href: "/talking-avatar", icon: "🗣️", badge: "New" },
       { name: "Video Shorts", desc: "TikTok / Reels / Shorts vertical video generator", href: "/shorts", icon: "📱", badge: "Popular" },
       { name: "Storyboard Studio", desc: "Multi-scene video production with BGM and narration", href: "/storyboard", icon: "🎞️", badge: "" },
+    ],
+  },
+  {
+    category: "Custom AI (Pro-tier)",
+    items: [
+      { name: "Train Your Own LoRA", desc: "Upload 4-20 photos → custom AI model (15 min training, unlimited uses)", href: "/lora-train", icon: "🧠", badge: "Unique" },
+      { name: "My Trained Models", desc: "Generate with your own LoRAs", href: "/my-loras", icon: "📚", badge: "" },
+      { name: "Voice Cloning", desc: "5-10 sec voice sample → clone any voice for TTS", href: "/voice-clone", icon: "🎙️", badge: "New" },
     ],
   },
   {

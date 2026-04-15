@@ -1165,3 +1165,42 @@ class FalClient:
             len(image_references), resolution, duration, aspect_ratio,
         )
         return await self._submit_queue_job(fal_model, input_params)
+
+    async def submit_voice_clone(
+        self,
+        text: str,
+        reference_audio_url: str = "",
+        exaggeration: float = 0.5,
+        temperature: float = 0.8,
+        cfg: float = 0.5,
+        seed: int = -1,
+    ) -> dict:
+        """Text-to-speech with optional voice cloning via fal-ai/chatterbox."""
+        fal_model = "fal-ai/chatterbox/text-to-speech"
+        input_params: dict = {
+            "text": text,
+            "exaggeration": max(0.0, min(1.0, exaggeration)),
+            "temperature": max(0.05, min(2.0, temperature)),
+            "cfg": max(0.1, min(1.0, cfg)),
+        }
+        if reference_audio_url:
+            input_params["audio_url"] = reference_audio_url
+        if seed >= 0:
+            input_params["seed"] = seed
+        logger.info(
+            "fal.ai voice_clone submit: text_len=%d ref=%s",
+            len(text), bool(reference_audio_url),
+        )
+        return await self._submit_queue_job(fal_model, input_params)
+
+    def extract_audio_url(self, result: dict) -> str | None:
+        """Extract the audio URL from a fal.ai TTS response."""
+        audio = result.get("audio")
+        if isinstance(audio, dict):
+            return audio.get("url")
+        if isinstance(audio, str):
+            return audio
+        output = result.get("output")
+        if isinstance(output, dict):
+            return output.get("url")
+        return None

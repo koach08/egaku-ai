@@ -22,7 +22,7 @@ const planPrices: Record<string, string> = {
 
 const featureKeys = [
   "txt2img", "img2img", "style", "txt2vid", "img2vid", "vid2vid",
-  "lipSync", "talkingAvatar", "loraTraining", "characterVideo",
+  "lipSync", "talkingAvatar", "loraTraining", "characterVideo", "voiceClone",
   "upscale", "inpaint", "controlnet", "removeBg", "customModels", "apiAccess",
 ] as const;
 
@@ -201,6 +201,7 @@ export default function LandingPage() {
                 key === "talkingAvatar" ? "/talking-avatar" :
                 key === "loraTraining" ? "/lora-train" :
                 key === "characterVideo" ? "/character-video" :
+                key === "voiceClone" ? "/voice-clone" :
                 key === "txt2vid" || key === "img2vid" ? "/generate" :
                 key === "apiAccess" ? "/settings" :
                 "/generate";
@@ -227,6 +228,11 @@ export default function LandingPage() {
                         </Badge>
                       )}
                       {key === "characterVideo" && (
+                        <Badge variant="outline" className="w-fit text-[10px] border-purple-500 text-purple-400">
+                          NEW
+                        </Badge>
+                      )}
+                      {key === "voiceClone" && (
                         <Badge variant="outline" className="w-fit text-[10px] border-purple-500 text-purple-400">
                           NEW
                         </Badge>

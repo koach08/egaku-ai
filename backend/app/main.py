@@ -101,6 +101,9 @@ app.include_router(feedback.router, prefix="/api")
 from app.api import character_video
 app.include_router(character_video.router, prefix="/api")
 
+from app.api import voice_clone
+app.include_router(voice_clone.router, prefix="/api")
+
 from app.api import lora
 app.include_router(lora.router, prefix="/api")
 

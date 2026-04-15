@@ -73,6 +73,10 @@
       "title": "Vídeo com Personagens",
       "desc": "Envie de 1 a 3 imagens de referência. Gere vídeos com personagens consistentes em cada quadro — sem rostos que se deformam."
     },
+    "voiceClone": {
+      "title": "Clonagem de Voz",
+      "desc": "Envie uma amostra de voz de 5-10 segundos, digite o texto e ouça-o falar. Perfeito para narração, dublagem e vozes de personagens."
+    },
     "upscale": {
       "title": "Upscale",
       "desc": "Aumente a resolução em até 4x com IA. RealESRGAN para resultados nítidos e detalhados."
