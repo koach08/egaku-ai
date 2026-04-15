@@ -1007,3 +1007,58 @@ class FalClient:
 
         # Face swap can take longer — use queue API
         return await self._submit_queue_job(fal_model, input_params)
+
+    async def submit_lipsync(
+        self,
+        video_url: str,
+        audio_url: str,
+        sync_mode: str = "cut_off",
+    ) -> dict:
+        """Lip-sync a face video to an audio track via fal-ai/sync-lipsync/v3.
+
+        Both inputs must be public HTTP(S) URLs (data URLs also accepted by
+        fal.ai for small payloads, but callers should upload to storage first).
+
+        Args:
+            video_url: URL of the source video (contains a face)
+            audio_url: URL of the audio to sync to
+            sync_mode: cut_off (default) / loop / bounce / silence / remap
+
+        Returns:
+            fal.ai response dict with `video` field.
+        """
+        fal_model = "fal-ai/sync-lipsync/v3"
+        allowed_modes = ("cut_off", "loop", "bounce", "silence", "remap")
+        mode = sync_mode if sync_mode in allowed_modes else "cut_off"
+        input_params: dict = {
+            "video_url": video_url,
+            "audio_url": audio_url,
+            "sync_mode": mode,
+        }
+        logger.info(f"fal.ai lipsync submit: mode={mode}")
+        # Always queue: lipsync is slow (typical 2-6min)
+        return await self._submit_queue_job(fal_model, input_params)
+
+    async def submit_omnihuman(
+        self,
+        image_url: str,
+        audio_url: str,
+    ) -> dict:
+        """Generate a talking-avatar video from a still image + audio via
+        fal-ai/bytedance/omnihuman/v1.5.
+
+        Args:
+            image_url: URL (or data URL) of a still character image
+            audio_url: URL (or data URL) of the speech audio
+
+        Returns:
+            fal.ai response dict with `video` field.
+        """
+        fal_model = "fal-ai/bytedance/omnihuman/v1.5"
+        input_params: dict = {
+            "image_url": image_url,
+            "audio_url": audio_url,
+        }
+        logger.info("fal.ai omnihuman submit")
+        # Always queue: omnihuman is slow (typical 2-5min)
+        return await self._submit_queue_job(fal_model, input_params)

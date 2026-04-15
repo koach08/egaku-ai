@@ -202,6 +202,31 @@ class FaceSwapRequest(BaseModel):
     nsfw: bool = False
 
 
+class LipSyncRequest(BaseModel):
+    """Lip-sync a face video to any audio via fal-ai/sync-lipsync/v3.
+
+    `video` and `audio` may each be:
+      - an HTTPS URL (public MP4/MOV for video; MP3/WAV/M4A for audio)
+      - a base64 data URL (e.g. `data:video/mp4;base64,...` or
+        `data:audio/mpeg;base64,...`) — auto-uploaded to Supabase Storage.
+    `sync_mode` controls how the model handles length mismatches between the
+    video and the audio: cut_off (default) / loop / bounce / silence / remap.
+    """
+    video: str = Field(..., min_length=1)
+    audio: str = Field(..., min_length=1)
+    sync_mode: str = "cut_off"
+
+
+class TalkingAvatarRequest(BaseModel):
+    """Generate a talking-avatar video from a still image + audio, via
+    fal-ai/bytedance/omnihuman/v1.5 (OmniHuman).
+
+    `image` and `audio` may each be an HTTPS URL or a base64 data URL.
+    """
+    image: str = Field(..., min_length=1)
+    audio: str = Field(..., min_length=1)
+
+
 class ConsistentCharacterRequest(BaseModel):
     prompt: str = Field(..., min_length=1, max_length=2000)
     reference_image: str = ""  # base64 encoded face/character reference
@@ -390,6 +415,8 @@ CREDIT_COSTS = {
     "style_transfer": 3,
     "face_swap": 3,
     "consistent_character": 5,
+    "lipsync": 80,  # fal-ai/sync-lipsync/v3 — covers ~30s of output
+    "talking_avatar": 60,  # fal-ai/bytedance/omnihuman/v1.5 — covers ~10s
 }
 
 

@@ -18,8 +18,10 @@ from app.models.schemas import (
     Img2VidRequest,
     InpaintRequest,
     JobStatus,
+    LipSyncRequest,
     RemoveBgRequest,
     StyleTransferRequest,
+    TalkingAvatarRequest,
     UpscaleRequest,
     Vid2VidRequest,
 )
@@ -1068,6 +1070,247 @@ async def consistent_character(
     except Exception as e:
         logger.error("Consistent character failed: %s", e)
         raise HTTPException(status_code=500, detail=f"Generation failed: {str(e)}")
+
+
+# ─── Lip Sync ───
+
+async def _resolve_audio_url(supabase, audio: str, user_id: str, job_id: str, subdir: str = "lipsync-input") -> str:
+    """Accept either an HTTP(S) URL or a base64 data URL for an audio file.
+
+    - HTTP URLs are returned as-is (fal.ai fetches them directly).
+    - Data URLs are decoded and uploaded to Supabase Storage under
+      `{subdir}/{user_id}/{job_id}.{ext}`, then the public URL is returned.
+    """
+    if audio.startswith(("http://", "https://")):
+        return audio
+
+    if not audio.startswith("data:"):
+        raise HTTPException(
+            status_code=400,
+            detail="Audio must be an HTTP(S) URL or a base64 data URL (data:audio/mpeg;base64,...)",
+        )
+
+    try:
+        header, b64data = audio.split(",", 1)
+        import base64 as _b64
+        data = _b64.b64decode(b64data)
+    except Exception:
+        raise HTTPException(status_code=400, detail="Failed to decode audio data URL")
+
+    if len(data) > 10 * 1024 * 1024:
+        raise HTTPException(status_code=413, detail="Audio exceeds 10 MB limit")
+
+    content_type = "audio/mpeg"
+    if ":" in header and ";" in header:
+        content_type = header.split(":", 1)[1].split(";", 1)[0] or "audio/mpeg"
+    if "wav" in content_type:
+        ext = "wav"
+    elif "mp4" in content_type or "m4a" in content_type or "aac" in content_type:
+        ext = "m4a"
+    elif "ogg" in content_type:
+        ext = "ogg"
+    else:
+        ext = "mp3"
+
+    storage_path = f"{subdir}/{user_id}/{job_id}.{ext}"
+    try:
+        supabase.storage.from_("self-hosted").upload(
+            storage_path, data,
+            file_options={"content-type": content_type, "upsert": "true"},
+        )
+    except Exception as e:
+        logger.error(f"Failed to upload audio input to Supabase: {e}")
+        raise HTTPException(status_code=500, detail="Failed to stage input audio")
+
+    return f"{supabase.supabase_url}/storage/v1/object/public/self-hosted/{storage_path}"
+
+
+@router.post("/lipsync", response_model=GenerationResponse)
+async def generate_lipsync(
+    body: LipSyncRequest,
+    request: Request,
+    settings: Settings = Depends(get_settings),
+):
+    """Lip-sync a face video to any audio via fal-ai/sync-lipsync/v3.
+
+    Video must be 2–30 seconds, max 25 MB. Audio max 10 MB (mp3/wav/m4a).
+    Accepts either public HTTP(S) URLs or base64 data URLs for both inputs.
+    Basic plan or above required.
+    """
+    _check_infra(settings)
+    user, profile, supabase = await _auth_and_profile(request, settings)
+
+    # Admin bypass for plan gate
+    from app.core.legal import is_admin
+    user_email = profile.get("email", "")
+    plan = profile["plan"]
+    if PLAN_RANK.get(plan, 0) < PLAN_RANK["basic"] and not is_admin(user_email):
+        raise HTTPException(status_code=403, detail="Lip Sync requires Basic plan or above")
+
+    from app.services.fal_ai import FalClient
+    from app.services.supabase import deduct_credits
+
+    fal_client = FalClient(settings)
+    if not fal_client.is_available():
+        raise HTTPException(status_code=503, detail="Lip sync service is temporarily unavailable")
+
+    credits_needed = CREDIT_COSTS["lipsync"]
+    success = await deduct_credits(supabase, user.id, credits_needed, "Lip sync generation")
+    if not success:
+        raise HTTPException(status_code=402, detail="Insufficient credits")
+
+    job_id = str(uuid.uuid4())
+
+    try:
+        # Stage inputs: video (base64 or URL) and audio (base64 or URL)
+        video_url = await _resolve_video_url(supabase, body.video, str(user.id), job_id)
+        audio_url = await _resolve_audio_url(supabase, body.audio, str(user.id), job_id, subdir="lipsync-input")
+
+        fal_result = await fal_client.submit_lipsync(
+            video_url=video_url,
+            audio_url=audio_url,
+            sync_mode=body.sync_mode,
+        )
+
+        result_url = fal_client.extract_video_url(fal_result)
+        if not result_url:
+            logger.error(f"lipsync: no video URL in fal.ai response: {fal_result}")
+            raise HTTPException(status_code=502, detail="Lip sync produced no output")
+
+        # Persist to Supabase Storage for permanence
+        from app.api.generate import _persist_to_supabase_storage, _save_generation_to_db, _store_job_status
+        permanent_url = await _persist_to_supabase_storage(supabase, result_url, job_id, is_video=True)
+
+        await _store_job_status(settings, job_id, "completed", {"url": permanent_url, "backend": "fal"})
+        await _save_generation_to_db(
+            settings, str(user.id), job_id, "lipsync", "Lip sync",
+            "", "fal_sync_lipsync_v3",
+            {"sync_mode": body.sync_mode},
+            permanent_url, False,
+        )
+
+        return GenerationResponse(
+            job_id=job_id, status=JobStatus.completed,
+            credits_used=credits_needed, result_url=permanent_url,
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.exception(f"lipsync failed: {e}")
+        # Refund credits on failure
+        try:
+            from app.services.supabase import get_credit_balance
+            if profile.get("plan") not in ("unlimited", "studio"):
+                current = await get_credit_balance(supabase, user.id)
+                if current:
+                    supabase.table("credits").update({
+                        "balance": current["balance"] + credits_needed,
+                    }).eq("user_id", user.id).execute()
+                    supabase.table("credit_transactions").insert({
+                        "user_id": str(user.id),
+                        "amount": credits_needed,
+                        "type": "refund",
+                        "description": "lipsync refund (failure)",
+                    }).execute()
+        except Exception:
+            pass
+        raise HTTPException(status_code=500, detail=f"Lip sync failed: {e}")
+
+
+# ─── Talking Avatar (OmniHuman) ───
+
+@router.post("/talking-avatar", response_model=GenerationResponse)
+async def generate_talking_avatar(
+    body: TalkingAvatarRequest,
+    request: Request,
+    settings: Settings = Depends(get_settings),
+):
+    """Turn a still image into a talking avatar driven by audio, via
+    fal-ai/bytedance/omnihuman/v1.5.
+
+    Image max 10 MB (jpg/png/webp). Audio max 10 MB (mp3/wav/m4a).
+    Basic plan or above required.
+    """
+    _check_infra(settings)
+    user, profile, supabase = await _auth_and_profile(request, settings)
+
+    # Admin bypass for plan gate
+    from app.core.legal import is_admin
+    user_email = profile.get("email", "")
+    plan = profile["plan"]
+    if PLAN_RANK.get(plan, 0) < PLAN_RANK["basic"] and not is_admin(user_email):
+        raise HTTPException(status_code=403, detail="Talking Avatar requires Basic plan or above")
+
+    from app.services.fal_ai import FalClient
+    from app.services.supabase import deduct_credits
+
+    fal_client = FalClient(settings)
+    if not fal_client.is_available():
+        raise HTTPException(status_code=503, detail="Talking avatar service is temporarily unavailable")
+
+    credits_needed = CREDIT_COSTS["talking_avatar"]
+    success = await deduct_credits(supabase, user.id, credits_needed, "Talking avatar generation")
+    if not success:
+        raise HTTPException(status_code=402, detail="Insufficient credits")
+
+    job_id = str(uuid.uuid4())
+
+    try:
+        # Image: base64 → data URL (OmniHuman accepts data URLs fine), HTTP → passthrough
+        if body.image.startswith(("http://", "https://", "data:")):
+            image_url = body.image
+        else:
+            image_url = _b64_to_data_url(body.image)
+
+        # Audio: upload base64 to storage so fal.ai can fetch by URL
+        audio_url = await _resolve_audio_url(supabase, body.audio, str(user.id), job_id, subdir="avatar-input")
+
+        fal_result = await fal_client.submit_omnihuman(
+            image_url=image_url,
+            audio_url=audio_url,
+        )
+
+        result_url = fal_client.extract_video_url(fal_result)
+        if not result_url:
+            logger.error(f"talking-avatar: no video URL in fal.ai response: {fal_result}")
+            raise HTTPException(status_code=502, detail="Talking avatar produced no output")
+
+        from app.api.generate import _persist_to_supabase_storage, _save_generation_to_db, _store_job_status
+        permanent_url = await _persist_to_supabase_storage(supabase, result_url, job_id, is_video=True)
+
+        await _store_job_status(settings, job_id, "completed", {"url": permanent_url, "backend": "fal"})
+        await _save_generation_to_db(
+            settings, str(user.id), job_id, "talking_avatar", "Talking avatar",
+            "", "fal_omnihuman_v15",
+            {},
+            permanent_url, False,
+        )
+
+        return GenerationResponse(
+            job_id=job_id, status=JobStatus.completed,
+            credits_used=credits_needed, result_url=permanent_url,
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.exception(f"talking-avatar failed: {e}")
+        try:
+            from app.services.supabase import get_credit_balance
+            if profile.get("plan") not in ("unlimited", "studio"):
+                current = await get_credit_balance(supabase, user.id)
+                if current:
+                    supabase.table("credits").update({
+                        "balance": current["balance"] + credits_needed,
+                    }).eq("user_id", user.id).execute()
+                    supabase.table("credit_transactions").insert({
+                        "user_id": str(user.id),
+                        "amount": credits_needed,
+                        "type": "refund",
+                        "description": "talking_avatar refund (failure)",
+                    }).execute()
+        except Exception:
+            pass
+        raise HTTPException(status_code=500, detail=f"Talking avatar failed: {e}")
 
 
 # ─── Available styles list ───

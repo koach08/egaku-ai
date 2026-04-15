@@ -143,6 +143,18 @@ export const api = {
       headers: authHeaders(token),
       body: JSON.stringify(params),
     }),
+  lipsync: (token: string, params: Record<string, unknown>) =>
+    fetchAPI("/generate/lipsync", {
+      method: "POST",
+      headers: authHeaders(token),
+      body: JSON.stringify(params),
+    }),
+  talkingAvatar: (token: string, params: Record<string, unknown>) =>
+    fetchAPI("/generate/talking-avatar", {
+      method: "POST",
+      headers: authHeaders(token),
+      body: JSON.stringify(params),
+    }),
   upscale: (token: string, params: Record<string, unknown>) =>
     fetchAPI("/generate/upscale", {
       method: "POST",

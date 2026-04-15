@@ -57,6 +57,14 @@
       "title": "Video a video",
       "desc": "Sube un clip y restílalo: acuarela, anime, cyberpunk y más. Con tecnología WAN 2.7."
     },
+    "lipSync": {
+      "title": "Lip Sync",
+      "desc": "Sincroniza cualquier video con un rostro a cualquier audio. Ideal para VTubers y doblaje."
+    },
+    "talkingAvatar": {
+      "title": "Avatar Parlante",
+      "desc": "Sube una imagen de personaje + audio. Obtén un video cinematográfico del personaje hablando."
+    },
     "upscale": {
       "title": "Escalado",
       "desc": "Mejora la resolución hasta 4x con IA. RealESRGAN para resultados nítidos y detallados."

@@ -57,6 +57,14 @@
       "title": "Vídeo para Vídeo",
       "desc": "Envie um clipe e aplique um novo estilo — aquarela, anime, cyberpunk e mais. Com WAN 2.7."
     },
+    "lipSync": {
+      "title": "Lip Sync",
+      "desc": "Sincronize qualquer vídeo com rosto a qualquer áudio. Perfeito para VTubers e dublagem."
+    },
+    "talkingAvatar": {
+      "title": "Avatar Falante",
+      "desc": "Envie uma imagem de personagem + áudio. Receba um vídeo cinematográfico do personagem falando."
+    },
     "upscale": {
       "title": "Upscale",
       "desc": "Aumente a resolução em até 4x com IA. RealESRGAN para resultados nítidos e detalhados."

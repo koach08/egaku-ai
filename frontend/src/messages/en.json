@@ -57,6 +57,14 @@
       "title": "Video-to-Video",
       "desc": "Upload a clip and restyle it — watercolor, anime, cyberpunk, and more. Powered by WAN 2.7."
     },
+    "lipSync": {
+      "title": "Lip Sync",
+      "desc": "Turn any face video into speaking any audio. Perfect for VTubers and dubbing."
+    },
+    "talkingAvatar": {
+      "title": "Talking Avatar",
+      "desc": "Upload a character image + audio. Get a cinematic video of them speaking."
+    },
     "upscale": {
       "title": "Upscale",
       "desc": "Enhance resolution up to 4x with AI. RealESRGAN for sharp, detailed results."

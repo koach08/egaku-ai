@@ -22,6 +22,7 @@ const planPrices: Record<string, string> = {
 
 const featureKeys = [
   "txt2img", "img2img", "style", "txt2vid", "img2vid", "vid2vid",
+  "lipSync", "talkingAvatar",
   "upscale", "inpaint", "controlnet", "removeBg", "customModels", "apiAccess",
 ] as const;
 
@@ -196,6 +197,8 @@ export default function LandingPage() {
             {featureKeys.map((key) => {
               const href =
                 key === "vid2vid" ? "/vid2vid" :
+                key === "lipSync" ? "/lip-sync" :
+                key === "talkingAvatar" ? "/talking-avatar" :
                 key === "txt2vid" || key === "img2vid" ? "/generate" :
                 key === "apiAccess" ? "/settings" :
                 "/generate";
@@ -209,6 +212,11 @@ export default function LandingPage() {
                       {key === "vid2vid" && (
                         <Badge variant="outline" className="w-fit text-[10px] border-purple-500 text-purple-400">
                           New · Pro
+                        </Badge>
+                      )}
+                      {(key === "lipSync" || key === "talkingAvatar") && (
+                        <Badge variant="outline" className="w-fit text-[10px] border-purple-500 text-purple-400">
+                          New
                         </Badge>
                       )}
                       {key === "apiAccess" && (
