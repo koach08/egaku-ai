@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { GENERATED_PAGES } from "./[locale]/(public)/ai/[slug]/generated-pages";
 
 const BASE_URL = "https://egaku-ai.com";
 const LOCALES = ["en", "ja", "es", "zh"];
@@ -46,6 +47,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: "/terms", priority: 0.3, changeFrequency: "yearly" as const },
     { path: "/privacy", priority: 0.3, changeFrequency: "yearly" as const },
   ];
+
+  // Auto-generated long-tail SEO pages (style × subject combinations + use-cases)
+  for (const slug of Object.keys(GENERATED_PAGES)) {
+    pages.push({
+      path: `/ai/${slug}`,
+      priority: 0.6,
+      changeFrequency: "monthly" as const,
+    });
+  }
 
   const langAlternates = (path: string) => {
     const result: Record<string, string> = {};

@@ -5,11 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { notFound } from "next/navigation";
+import { GENERATED_PAGES } from "./generated-pages";
 
 // ─── SEO Landing Page Data ───
 // Each entry targets specific long-tail Google search keywords
+// Handcrafted pages (below) + auto-generated pages (from generated-pages.ts)
 
-const PAGES: Record<
+const HANDCRAFTED_PAGES: Record<
   string,
   {
     title: string;
@@ -798,6 +800,9 @@ const PAGES: Record<
     credits: "2",
   },
 };
+
+// Merge handcrafted + auto-generated long-tail SEO pages
+const PAGES = { ...GENERATED_PAGES, ...HANDCRAFTED_PAGES };
 
 // ─── Static Params ───
 
