@@ -197,6 +197,14 @@ export const api = {
       headers: authHeaders(token),
       body: JSON.stringify(params),
     }),
+  getMyReferralCode: (token: string) =>
+    fetchAPI("/referrals/my-code", { headers: authHeaders(token) }),
+  useReferralCode: (token: string, code: string) =>
+    fetchAPI("/referrals/use-code", {
+      method: "POST",
+      headers: authHeaders(token),
+      body: JSON.stringify({ code }),
+    }),
   claimDailyCredits: (token: string) =>
     fetchAPI("/credits/daily", {
       method: "POST",

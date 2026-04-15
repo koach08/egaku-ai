@@ -97,6 +97,9 @@ app.include_router(projects.router, prefix="/api")
 from app.api import announcements
 app.include_router(announcements.router, prefix="/api")
 
+from app.api import referrals
+app.include_router(referrals.router, prefix="/api")
+
 app.include_router(feedback.router, prefix="/api")
 
 from app.api import character_video

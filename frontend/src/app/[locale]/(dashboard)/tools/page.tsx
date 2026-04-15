@@ -58,6 +58,7 @@ const TOOLS = [
     category: "Community & Fun",
     items: [
       { name: "Prompt Battle", desc: "Challenge friends to AI art duels — vote for the winner!", href: "/battle", icon: "⚔️", badge: "Unique" },
+      { name: "Refer Friends", desc: "Invite friends → both get +50 credits. Upgrade bonus: +500 credits.", href: "/referrals", icon: "🎁", badge: "New" },
       { name: "Explore Gallery", desc: "Browse community creations, get inspired", href: "/gallery", icon: "🌐", badge: "" },
     ],
   },

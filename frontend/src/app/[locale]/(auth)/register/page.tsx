@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Link, useRouter } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase";
+import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -24,6 +25,16 @@ export default function RegisterPage() {
   const searchParams = useSearchParams();
   const plan = searchParams.get("plan") || "";
   const hasPaidPlan = PAID_PLANS.includes(plan);
+  const refCode = searchParams.get("ref") || "";
+
+  // Save referral code to localStorage so it persists through OAuth redirect
+  useEffect(() => {
+    if (refCode) {
+      try {
+        localStorage.setItem("egaku_pending_ref", refCode);
+      } catch {}
+    }
+  }, [refCode]);
 
   // After auth, redirect to settings with upgrade param if paid plan selected
   const redirectPath = hasPaidPlan ? `/settings?upgrade=${plan}` : "/generate";
@@ -53,6 +64,14 @@ export default function RegisterPage() {
       setLoading(false);
     } else if (data.session) {
       trackSignup("email");
+      // Apply pending referral code if any
+      try {
+        const pending = localStorage.getItem("egaku_pending_ref");
+        if (pending && data.session.access_token) {
+          await api.useReferralCode(data.session.access_token, pending);
+          localStorage.removeItem("egaku_pending_ref");
+        }
+      } catch {}
       router.push(redirectPath);
     } else {
       setError("Check your email for a confirmation link.");
@@ -72,6 +91,14 @@ export default function RegisterPage() {
                 ? `Sign up to continue with the ${plan.charAt(0).toUpperCase() + plan.slice(1)} plan`
                 : "Start with 50 free credits"}
             </p>
+            {refCode && (
+              <div className="mt-3 rounded-lg bg-green-500/10 border border-green-500/30 p-2">
+                <p className="text-xs text-green-400 font-medium">
+                  🎁 You&apos;ve been invited! +50 bonus credits on signup
+                </p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">Code: <code>{refCode}</code></p>
+              </div>
+            )}
           </CardHeader>
           <CardContent>
             <div className="flex flex-col gap-3">
