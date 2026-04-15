@@ -699,9 +699,76 @@ async def _generate_with_novita_builtin(
     return None
 
 
-async def _persist_to_supabase_storage(supabase, result_url: str, job_id: str, is_video: bool = False) -> str:
+def _apply_watermark(data: bytes) -> tuple[bytes, str, str]:
+    """Apply a bottom-right 'egaku-ai.com' watermark to an image.
+    Returns (new_bytes, content_type, ext). Falls through to originals on failure.
+    """
+    try:
+        import io
+        from PIL import Image, ImageDraw, ImageFont
+
+        img = Image.open(io.BytesIO(data)).convert("RGBA")
+        overlay = Image.new("RGBA", img.size, (255, 255, 255, 0))
+        draw = ImageDraw.Draw(overlay)
+        w, h = img.size
+        text = "egaku-ai.com"
+        font_size = max(14, w // 50)
+        font = None
+        for font_path in (
+            "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+            "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+            "/System/Library/Fonts/Supplemental/Arial Bold.ttf",
+            "/System/Library/Fonts/Helvetica.ttc",
+        ):
+            try:
+                font = ImageFont.truetype(font_path, font_size)
+                break
+            except Exception:
+                continue
+        if font is None:
+            try:
+                font = ImageFont.load_default()
+            except Exception:
+                font = None
+
+        if font is not None and hasattr(font, "getlength"):
+            try:
+                tw = font.getlength(text)
+            except Exception:
+                tw = font_size * 7
+        else:
+            tw = font_size * 7
+
+        padding = font_size
+        x = max(0, w - int(tw) - padding)
+        y = max(0, h - font_size - padding)
+        # Shadow + text
+        if font is not None:
+            draw.text((x + 1, y + 1), text, fill=(0, 0, 0, 180), font=font)
+            draw.text((x, y), text, fill=(255, 255, 255, 220), font=font)
+        else:
+            draw.text((x + 1, y + 1), text, fill=(0, 0, 0, 180))
+            draw.text((x, y), text, fill=(255, 255, 255, 220))
+
+        img = Image.alpha_composite(img, overlay).convert("RGB")
+        out = io.BytesIO()
+        img.save(out, format="JPEG", quality=92)
+        return out.getvalue(), "image/jpeg", "jpg"
+    except Exception as e:
+        logger.warning(f"Watermark failed: {e}")
+        return data, "", ""
+
+
+async def _persist_to_supabase_storage(
+    supabase,
+    result_url: str,
+    job_id: str,
+    is_video: bool = False,
+    user_plan: str | None = None,
+) -> str:
     """Download image/video from temporary URL and upload to Supabase Storage.
     Handles both HTTP URLs and base64 data URLs.
+    If user_plan == "free" and not a video, apply a bottom-right watermark.
     Returns permanent Supabase Storage URL, or original URL on failure."""
     import httpx
     try:
@@ -733,6 +800,14 @@ async def _persist_to_supabase_storage(supabase, result_url: str, job_id: str, i
             ext = "png"
             folder = "images"
 
+        # Apply watermark for free-tier users on images only
+        if user_plan == "free" and not is_video:
+            new_data, new_ct, new_ext = _apply_watermark(data)
+            if new_ct and new_ext:
+                data = new_data
+                content_type = new_ct
+                ext = new_ext
+
         storage_path = f"{folder}/{job_id}.{ext}"
         supabase.storage.from_("self-hosted").upload(
             storage_path, data,
@@ -749,6 +824,7 @@ async def _persist_to_supabase_storage(supabase, result_url: str, job_id: str, i
 async def _save_generation_to_db(
     settings, user_id: str, job_id: str, gen_type: str, prompt: str,
     negative_prompt: str, model: str, params: dict, result_url: str, nsfw: bool = False,
+    user_plan: str | None = None,
 ):
     """Save a completed generation to the database for gallery."""
     if not user_id or not result_url:
@@ -758,8 +834,19 @@ async def _save_generation_to_db(
         supabase = get_supabase(settings)
         is_video = gen_type in ("txt2vid", "img2vid", "vid2vid")
 
+        # If plan not provided, look it up so watermarking still applies on free tier.
+        if user_plan is None:
+            try:
+                prof = supabase.table("users").select("plan").eq("id", user_id).single().execute()
+                if prof and prof.data:
+                    user_plan = prof.data.get("plan")
+            except Exception:
+                user_plan = None
+
         # Persist to Supabase Storage (permanent URL)
-        permanent_url = await _persist_to_supabase_storage(supabase, result_url, job_id, is_video)
+        permanent_url = await _persist_to_supabase_storage(
+            supabase, result_url, job_id, is_video, user_plan=user_plan
+        )
 
         await save_generation(supabase, {
             "id": job_id,

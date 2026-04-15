@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/select";
 import { Header } from "@/components/layout/header";
 import { AnimateButton } from "@/components/animate-button";
+import { ShareButtons } from "@/components/share-buttons";
 import { toast } from "sonner";
 
 interface GalleryItem {
@@ -169,7 +170,17 @@ export default function GalleryPage() {
                     <span className="text-xs text-muted-foreground">
                       {new Date(item.created_at).toLocaleDateString()}
                     </span>
-                    <div className="flex items-center gap-1">
+                    {item.public && (
+                      <ShareButtons
+                        imageUrl={item.image_url}
+                        videoUrl={item.video_url}
+                        prompt={item.prompt}
+                        galleryId={item.id}
+                        size="xs"
+                      />
+                    )}
+                  </div>
+                  <div className="flex items-center justify-end gap-1 mt-2">
                       {item.image_url && (
                         <Button
                           variant="ghost"
@@ -209,7 +220,6 @@ export default function GalleryPage() {
                       >
                         Delete
                       </Button>
-                    </div>
                   </div>
                 </CardContent>
               </Card>

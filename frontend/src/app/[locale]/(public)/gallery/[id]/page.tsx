@@ -12,6 +12,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { Header } from "@/components/layout/header";
 import { AnimateButton } from "@/components/animate-button";
+import { ShareButtons } from "@/components/share-buttons";
 import { toast } from "sonner";
 import {
   HeartIcon,
@@ -364,6 +365,15 @@ export default function GalleryItemPage() {
                     label="Animate to Video"
                   />
                 )}
+                <ShareButtons
+                  imageUrl={item.image_url}
+                  videoUrl={item.video_url}
+                  title={item.title}
+                  prompt={item.prompt}
+                  galleryId={item.id}
+                  size="sm"
+                  className="ml-1"
+                />
               </div>
               <div className="flex items-center gap-2">
                 <Button variant="ghost" size="sm" onClick={handleShareX} title="Share on X">

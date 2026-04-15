@@ -221,6 +221,9 @@ function SettingsContent() {
           </CardContent>
         </Card>
 
+        {/* Auto-post to X/Twitter via RSS */}
+        <AutoPostRssCard userId={user.id} />
+
         {/* Credits */}
         <Card className="mb-6">
           <CardHeader>
@@ -411,6 +414,95 @@ function SettingsContent() {
         )}
       </div>
     </>
+  );
+}
+
+
+// ── Auto-post RSS Card ──
+
+function AutoPostRssCard({ userId }: { userId: string }) {
+  const API_BASE =
+    process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001/api";
+  const rssUrl = `${API_BASE}/rss/user/${userId}.xml`;
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(rssUrl);
+      setCopied(true);
+      toast.success("RSS URL copied!");
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast.error("Failed to copy");
+    }
+  };
+
+  return (
+    <Card className="mb-6">
+      <CardHeader>
+        <CardTitle className="text-lg">Auto-post to X/Twitter</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <p className="text-sm text-muted-foreground">
+          Connect this RSS feed to Zapier / IFTTT / Make.com to auto-tweet
+          every new public creation.
+        </p>
+
+        <div className="space-y-2">
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+            Your personal RSS feed
+          </p>
+          <div className="flex items-center gap-2">
+            <code className="flex-1 text-xs bg-muted px-3 py-2 rounded-md break-all">
+              {rssUrl}
+            </code>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleCopy}
+              className="shrink-0"
+            >
+              {copied ? "Copied" : "Copy URL"}
+            </Button>
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+            How to auto-post to X
+          </p>
+          <ol className="text-sm text-muted-foreground space-y-1 list-decimal list-inside">
+            <li>
+              Sign up at{" "}
+              <a
+                href="https://zapier.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary underline"
+              >
+                zapier.com
+              </a>{" "}
+              (free plan, 100 tasks/month)
+            </li>
+            <li>Create a new Zap: &ldquo;RSS by Zapier&rdquo; → &ldquo;Twitter&rdquo;</li>
+            <li>Paste the URL above as the RSS feed</li>
+            <li>Connect your X account</li>
+            <li>
+              Customize tweet template, e.g.:{" "}
+              <code className="text-xs bg-muted px-1 py-0.5 rounded">
+                {"{{title}}\\n\\n{{description}}\\n{{link}}"}
+              </code>
+            </li>
+            <li>Turn on — every new public creation auto-tweets!</li>
+          </ol>
+        </div>
+
+        <p className="text-xs text-muted-foreground">
+          Only public SFW items appear in the feed. Make items public from{" "}
+          <span className="font-medium">My Gallery</span>.
+        </p>
+      </CardContent>
+    </Card>
   );
 }
 

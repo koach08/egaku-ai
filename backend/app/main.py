@@ -108,6 +108,9 @@ app.include_router(voice_clone.router, prefix="/api")
 from app.api import lora
 app.include_router(lora.router, prefix="/api")
 
+from app.api import rss
+app.include_router(rss.router, prefix="/api")
+
 
 @app.get("/api/health")
 async def health():
