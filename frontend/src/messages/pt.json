@@ -65,6 +65,14 @@
       "title": "Avatar Falante",
       "desc": "Envie uma imagem de personagem + áudio. Receba um vídeo cinematográfico do personagem falando."
     },
+    "loraTraining": {
+      "title": "Treine seu próprio modelo de IA",
+      "desc": "Envie de 4 a 20 fotos e receba um modelo de IA personalizado que gera novas imagens do seu tema. Gerações futuras ilimitadas."
+    },
+    "characterVideo": {
+      "title": "Vídeo com Personagens",
+      "desc": "Envie de 1 a 3 imagens de referência. Gere vídeos com personagens consistentes em cada quadro — sem rostos que se deformam."
+    },
     "upscale": {
       "title": "Upscale",
       "desc": "Aumente a resolução em até 4x com IA. RealESRGAN para resultados nítidos e detalhados."

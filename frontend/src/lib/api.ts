@@ -490,6 +490,55 @@ export const api = {
       body: JSON.stringify(params),
     }),
 
+  // Character Reference Video (PixVerse C1)
+  characterVideo: (token: string, params: Record<string, unknown>) =>
+    fetchAPI("/generate/character-video", {
+      method: "POST",
+      headers: authHeaders(token),
+      body: JSON.stringify(params),
+    }),
+
+  // User-trained LoRA models
+  trainLora: (
+    token: string,
+    params: {
+      name: string;
+      trigger_word: string;
+      images: string[];
+      steps?: number;
+      is_style?: boolean;
+      nsfw?: boolean;
+    }
+  ) =>
+    fetchAPI("/lora/train", {
+      method: "POST",
+      headers: authHeaders(token),
+      body: JSON.stringify(params),
+    }),
+  listLoras: (token: string) =>
+    fetchAPI("/lora/list", { headers: authHeaders(token) }),
+  getLora: (token: string, id: string) =>
+    fetchAPI(`/lora/${id}`, { headers: authHeaders(token) }),
+  deleteLora: (token: string, id: string) =>
+    fetchAPI(`/lora/${id}`, { method: "DELETE", headers: authHeaders(token) }),
+  generateWithLora: (
+    token: string,
+    params: {
+      lora_id: string;
+      prompt: string;
+      lora_strength?: number;
+      width?: number;
+      height?: number;
+      seed?: number;
+      num_images?: number;
+    }
+  ) =>
+    fetchAPI("/lora/generate", {
+      method: "POST",
+      headers: authHeaders(token),
+      body: JSON.stringify(params),
+    }),
+
   // TTS (Text-to-Speech)
   getTTSVoices: () => fetchAPI("/tts/voices"),
   synthesizeSpeech: async (

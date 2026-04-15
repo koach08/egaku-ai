@@ -65,6 +65,14 @@
       "title": "Talking Avatar",
       "desc": "Upload a character image + audio. Get a cinematic video of them speaking."
     },
+    "loraTraining": {
+      "title": "Train Your Own AI Model",
+      "desc": "Upload 4-20 photos, get a custom AI model that generates new images of your subject. Unlimited future generations."
+    },
+    "characterVideo": {
+      "title": "Character Video",
+      "desc": "Upload 1-3 character images. Get videos where they stay consistent across every frame — no more morphing faces."
+    },
     "upscale": {
       "title": "Upscale",
       "desc": "Enhance resolution up to 4x with AI. RealESRGAN for sharp, detailed results."

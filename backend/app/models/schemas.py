@@ -237,6 +237,39 @@ class ConsistentCharacterRequest(BaseModel):
     nsfw: bool = False
 
 
+class LoRATrainRequest(BaseModel):
+    """Kick off a Flux LoRA fine-tuning job for the current user."""
+    name: str = Field(..., min_length=1, max_length=64)
+    trigger_word: str = Field(..., min_length=1, max_length=32)
+    images: list[str] = Field(..., min_length=4, max_length=20)  # base64 data URLs
+    steps: int = Field(1000, ge=500, le=3000)
+    is_style: bool = False
+    nsfw: bool = False
+
+
+class LoRAListItem(BaseModel):
+    id: str
+    name: str
+    trigger_word: str
+    status: str
+    progress: int
+    lora_url: str | None = None
+    nsfw: bool
+    created_at: str
+    completed_at: str | None = None
+    error_message: str | None = None
+
+
+class LoRAGenerateRequest(BaseModel):
+    lora_id: str
+    prompt: str = Field(..., min_length=1, max_length=2000)
+    lora_strength: float = Field(1.0, ge=0.0, le=2.0)
+    width: int = Field(1024, ge=512, le=1536)
+    height: int = Field(1024, ge=512, le=1536)
+    seed: int = -1
+    num_images: int = Field(1, ge=1, le=4)
+
+
 class GenerationResponse(BaseModel):
     job_id: str
     status: JobStatus = JobStatus.queued
@@ -417,6 +450,9 @@ CREDIT_COSTS = {
     "consistent_character": 5,
     "lipsync": 80,  # fal-ai/sync-lipsync/v3 — covers ~30s of output
     "talking_avatar": 60,  # fal-ai/bytedance/omnihuman/v1.5 — covers ~10s
+    "lora_training": 300,  # fal-ai/flux-lora-fast-training — ~$2 raw per run
+    "lora_generate": 3,    # per image generated with a user-trained LoRA
+    "character_video": 100,  # fal-ai/pixverse/c1/reference-to-video — ~5s @720p
 }
 
 
@@ -483,3 +519,22 @@ PLAN_LIMITS_CONFIG = {
         "queue_priority": "highest",
     },
 }
+
+
+# --- Character Reference Video (PixVerse C1) ---
+
+class CharacterReference(BaseModel):
+    image: str  # base64 data URL or HTTP URL
+    ref_name: str = Field(..., min_length=1, max_length=20)  # used as @ref_name in prompt
+    type: str = "subject"  # "subject" or "background"
+
+
+class CharacterVideoRequest(BaseModel):
+    prompt: str = Field(..., min_length=1, max_length=2000)
+    references: list[CharacterReference] = Field(..., min_length=1, max_length=5)
+    resolution: str = "720p"  # 360p / 540p / 720p / 1080p
+    duration: int = Field(5, ge=3, le=15)
+    aspect_ratio: str = "16:9"
+    generate_audio: bool = False
+    seed: int = -1
+    nsfw: bool = False

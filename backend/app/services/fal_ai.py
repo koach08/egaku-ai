@@ -1039,6 +1039,81 @@ class FalClient:
         # Always queue: lipsync is slow (typical 2-6min)
         return await self._submit_queue_job(fal_model, input_params)
 
+    async def submit_lora_training(
+        self,
+        images_zip_url: str,
+        trigger_word: str = "",
+        steps: int = 1000,
+        is_style: bool = False,
+    ) -> dict:
+        """Start a Flux LoRA training job via fal-ai/flux-lora-fast-training.
+
+        Returns the fal.ai queue submit response (NOT a completed job). The
+        caller is responsible for persisting the `request_id`/`status_url`/
+        `response_url` and polling later — training takes 5-15 minutes.
+        """
+        fal_model = "fal-ai/flux-lora-fast-training"
+        input_params: dict = {
+            "images_data_url": images_zip_url,
+            "steps": max(100, min(10000, int(steps))),
+        }
+        if trigger_word:
+            input_params["trigger_word"] = trigger_word
+        if is_style:
+            input_params["is_style"] = True
+
+        queue_url = f"https://queue.fal.run/{fal_model}"
+        logger.info(f"fal.ai LoRA training submit: trigger={trigger_word!r} steps={steps} is_style={is_style}")
+        async with httpx.AsyncClient() as client:
+            r = await client.post(
+                queue_url,
+                json=input_params,
+                headers={
+                    "Authorization": f"Key {self.api_key}",
+                    "Content-Type": "application/json",
+                },
+                timeout=30,
+            )
+            r.raise_for_status()
+            data = r.json()
+            logger.info(f"fal.ai LoRA training queued: request_id={data.get('request_id')}")
+            return data
+
+    async def poll_lora_training(self, status_url: str) -> dict:
+        """Poll a LoRA training job once.
+
+        Returns the raw status payload. `status` will be one of
+        IN_QUEUE / IN_PROGRESS / COMPLETED / FAILED / CANCELLED.
+        """
+        async with httpx.AsyncClient() as client:
+            r = await client.get(
+                f"{status_url}?logs=1",
+                headers={"Authorization": f"Key {self.api_key}"},
+                timeout=15,
+            )
+            if r.status_code not in (200, 202):
+                raise RuntimeError(f"poll failed: HTTP {r.status_code} {r.text[:200]}")
+            try:
+                return r.json()
+            except Exception:
+                return {"status": "UNKNOWN", "raw": r.text[:500]}
+
+    async def fetch_lora_result(self, response_url: str) -> dict:
+        """Fetch the final result for a completed LoRA training job.
+
+        Returns fal.ai's response payload which typically includes
+        `diffusers_lora_file: {url, content_type, file_name, file_size}` and
+        `config_file: {...}`.
+        """
+        async with httpx.AsyncClient() as client:
+            r = await client.get(
+                response_url,
+                headers={"Authorization": f"Key {self.api_key}"},
+                timeout=60,
+            )
+            r.raise_for_status()
+            return r.json()
+
     async def submit_omnihuman(
         self,
         image_url: str,
@@ -1061,4 +1136,32 @@ class FalClient:
         }
         logger.info("fal.ai omnihuman submit")
         # Always queue: omnihuman is slow (typical 2-5min)
+        return await self._submit_queue_job(fal_model, input_params)
+
+    async def submit_character_video(
+        self,
+        prompt: str,
+        image_references: list[dict],  # [{image_url, ref_name, type}, ...]
+        resolution: str = "720p",
+        duration: int = 5,
+        aspect_ratio: str = "16:9",
+        seed: int = -1,
+        generate_audio: bool = False,
+    ) -> dict:
+        """Character-consistent video generation via PixVerse C1 reference-to-video."""
+        fal_model = "fal-ai/pixverse/c1/reference-to-video"
+        input_params: dict = {
+            "prompt": prompt,
+            "image_references": image_references,
+            "resolution": resolution,
+            "aspect_ratio": aspect_ratio,
+            "duration": duration,
+            "generate_audio_switch": generate_audio,
+        }
+        if seed >= 0:
+            input_params["seed"] = seed
+        logger.info(
+            "fal.ai character_video submit: refs=%d res=%s dur=%ss ar=%s",
+            len(image_references), resolution, duration, aspect_ratio,
+        )
         return await self._submit_queue_job(fal_model, input_params)

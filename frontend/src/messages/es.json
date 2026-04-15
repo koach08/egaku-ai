@@ -65,6 +65,14 @@
       "title": "Avatar Parlante",
       "desc": "Sube una imagen de personaje + audio. Obtén un video cinematográfico del personaje hablando."
     },
+    "loraTraining": {
+      "title": "Entrena tu propio modelo de IA",
+      "desc": "Sube 4-20 fotos y obtén un modelo de IA personalizado que genera nuevas imágenes de tu sujeto. Generaciones futuras ilimitadas."
+    },
+    "characterVideo": {
+      "title": "Video con Personajes",
+      "desc": "Sube de 1 a 3 imágenes de referencia. Obtén videos donde tus personajes se mantienen coherentes en cada fotograma, sin rostros cambiantes."
+    },
     "upscale": {
       "title": "Escalado",
       "desc": "Mejora la resolución hasta 4x con IA. RealESRGAN para resultados nítidos y detallados."

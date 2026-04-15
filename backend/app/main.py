@@ -98,6 +98,12 @@ app.include_router(announcements.router, prefix="/api")
 
 app.include_router(feedback.router, prefix="/api")
 
+from app.api import character_video
+app.include_router(character_video.router, prefix="/api")
+
+from app.api import lora
+app.include_router(lora.router, prefix="/api")
+
 
 @app.get("/api/health")
 async def health():

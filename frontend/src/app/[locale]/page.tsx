@@ -22,7 +22,7 @@ const planPrices: Record<string, string> = {
 
 const featureKeys = [
   "txt2img", "img2img", "style", "txt2vid", "img2vid", "vid2vid",
-  "lipSync", "talkingAvatar",
+  "lipSync", "talkingAvatar", "loraTraining", "characterVideo",
   "upscale", "inpaint", "controlnet", "removeBg", "customModels", "apiAccess",
 ] as const;
 
@@ -199,6 +199,8 @@ export default function LandingPage() {
                 key === "vid2vid" ? "/vid2vid" :
                 key === "lipSync" ? "/lip-sync" :
                 key === "talkingAvatar" ? "/talking-avatar" :
+                key === "loraTraining" ? "/lora-train" :
+                key === "characterVideo" ? "/character-video" :
                 key === "txt2vid" || key === "img2vid" ? "/generate" :
                 key === "apiAccess" ? "/settings" :
                 "/generate";
@@ -217,6 +219,16 @@ export default function LandingPage() {
                       {(key === "lipSync" || key === "talkingAvatar") && (
                         <Badge variant="outline" className="w-fit text-[10px] border-purple-500 text-purple-400">
                           New
+                        </Badge>
+                      )}
+                      {key === "loraTraining" && (
+                        <Badge variant="outline" className="w-fit text-[10px] border-purple-500 text-purple-400">
+                          NEW · Pro差別化
+                        </Badge>
+                      )}
+                      {key === "characterVideo" && (
+                        <Badge variant="outline" className="w-fit text-[10px] border-purple-500 text-purple-400">
+                          NEW
                         </Badge>
                       )}
                       {key === "apiAccess" && (

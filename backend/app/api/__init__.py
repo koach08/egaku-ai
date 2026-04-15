@@ -15,11 +15,13 @@ from . import (
     gallery,
     generate,
     generate_advanced,
+    lora,
     models,
     optimize,
     projects,
     tts,
     webhook,
+    character_video,
 )
 
 __all__ = [
@@ -37,9 +39,11 @@ __all__ = [
     "gallery",
     "generate",
     "generate_advanced",
+    "lora",
     "models",
     "optimize",
     "projects",
     "tts",
     "webhook",
+    "character_video",
 ]
