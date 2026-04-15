@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { Header } from "@/components/layout/header";
+import { AnimateButton } from "@/components/animate-button";
 import { toast } from "sonner";
 import {
   HeartIcon,
@@ -354,6 +355,15 @@ export default function GalleryItemPage() {
                   <SparklesIcon className="size-4 mr-1" />
                   Remix
                 </Button>
+                {user && item.image_url && !item.video_url && (
+                  <AnimateButton
+                    imageUrl={item.image_url}
+                    variant="outline"
+                    size="sm"
+                    className="h-7 text-xs text-purple-500 border-purple-500/30 hover:bg-purple-500/10"
+                    label="Animate to Video"
+                  />
+                )}
               </div>
               <div className="flex items-center gap-2">
                 <Button variant="ghost" size="sm" onClick={handleShareX} title="Share on X">

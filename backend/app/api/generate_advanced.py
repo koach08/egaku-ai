@@ -292,7 +292,11 @@ async def generate_img2vid(
         raise HTTPException(status_code=402, detail="Insufficient credits")
 
     job_id = str(uuid.uuid4())
-    image_url = _b64_to_data_url(body.image)
+    # Accept HTTP(S) URLs directly (e.g. gallery image) OR base64 data URLs
+    if body.image.startswith(("http://", "https://")):
+        image_url = body.image
+    else:
+        image_url = _b64_to_data_url(body.image)
 
     # Two modes:
     # - "animate": preserve image, just add motion (true I2V)

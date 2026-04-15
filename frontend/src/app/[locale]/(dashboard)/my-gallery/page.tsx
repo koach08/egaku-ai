@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Header } from "@/components/layout/header";
+import { AnimateButton } from "@/components/animate-button";
 import { toast } from "sonner";
 
 interface GalleryItem {
@@ -22,6 +23,7 @@ interface GalleryItem {
   nsfw: boolean;
   public: boolean;
   image_url: string | null;
+  video_url?: string | null;
   created_at: string;
 }
 
@@ -184,6 +186,12 @@ export default function GalleryPage() {
                         >
                           DL
                         </Button>
+                      )}
+                      {item.image_url && !item.video_url && (
+                        <AnimateButton
+                          imageUrl={item.image_url}
+                          label="Animate"
+                        />
                       )}
                       <Button
                         variant="ghost"
