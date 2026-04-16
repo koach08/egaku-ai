@@ -32,6 +32,5 @@ CREATE POLICY "Users see their own redemptions" ON promo_redemptions
 -- Seed launch promo
 INSERT INTO promo_codes (code, description, discount_percent, max_uses, expires_at) VALUES
   ('LAUNCH50', '初月50%OFF - ローンチ記念', 50, 100, NOW() + INTERVAL '60 days'),
-  ('WELCOME20', '初月20%OFF', 20, NULL, NULL),
-  ('STUDENT50', '学生向け50%OFF（学校メール必須）', 50, NULL, NULL)
+  ('WELCOME20', '初月20%OFF', 20, NULL, NULL)
 ON CONFLICT (code) DO NOTHING;
