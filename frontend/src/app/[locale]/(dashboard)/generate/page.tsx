@@ -107,8 +107,8 @@ const CINEMA_PRESETS = [
 ];
 
 const VIDEO_MODELS_T2V = [
-  { id: "fal_ltx_t2v", name: "LTX 2.3", credits: 5, minPlan: "lite", badge: "Fast", maxDuration: 5 },
-  { id: "fal_wan_t2v", name: "Wan 2.1", credits: 10, minPlan: "lite", maxDuration: 5 },
+  { id: "fal_ltx_t2v", name: "LTX 2.3", credits: 5, minPlan: "free", badge: "Fast", maxDuration: 5 },
+  { id: "fal_wan_t2v", name: "Wan 2.1", credits: 10, minPlan: "free", maxDuration: 5 },
   { id: "fal_kling_t2v", name: "Kling v2", credits: 15, minPlan: "basic", badge: "HD", maxDuration: 10 },
   { id: "fal_minimax_t2v", name: "Minimax Hailuo", credits: 15, minPlan: "basic", badge: "HD", maxDuration: 6 },
   { id: "fal_kling25_t2v", name: "Kling 2.5 Pro", credits: 25, minPlan: "basic", badge: "★ Cinema", maxDuration: 10 },
@@ -117,7 +117,7 @@ const VIDEO_MODELS_T2V = [
   { id: "fal_sora2_t2v", name: "Sora 2 (OpenAI)", credits: 50, minPlan: "pro", badge: "★ Best 20s", maxDuration: 20 },
   { id: "fal_luma_t2v", name: "Luma Dream Machine", credits: 20, minPlan: "basic", badge: "New", maxDuration: 5 },
   { id: "fal_hunyuan_t2v", name: "Hunyuan (Tencent)", credits: 15, minPlan: "basic", badge: "New", maxDuration: 5 },
-  { id: "fal_mochi_t2v", name: "Mochi v1 (Genmo)", credits: 10, minPlan: "lite", badge: "New", maxDuration: 5 },
+  { id: "fal_mochi_t2v", name: "Mochi v1 (Genmo)", credits: 10, minPlan: "free", badge: "New", maxDuration: 5 },
   { id: "fal_seedance_t2v", name: "Seedance 1 (ByteDance)", credits: 20, minPlan: "basic", badge: "★ TikTok", maxDuration: 10 },
   { id: "fal_seedance2_t2v", name: "Seedance 2 (ByteDance)", credits: 60, minPlan: "pro", badge: "★ Audio · Best", maxDuration: 15 },
   { id: "fal_seedance2_fast_t2v", name: "Seedance 2 Fast (ByteDance)", credits: 50, minPlan: "basic", badge: "★ Fast", maxDuration: 15 },
@@ -127,9 +127,9 @@ const VIDEO_MODELS_T2V = [
 ];
 
 const VIDEO_MODELS_I2V = [
-  { id: "fal_ltx_i2v", name: "LTX 2 I2V", credits: 5, minPlan: "lite", badge: "Fast", maxDuration: 5 },
-  { id: "fal_wan_i2v", name: "Wan 2.1 I2V", credits: 10, minPlan: "lite", maxDuration: 5 },
-  { id: "fal_wan26_i2v", name: "Wan 2.6 I2V", credits: 12, minPlan: "lite", badge: "★ 15s", maxDuration: 15 },
+  { id: "fal_ltx_i2v", name: "LTX 2 I2V", credits: 5, minPlan: "free", badge: "Fast", maxDuration: 5 },
+  { id: "fal_wan_i2v", name: "Wan 2.1 I2V", credits: 10, minPlan: "free", maxDuration: 5 },
+  { id: "fal_wan26_i2v", name: "Wan 2.6 I2V", credits: 12, minPlan: "free", badge: "★ 15s", maxDuration: 15 },
   { id: "fal_kling_i2v", name: "Kling v2 I2V", credits: 15, minPlan: "basic", badge: "HD", maxDuration: 10 },
   { id: "fal_kling25_i2v", name: "Kling 2.5 Pro I2V", credits: 25, minPlan: "basic", badge: "★ Cinema", maxDuration: 10 },
   { id: "fal_sora2_i2v", name: "Sora 2 I2V", credits: 50, minPlan: "pro", badge: "★ Best 20s", maxDuration: 20 },

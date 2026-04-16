@@ -23,7 +23,7 @@ router = APIRouter(prefix="/generate", tags=["anonymous"])
 # In-memory tracking: IP → generation count
 # In production, use Redis for persistence across restarts
 _anon_usage: dict[str, int] = defaultdict(int)
-ANON_LIMIT = 3  # Free trial: 3 images without signup (cost control)
+ANON_LIMIT = 5  # Free trial: 5 images without signup
 
 ENHANCE_SYSTEM_PROMPT = """You are an expert AI image generation prompt engineer. Your ONLY job is to take the user's idea and rewrite it as a high-quality image generation prompt.
 

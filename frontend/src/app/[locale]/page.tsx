@@ -362,7 +362,7 @@ export default function LandingPage() {
           <h2 className="text-3xl font-bold text-center mb-10">Frequently Asked Questions</h2>
           <div className="max-w-3xl mx-auto space-y-4">
             {[
-              { q: "Is EGAKU AI free to use?", a: "Yes. You get 50 free credits per month and 1 daily login bonus credit — enough to try Flux and SDXL image models. Video generation, NSFW content, and premium models (Sora 2, Veo 3, Flux Pro) require a paid plan starting at ¥480/mo." },
+              { q: "Is EGAKU AI free to use?", a: "Yes. 50 free credits/month + daily login bonus. Free plan includes image generation (Flux, SDXL) AND video generation (LTX, Wan 2.1/2.6 — up to 15 seconds). Premium models (Sora 2, Veo 3, Flux Pro, Kling 2.5) require a paid plan from ¥480/mo." },
               { q: "What AI models are available?", a: "We offer 20+ models including Flux Dev, Flux Pro, SDXL, Ideogram v3, Luma Photon, Nano Banana 2, Grok Imagine, and video models like Kling 2.5, Luma Dream Machine, and more. New models are added regularly." },
               { q: "Can I use CivitAI models?", a: "Yes. Basic plan and above can use CivitAI checkpoint models. Browse and search models directly from the generate page." },
               { q: "What tools are included?", a: "Image generation, video generation, Photo Booth, Logo Maker, Meme Generator, Wallpaper Generator, Video Shorts, Storyboard Studio, Face Swap, Character Lock, Style Transfer, Upscale, Background Removal, Inpainting, ControlNet, and Prompt Battle." },
