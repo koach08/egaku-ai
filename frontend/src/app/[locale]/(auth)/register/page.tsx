@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Header } from "@/components/layout/header";
+import { PromoCodeInput } from "@/components/promo-code-input";
 import { trackSignup } from "@/components/analytics";
 
 const PAID_PLANS = ["lite", "basic", "pro", "unlimited", "studio", "local"];
@@ -99,6 +100,9 @@ export default function RegisterPage() {
                 <p className="text-[10px] text-muted-foreground mt-0.5">Code: <code>{refCode}</code></p>
               </div>
             )}
+            <div className="mt-3 text-left">
+              <PromoCodeInput compact={false} />
+            </div>
           </CardHeader>
           <CardContent>
             <div className="flex flex-col gap-3">

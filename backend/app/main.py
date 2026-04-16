@@ -100,6 +100,9 @@ app.include_router(announcements.router, prefix="/api")
 from app.api import referrals
 app.include_router(referrals.router, prefix="/api")
 
+from app.api import promo
+app.include_router(promo.router, prefix="/api")
+
 app.include_router(feedback.router, prefix="/api")
 
 from app.api import character_video

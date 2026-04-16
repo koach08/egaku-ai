@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Header } from "@/components/layout/header";
+import { PromoCodeInput } from "@/components/promo-code-input";
 import { toast } from "sonner";
 import { trackPurchase, trackBeginCheckout } from "@/components/analytics";
 
@@ -237,6 +238,9 @@ function SettingsContent() {
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">Lifetime Used</span>
               <span className="text-sm">{credits?.lifetime_used ?? "—"}</span>
+            </div>
+            <div className="pt-2">
+              <PromoCodeInput accessToken={session?.access_token} />
             </div>
           </CardContent>
         </Card>

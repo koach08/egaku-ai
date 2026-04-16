@@ -21,7 +21,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const description = item.prompt
       ? `${item.prompt.slice(0, 150)}${item.prompt.length > 150 ? "..." : ""} — Created with ${item.model || "AI"} on EGAKU AI`
       : `AI-generated artwork on EGAKU AI`;
-    const imageUrl = item.nsfw ? undefined : item.image_url;
+
+    // Note: opengraph-image.tsx auto-generates a branded card image at
+    // /gallery/[id]/opengraph-image. Next.js wires it into the <meta> tags
+    // automatically — we don't need to set `images` manually here.
 
     return {
       title,
@@ -31,22 +34,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         description,
         url: `https://egaku-ai.com/gallery/${id}`,
         type: "article",
-        ...(imageUrl && {
-          images: [
-            {
-              url: imageUrl,
-              width: item.width || 1024,
-              height: item.height || 1024,
-              alt: title,
-            },
-          ],
-        }),
       },
       twitter: {
-        card: imageUrl ? "summary_large_image" : "summary",
+        card: "summary_large_image",
         title,
         description,
-        ...(imageUrl && { images: [imageUrl] }),
       },
       alternates: {
         canonical: `/gallery/${id}`,

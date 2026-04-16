@@ -199,6 +199,14 @@ export const api = {
     }),
   getMyReferralCode: (token: string) =>
     fetchAPI("/referrals/my-code", { headers: authHeaders(token) }),
+  checkPromoCode: (code: string) =>
+    fetchAPI("/promo/check", { method: "POST", body: JSON.stringify({ code }) }),
+  redeemPromoCode: (token: string, code: string) =>
+    fetchAPI("/promo/redeem", {
+      method: "POST",
+      headers: authHeaders(token),
+      body: JSON.stringify({ code }),
+    }),
   useReferralCode: (token: string, code: string) =>
     fetchAPI("/referrals/use-code", {
       method: "POST",
