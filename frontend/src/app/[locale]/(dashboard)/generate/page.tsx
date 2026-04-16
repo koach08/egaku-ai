@@ -1652,15 +1652,31 @@ export default function GeneratePage() {
                       <button onClick={() => { const addWatermark = PLAN_RANK[userPlan] < PLAN_RANK["basic"]; import("@/lib/utils").then(m => m.downloadFile(job.resultUrl!, job.type === "video" ? "egaku-video.mp4" : "egaku-image.png", addWatermark)); }} className="text-xs text-purple-500 hover:underline font-medium">Download{PLAN_RANK[userPlan] < PLAN_RANK["basic"] ? " (watermark)" : ""}</button>
                       <a href={job.resultUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:underline">Open full size</a>
                       <button
-                        onClick={() => {
-                          const text = `Created with EGAKU AI\n${window.location.origin}`;
-                          const xUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(job.resultUrl!)}`;
-                          window.open(xUrl, '_blank', 'width=600,height=400');
+                        onClick={async () => {
+                          if (!session || !job.jobId) {
+                            const text = `Made with EGAKU AI\n${window.location.origin}`;
+                            window.open(`https://x.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(job.resultUrl!)}`, '_blank', 'width=600,height=400');
+                            return;
+                          }
+                          try {
+                            const pub = await api.publishToGallery(session.access_token, {
+                              generation_id: job.jobId,
+                              title: prompt.slice(0, 60) || "AI Creation",
+                              nsfw: nsfwMode,
+                            });
+                            const galleryUrl = `https://egaku-ai.com/gallery/${pub.id}`;
+                            const text = `Check out my AI creation on EGAKU AI 🎨`;
+                            window.open(`https://x.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(galleryUrl)}`, '_blank', 'width=600,height=400');
+                            toast.success("Published to gallery & opening X...");
+                          } catch {
+                            const text = `Made with EGAKU AI\n${window.location.origin}`;
+                            window.open(`https://x.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(job.resultUrl!)}`, '_blank', 'width=600,height=400');
+                          }
                         }}
-                        className="text-xs text-muted-foreground hover:text-blue-400 transition-colors"
-                        title="Share on X"
+                        className="text-xs font-medium bg-gradient-to-r from-blue-500 to-cyan-500 text-white hover:opacity-90 transition-opacity px-2.5 py-1 rounded"
+                        title="Publish & share on X"
                       >
-                        Share
+                        Share on X ✨
                       </button>
                     </div>
                   </div>

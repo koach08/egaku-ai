@@ -163,6 +163,19 @@ export function AnonGenerator() {
               >
                 {t("download")}
               </a>
+              <button
+                onClick={() => {
+                  const text = `I just made this with EGAKU AI 🎨\n\nFree AI image generation — try it:`;
+                  window.open(
+                    `https://x.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent("https://egaku-ai.com")}`,
+                    "_blank",
+                    "width=600,height=400",
+                  );
+                }}
+                className="text-xs px-3 py-1.5 rounded bg-gradient-to-r from-blue-500 to-cyan-500 text-white hover:opacity-90 transition-opacity font-medium"
+              >
+                Share on X ✨
+              </button>
               <Button
                 size="sm"
                 onClick={() => { setResult(null); setPrompt(""); }}
@@ -172,10 +185,21 @@ export function AnonGenerator() {
             </div>
           </div>
           {result.remaining === 0 && (
-            <div className="text-center p-4 rounded-lg bg-primary/5 border border-primary/20">
-              <p className="text-sm font-medium mb-2">{t("wantMore")}</p>
-              <Button render={<Link href="/register" />}>
-                {tc("startFree")}
+            <div className="p-5 rounded-lg bg-gradient-to-br from-purple-500/10 via-pink-500/10 to-cyan-500/10 border border-purple-500/30 space-y-3">
+              <div className="text-center">
+                <p className="text-base font-bold">🎁 Sign up for 50 more free credits</p>
+                <p className="text-xs text-muted-foreground mt-1">+ 1 bonus credit every day you log in. No credit card.</p>
+              </div>
+              <div className="grid grid-cols-3 gap-2 text-center text-[10px] text-muted-foreground">
+                <div>✅ 25+ models</div>
+                <div>✅ Video generation</div>
+                <div>✅ Face Swap</div>
+                <div>✅ Photo Booth</div>
+                <div>✅ Storyboard</div>
+                <div>✅ NSFW OK</div>
+              </div>
+              <Button className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:opacity-90" render={<Link href="/register" />}>
+                {tc("startFree")} — 50 credits →
               </Button>
             </div>
           )}
