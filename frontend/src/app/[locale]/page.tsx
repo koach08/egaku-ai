@@ -258,6 +258,11 @@ export default function LandingPage() {
           <h2 className="text-3xl font-bold text-center mb-4">
             {t("pricing.title")}
           </h2>
+          <div className="text-center mb-2">
+            <span className="inline-block text-xs font-bold bg-gradient-to-r from-pink-500 to-purple-500 text-white px-3 py-1 rounded-full">
+              🎉 LAUNCH50 — 初月50%OFF (先着100名)
+            </span>
+          </div>
           <p className="text-center text-sm text-muted-foreground mb-12">
             Regional pricing available — up to 80% off based on your location.
             Discount applied automatically at checkout.
@@ -357,7 +362,7 @@ export default function LandingPage() {
           <h2 className="text-3xl font-bold text-center mb-10">Frequently Asked Questions</h2>
           <div className="max-w-3xl mx-auto space-y-4">
             {[
-              { q: "Is EGAKU AI free to use?", a: "Yes. You get 50 free credits per month and 1 daily login bonus credit. No credit card required. Free plan includes access to Flux, SDXL, and other models." },
+              { q: "Is EGAKU AI free to use?", a: "Yes. You get 50 free credits per month and 1 daily login bonus credit — enough to try Flux and SDXL image models. Video generation, NSFW content, and premium models (Sora 2, Veo 3, Flux Pro) require a paid plan starting at ¥480/mo." },
               { q: "What AI models are available?", a: "We offer 20+ models including Flux Dev, Flux Pro, SDXL, Ideogram v3, Luma Photon, Nano Banana 2, Grok Imagine, and video models like Kling 2.5, Luma Dream Machine, and more. New models are added regularly." },
               { q: "Can I use CivitAI models?", a: "Yes. Basic plan and above can use CivitAI checkpoint models. Browse and search models directly from the generate page." },
               { q: "What tools are included?", a: "Image generation, video generation, Photo Booth, Logo Maker, Meme Generator, Wallpaper Generator, Video Shorts, Storyboard Studio, Face Swap, Character Lock, Style Transfer, Upscale, Background Removal, Inpainting, ControlNet, and Prompt Battle." },

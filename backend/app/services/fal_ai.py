@@ -109,7 +109,7 @@ VIDEO_MODELS = {
         "name": "LTX 2.3",
         "description": "Fast text-to-video, NSFW-friendly",
         "credits": 5,
-        "min_plan": "free",
+        "min_plan": "lite",
     },
     "fal_kling_t2v": {
         "fal_id": "fal-ai/kling-video/v2/master/text-to-video",
@@ -130,14 +130,14 @@ VIDEO_MODELS = {
         "name": "Wan 2.1",
         "description": "Versatile video generation",
         "credits": 10,
-        "min_plan": "free",
+        "min_plan": "lite",
     },
     "fal_ltx_i2v": {
         "fal_id": "fal-ai/ltx-2-19b/image-to-video",
         "name": "LTX 2 I2V",
         "description": "Animate images to video",
         "credits": 5,
-        "min_plan": "free",
+        "min_plan": "lite",
     },
     "fal_kling_i2v": {
         "fal_id": "fal-ai/kling-video/v2/master/image-to-video",
@@ -151,14 +151,14 @@ VIDEO_MODELS = {
         "name": "Wan 2.1 I2V",
         "description": "Animate images with Wan",
         "credits": 10,
-        "min_plan": "free",
+        "min_plan": "lite",
     },
     "fal_wan26_i2v": {
         "fal_id": "wan/v2.6/image-to-video",
         "name": "Wan 2.6 I2V (Best NSFW)",
         "description": "Latest Wan model - real subject motion, NSFW OK",
         "credits": 10,
-        "min_plan": "free",
+        "min_plan": "lite",
     },
     # --- Premium video models (paid plans only) ---
     "fal_kling25_t2v": {
@@ -222,7 +222,7 @@ VIDEO_MODELS = {
         "name": "Mochi v1 (Genmo)",
         "description": "Genmo's video model, natural motion and physics",
         "credits": 10,
-        "min_plan": "free",
+        "min_plan": "lite",
     },
     "fal_seedance_t2v": {
         "fal_id": "fal-ai/bytedance/seedance",

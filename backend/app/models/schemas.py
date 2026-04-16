@@ -473,16 +473,16 @@ def calculate_resolution_multiplier(width: int, height: int) -> float:
 # Plan limits for cost control
 PLAN_LIMITS_CONFIG = {
     "free": {
-        "daily_generations": 10,
-        "daily_video_generations": 5,
+        "daily_generations": 5,
+        "daily_video_generations": 1,
         "max_resolution": 512,
-        "nsfw_allowed": True,
+        "nsfw_allowed": False,
         "watermark": True,
         "queue_priority": "low",
     },
     "lite": {
-        "daily_generations": 50,
-        "daily_video_generations": 20,
+        "daily_generations": 30,
+        "daily_video_generations": 10,
         "max_resolution": 768,
         "nsfw_allowed": True,
         "watermark": False,
