@@ -68,7 +68,79 @@ async def create_feedback(
         logger.error(f"Feedback insert failed: {e}")
         raise HTTPException(status_code=500, detail="Could not save feedback")
 
+    # Fire-and-forget email notification to admin
+    try:
+        await _send_feedback_email(body, user_id, settings)
+    except Exception as e:
+        logger.warning(f"Feedback email notification failed: {e}")
+
     return {"ok": True, "id": result.data[0].get("id") if result.data else None}
+
+
+async def _send_feedback_email(body: FeedbackCreate, user_id: Optional[str], settings: Settings):
+    """Send admin notification via Resend when feedback arrives."""
+    if not settings.resend_api_key:
+        return
+
+    import httpx
+
+    # Try to get user email
+    user_email = "anonymous"
+    if user_id:
+        try:
+            supabase = get_supabase(settings)
+            user_data = supabase.auth.admin.get_user_by_id(user_id)
+            if user_data and user_data.user:
+                user_email = user_data.user.email or "anonymous"
+        except Exception:
+            pass
+
+    emoji = {
+        "bug": "🐛",
+        "feature_request": "💡",
+        "praise": "❤️",
+        "general": "💬",
+    }.get(body.category, "💬")
+
+    rating_text = f" ({body.rating}/5 ⭐)" if body.rating else ""
+    subject = f"{emoji} EGAKU AI Feedback [{body.category}]{rating_text}: {body.feature}"
+
+    html_body = f"""
+<div style="font-family: system-ui, sans-serif; max-width: 600px; margin: 0 auto;">
+  <h2 style="color: #8b5cf6;">{emoji} New Feedback</h2>
+  <table style="width: 100%; border-collapse: collapse;">
+    <tr><td style="padding: 6px; color: #666;">Category</td><td style="padding: 6px;"><strong>{body.category}</strong></td></tr>
+    <tr><td style="padding: 6px; color: #666;">Feature</td><td style="padding: 6px;">{body.feature}</td></tr>
+    <tr><td style="padding: 6px; color: #666;">Rating</td><td style="padding: 6px;">{body.rating or "—"}</td></tr>
+    <tr><td style="padding: 6px; color: #666;">User</td><td style="padding: 6px;">{user_email}</td></tr>
+    <tr><td style="padding: 6px; color: #666;">Page</td><td style="padding: 6px;">{body.page_url or "—"}</td></tr>
+  </table>
+  <div style="margin-top: 16px; padding: 16px; background: #f5f3ff; border-left: 4px solid #8b5cf6; border-radius: 4px;">
+    <p style="margin: 0; white-space: pre-wrap;">{body.message}</p>
+  </div>
+  <p style="margin-top: 20px; color: #999; font-size: 12px;">
+    — EGAKU AI feedback system
+  </p>
+</div>
+"""
+
+    async with httpx.AsyncClient(timeout=10) as client:
+        r = await client.post(
+            "https://api.resend.com/emails",
+            headers={
+                "Authorization": f"Bearer {settings.resend_api_key}",
+                "Content-Type": "application/json",
+            },
+            json={
+                "from": f"EGAKU AI Feedback <{settings.feedback_from_email}>",
+                "to": [settings.feedback_notify_email],
+                "reply_to": user_email if user_email != "anonymous" else None,
+                "subject": subject,
+                "html": html_body,
+            },
+        )
+        r.raise_for_status()
+        logger.info(f"Feedback email sent to {settings.feedback_notify_email}")
 
 
 @router.get("/list")

@@ -47,6 +47,10 @@ class Settings(BaseSettings):
     vastai_api_key: str = ""
     vastai_comfyui_url: str = ""  # e.g. "http://38.64.28.7:8188"
 
+    # Wan 2.2 NSFW Lightning — dedicated high-VRAM ComfyUI backend (RTX 3090+)
+    # Separate instance from regular vastai_comfyui_url. Top-tier NSFW video.
+    wan22_comfyui_url: str = ""  # e.g. "http://194.14.47.19:22315"
+
     # NOWPayments (crypto payments for adult subscriptions)
     nowpayments_api_key: str = ""
     nowpayments_ipn_secret: str = ""
@@ -69,6 +73,11 @@ class Settings(BaseSettings):
 
     # OpenAI (prompt assistant chat)
     openai_api_key: str = ""
+
+    # Resend (email notifications — feedback, etc.)
+    resend_api_key: str = ""
+    feedback_notify_email: str = "japanesebusinessman4@gmail.com"
+    feedback_from_email: str = "onboarding@resend.dev"  # Resend sandbox default
 
     # GeoIP
     geoip_db_path: str = "GeoLite2-Country.mmdb"
