@@ -163,6 +163,13 @@ async def stripe_webhook(request: Request, settings: Settings = Depends(get_sett
                     logger.warning(f"Ignoring Stripe adult checkout (deprecated): user={user_id}")
                 else:
                     _update_user_plan(supabase, user_id, plan)
+                    # Referral upgrade bonus — if this user was referred, reward the referrer
+                    try:
+                        from app.api.referrals import award_upgrade_bonus
+                        import asyncio
+                        asyncio.ensure_future(award_upgrade_bonus(supabase, user_id))
+                    except Exception as e:
+                        logger.warning(f"Referral upgrade bonus failed: {e}")
             elif data.get("mode") == "payment":
                 # One-time purchase (local license)
                 supabase.table("users").update(

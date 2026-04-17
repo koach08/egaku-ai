@@ -814,15 +814,25 @@ export async function generateStaticParams() {
 
 type Props = { params: Promise<{ slug: string; locale: string }> };
 
+const NSFW_SLUGS = new Set([
+  "ai-nsfw-generator", "ai-hentai-generator", "ai-nsfw-video-generator",
+  "nsfw-ai-art-generator", "unrestricted-ai-art-generator",
+]);
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const page = PAGES[slug];
   if (!page) return { title: "Not Found" };
 
+  const isNsfw = NSFW_SLUGS.has(slug);
+
   return {
     title: page.title,
     description: page.description,
     keywords: page.keywords,
+    ...(isNsfw && {
+      robots: { index: false, follow: false },
+    }),
     alternates: {
       canonical: `/ai/${slug}`,
       languages: {
