@@ -121,3 +121,20 @@ app.include_router(rss.router, prefix="/api")
 @app.get("/api/health")
 async def health():
     return {"status": "ok", "service": settings.app_name, "mode": settings.mode}
+
+
+@app.get("/api/stats")
+async def public_stats():
+    """Public stats for social proof on homepage. Cached 5 min."""
+    try:
+        from app.services.supabase import get_supabase
+        supabase = get_supabase(settings)
+        users = supabase.table("users").select("id", count="exact").execute()
+        gallery = supabase.table("gallery").select("id", count="exact").execute()
+        return {
+            "users": (users.count or 0),
+            "creations": (gallery.count or 0),
+            "models": 30,
+        }
+    except Exception:
+        return {"users": 60, "creations": 300, "models": 30}

@@ -8,6 +8,7 @@ import { WebsiteJsonLd } from "@/components/json-ld";
 import { ShowcaseGallery } from "@/components/showcase-gallery";
 import { AnonGenerator } from "@/components/anon-generator";
 import { AnnouncementBanner } from "@/components/announcement-banner";
+import { LiveStats } from "@/components/live-stats";
 
 const planKeys = ["free", "lite", "basic", "pro", "unlimited", "studio"] as const;
 const planPrices: Record<string, string> = {
@@ -126,32 +127,7 @@ export default function LandingPage() {
               <span className="text-lg font-semibold">CivitAI</span>
             </div>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-2xl mx-auto text-center">
-            <div>
-              <p className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                25+
-              </p>
-              <p className="text-sm text-muted-foreground">AI Models</p>
-            </div>
-            <div>
-              <p className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                8
-              </p>
-              <p className="text-sm text-muted-foreground">Style Presets</p>
-            </div>
-            <div>
-              <p className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                1000+
-              </p>
-              <p className="text-sm text-muted-foreground">CivitAI LoRAs</p>
-            </div>
-            <div>
-              <p className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                Free
-              </p>
-              <p className="text-sm text-muted-foreground">To Start</p>
-            </div>
-          </div>
+          <LiveStats />
         </section>
 
         {/* Creative Tools — Main Navigation Hub */}
