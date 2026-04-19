@@ -1,13 +1,29 @@
 import { Header } from "@/components/layout/header";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Content Policy — EGAKU AI",
+  description: "Content Policy and NSFW guidelines for EGAKU AI platform.",
+};
 
 export default function ContentPolicyPage() {
   return (
     <>
       <Header />
-      <main className="container mx-auto px-4 py-12 max-w-3xl prose prose-invert">
-        <h1>Content Policy &amp; NSFW Guidelines</h1>
-        <p className="text-muted-foreground">Last updated: March 2026</p>
+      <main className="container mx-auto px-4 py-16 max-w-4xl">
+        {/* Title Block */}
+        <div className="text-center mb-12">
+          <p className="text-xs font-medium tracking-widest text-purple-400 uppercase mb-3">Legal</p>
+          <h1 className="text-4xl font-bold">Content Policy &amp; NSFW Guidelines</h1>
+          <p className="text-sm text-muted-foreground mt-3">
+            Effective: April 2026 &middot; Last updated: April 17, 2026
+          </p>
+          <div className="h-px bg-gradient-to-r from-transparent via-purple-500/30 to-transparent mt-6" />
+        </div>
 
+        <div className="space-y-10 text-sm leading-relaxed text-muted-foreground">
+
+        <section>
         <p>
           EGAKU AI is committed to providing a creative platform that respects both
           artistic freedom and legal compliance across jurisdictions. This Content
@@ -196,11 +212,14 @@ export default function ContentPolicyPage() {
           of the Service after changes constitutes acceptance of the updated policy.
         </p>
 
-        <h2>9. Contact</h2>
-        <p>
-          For questions or concerns about this Content Policy, contact us
-          at <a href="mailto:support@egaku-ai.com" className="text-purple-400 hover:text-purple-300">support@egaku-ai.com</a>.
-        </p>
+        <h2 className="text-lg font-semibold text-foreground mb-3">9. Contact</h2>
+        <div className="rounded-lg border border-muted bg-card p-4">
+          <p className="text-foreground font-medium">EGAKU AI — Content Policy</p>
+          <p>Email: <a href="mailto:support@egaku-ai.com" className="text-purple-400 hover:text-purple-300">support@egaku-ai.com</a></p>
+          <p>Website: https://egaku-ai.com</p>
+        </div>
+        </section>
+        </div>
       </main>
     </>
   );
