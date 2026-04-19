@@ -75,9 +75,6 @@ export function Header() {
           <span className="text-xl font-bold bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent">
             EGAKU AI
           </span>
-          <Badge variant="secondary" className="text-xs">
-            {t("common.beta")}
-          </Badge>
         </Link>
 
         {/* Desktop nav */}

@@ -38,6 +38,10 @@ export default function LandingPage() {
         <AnnouncementBanner location="home" />
         {/* Hero */}
         <section className="container mx-auto px-4 py-20 text-center">
+          <div className="inline-flex items-center gap-2 rounded-full border border-purple-500/30 bg-purple-500/5 px-4 py-1.5 mb-6">
+            <span className="inline-block w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+            <span className="text-xs text-purple-300 font-medium">Trusted by creators worldwide</span>
+          </div>
           <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
             {t("hero.title")}
           </h1>
@@ -49,7 +53,7 @@ export default function LandingPage() {
             <AnonGenerator />
           </div>
           <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Button size="lg" className="text-lg px-8 py-6" render={<Link href="/register" />}>
+            <Button size="lg" className="text-lg px-8 py-6 bg-gradient-to-r from-purple-600 to-pink-600 hover:opacity-90" render={<Link href="/register" />}>
               {t("common.startFree")} — 50 {t("common.credits")}
             </Button>
             <Button size="lg" variant="outline" render={<a href="#pricing" />}>
@@ -57,7 +61,7 @@ export default function LandingPage() {
             </Button>
           </div>
           <p className="mt-4 text-sm text-muted-foreground">
-            No credit card required. Create your first image in 30 seconds.
+            No credit card required. Start creating in 30 seconds.
           </p>
           <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
             {[
@@ -89,22 +93,23 @@ export default function LandingPage() {
         <ShowcaseGallery title={t("gallery.videosTitle")} filter="video" maxItems={18} />
 
         {/* How it works */}
-        <section className="container mx-auto px-4 py-12">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 max-w-3xl mx-auto text-center">
-            <div>
-              <div className="text-4xl mb-3">1</div>
-              <h3 className="font-semibold mb-1">Sign Up Free</h3>
-              <p className="text-sm text-muted-foreground">Create an account in 10 seconds with Google or email</p>
+        <section className="container mx-auto px-4 py-16">
+          <h2 className="text-2xl font-bold text-center mb-10">How It Works</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 max-w-4xl mx-auto">
+            <div className="text-center rounded-xl border border-muted bg-card/50 p-6">
+              <div className="w-10 h-10 rounded-full bg-purple-500/10 text-purple-400 flex items-center justify-center mx-auto mb-4 text-lg font-bold">1</div>
+              <h3 className="font-semibold mb-2">Create Your Account</h3>
+              <p className="text-sm text-muted-foreground">Sign up with Google or email in 10 seconds. 50 free credits included.</p>
             </div>
-            <div>
-              <div className="text-4xl mb-3">2</div>
-              <h3 className="font-semibold mb-1">Type Your Prompt</h3>
-              <p className="text-sm text-muted-foreground">Describe what you want to create — any style, any subject</p>
+            <div className="text-center rounded-xl border border-muted bg-card/50 p-6">
+              <div className="w-10 h-10 rounded-full bg-pink-500/10 text-pink-400 flex items-center justify-center mx-auto mb-4 text-lg font-bold">2</div>
+              <h3 className="font-semibold mb-2">Describe Your Vision</h3>
+              <p className="text-sm text-muted-foreground">Type a prompt in any language. Our AI enhances it automatically for optimal results.</p>
             </div>
-            <div>
-              <div className="text-4xl mb-3">3</div>
-              <h3 className="font-semibold mb-1">Generate & Download</h3>
-              <p className="text-sm text-muted-foreground">Get your image in seconds. Download in full resolution</p>
+            <div className="text-center rounded-xl border border-muted bg-card/50 p-6">
+              <div className="w-10 h-10 rounded-full bg-cyan-500/10 text-cyan-400 flex items-center justify-center mx-auto mb-4 text-lg font-bold">3</div>
+              <h3 className="font-semibold mb-2">Generate &amp; Export</h3>
+              <p className="text-sm text-muted-foreground">Get your image or video in seconds. Download, share, or publish to the gallery.</p>
             </div>
           </div>
         </section>
@@ -420,45 +425,49 @@ export default function LandingPage() {
         </section>
 
         {/* Footer */}
-        <footer className="border-t py-8 text-sm text-muted-foreground">
-          <div className="container mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p>
-              &copy; {new Date().getFullYear()} EGAKU AI.{" "}
-              {t("footer.rights")}
-            </p>
-            <div className="flex gap-4">
-              <a
-                href="https://discord.gg/YqgYjJFjp2"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-foreground transition-colors"
-              >
-                Discord
-              </a>
-              <Link
-                href="/terms"
-                className="hover:text-foreground transition-colors"
-              >
-                {t("footer.terms")}
-              </Link>
-              <Link
-                href="/privacy"
-                className="hover:text-foreground transition-colors"
-              >
-                {t("footer.privacy")}
-              </Link>
-              <Link
-                href="/content-policy"
-                className="hover:text-foreground transition-colors"
-              >
-                Content Policy
-              </Link>
-              <Link
-                href="/adult"
-                className="hover:text-pink-400/70 transition-colors"
-              >
-                18+
-              </Link>
+        <footer className="border-t mt-16">
+          <div className="container mx-auto px-4 py-12">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 mb-8">
+              <div>
+                <h4 className="text-sm font-semibold text-foreground mb-3">Product</h4>
+                <div className="space-y-2 text-xs text-muted-foreground">
+                  <Link href="/generate" className="block hover:text-foreground transition-colors">Generate</Link>
+                  <Link href="/tools" className="block hover:text-foreground transition-colors">All Tools</Link>
+                  <Link href="/gallery" className="block hover:text-foreground transition-colors">Gallery</Link>
+                  <a href="/#pricing" className="block hover:text-foreground transition-colors">Pricing</a>
+                </div>
+              </div>
+              <div>
+                <h4 className="text-sm font-semibold text-foreground mb-3">Tools</h4>
+                <div className="space-y-2 text-xs text-muted-foreground">
+                  <Link href="/photo-booth" className="block hover:text-foreground transition-colors">Photo Booth</Link>
+                  <Link href="/logo" className="block hover:text-foreground transition-colors">Logo Maker</Link>
+                  <Link href="/shorts" className="block hover:text-foreground transition-colors">Video Shorts</Link>
+                  <Link href="/storyboard" className="block hover:text-foreground transition-colors">Storyboard</Link>
+                </div>
+              </div>
+              <div>
+                <h4 className="text-sm font-semibold text-foreground mb-3">Community</h4>
+                <div className="space-y-2 text-xs text-muted-foreground">
+                  <Link href="/battle" className="block hover:text-foreground transition-colors">Prompt Battle</Link>
+                  <Link href="/referrals" className="block hover:text-foreground transition-colors">Referrals</Link>
+                  <a href="https://discord.gg/YqgYjJFjp2" target="_blank" rel="noopener noreferrer" className="block hover:text-foreground transition-colors">Discord</a>
+                  <a href="https://x.com/Egaku_AI" target="_blank" rel="noopener noreferrer" className="block hover:text-foreground transition-colors">X (Twitter)</a>
+                </div>
+              </div>
+              <div>
+                <h4 className="text-sm font-semibold text-foreground mb-3">Legal</h4>
+                <div className="space-y-2 text-xs text-muted-foreground">
+                  <Link href="/terms" className="block hover:text-foreground transition-colors">Terms of Service</Link>
+                  <Link href="/privacy" className="block hover:text-foreground transition-colors">Privacy Policy</Link>
+                  <Link href="/content-policy" className="block hover:text-foreground transition-colors">Content Policy</Link>
+                  <a href="mailto:support@egaku-ai.com" className="block hover:text-foreground transition-colors">support@egaku-ai.com</a>
+                </div>
+              </div>
+            </div>
+            <div className="border-t pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
+              <p>&copy; {new Date().getFullYear()} EGAKU AI. {t("footer.rights")}</p>
+              <p className="text-[10px]">Powered by Flux, Sora 2, Veo 3, Kling, SDXL, and 25+ AI models.</p>
             </div>
           </div>
         </footer>
