@@ -12,7 +12,7 @@ Most directories bring passive traffic for months/years after a single submissio
 - **Category:** AI Image Generation / AI Video Generation / Creative Tools
 - **Pricing:** Freemium (50 free credits/mo, paid plans from ¥480)
 - **Launched:** 2026
-- **Founder:** Koichiro Shigaki (Japan)
+- **Founder:** EGAKU AI Team
 - **Contact:** japanesebusinessman4@gmail.com
 
 ---
@@ -64,7 +64,7 @@ Pro plan includes full REST API access for integrations.
 **Multi-Language:**
 Write prompts in any language — Japanese, Chinese, Korean, Spanish, etc. Auto-translated for optimal results.
 
-Launched 2026. Solo-founded by Koichiro Shigaki (Japan).
+Launched 2026.
 
 ---
 

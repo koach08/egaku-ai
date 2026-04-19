@@ -125,9 +125,9 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-foreground mb-3">11. Governing Law</h2>
+            <h2 className="text-lg font-semibold text-foreground mb-3">11. Governing Law &amp; Dispute Resolution</h2>
             <p>
-              These Terms are governed by and construed in accordance with the laws of Japan. Any disputes arising under these Terms shall be subject to the exclusive jurisdiction of the courts of Sapporo, Hokkaido, Japan.
+              These Terms shall be governed by and construed in accordance with applicable international laws and the laws of the jurisdiction in which the operator resides. Any dispute arising from or related to these Terms shall first be resolved through good-faith negotiation. If negotiation fails, disputes shall be submitted to binding arbitration under the rules of a mutually agreed arbitration body.
             </p>
           </section>
 

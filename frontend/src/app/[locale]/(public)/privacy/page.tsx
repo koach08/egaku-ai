@@ -163,7 +163,7 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-lg font-semibold text-foreground mb-3">10. International Data Transfers</h2>
             <p>
-              Your data may be processed in countries other than your country of residence, including Japan, the United States, and the European Union, where our hosting providers operate. We ensure appropriate safeguards are in place for cross-border data transfers.
+              Your data may be processed in countries other than your country of residence, including the United States and the European Union, where our hosting and infrastructure providers operate. We ensure appropriate safeguards are in place for cross-border data transfers.
             </p>
           </section>
 
