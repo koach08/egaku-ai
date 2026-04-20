@@ -38,10 +38,6 @@ export default function LandingPage() {
         <AnnouncementBanner location="home" />
         {/* Hero */}
         <section className="container mx-auto px-4 py-20 text-center">
-          <div className="inline-flex items-center gap-2 rounded-full border border-purple-500/30 bg-purple-500/5 px-4 py-1.5 mb-6">
-            <span className="inline-block w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-            <span className="text-xs text-purple-300 font-medium">Trusted by creators worldwide</span>
-          </div>
           <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
             {t("hero.title")}
           </h1>
