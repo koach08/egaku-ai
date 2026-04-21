@@ -6,12 +6,12 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/api/", "/settings", "/my-gallery"],
+        disallow: ["/api/", "/settings", "/my-gallery", "/adult"],
       },
       {
         userAgent: "Googlebot",
         allow: "/",
-        disallow: ["/api/", "/settings", "/my-gallery"],
+        disallow: ["/api/", "/settings", "/my-gallery", "/adult"],
       },
       {
         userAgent: "Googlebot-Image",

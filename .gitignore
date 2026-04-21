@@ -64,3 +64,8 @@ Thumbs.db
 # ===========================
 *.pem
 *.log
+
+# Showcase generation scripts (not needed in production)
+backend/gen_*.py
+showcase_*.py
+test-outputs/
