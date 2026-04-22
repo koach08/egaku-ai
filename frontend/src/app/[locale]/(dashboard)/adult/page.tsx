@@ -893,7 +893,17 @@ export default function AdultPage() {
                                 <span className="flex items-center gap-1.5">
                                   {m.name}
                                   <span className="text-[10px] text-muted-foreground">({m.credits} cr)</span>
-                                  {m.badge && <span className="text-[10px] bg-pink-500/20 text-pink-400 px-1 rounded">{m.badge}</span>}
+                                  {m.badge && (
+                                    <span
+                                      className={`text-[10px] px-1 rounded font-semibold ${
+                                        m.badge === "FLAGSHIP"
+                                          ? "bg-gradient-to-r from-amber-500 to-pink-500 text-white"
+                                          : "bg-pink-500/20 text-pink-400"
+                                      }`}
+                                    >
+                                      {m.badge}
+                                    </span>
+                                  )}
                                 </span>
                               </SelectItem>
                             ))}
@@ -903,7 +913,17 @@ export default function AdultPage() {
                                 <span className="flex items-center gap-1.5">
                                   {m.name}
                                   <span className="text-[10px] text-muted-foreground">({m.credits} cr)</span>
-                                  {m.badge && <span className="text-[10px] bg-pink-500/20 text-pink-400 px-1 rounded">{m.badge}</span>}
+                                  {m.badge && (
+                                    <span
+                                      className={`text-[10px] px-1 rounded font-semibold ${
+                                        m.badge === "FLAGSHIP"
+                                          ? "bg-gradient-to-r from-amber-500 to-pink-500 text-white"
+                                          : "bg-pink-500/20 text-pink-400"
+                                      }`}
+                                    >
+                                      {m.badge}
+                                    </span>
+                                  )}
                                 </span>
                               </SelectItem>
                             ))}
@@ -1256,7 +1276,7 @@ export default function AdultPage() {
               <Button
                 className="w-full h-12 text-lg bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-700 hover:to-rose-700"
                 onClick={handleGenerate}
-                disabled={generating || !prompt.trim() || (mode === "civitai" && !civitaiModelName)}
+                disabled={generating || (!prompt.trim() && mode !== "video") || (mode === "civitai" && !civitaiModelName)}
               >
                 {generating
                   ? `Generating... ${elapsed}s`

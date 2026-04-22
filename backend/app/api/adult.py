@@ -159,7 +159,7 @@ class AdultGenerateRequest(BaseModel):
 
 
 class AdultVideoRequest(BaseModel):
-    prompt: str = Field(..., min_length=1, max_length=2000)
+    prompt: str = Field("", max_length=2000)  # Optional for img2vid (image is primary input)
     negative_prompt: str = ""
     model: str = "fal_ltx_t2v"
     image_url: str = ""  # For img2vid
