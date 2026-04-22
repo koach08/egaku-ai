@@ -227,8 +227,10 @@ export default function AdultPage() {
 
   // Generate handler
   const handleGenerate = async () => {
-    const isI2V = mode === "video" && videoModels.find((m) => m.id === videoModel)?.type === "i2v" && inputImage;
-    if (!prompt.trim() && !isI2V) {
+    // Allow empty prompt for video img2vid mode (image is primary input)
+    const videoType = videoModels.find((m) => m.id === videoModel);
+    const isVideoI2V = mode === "video" && videoType && videoType.type === "i2v" && inputImage;
+    if (!prompt.trim() && !isVideoI2V) {
       toast.error("Please enter a prompt");
       return;
     }
