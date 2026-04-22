@@ -623,8 +623,8 @@ class FalClient:
             if prompt:
                 input_params["prompt"] = prompt
 
-        # Wan 2.6 and Seedance 2 need queue-based API (longer processing time)
-        if is_wan26 or "seedance-2.0" in fal_model:
+        # I2V models need queue-based API (processing time 30-120s)
+        if is_wan or is_wan26 or "seedance-2.0" in fal_model or "sora-2" in fal_model:
             return await self._submit_queue_job(fal_model, input_params)
 
         # Other models: synchronous
