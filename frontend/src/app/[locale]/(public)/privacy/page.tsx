@@ -178,8 +178,7 @@ export default function PrivacyPage() {
             <h2 className="text-lg font-semibold text-foreground mb-3">12. Contact</h2>
             <div className="rounded-lg border border-muted bg-card p-4">
               <p className="text-foreground font-medium">EGAKU AI — Data Protection</p>
-              <p>Email: privacy@egaku-ai.com</p>
-              <p>General: support@egaku-ai.com</p>
+              <p>Contact: <a href="/contact" className="text-purple-400 hover:underline">Contact Form</a></p>
               <p>Website: https://egaku-ai.com</p>
             </div>
           </section>

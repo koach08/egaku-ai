@@ -187,8 +187,7 @@ export default function ContentPolicyPage() {
           We employ automated keyword filtering and model-level safety mechanisms to
           prevent the generation of prohibited content. If you encounter content on
           the public gallery that violates this policy, please report it using the
-          report button on the content page or by contacting us at
-          support@egaku-ai.com.
+          report button on the content page or via our <a href="/contact" className="text-purple-400 hover:underline">Contact Form</a>.
         </p>
         <p>
           Reports of CSAM or non-consensual intimate imagery are treated with the
@@ -215,7 +214,7 @@ export default function ContentPolicyPage() {
         <h2 className="text-lg font-semibold text-foreground mb-3">9. Contact</h2>
         <div className="rounded-lg border border-muted bg-card p-4">
           <p className="text-foreground font-medium">EGAKU AI — Content Policy</p>
-          <p>Email: <a href="mailto:support@egaku-ai.com" className="text-purple-400 hover:text-purple-300">support@egaku-ai.com</a></p>
+          <p>Contact: <a href="/contact" className="text-purple-400 hover:text-purple-300">Contact Form</a></p>
           <p>Website: https://egaku-ai.com</p>
         </div>
         </section>

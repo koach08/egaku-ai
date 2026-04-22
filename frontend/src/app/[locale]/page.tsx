@@ -457,7 +457,7 @@ export default function LandingPage() {
                   <Link href="/terms" className="block hover:text-foreground transition-colors">Terms of Service</Link>
                   <Link href="/privacy" className="block hover:text-foreground transition-colors">Privacy Policy</Link>
                   <Link href="/content-policy" className="block hover:text-foreground transition-colors">Content Policy</Link>
-                  <a href="mailto:support@egaku-ai.com" className="block hover:text-foreground transition-colors">support@egaku-ai.com</a>
+                  <Link href="/contact" className="block hover:text-foreground transition-colors">Contact Us</Link>
                 </div>
               </div>
             </div>
