@@ -1093,10 +1093,10 @@ async def generate_adult_video(
     if is_wan22_model:
         wan22_url = getattr(settings, "wan22_comfyui_url", None) or os.environ.get("WAN22_COMFYUI_URL", "")
         if not wan22_url:
-            raise HTTPException(
-                status_code=503,
-                detail="Wan 2.2 NSFW backend not configured. Set WAN22_COMFYUI_URL.",
-            )
+            # Fallback: use fal.ai Wan 2.1 I2V instead of dedicated Wan 2.2 backend
+            logger.warning("Wan 2.2 backend not configured, falling back to fal.ai Wan 2.1")
+            model_id = "fal_wan_i2v" if is_i2v else "fal_wan_t2v"
+            is_wan22_model = False  # skip Wan 2.2 block, fall through to normal flow
         try:
             from app.services.wan22_comfyui import generate_wan22_t2v, generate_wan22_i2v
 
