@@ -841,6 +841,20 @@ export default function GeneratePage() {
     return base + preset.suffix;
   };
 
+  // Smart model recommendation based on prompt content
+  const getRecommendedModel = (p: string): { id: string; reason: string } | null => {
+    const lower = p.toLowerCase();
+    if (!lower || lower.length < 10) return null;
+    if (/anime|manga|waifu|ghibli|cel.?shad/i.test(lower)) return { id: "fal_flux_dev", reason: "Best for anime/illustration" };
+    if (/logo|brand|text|typography|poster/i.test(lower)) return { id: "fal_ideogram", reason: "Best text rendering (Ideogram v3)" };
+    if (/photo.*realis|portrait|headshot|skin.*texture|8k.*photo/i.test(lower)) return { id: "fal_flux_pro", reason: "Highest photorealism (Flux Pro)" };
+    if (/product|commercial|studio.*light|clean.*background/i.test(lower)) return { id: "fal_nano_banana_2", reason: "Sharp detail (Nano Banana 2)" };
+    if (/pixel.*art|retro|16.?bit|game/i.test(lower)) return { id: "fal_flux_dev", reason: "Good for stylized art" };
+    return null;
+  };
+
+  const recommendation = getRecommendedModel(prompt);
+
   const PROMPT_TEMPLATES = [
     { label: "🏔 Landscape", prompt: "Breathtaking mountain landscape at golden hour, crystal clear lake reflection, dramatic clouds, shot on Hasselblad, 8K" },
     { label: "👤 Portrait", prompt: "Stunning portrait photograph, beautiful soft lighting, shallow depth of field, professional studio quality, shot on Canon EOS R5, 85mm f/1.2, 8K" },
@@ -875,6 +889,14 @@ export default function GeneratePage() {
               </button>
             ))}
           </div>
+        )}
+        {recommendation && prompt.trim() && (
+          <button
+            onClick={() => setModel(recommendation.id)}
+            className="mt-2 text-[11px] px-3 py-1.5 rounded-lg border border-cyan-500/30 bg-cyan-500/5 text-cyan-400 hover:bg-cyan-500/10 transition-colors"
+          >
+            💡 Tip: try <strong>{MODELS.find((m) => m.id === recommendation.id)?.name}</strong> — {recommendation.reason}
+          </button>
         )}
       </div>
 
