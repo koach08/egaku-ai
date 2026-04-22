@@ -610,8 +610,9 @@ class FalClient:
             input_params["duration"] = str(valid_dur)
             input_params["enable_prompt_expansion"] = False
         elif is_wan:
-            # Wan 2.1 I2V — accepts num_frames (~16 fps)
-            input_params["num_frames"] = min(max(dur * 16, 16), 240)
+            # Wan 2.1 I2V — do NOT pass num_frames or duration.
+            # The model works best at its native default (~5 seconds).
+            # Passing large num_frames causes degraded/wrong output.
             if prompt:
                 input_params["prompt"] = prompt
         elif "ltx" in fal_model:
