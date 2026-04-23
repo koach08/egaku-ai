@@ -14,6 +14,14 @@ import {
 } from "@/components/ui/select";
 import { Header } from "@/components/layout/header";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import {
+  ImageIcon,
+  VideoIcon,
+  WandIcon,
+  CopyIcon,
+  RefreshCwIcon,
+} from "lucide-react";
 
 interface ExploreItem {
   id: string;
@@ -28,7 +36,8 @@ interface ExploreItem {
 }
 
 export default function ExplorePage() {
-  const { user } = useAuth();
+  const { user, session } = useAuth();
+  const router = useRouter();
   const [items, setItems] = useState<ExploreItem[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
@@ -238,6 +247,105 @@ export default function ExplorePage() {
                     <p className="text-sm">{selectedItem.model}</p>
                   </div>
                 )}
+
+                {/* Remix / Use as Input Actions */}
+                <div className="border-t pt-4 space-y-2">
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Use as Input</p>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    {/* Copy Prompt */}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="gap-1.5 text-xs"
+                      onClick={() => {
+                        navigator.clipboard.writeText(selectedItem.prompt);
+                        toast.success("Prompt copied!");
+                      }}
+                    >
+                      <CopyIcon className="h-3.5 w-3.5" />
+                      Copy Prompt
+                    </Button>
+
+                    {/* Remix (same prompt + settings → generate) */}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="gap-1.5 text-xs"
+                      onClick={() => {
+                        const params = new URLSearchParams({
+                          prompt: selectedItem.prompt,
+                          ...(selectedItem.model ? { model: selectedItem.model } : {}),
+                        });
+                        const dest = selectedItem.nsfw ? "/adult" : "/generate";
+                        router.push(`${dest}?${params.toString()}`);
+                      }}
+                    >
+                      <RefreshCwIcon className="h-3.5 w-3.5" />
+                      Remix
+                    </Button>
+
+                    {/* img2img (use image as input for image-to-image) */}
+                    {selectedItem.image_url && (
+                      <Button
+                        size="sm"
+                        className="gap-1.5 text-xs bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                        onClick={() => {
+                          const params = new URLSearchParams({
+                            remix_mode: "img2img",
+                            remix_image: selectedItem.image_url!,
+                            prompt: selectedItem.prompt,
+                          });
+                          const dest = selectedItem.nsfw ? "/adult" : "/generate";
+                          router.push(`${dest}?${params.toString()}`);
+                        }}
+                      >
+                        <ImageIcon className="h-3.5 w-3.5" />
+                        Img2Img
+                      </Button>
+                    )}
+
+                    {/* img2vid (use image as input for image-to-video) */}
+                    {selectedItem.image_url && (
+                      <Button
+                        size="sm"
+                        className="gap-1.5 text-xs bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700"
+                        onClick={() => {
+                          const params = new URLSearchParams({
+                            remix_mode: "i2v",
+                            remix_image: selectedItem.image_url!,
+                            prompt: selectedItem.prompt,
+                          });
+                          const dest = selectedItem.nsfw ? "/adult" : "/generate";
+                          router.push(`${dest}?${params.toString()}`);
+                        }}
+                      >
+                        <VideoIcon className="h-3.5 w-3.5" />
+                        Img2Vid
+                      </Button>
+                    )}
+
+                    {/* vid2vid (use video as input for video-to-video) */}
+                    {selectedItem.video_url && (
+                      <Button
+                        size="sm"
+                        className="gap-1.5 text-xs bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700"
+                        onClick={() => {
+                          const params = new URLSearchParams({
+                            remix_mode: "vid2vid",
+                            remix_video: selectedItem.video_url!,
+                            prompt: selectedItem.prompt,
+                          });
+                          const dest = selectedItem.nsfw ? "/adult" : "/vid2vid";
+                          router.push(`${dest}?${params.toString()}`);
+                        }}
+                      >
+                        <WandIcon className="h-3.5 w-3.5" />
+                        Vid2Vid
+                      </Button>
+                    )}
+                  </div>
+                </div>
+
                 <div className="flex justify-end">
                   <Button
                     variant="outline"

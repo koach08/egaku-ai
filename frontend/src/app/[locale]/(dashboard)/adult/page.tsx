@@ -77,7 +77,12 @@ export default function AdultPage() {
   const [regionRules, setRegionRules] = useState<RegionRules | null>(null);
 
   // Mode
-  const [mode, setMode] = useState<"image" | "video" | "civitai" | "img2img" | "controlnet">("image");
+  const [mode, setMode] = useState<"image" | "video" | "civitai" | "img2img" | "controlnet" | "vid2vid">("image");
+
+  // vid2vid
+  const [inputVideo, setInputVideo] = useState<File | null>(null);
+  const [inputVideoPreview, setInputVideoPreview] = useState<string | null>(null);
+  const [v2vStylePreset, setV2vStylePreset] = useState("custom");
 
   // CivitAI custom models
   const [customModels, setCustomModels] = useState<
@@ -204,6 +209,36 @@ export default function AdultPage() {
     };
   }, []);
 
+  // Load remix params from URL (?remix_mode=img2img&remix_image=...&prompt=...)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const remixMode = params.get("remix_mode");
+    const remixImg = params.get("remix_image");
+    const remixVideo = params.get("remix_video");
+    const p = params.get("prompt");
+
+    if (p) setPrompt(p);
+
+    if (remixMode === "img2img" || remixMode === "i2v") {
+      setMode(remixMode === "i2v" ? "video" : "img2img");
+      if (remixImg) {
+        setInputImagePreview(remixImg);
+        fetch(remixImg)
+          .then((r) => r.blob())
+          .then((blob) => {
+            const file = new File([blob], "remix-input.png", { type: blob.type || "image/png" });
+            setInputImage(file);
+          })
+          .catch(() => {});
+      }
+    } else if (remixMode === "vid2vid") {
+      setMode("vid2vid");
+      if (remixVideo) {
+        setInputVideoPreview(remixVideo);
+      }
+    }
+  }, []);
+
   // Age verification handler
   const handleAgeVerify = async () => {
     if (!session) return;
@@ -240,11 +275,16 @@ export default function AdultPage() {
     setResultUrl(null);
     setError(null);
     setElapsed(0);
-    setResultType(mode === "video" ? "video" : "image");
+    setResultType(mode === "video" || mode === "vid2vid" ? "video" : "image");
     if ((mode === "img2img" || mode === "controlnet") && !inputImage) {
       toast.error("Please upload an image first");
       setGenerating(false);
       if (timerRef.current) clearInterval(timerRef.current);
+      return;
+    }
+    if (mode === "vid2vid" && !inputVideo && !inputVideoPreview) {
+      toast.error("Please upload a video first");
+      setGenerating(false);
       return;
     }
 
@@ -281,6 +321,31 @@ export default function AdultPage() {
           prompt, negative_prompt: negativePrompt, image: b64,
           control_type: controlType, control_strength: controlStrength,
           model, width, height, steps, cfg, sampler, seed,
+        });
+      } else if (mode === "vid2vid") {
+        let videoData: string;
+        if (inputVideo) {
+          // Convert file to base64 data URL
+          videoData = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = reject;
+            reader.readAsDataURL(inputVideo);
+          });
+        } else if (inputVideoPreview) {
+          // URL from gallery remix
+          videoData = inputVideoPreview;
+        } else {
+          toast.error("No video input");
+          setGenerating(false);
+          if (timerRef.current) clearInterval(timerRef.current);
+          return;
+        }
+        res = await api.adultVid2Vid(session.access_token, {
+          video: videoData,
+          prompt,
+          resolution: videoResolution,
+          seed,
         });
       } else if (mode === "civitai" && civitaiModelName) {
         res = await api.generateAdultCivitai(session.access_token, {
@@ -771,17 +836,17 @@ export default function AdultPage() {
             <div className="space-y-4">
               {/* Mode tabs */}
               <div className="flex rounded-lg border overflow-hidden text-[11px]">
-                {(["image", "video", "img2img", "controlnet", "civitai"] as const).map((m) => (
+                {(["image", "video", "img2img", "vid2vid", "controlnet", "civitai"] as const).map((m) => (
                   <button
                     key={m}
                     onClick={() => setMode(m)}
                     className={`flex-1 py-2 font-medium transition-colors ${
                       mode === m
-                        ? m === "civitai" ? "bg-purple-600 text-white" : "bg-pink-600 text-white"
+                        ? m === "civitai" ? "bg-purple-600 text-white" : m === "vid2vid" ? "bg-orange-600 text-white" : "bg-pink-600 text-white"
                         : "bg-muted text-muted-foreground hover:text-foreground"
                     }`}
                   >
-                    {m === "image" ? "Image" : m === "video" ? "Video" : m === "img2img" ? "Img2Img" : m === "controlnet" ? "ControlNet" : "CivitAI"}
+                    {m === "image" ? "Image" : m === "video" ? "Video" : m === "img2img" ? "Img2Img" : m === "vid2vid" ? "Vid2Vid" : m === "controlnet" ? "ControlNet" : "CivitAI"}
                   </button>
                 ))}
               </div>
@@ -1066,6 +1131,84 @@ export default function AdultPage() {
                       </p>
                     </div>
                   )}
+                  {mode === "vid2vid" && (
+                    <div className="space-y-3">
+                      <div>
+                        <Label className="text-xs">Upload Video</Label>
+                        <Input
+                          type="file"
+                          accept="video/mp4,video/quicktime,video/webm"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              if (file.size > 25 * 1024 * 1024) {
+                                toast.error("Video must be under 25MB");
+                                return;
+                              }
+                              setInputVideo(file);
+                              setInputVideoPreview(URL.createObjectURL(file));
+                            }
+                          }}
+                          className="mt-1 text-xs"
+                        />
+                        {inputVideoPreview && (
+                          <video
+                            src={inputVideoPreview}
+                            className="mt-2 rounded-md max-h-48 w-full object-contain bg-black"
+                            controls
+                            muted
+                          />
+                        )}
+                        <p className="text-[10px] text-muted-foreground mt-1">
+                          MP4/MOV, max 25MB, 2-10 seconds. Gallery videos also supported.
+                        </p>
+                      </div>
+                      <div>
+                        <Label className="text-xs">Style Preset</Label>
+                        <Select value={v2vStylePreset} onValueChange={(v) => {
+                          if (!v) return;
+                          setV2vStylePreset(v);
+                          const presets: Record<string, string> = {
+                            anime: "Transform into vibrant anime style, bold outlines, cel shading, saturated colors",
+                            ghibli: "Restyle in Studio Ghibli hand-painted animation, soft colors, whimsical, Miyazaki aesthetic",
+                            cyberpunk: "Restyle as cyberpunk, neon lights, futuristic cityscape, rain reflections, sci-fi",
+                            oil: "Transform into a classical oil painting, thick impasto brushstrokes, rich colors, canvas texture",
+                            noir: "Transform into black and white film noir, high contrast shadows, dramatic lighting",
+                            ukiyoe: "Transform into Japanese ukiyo-e woodblock print style, flat colors, bold outlines",
+                          };
+                          if (presets[v]) setPrompt(presets[v]);
+                        }}>
+                          <SelectTrigger className="mt-1">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="custom">Custom (write your own)</SelectItem>
+                            <SelectItem value="anime">Anime</SelectItem>
+                            <SelectItem value="ghibli">Studio Ghibli</SelectItem>
+                            <SelectItem value="cyberpunk">Cyberpunk</SelectItem>
+                            <SelectItem value="oil">Oil Painting</SelectItem>
+                            <SelectItem value="noir">Film Noir</SelectItem>
+                            <SelectItem value="ukiyoe">Ukiyo-e</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label className="text-xs">Resolution</Label>
+                        <Select value={videoResolution} onValueChange={(v) => v && setVideoResolution(v)}>
+                          <SelectTrigger className="mt-1">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="720p">720p (Fast)</SelectItem>
+                            <SelectItem value="1080p">1080p (HD)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <p className="text-[10px] text-muted-foreground">
+                        Vid2Vid: 40 credits. Style-transfer your video with AI. NSFW supported.
+                      </p>
+                    </div>
+                  )}
                   {mode === "civitai" && (
                     <div className="space-y-3">
                       <div>
@@ -1279,11 +1422,12 @@ export default function AdultPage() {
               <Button
                 className="w-full h-12 text-lg bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-700 hover:to-rose-700"
                 onClick={handleGenerate}
-                disabled={generating || (!prompt.trim() && mode !== "video") || (mode === "civitai" && !civitaiModelName)}
+                disabled={generating || (!prompt.trim() && mode !== "video") || (mode === "civitai" && !civitaiModelName) || (mode === "vid2vid" && !inputVideo && !inputVideoPreview)}
               >
                 {generating
                   ? `Generating... ${elapsed}s`
                   : mode === "video" ? "Generate Video"
+                  : mode === "vid2vid" ? "Transform Video (40 cr)"
                   : mode === "civitai" ? "Generate with CivitAI"
                   : mode === "img2img" ? "Transform Image"
                   : mode === "controlnet" ? "Generate with ControlNet"

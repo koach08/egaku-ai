@@ -505,6 +505,12 @@ export const api = {
       headers: authHeaders(token),
       body: JSON.stringify(params),
     }),
+  adultVid2Vid: (token: string, params: Record<string, unknown>) =>
+    fetchAPI("/adult/vid2vid", {
+      method: "POST",
+      headers: authHeaders(token),
+      body: JSON.stringify(params),
+    }),
 
   // Character Reference Video (PixVerse C1)
   characterVideo: (token: string, params: Record<string, unknown>) =>

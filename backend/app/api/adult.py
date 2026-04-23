@@ -1820,3 +1820,87 @@ async def adult_generate_lora(
         raise HTTPException(status_code=500, detail=f"LoRA generation failed: {e}")
 
     raise HTTPException(status_code=500, detail="LoRA generation produced no result")
+
+
+# ── Adult vid2vid ──
+
+class AdultVid2VidRequest(BaseModel):
+    video: str = Field(..., description="Video as base64 data URL or HTTP URL")
+    prompt: str = Field(..., min_length=1, max_length=2000)
+    resolution: str = "720p"
+    duration: int = 0  # 0 = match input
+    seed: int = -1
+
+
+@router.post("/vid2vid", response_model=GenerationResponse)
+async def adult_vid2vid(
+    body: AdultVid2VidRequest,
+    request: Request,
+    settings: Settings = Depends(get_settings),
+):
+    """Video-to-video style transfer with NSFW support (fal.ai Wan 2.7)."""
+    _check_adult_prompt(body.prompt)
+    user, profile, supabase = await _adult_auth(request, settings)
+
+    from app.services.supabase import deduct_credits
+    credits_needed = 40
+    success = await deduct_credits(supabase, user.id, credits_needed, "Adult vid2vid")
+    if not success:
+        raise HTTPException(status_code=402, detail="Insufficient credits")
+
+    from app.api.generate import _save_generation_to_db, _store_job_status
+    from app.api.generate_advanced import _resolve_video_url
+    from app.services.fal_ai import FalClient
+
+    fal_client = FalClient(settings)
+    job_id = str(uuid.uuid4())
+
+    if not fal_client.is_available():
+        raise HTTPException(status_code=503, detail="Video service unavailable")
+
+    try:
+        video_url = await _resolve_video_url(supabase, body.video, str(user.id), job_id)
+
+        fal_result = await fal_client.submit_vid2vid(
+            video_url=video_url,
+            prompt=body.prompt,
+            resolution=body.resolution,
+            duration=body.duration,
+            seed=body.seed,
+        )
+
+        result_url = fal_client.extract_video_url(fal_result)
+        if not result_url:
+            raise HTTPException(status_code=502, detail="Video editing produced no output")
+
+        # Persist to Supabase Storage
+        from app.api.generate_advanced import _persist_video_to_supabase
+        permanent_url = await _persist_video_to_supabase(supabase, result_url, str(user.id), job_id)
+
+        await _store_job_status(settings, job_id, "completed", {"url": permanent_url, "backend": "fal"})
+        await _save_generation_to_db(
+            settings, str(user.id), job_id, "vid2vid", body.prompt,
+            "", "fal_wan27_v2v",
+            {"resolution": body.resolution, "duration": body.duration, "seed": body.seed},
+            permanent_url, True,
+        )
+
+        return GenerationResponse(
+            job_id=job_id, status=JobStatus.completed,
+            credits_used=credits_needed, result_url=permanent_url,
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.exception(f"Adult vid2vid failed: {e}")
+        # Refund credits
+        try:
+            supabase.table("credit_transactions").insert({
+                "user_id": str(user.id),
+                "amount": credits_needed,
+                "type": "refund",
+                "description": "Adult vid2vid refund (failure)",
+            }).execute()
+        except Exception:
+            pass
+        raise HTTPException(status_code=500, detail=f"Video editing failed: {e}")

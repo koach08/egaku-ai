@@ -170,6 +170,8 @@ export default function GeneratePage() {
 
   // Read remix params from URL (1-Click Remix from gallery)
   const [remixLoaded, setRemixLoaded] = useState(false);
+  const [activeTab, setActiveTab] = useState("txt2img");
+  const [remixImageUrl, setRemixImageUrl] = useState<string | null>(null);
 
   // Common params
   const [prompt, setPrompt] = useState("");
@@ -307,7 +309,7 @@ export default function GeneratePage() {
       .catch(() => {});
   }, [session]);
 
-  // Load remix params from URL (?prompt=...&model=...)
+  // Load remix params from URL (?prompt=...&model=...&remix_mode=img2img&remix_image=...)
   useEffect(() => {
     if (remixLoaded) return;
     const params = new URLSearchParams(window.location.search);
@@ -327,6 +329,30 @@ export default function GeneratePage() {
       const c = params.get("cfg");
       if (c) setCfg(Number(c));
     }
+
+    // Remix mode from gallery: auto-switch tab & load image
+    const remixMode = params.get("remix_mode");
+    const remixImg = params.get("remix_image");
+    if (remixMode) {
+      if (remixMode === "img2img") setActiveTab("img2img");
+      else if (remixMode === "i2v") setActiveTab("img2vid");
+      else if (remixMode === "style") setActiveTab("style");
+    }
+    if (remixImg) {
+      setRemixImageUrl(remixImg);
+      setInputImagePreview(remixImg);
+      // Fetch the image and convert to File for the generation API
+      fetch(remixImg)
+        .then((r) => r.blob())
+        .then((blob) => {
+          const file = new File([blob], "remix-input.png", { type: blob.type || "image/png" });
+          setInputImage(file);
+        })
+        .catch(() => {
+          // Image fetch failed (CORS, etc.) - preview still works, user can re-upload
+        });
+    }
+
     setRemixLoaded(true);
   }, [remixLoaded]);
 
@@ -1133,7 +1159,7 @@ export default function GeneratePage() {
         <div className="grid gap-6 lg:grid-cols-[1fr_280px]">
           {/* Main panel */}
           <div className="space-y-4">
-            <Tabs defaultValue="txt2img">
+            <Tabs value={activeTab} onValueChange={setActiveTab}>
               {/* All tabs in a single TabsList - h-auto overrides fixed height */}
               <div className="mb-4">
                 <TabsList className="flex flex-wrap !h-auto gap-1 w-full p-1">
