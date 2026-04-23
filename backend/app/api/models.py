@@ -11,18 +11,18 @@ router = APIRouter(prefix="/models", tags=["models"])
 
 PLAN_RANK = {"free": 0, "lite": 1, "basic": 2, "pro": 3, "unlimited": 4, "studio": 5}
 
-# Custom model slots per plan
+# Custom model slots per plan (all users can save CivitAI models)
 CUSTOM_MODEL_LIMITS = {
-    "free": 0,
-    "lite": 0,
-    "basic": 2,     # LoRA only
-    "pro": 5,       # LoRA + Checkpoint
-    "unlimited": 10, # LoRA + Checkpoint
+    "free": 3,       # 3 models to try
+    "lite": 5,
+    "basic": 10,
+    "pro": 20,
+    "unlimited": 50,
     "studio": 999,   # Unlimited
 }
 
-# Which plans can use Checkpoint models (not just LoRA)
-CHECKPOINT_ALLOWED_PLANS = {"pro", "unlimited", "studio"}
+# All plans can use Checkpoint models (was Pro+ only)
+CHECKPOINT_ALLOWED_PLANS = {"free", "lite", "basic", "pro", "unlimited", "studio"}
 
 
 # ─── List Built-in Models ───
@@ -91,12 +91,13 @@ async def get_available_models(
                             "name": row["name"],
                             "category": "custom",
                             "description": f"CivitAI - {row.get('base_model', '')}",
-                            "min_plan": "basic",
+                            "min_plan": "free",
                             "credits": 3,
                             "source": "civitai",
                             "civitai_model_id": row["civitai_model_id"],
                             "civitai_version_id": row["civitai_version_id"],
                             "preview_url": row.get("preview_url"),
+                            "safetensors_name": row.get("safetensors_name", ""),
                         }
                         for row in (result.data or [])
                     ]
@@ -221,7 +222,7 @@ async def add_civitai_model(
     max_slots = CUSTOM_MODEL_LIMITS.get(plan, 0)
 
     if max_slots == 0:
-        raise HTTPException(status_code=403, detail="Custom CivitAI models require Basic plan or above. Upgrade to unlock.")
+        raise HTTPException(status_code=403, detail="Custom CivitAI models require an account. Please sign up.")
 
     # Parse request body
     import json

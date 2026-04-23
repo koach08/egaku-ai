@@ -91,8 +91,8 @@ ADULT_MODELS = [
     {"id": "novita_anything_v5", "name": "Anything v5 (Anime)", "credits": 2, "badge": "Anime"},
     # Flux (may get filtered on explicit content)
     {"id": "fal_flux_realism", "name": "Flux Realism", "credits": 3, "badge": "Flux"},
-    # CivitAI custom (Patron only) — user picks any model from CivitAI browser
-    {"id": "civitai_custom", "name": "CivitAI Custom Model (Patron)", "credits": 3, "badge": "Custom"},
+    # CivitAI custom — user picks any model from CivitAI browser
+    {"id": "civitai_custom", "name": "CivitAI Custom Model", "credits": 3, "badge": "Custom"},
 ]
 
 # Plans that can use CivitAI custom models (expanded from Patron-only)
@@ -1460,12 +1460,12 @@ class CivitAICustomRequest(BaseModel):
 
 
 @router.post("/generate-civitai", response_model=GenerationResponse)
-async def generate_with_civitai(
+async def generate_with_civitai_model(
     body: CivitAICustomRequest,
     request: Request,
     settings: Settings = Depends(get_settings),
 ):
-    """Generate with any CivitAI model (Patron plan only)."""
+    """Generate with any CivitAI model. All authenticated users can use this."""
     from app.services.supabase import deduct_credits
 
     _check_adult_prompt(body.prompt)
@@ -1488,13 +1488,8 @@ async def generate_with_civitai(
 
     await _check_adult_access(profile, settings, media="images")
 
-    # Patron-only check for custom CivitAI models
-    adult_plan = profile.get("adult_plan", "none")
-    if adult_plan not in CIVITAI_CUSTOM_PLANS and not is_admin(profile.get("email", "")):
-        raise HTTPException(
-            status_code=403,
-            detail="Custom CivitAI models require Patron plan (¥9,800/mo).",
-        )
+    # Custom CivitAI models: available to all authenticated users
+    # (was Patron-only — now open to grow engagement)
 
     base_cost = 3
     success = await deduct_credits(supabase, user.id, base_cost, f"Adult CivitAI ({body.civitai_model_name[:30]})")

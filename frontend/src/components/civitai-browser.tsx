@@ -62,6 +62,7 @@ type UserModel = {
   category: string;
   description: string;
   source: string;
+  safetensors_name?: string;
 };
 
 type Props = {
@@ -71,6 +72,7 @@ type Props = {
   slotsUsed: number;
   slotsMax: number;
   onRefresh: () => void;
+  onUseModel?: (safetensorsName: string) => void;
 };
 
 const PLAN_RANK: Record<string, number> = {
@@ -119,7 +121,7 @@ function ModelImage({ src, alt, className, nsfw, nsfwRevealed }: {
   );
 }
 
-export function CivitAIBrowser({ token, userPlan, myModels, slotsUsed, slotsMax, onRefresh }: Props) {
+export function CivitAIBrowser({ token, userPlan, myModels, slotsUsed, slotsMax, onRefresh, onUseModel }: Props) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [modelType, setModelType] = useState("LORA");
@@ -276,11 +278,7 @@ export function CivitAIBrowser({ token, userPlan, myModels, slotsUsed, slotsMax,
             )}
           </DialogTitle>
           <p className="text-xs text-muted-foreground">
-            {canAdd
-              ? canUseCheckpoint
-                ? "Browse LoRA and Checkpoint models from CivitAI. Full NSFW support."
-                : "Browse LoRA models from CivitAI. Upgrade to Pro for Checkpoint models."
-              : "Upgrade to Basic plan or above to add custom CivitAI models."}
+            Browse 100,000+ models from CivitAI. Click &quot;Use Now&quot; to generate instantly, or &quot;Save&quot; to keep for later.
           </p>
         </DialogHeader>
 
@@ -386,12 +384,6 @@ export function CivitAIBrowser({ token, userPlan, myModels, slotsUsed, slotsMax,
             </div>
 
             {/* Model type info */}
-            {modelType === "Checkpoint" && !canUseCheckpoint && (
-              <div className="flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 rounded-md px-3 py-2 text-xs text-amber-400">
-                <AlertTriangleIcon className="h-3.5 w-3.5 shrink-0" />
-                Checkpoint models require Pro plan or above. Upgrade to unlock thousands of NSFW-friendly models.
-              </div>
-            )}
             {modelType !== "LORA" && modelType !== "Checkpoint" && (
               <div className="flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 rounded-md px-3 py-2 text-xs text-amber-400">
                 <AlertTriangleIcon className="h-3.5 w-3.5 shrink-0" />
@@ -498,38 +490,49 @@ export function CivitAIBrowser({ token, userPlan, myModels, slotsUsed, slotsMax,
                             </div>
                           )}
 
-                          {/* Add Button */}
-                          {isAdded(model.id) ? (
-                            <Button variant="outline" size="sm" className="w-full text-xs h-7 text-green-500" disabled>
-                              Added
-                            </Button>
-                          ) : !canUseForGeneration(model.type) ? (
-                            <Button variant="outline" size="sm" className="w-full text-xs h-7 opacity-50" disabled>
-                              {model.type === "Checkpoint" ? "Pro plan required" : "LoRA / Checkpoint only"}
-                            </Button>
-                          ) : !canAdd ? (
-                            <Button variant="outline" size="sm" className="w-full text-xs h-7" disabled>
-                              Basic plan required
-                            </Button>
-                          ) : slotsUsed >= slotsMax ? (
-                            <Button variant="outline" size="sm" className="w-full text-xs h-7" disabled>
-                              No slots left
-                            </Button>
-                          ) : (
-                            <Button
-                              size="sm"
-                              className="w-full text-xs h-7 gap-1"
-                              onClick={() => handleAdd(model)}
-                              disabled={adding === model.id}
-                            >
-                              {adding === model.id ? (
-                                <Loader2Icon className="h-3 w-3 animate-spin" />
-                              ) : (
-                                <PlusIcon className="h-3 w-3" />
-                              )}
-                              {adding === model.id ? "Adding..." : "Add to My Models"}
-                            </Button>
-                          )}
+                          {/* Action Buttons */}
+                          <div className="flex gap-1.5">
+                            {/* Use Now — directly use this model for generation */}
+                            {onUseModel && model.latest_version?.file_name && (model.type === "Checkpoint" || model.type === "LORA") && (
+                              <Button
+                                size="sm"
+                                variant="default"
+                                className="flex-1 text-xs h-7 gap-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                                onClick={() => {
+                                  onUseModel(model.latest_version.file_name);
+                                  setOpen(false);
+                                  toast.success(`Selected: ${model.name}`);
+                                }}
+                              >
+                                Use Now
+                              </Button>
+                            )}
+                            {/* Add to My Models */}
+                            {isAdded(model.id) ? (
+                              <Button variant="outline" size="sm" className="flex-1 text-xs h-7 text-green-500" disabled>
+                                Saved
+                              </Button>
+                            ) : slotsUsed >= slotsMax ? (
+                              <Button variant="outline" size="sm" className="flex-1 text-xs h-7" disabled>
+                                No slots
+                              </Button>
+                            ) : (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="flex-1 text-xs h-7 gap-1"
+                                onClick={() => handleAdd(model)}
+                                disabled={adding === model.id}
+                              >
+                                {adding === model.id ? (
+                                  <Loader2Icon className="h-3 w-3 animate-spin" />
+                                ) : (
+                                  <PlusIcon className="h-3 w-3" />
+                                )}
+                                {adding === model.id ? "..." : "Save"}
+                              </Button>
+                            )}
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -568,17 +571,7 @@ export function CivitAIBrowser({ token, userPlan, myModels, slotsUsed, slotsMax,
         {/* My Models Tab */}
         {tab === "my" && (
           <div className="overflow-y-auto flex-1 min-h-0 -mx-4 px-4 pb-2">
-            {!canAdd ? (
-              <div className="text-center py-16 space-y-3">
-                <SparklesIcon className="h-10 w-10 mx-auto text-muted-foreground/50" />
-                <p className="text-muted-foreground text-sm">
-                  Upgrade to Basic plan to use custom CivitAI models.
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  Basic: 1 model / Pro: 3 models / Unlimited: 5 models / Studio: Unlimited
-                </p>
-              </div>
-            ) : myModels.length === 0 ? (
+            {myModels.length === 0 ? (
               <div className="text-center py-16 space-y-3">
                 <SparklesIcon className="h-10 w-10 mx-auto text-muted-foreground/50" />
                 <p className="text-muted-foreground text-sm">
@@ -614,23 +607,40 @@ export function CivitAIBrowser({ token, userPlan, myModels, slotsUsed, slotsMax,
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium truncate">{model.name}</p>
                       <p className="text-[11px] text-muted-foreground mt-0.5">{model.description}</p>
-                      <p className="text-[10px] text-purple-400 mt-1">
-                        Use as model in Text-to-Image generation
-                      </p>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      onClick={() => handleRemove(model.civitai_model_id, model.name)}
-                      disabled={removing === model.civitai_model_id}
-                      className="text-red-500 hover:text-red-400 hover:bg-red-500/10 shrink-0"
-                    >
-                      {removing === model.civitai_model_id ? (
-                        <Loader2Icon className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <TrashIcon className="h-4 w-4" />
+                      {model.safetensors_name && (
+                        <p className="text-[10px] text-muted-foreground/60 font-mono mt-0.5 truncate">
+                          {model.safetensors_name}
+                        </p>
                       )}
-                    </Button>
+                    </div>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      {onUseModel && model.safetensors_name && (
+                        <Button
+                          size="sm"
+                          className="text-xs h-7 gap-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                          onClick={() => {
+                            onUseModel(model.safetensors_name!);
+                            setOpen(false);
+                            toast.success(`Selected: ${model.name}`);
+                          }}
+                        >
+                          Use
+                        </Button>
+                      )}
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        onClick={() => handleRemove(model.civitai_model_id, model.name)}
+                        disabled={removing === model.civitai_model_id}
+                        className="text-red-500 hover:text-red-400 hover:bg-red-500/10"
+                      >
+                        {removing === model.civitai_model_id ? (
+                          <Loader2Icon className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <TrashIcon className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </div>
                   </div>
                 ))}
               </div>

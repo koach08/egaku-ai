@@ -842,18 +842,31 @@ export default function AdultPage() {
                           </SelectContent>
                         </Select>
                       </div>
-                      {/* Custom Model (any Novita.ai safetensors) */}
+                      {/* Custom Model (any CivitAI safetensors via Novita.ai) */}
                       <div>
-                        <Label className="text-xs">Custom Model (safetensors name)</Label>
+                        <Label className="text-xs">Custom CivitAI Model (safetensors name)</Label>
                         <Input
                           placeholder="e.g. epicphotogasm_xPlusPlus.safetensors"
                           value={customModelName}
                           onChange={(e) => setCustomModelName(e.target.value)}
-                          className="mt-1 text-xs"
+                          className="mt-1 text-xs font-mono"
                         />
                         <p className="text-[10px] text-muted-foreground mt-0.5">
-                          Override preset model with any Novita.ai checkpoint. Leave empty to use the model above.
+                          Override preset model with any CivitAI checkpoint. Leave empty to use the model above.
                         </p>
+                        {session && (
+                          <div className="mt-1.5">
+                            <CivitAIBrowser
+                              token={session.access_token}
+                              userPlan={subStatus?.main_plan || "free"}
+                              myModels={customModels}
+                              slotsUsed={customSlotsUsed}
+                              slotsMax={customSlotsMax}
+                              onRefresh={refreshCustomModels}
+                              onUseModel={(safetensorsName) => setCustomModelName(safetensorsName)}
+                            />
+                          </div>
+                        )}
                       </div>
                       {/* LoRA */}
                       <div>
@@ -1056,39 +1069,26 @@ export default function AdultPage() {
                   {mode === "civitai" && (
                     <div className="space-y-3">
                       <div>
-                        <Label className="text-xs">CivitAI Model (safetensors filename)</Label>
-                        {customModels.length > 0 ? (
-                          <Select value={civitaiModelName} onValueChange={(v) => v && setCivitaiModelName(v)}>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select a CivitAI model" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {customModels.map((m) => (
-                                <SelectItem key={m.id} value={m.id}>
-                                  {m.name}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        ) : (
-                          <Input
-                            placeholder="e.g. ponyDiffusionV6XL_v6.safetensors"
-                            value={civitaiModelName}
-                            onChange={(e) => setCivitaiModelName(e.target.value)}
-                          />
-                        )}
+                        <Label className="text-xs">CivitAI Model</Label>
+                        <Input
+                          placeholder="e.g. ponyDiffusionV6XL_v6.safetensors"
+                          value={civitaiModelName}
+                          onChange={(e) => setCivitaiModelName(e.target.value)}
+                          className="mt-1 font-mono text-xs"
+                        />
                         <p className="text-[10px] text-muted-foreground mt-1">
-                          Patron plan: use any CivitAI model by name. Browse and add models below.
+                          Type a safetensors filename, or browse CivitAI below to find models.
                         </p>
                       </div>
                       {session && (
                         <CivitAIBrowser
                           token={session.access_token}
-                          userPlan={subStatus?.adult_plan || "none"}
+                          userPlan={subStatus?.main_plan || "free"}
                           myModels={customModels}
                           slotsUsed={customSlotsUsed}
                           slotsMax={customSlotsMax}
                           onRefresh={refreshCustomModels}
+                          onUseModel={(safetensorsName) => setCivitaiModelName(safetensorsName)}
                         />
                       )}
                     </div>

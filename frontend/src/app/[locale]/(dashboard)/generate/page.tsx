@@ -991,6 +991,13 @@ export default function GeneratePage() {
           slotsUsed={customSlotsUsed}
           slotsMax={customSlotsMax}
           onRefresh={fetchCustomModels}
+          onUseModel={(safetensorsName) => {
+            // For SFW: find the custom model with this safetensors name and set as selected
+            const found = customModels.find((m) => (m as Record<string, unknown>).safetensors_name === safetensorsName);
+            if (found) {
+              setModel(found.id);
+            }
+          }}
         />
       )}
       <div className="grid grid-cols-2 gap-2">
