@@ -804,8 +804,11 @@ const HANDCRAFTED_PAGES: Record<
 // Merge handcrafted + auto-generated long-tail SEO pages
 const PAGES = { ...GENERATED_PAGES, ...HANDCRAFTED_PAGES };
 
-// ─── Static Params ───
+// Force dynamic rendering — next-intl needs request context for locale resolution.
+// These are SEO landing pages; SSR is fine (Vercel edge cache handles repeat visits).
+export const dynamic = "force-dynamic";
 
+// generateStaticParams kept for reference but overridden by force-dynamic
 export async function generateStaticParams() {
   return Object.keys(PAGES).map((slug) => ({ slug }));
 }
