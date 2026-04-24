@@ -752,16 +752,22 @@ class FalClient:
                         if result_resp.status_code == 200:
                             return result_resp.json()
 
-                        # Log error body for debugging
-                        logger.error(f"fal.ai result fetch failed: {result_resp.status_code} {result_resp.text[:500]}")
+                        # 422 = fal.ai validation error in result — parse the error body
+                        error_body = ""
+                        try:
+                            error_body = result_resp.text[:1000]
+                            error_json = result_resp.json()
+                            detail = error_json.get("detail", error_json.get("error", error_body))
+                            logger.error(f"fal.ai result error ({result_resp.status_code}): {detail}")
+                        except Exception:
+                            logger.error(f"fal.ai result fetch failed: {result_resp.status_code} {error_body}")
 
-                        # Maybe result is embedded in status with logs
+                        # Maybe result is embedded in status response
                         if "video" in status_data:
                             return status_data
 
                         raise RuntimeError(
-                            f"Result fetch failed (HTTP {result_resp.status_code}). "
-                            f"response_url={response_url}"
+                            f"fal.ai generation failed ({result_resp.status_code}): {error_body[:200]}"
                         )
 
                     elif status in ("FAILED", "CANCELLED"):
