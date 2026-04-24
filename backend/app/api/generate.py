@@ -700,7 +700,7 @@ async def _generate_with_novita_builtin(
 
 
 def _apply_watermark(data: bytes) -> tuple[bytes, str, str]:
-    """Apply a bottom-right 'egaku-ai.com' watermark to an image.
+    """Apply 'Made with EGAKU AI' watermark to an image (bottom-right).
     Returns (new_bytes, content_type, ext). Falls through to originals on failure.
     """
     try:
@@ -711,8 +711,8 @@ def _apply_watermark(data: bytes) -> tuple[bytes, str, str]:
         overlay = Image.new("RGBA", img.size, (255, 255, 255, 0))
         draw = ImageDraw.Draw(overlay)
         w, h = img.size
-        text = "egaku-ai.com"
-        font_size = max(14, w // 50)
+        text = "Made with EGAKU AI"
+        font_size = max(16, w // 40)
         font = None
         for font_path in (
             "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
@@ -735,20 +735,20 @@ def _apply_watermark(data: bytes) -> tuple[bytes, str, str]:
             try:
                 tw = font.getlength(text)
             except Exception:
-                tw = font_size * 7
+                tw = font_size * 10
         else:
-            tw = font_size * 7
+            tw = font_size * 10
 
         padding = font_size
         x = max(0, w - int(tw) - padding)
         y = max(0, h - font_size - padding)
-        # Shadow + text
+        # Shadow + white text (semi-transparent, visible but not obnoxious)
         if font is not None:
-            draw.text((x + 1, y + 1), text, fill=(0, 0, 0, 180), font=font)
-            draw.text((x, y), text, fill=(255, 255, 255, 220), font=font)
+            draw.text((x + 2, y + 2), text, fill=(0, 0, 0, 140), font=font)
+            draw.text((x, y), text, fill=(255, 255, 255, 180), font=font)
         else:
-            draw.text((x + 1, y + 1), text, fill=(0, 0, 0, 180))
-            draw.text((x, y), text, fill=(255, 255, 255, 220))
+            draw.text((x + 2, y + 2), text, fill=(0, 0, 0, 140))
+            draw.text((x, y), text, fill=(255, 255, 255, 180))
 
         img = Image.alpha_composite(img, overlay).convert("RGB")
         out = io.BytesIO()
@@ -757,6 +757,10 @@ def _apply_watermark(data: bytes) -> tuple[bytes, str, str]:
     except Exception as e:
         logger.warning(f"Watermark failed: {e}")
         return data, "", ""
+
+
+# Plans that get NO watermark (paid plans)
+_NO_WATERMARK_PLANS = {"pro", "unlimited", "studio"}
 
 
 async def _persist_to_supabase_storage(
@@ -800,8 +804,8 @@ async def _persist_to_supabase_storage(
             ext = "png"
             folder = "images"
 
-        # Apply watermark for free-tier users on images only
-        if user_plan == "free" and not is_video:
+        # Apply watermark for non-paid users on images (paid plans: pro/unlimited/studio skip)
+        if not is_video and user_plan not in _NO_WATERMARK_PLANS:
             new_data, new_ct, new_ext = _apply_watermark(data)
             if new_ct and new_ext:
                 data = new_data

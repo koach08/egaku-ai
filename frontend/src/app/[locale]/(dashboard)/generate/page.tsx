@@ -1801,16 +1801,13 @@ export default function GeneratePage() {
                     )}
                   </div>
 
-                  {/* Upgrade CTA for free/lite users */}
-                  {PLAN_RANK[userPlan] < PLAN_RANK["basic"] && (
+                  {/* Watermark notice + Upgrade CTA for non-paid users */}
+                  {PLAN_RANK[userPlan] < PLAN_RANK["pro"] && (
                     <div className="rounded-lg bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/30 p-3 flex items-center justify-between">
                       <div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-[10px] font-bold bg-gradient-to-r from-pink-500 to-purple-500 text-white px-1.5 py-0.5 rounded">LAUNCH50</span>
-                          <p className="text-xs font-medium">初月50%OFF — 先着100名限定</p>
-                        </div>
+                        <p className="text-xs font-medium">Watermark-free downloads with Pro</p>
                         <p className="text-[10px] text-muted-foreground mt-1">
-                          Basic ¥490/月で Kling 2.5 / Face Swap / 1080p動画 / NSFWが全部使える
+                          Pro ¥980/mo — no watermarks, priority queue, HD models, unlimited NSFW
                         </p>
                       </div>
                       <a href="/#pricing" className="text-xs bg-gradient-to-r from-pink-600 to-purple-600 hover:opacity-90 text-white px-3 py-1.5 rounded-lg transition-opacity whitespace-nowrap font-medium">
