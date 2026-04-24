@@ -211,7 +211,41 @@ export default function ContentPolicyPage() {
           of the Service after changes constitutes acceptance of the updated policy.
         </p>
 
-        <h2 className="text-lg font-semibold text-foreground mb-3">9. Contact</h2>
+        <h2>9. DMCA &amp; Takedown Requests</h2>
+        <p>
+          If you believe content on EGAKU AI infringes your copyright, depicts
+          you without consent, or otherwise violates your rights, you may submit
+          a takedown request through our <a href="/contact" className="text-purple-400 hover:underline">Contact Form</a>.
+        </p>
+        <p>Please include:</p>
+        <ul>
+          <li>A description of the content and its URL on EGAKU AI.</li>
+          <li>Your contact information (name, email).</li>
+          <li>A statement that you have a good faith belief the use is unauthorized.</li>
+          <li>For DMCA claims: a statement under penalty of perjury that the information
+              is accurate and that you are the rights holder or authorized to act on their behalf.</li>
+        </ul>
+        <p>
+          We will review all takedown requests within <strong>48 hours</strong> and
+          remove infringing content promptly. Repeat infringers will have their
+          accounts terminated.
+        </p>
+        <p>
+          <strong>Deepfake / Non-consensual imagery:</strong> Reports of AI-generated
+          content depicting real persons without consent are treated with the same
+          urgency as CSAM reports and may result in immediate content removal and
+          account termination.
+        </p>
+
+        <h2>10. Reporting Content</h2>
+        <p>
+          Every item in the public gallery has a <strong>Report</strong> button.
+          Click it to flag content that violates this policy. Reports are reviewed
+          by our team and actioned within 48 hours. Critical reports (CSAM, deepfake,
+          non-consensual imagery) are prioritized for immediate review.
+        </p>
+
+        <h2 className="text-lg font-semibold text-foreground mb-3">11. Contact</h2>
         <div className="rounded-lg border border-muted bg-card p-4">
           <p className="text-foreground font-medium">EGAKU AI — Content Policy</p>
           <p>Contact: <a href="/contact" className="text-purple-400 hover:text-purple-300">Contact Form</a></p>

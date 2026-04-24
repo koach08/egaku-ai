@@ -79,6 +79,19 @@ export default function GalleryPage() {
 
   const handleTogglePublish = async (item: GalleryItem) => {
     if (!session) return;
+
+    // When publishing: show deepfake warning for video content
+    if (!item.public && item.video_url) {
+      const confirmed = window.confirm(
+        "Before publishing this video:\n\n" +
+        "• Content depicting real persons without consent (deepfakes) is strictly prohibited.\n" +
+        "• Violations result in immediate account termination and may be reported to law enforcement.\n" +
+        "• By publishing, you confirm this content does not depict any real person without their consent.\n\n" +
+        "Proceed with publishing?"
+      );
+      if (!confirmed) return;
+    }
+
     try {
       if (item.public) {
         await api.unpublishGalleryItem(session.access_token, item.id);

@@ -21,6 +21,7 @@ import {
   WandIcon,
   CopyIcon,
   RefreshCwIcon,
+  FlagIcon,
 } from "lucide-react";
 
 interface ExploreItem {
@@ -346,7 +347,28 @@ export default function ExplorePage() {
                   </div>
                 </div>
 
-                <div className="flex justify-end">
+                <div className="flex justify-between items-center">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="gap-1.5 text-xs text-red-500 hover:text-red-400 hover:bg-red-500/10"
+                    onClick={() => {
+                      if (!session) {
+                        toast.error("Please log in to report content");
+                        return;
+                      }
+                      const reason = window.prompt(
+                        "Report reason (e.g. deepfake, real person, CSAM, copyright):"
+                      );
+                      if (!reason) return;
+                      api.reportContent(session.access_token, selectedItem!.id, reason)
+                        .then(() => toast.success("Report submitted. We will review this content."))
+                        .catch(() => toast.error("Failed to submit report"));
+                    }}
+                  >
+                    <FlagIcon className="h-3.5 w-3.5" />
+                    Report
+                  </Button>
                   <Button
                     variant="outline"
                     onClick={() => setSelectedItem(null)}

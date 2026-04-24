@@ -512,6 +512,14 @@ export const api = {
       body: JSON.stringify(params),
     }),
 
+  // Content reporting
+  reportContent: (token: string, galleryId: string, reason: string) =>
+    fetchAPI("/gallery/report", {
+      method: "POST",
+      headers: authHeaders(token),
+      body: JSON.stringify({ gallery_id: galleryId, reason }),
+    }),
+
   // Character Reference Video (PixVerse C1)
   characterVideo: (token: string, params: Record<string, unknown>) =>
     fetchAPI("/generate/character-video", {
