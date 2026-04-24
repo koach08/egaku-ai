@@ -390,7 +390,15 @@ export default function AdultPage() {
       if (msg.includes("subscription") || msg.includes("Pro+")) {
         setShowPlans(true);
       }
-      toast.error(msg);
+      if (msg.includes("Insufficient credits") || msg.includes("credits")) {
+        toast.error(
+          "Out of credits! Upgrade for unlimited NSFW generation, all models, and priority queue.", {
+          action: { label: "View Plans", onClick: () => setShowPlans(true) },
+          duration: 12000,
+        });
+      } else {
+        toast.error(msg);
+      }
     } finally {
       setGenerating(false);
       if (timerRef.current) clearInterval(timerRef.current);

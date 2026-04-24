@@ -22,6 +22,7 @@ import {
   CopyIcon,
   RefreshCwIcon,
   FlagIcon,
+  ShareIcon,
 } from "lucide-react";
 
 interface ExploreItem {
@@ -248,6 +249,41 @@ export default function ExplorePage() {
                     <p className="text-sm">{selectedItem.model}</p>
                   </div>
                 )}
+
+                {/* Share */}
+                <div className="border-t pt-4 space-y-2">
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="gap-1.5 text-xs"
+                      onClick={() => {
+                        const shareUrl = `https://egaku-ai.com/gallery/${selectedItem.id}`;
+                        const text = `Check out this AI art! Made with EGAKU AI\n\n"${selectedItem.prompt.slice(0, 100)}..."`;
+                        window.open(
+                          `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(shareUrl)}`,
+                          "_blank"
+                        );
+                      }}
+                    >
+                      <ShareIcon className="h-3.5 w-3.5" />
+                      Share to X
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="gap-1.5 text-xs"
+                      onClick={() => {
+                        const shareUrl = `https://egaku-ai.com/gallery/${selectedItem.id}`;
+                        navigator.clipboard.writeText(shareUrl);
+                        toast.success("Link copied!");
+                      }}
+                    >
+                      <CopyIcon className="h-3.5 w-3.5" />
+                      Copy Link
+                    </Button>
+                  </div>
+                </div>
 
                 {/* Remix / Use as Input Actions */}
                 <div className="border-t pt-4 space-y-2">

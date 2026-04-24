@@ -567,9 +567,10 @@ export default function GeneratePage() {
     const msg = err instanceof Error ? err.message : "Generation failed";
     // Show upgrade prompt for credit/plan errors
     if (msg.includes("Insufficient credits") || msg.includes("credits")) {
-      toast.error("Out of credits! Upgrade your plan for more.", {
-        action: { label: "Upgrade", onClick: () => window.location.href = "/settings" },
-        duration: 8000,
+      toast.error(
+        "Out of credits! Upgrade to Pro for unlimited HD generation, priority queue, and no watermarks.", {
+        action: { label: "Upgrade — ¥980/mo", onClick: () => window.location.href = "/settings#billing" },
+        duration: 12000,
       });
     } else if (msg.includes("requires") && msg.includes("plan")) {
       toast.error(msg, {
