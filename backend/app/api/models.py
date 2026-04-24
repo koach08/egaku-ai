@@ -319,3 +319,121 @@ async def remove_civitai_model(
         logger.error(f"Failed to remove model: {e}")
 
     return {"removed": True}
+
+
+# ─── Check if a model exists on Novita.ai ───
+
+@router.get("/check-novita/{model_name:path}")
+async def check_novita_model(
+    model_name: str,
+    settings: Settings = Depends(get_settings),
+):
+    """Check if a safetensors model is available on Novita.ai for generation.
+    Quick validation before the user tries to generate.
+    """
+    if not settings.novita_api_key:
+        return {"available": False, "reason": "Novita.ai not configured"}
+
+    import httpx
+    try:
+        # Novita.ai model check: submit a tiny test job and see if it rejects the model
+        # Faster: use the models list endpoint
+        async with httpx.AsyncClient(timeout=15) as client:
+            resp = await client.get(
+                "https://api.novita.ai/v3/model",
+                params={"model_name": model_name},
+                headers={"Authorization": f"Bearer {settings.novita_api_key}"},
+            )
+            if resp.status_code == 200:
+                data = resp.json()
+                if data.get("data") or data.get("model_name"):
+                    return {"available": True, "model_name": model_name, "backend": "novita"}
+            return {"available": False, "model_name": model_name, "reason": "Not found on Novita.ai"}
+    except Exception as e:
+        logger.warning(f"Novita model check failed: {e}")
+        return {"available": False, "model_name": model_name, "reason": str(e)}
+
+
+# ─── Install CivitAI model to vast.ai ComfyUI ───
+
+@router.post("/install-comfyui")
+async def install_model_to_comfyui(
+    request: Request,
+    settings: Settings = Depends(get_settings),
+):
+    """Download a CivitAI model to the running vast.ai ComfyUI instance.
+    Admin-only. Accepts a CivitAI download URL or version ID.
+
+    Body: { "download_url": "https://civitai.com/api/download/models/12345",
+            "filename": "model.safetensors",
+            "model_type": "checkpoint" | "lora" }
+    """
+    from app.services.supabase import get_supabase, get_user_profile
+
+    # Admin check
+    auth_header = request.headers.get("authorization", "")
+    if not auth_header.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Auth required")
+    token = auth_header.split(" ", 1)[1]
+    supabase = get_supabase(settings)
+    try:
+        user = supabase.auth.get_user(token).user
+        profile = await get_user_profile(supabase, user.id)
+    except Exception:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+    ADMIN_EMAILS = {"japanesebusinessman4@gmail.com"}
+    if profile.get("email", "") not in ADMIN_EMAILS:
+        raise HTTPException(status_code=403, detail="Admin only")
+
+    body = await request.json()
+    download_url = body.get("download_url", "")
+    filename = body.get("filename", "")
+    model_type = body.get("model_type", "checkpoint")  # checkpoint or lora
+
+    if not download_url or not filename:
+        raise HTTPException(status_code=400, detail="download_url and filename required")
+
+    # Add CivitAI API key if needed
+    if "civitai.com" in download_url and settings.civitai_api_key:
+        sep = "&" if "?" in download_url else "?"
+        download_url += f"{sep}token={settings.civitai_api_key}"
+
+    # Determine ComfyUI URL
+    comfyui_url = settings.vastai_comfyui_url
+    if not comfyui_url:
+        raise HTTPException(status_code=503, detail="No ComfyUI instance configured")
+
+    # Tell ComfyUI to download the model via its upload endpoint or exec
+    # ComfyUI doesn't have a built-in download endpoint, so we use the
+    # vast.ai instance exec API to run wget
+    import httpx
+    subdir = "checkpoints" if model_type == "checkpoint" else "loras"
+    dest_path = f"/opt/ComfyUI/models/{subdir}/{filename}"
+
+    # Try via vast.ai API to exec wget on the instance
+    if settings.vastai_api_key and hasattr(settings, "vast_instance_id"):
+        instance_id = getattr(settings, "vast_instance_id", None)
+        if instance_id:
+            try:
+                async with httpx.AsyncClient(timeout=300) as client:
+                    resp = await client.put(
+                        f"https://console.vast.ai/api/v0/instances/{instance_id}/exec/",
+                        json={"command": f"wget -q -O '{dest_path}' '{download_url}'"},
+                        headers={"Authorization": f"Bearer {settings.vastai_api_key}"},
+                    )
+                    if resp.status_code in (200, 201, 202):
+                        logger.info(f"Model download initiated: {filename} -> {dest_path}")
+                        return {
+                            "status": "downloading",
+                            "filename": filename,
+                            "dest": dest_path,
+                            "message": f"Downloading {filename} to ComfyUI. May take a few minutes for large models.",
+                        }
+            except Exception as e:
+                logger.error(f"vast.ai exec failed: {e}")
+
+    raise HTTPException(
+        status_code=503,
+        detail="Could not install model. vast.ai instance may not be running.",
+    )
