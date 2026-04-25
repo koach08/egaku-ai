@@ -68,6 +68,45 @@ const CONTROL_TYPES = [
   { id: "scribble", name: "Scribble" },
 ];
 
+// ── One-Click Templates (Pro templates drive paid conversion) ──
+const TEMPLATES = [
+  // Free templates (show quality, build habit)
+  { id: "anime_girl", name: "Anime Portrait", icon: "🎨", tier: "free",
+    prompt: "beautiful anime girl, detailed eyes, flowing hair, soft lighting, studio quality illustration, vibrant colors, masterpiece, best quality",
+    model: "flux_schnell", width: 832, height: 1216 },
+  { id: "landscape", name: "Fantasy Landscape", icon: "🏔", tier: "free",
+    prompt: "breathtaking fantasy landscape, dramatic sky, volumetric clouds, ethereal lighting, cinematic wide shot, 8k wallpaper quality, epic scenery",
+    model: "flux_schnell", width: 1216, height: 832 },
+  { id: "portrait_photo", name: "Studio Portrait", icon: "📸", tier: "free",
+    prompt: "professional portrait photograph, soft studio lighting, shallow depth of field, sharp focus, clean background, high-end fashion photography, 8k",
+    model: "flux_schnell", width: 832, height: 1216 },
+  // Pro templates (locked for free users)
+  { id: "cinematic", name: "Cinematic Scene", icon: "🎬", tier: "pro",
+    prompt: "cinematic film still, anamorphic lens, dramatic chiaroscuro lighting, film grain, color graded, director of photography, ARRI Alexa, 35mm, masterful composition, award-winning cinematography",
+    model: "flux_dev", width: 1216, height: 832 },
+  { id: "concept_art", name: "Concept Art", icon: "🖌", tier: "pro",
+    prompt: "detailed concept art, digital painting, matte painting, trending on ArtStation, highly detailed environment design, volumetric lighting, epic scale, professional illustration",
+    model: "flux_dev", width: 1216, height: 832 },
+  { id: "product_photo", name: "Product Shot", icon: "💎", tier: "pro",
+    prompt: "professional product photography, clean white background, soft box lighting, commercial quality, sharp details, advertising photography, high-end, minimalist, studio lighting setup",
+    model: "flux_dev", width: 1024, height: 1024 },
+  { id: "fashion", name: "Fashion Editorial", icon: "👗", tier: "pro",
+    prompt: "high fashion editorial photograph, Vogue magazine quality, dramatic pose, designer clothing, professional model, studio lighting, retouched skin, fashion photography masterpiece",
+    model: "flux_dev", width: 832, height: 1216 },
+  { id: "cyberpunk_scene", name: "Cyberpunk World", icon: "🌃", tier: "pro",
+    prompt: "cyberpunk cityscape at night, neon lights reflecting on wet streets, holographic billboards, flying vehicles, rain, atmospheric fog, Blade Runner aesthetic, ultra detailed, 8k",
+    model: "flux_dev", width: 1216, height: 832 },
+  { id: "ghibli_art", name: "Ghibli Style", icon: "🌸", tier: "pro",
+    prompt: "Studio Ghibli style illustration, hand-painted animation quality, soft pastel colors, whimsical atmosphere, Miyazaki aesthetic, lush nature, painterly clouds, magical realism",
+    model: "flux_dev", width: 1216, height: 832 },
+  { id: "3d_character", name: "3D Character", icon: "🧸", tier: "pro",
+    prompt: "3D rendered character, Pixar quality, subsurface scattering, cinematic lighting, octane render, highly detailed, expressive face, professional character design, 8k",
+    model: "flux_dev", width: 832, height: 1216 },
+  { id: "album_cover", name: "Album Cover Art", icon: "🎵", tier: "pro",
+    prompt: "album cover artwork, abstract surrealist composition, bold typography space, vibrant gradient colors, psychedelic, mixed media collage, professional graphic design, high contrast",
+    model: "flux_dev", width: 1024, height: 1024 },
+];
+
 // ── Color Grading Presets (CSS filter-based, client-side only) ──
 const COLOR_GRADES = [
   { id: "none", name: "None", filter: "", minPlan: "free" },
@@ -1156,6 +1195,51 @@ export default function GeneratePage() {
 
       <div className="container mx-auto px-4 py-8 max-w-5xl">
         <h1 className="text-2xl font-bold mb-6">Generate</h1>
+
+        {/* One-Click Templates */}
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-sm font-semibold">Quick Templates — One Click, Pro Quality</h2>
+          </div>
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
+            {TEMPLATES.map((t) => {
+              const locked = t.tier === "pro" && PLAN_RANK[userPlan] < PLAN_RANK["pro"];
+              return (
+                <button
+                  key={t.id}
+                  onClick={() => {
+                    if (locked) {
+                      toast.error("Pro template — upgrade for one-click premium generation", {
+                        action: { label: "Upgrade ¥980/mo", onClick: () => window.location.href = "/#pricing" },
+                        duration: 8000,
+                      });
+                      return;
+                    }
+                    setPrompt(t.prompt);
+                    setModel(t.model);
+                    setWidth(t.width);
+                    setHeight(t.height);
+                    setActiveTab("txt2img");
+                    toast.success(`Template loaded: ${t.name}`);
+                  }}
+                  className={`relative flex flex-col items-center gap-1 p-2.5 rounded-lg border text-center transition-all hover:scale-105 ${
+                    locked
+                      ? "border-purple-500/30 bg-purple-500/5 opacity-75"
+                      : "border-muted hover:border-purple-500/50 bg-card"
+                  }`}
+                >
+                  <span className="text-xl">{t.icon}</span>
+                  <span className="text-[10px] font-medium leading-tight">{t.name}</span>
+                  {locked && (
+                    <span className="absolute -top-1 -right-1 text-[8px] bg-gradient-to-r from-purple-600 to-pink-600 text-white px-1.5 py-0.5 rounded-full font-bold">
+                      PRO
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
 
         <div className="grid gap-6 lg:grid-cols-[1fr_280px]">
           {/* Main panel */}
