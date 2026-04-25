@@ -719,19 +719,22 @@ export default function AdultPage() {
                         </p>
                         <Button
                           size="sm"
-                          className="w-full bg-pink-600 hover:bg-pink-700"
-                          onClick={() => handleCheckout(key)}
-                        >
-                          Subscribe (Card)
-                        </Button>
-                        <button
                           onClick={() => handleCryptoCheckout(key)}
-                          className="w-full text-[10px] text-muted-foreground hover:text-foreground mt-1 py-1 border border-muted rounded transition-colors"
+                          className="w-full bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white"
                         >
-                          Pay with Crypto (240+ coins)
-                        </button>
-                        <p className="text-[9px] text-muted-foreground mt-1 text-center">
-                          Secure payment via CCBill
+                          Pay with Crypto (BTC/ETH/USDT)
+                        </Button>
+                        <p className="text-[9px] text-muted-foreground mt-1.5 text-center leading-relaxed">
+                          No crypto?{" "}
+                          <a
+                            href="https://global.transak.com/?cryptoCurrencyCode=USDT&network=tron&fiatCurrency=JPY"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-amber-500 hover:underline font-medium"
+                          >
+                            Buy USDT with credit card here
+                          </a>
+                          , then come back to pay.
                         </p>
                       </CardContent>
                     </Card>
@@ -1494,12 +1497,25 @@ export default function AdultPage() {
                             >
                               {subStatus?.adult_plan !== "none" ? "Change" : "Subscribe"}
                             </Button>
-                            <button
+                            <Button
+                              size="sm"
                               onClick={() => handleCryptoCheckout(key)}
-                              className="w-full text-[10px] text-muted-foreground hover:text-foreground mt-1 py-1 border border-muted rounded transition-colors"
+                              className="w-full bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white"
                             >
-                              Pay with Crypto
-                            </button>
+                              Pay with Crypto (BTC/ETH/USDT)
+                            </Button>
+                            <p className="text-[9px] text-muted-foreground mt-1 text-center">
+                              No crypto?{" "}
+                              <a
+                                href="https://global.transak.com/?cryptoCurrencyCode=USDT&network=tron&fiatCurrency=JPY"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-amber-500 hover:underline"
+                              >
+                                Buy USDT with credit card
+                              </a>
+                              {" "}then pay here.
+                            </p>
                           </>
                         )}
                       </CardContent>
