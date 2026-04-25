@@ -688,11 +688,43 @@ export default function AdultPage() {
               </div>
             </div>
 
+            {/* Pro Plan CTA — credit card, includes NSFW */}
+            <Card className="border-purple-500/40 bg-gradient-to-r from-purple-500/10 to-pink-500/10">
+              <CardContent className="pt-6 pb-5">
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-xs font-bold bg-gradient-to-r from-purple-500 to-pink-500 text-white px-2 py-0.5 rounded-full">RECOMMENDED</span>
+                      <h3 className="text-lg font-bold">Pro Plan — Credit Card OK</h3>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      ¥980/mo (Visa/Mastercard) — includes <strong>unlimited NSFW generation</strong>, watermark-free, HD models, priority queue, all Pro features.
+                    </p>
+                    <p className="text-xs text-purple-400 mt-1">
+                      No crypto needed. Regular credit card payment via Stripe.
+                    </p>
+                  </div>
+                  <Button
+                    className="shrink-0 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 px-8"
+                    onClick={() => window.location.href = "/settings#billing"}
+                  >
+                    Upgrade to Pro (¥980/mo)
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            <div className="relative flex items-center justify-center my-2">
+              <div className="border-t border-muted flex-grow" />
+              <span className="px-3 text-xs text-muted-foreground">or subscribe to Adult-only plan with crypto</span>
+              <div className="border-t border-muted flex-grow" />
+            </div>
+
             <Card className="border-pink-500/20">
               <CardHeader>
-                <CardTitle className="text-lg">Choose Your Plan</CardTitle>
+                <CardTitle className="text-lg">Adult-Only Plans (Crypto)</CardTitle>
                 <p className="text-sm text-muted-foreground">
-                  Subscribe to start generating. GPU costs are shared — prices may decrease as our community grows.
+                  Pay with BTC/ETH/USDT. For users who only need NSFW features.
                 </p>
               </CardHeader>
               <CardContent>
