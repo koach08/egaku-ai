@@ -337,22 +337,23 @@ function SettingsContent() {
                             {sendingVerification ? "Sending..." : "Verify Email First"}
                           </Button>
                         ) : (
-                          <>
+                          <div className="space-y-1.5">
                             <Button
                               size="sm"
+                              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
                               onClick={() => handleUpgrade(plan)}
                               disabled={upgrading !== null}
                             >
-                              {upgrading === plan ? "Loading..." : "Upgrade"}
+                              {upgrading === plan ? "Loading..." : "Upgrade (Credit Card)"}
                             </Button>
                             <button
                               onClick={() => handleCryptoUpgrade(plan)}
                               disabled={upgrading !== null}
-                              className="text-[10px] text-muted-foreground hover:text-foreground px-2 py-1 border rounded transition-colors disabled:opacity-50"
+                              className="w-full text-[10px] text-muted-foreground hover:text-foreground px-2 py-1 border rounded transition-colors disabled:opacity-50"
                             >
-                              Crypto
+                              or pay with Crypto
                             </button>
-                          </>
+                          </div>
                         )}
                       </div>
                     </div>
