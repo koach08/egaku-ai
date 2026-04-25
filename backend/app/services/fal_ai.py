@@ -175,6 +175,34 @@ VIDEO_MODELS = {
         "credits": 25,
         "min_plan": "basic",
     },
+    "fal_kling3_t2v": {
+        "fal_id": "fal-ai/kling-video/v3/4k/text-to-video",
+        "name": "Kling 3.0 4K (Latest)",
+        "description": "Latest Kling — native 4K, cinematic visuals, fluid motion",
+        "credits": 40,
+        "min_plan": "pro",
+    },
+    "fal_kling3_i2v": {
+        "fal_id": "fal-ai/kling-video/v3/pro/image-to-video",
+        "name": "Kling 3.0 I2V (Latest)",
+        "description": "Kling 3.0 image-to-video with native audio support",
+        "credits": 40,
+        "min_plan": "pro",
+    },
+    "fal_kling_o3_t2v": {
+        "fal_id": "fal-ai/kling-video/o3/4k/text-to-video",
+        "name": "Kling O3 4K",
+        "description": "Kling O3 — enhanced reasoning, native 4K output",
+        "credits": 50,
+        "min_plan": "pro",
+    },
+    "fal_kling_o3_i2v": {
+        "fal_id": "fal-ai/kling-video/o3/4k/image-to-video",
+        "name": "Kling O3 4K I2V",
+        "description": "Kling O3 image-to-video, native 4K",
+        "credits": 50,
+        "min_plan": "pro",
+    },
     "fal_veo3_t2v": {
         "fal_id": "fal-ai/veo3",
         "name": "Veo 3 (Google)",
@@ -531,8 +559,8 @@ class FalClient:
         elif "ltx" in fal_model:
             input_params["num_frames"] = min(dur * 24, 360)
 
-        # Seedance 2 is slow (typically 1-3 min) — route via queue to avoid HTTP timeouts
-        if "seedance-2.0" in fal_model:
+        # Slow models — route via queue to avoid HTTP timeouts
+        if "seedance-2.0" in fal_model or "v3/" in fal_model or "/o3/" in fal_model:
             return await self._submit_queue_job(fal_model, input_params)
 
         url = f"{FAL_API_BASE}/{fal_model}"
@@ -625,7 +653,7 @@ class FalClient:
                 input_params["prompt"] = prompt
 
         # I2V models need queue-based API (processing time 30-120s)
-        if is_wan or is_wan26 or "seedance-2.0" in fal_model or "sora-2" in fal_model:
+        if is_wan or is_wan26 or "seedance-2.0" in fal_model or "sora-2" in fal_model or "v3/" in fal_model or "/o3/" in fal_model:
             return await self._submit_queue_job(fal_model, input_params)
 
         # Other models: synchronous
