@@ -117,6 +117,9 @@ app.include_router(lora.router, prefix="/api")
 from app.api import rss
 app.include_router(rss.router, prefix="/api")
 
+from app.api import admin
+app.include_router(admin.router, prefix="/api")
+
 
 @app.get("/api/health")
 async def health():
