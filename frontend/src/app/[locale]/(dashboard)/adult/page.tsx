@@ -698,10 +698,10 @@ export default function AdultPage() {
                       <h3 className="text-lg font-bold">Pro Plan — Credit Card OK</h3>
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      ¥980/mo (Visa/Mastercard) — includes <strong>unlimited NSFW generation</strong>, watermark-free, HD models, priority queue, all Pro features.
+                      ¥980/mo (Visa/Mastercard) — <strong>full access to all generation modes</strong>, watermark-free, HD models, priority queue.
                     </p>
                     <p className="text-xs text-purple-400 mt-1">
-                      No crypto needed. Regular credit card payment via Stripe.
+                      Credit card payment. All features on this page are included.
                     </p>
                   </div>
                   <Button
