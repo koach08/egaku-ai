@@ -7,7 +7,7 @@ import type { Metadata } from "next";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Blog — EGAKU AI",
+  title: "EGAKU Journal — AI Creative Insights",
   description: "Tutorials, guides, and news about AI image and video generation. Learn prompts, settings, and the latest AI models.",
 };
 
@@ -32,9 +32,10 @@ export default async function BlogPage({ params }: Props) {
       <Header />
       <main className="container mx-auto px-4 py-12 max-w-4xl">
         <div className="text-center mb-10">
-          <h1 className="text-3xl font-bold">Blog</h1>
+          <p className="text-xs font-medium tracking-widest text-purple-400 uppercase mb-2">EGAKU Journal</p>
+          <h1 className="text-3xl font-bold">AI Creative Insights</h1>
           <p className="text-muted-foreground mt-2">
-            Tutorials, guides, and news about AI image &amp; video generation.
+            Tutorials, guides, and news from the EGAKU AI team.
           </p>
         </div>
 

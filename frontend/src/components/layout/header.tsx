@@ -93,7 +93,7 @@ export function Header() {
             {t("nav.gallery")}
           </Link>
           <Link href="/blog" className="hover:text-foreground/80">
-            Blog
+            Journal
           </Link>
           <Link href="/#pricing" className="hover:text-foreground/80">
             {t("nav.pricing")}

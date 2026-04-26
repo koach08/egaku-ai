@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!t) return { title: "Not Found" };
 
   return {
-    title: `${t.title} — EGAKU AI Blog`,
+    title: `${t.title} — EGAKU Journal`,
     description: t.description,
     alternates: {
       canonical: `/blog/${slug}`,
@@ -61,7 +61,7 @@ export default async function BlogArticlePage({ params }: Props) {
         <nav className="text-xs text-muted-foreground mb-6">
           <Link href="/" className="hover:text-foreground">Home</Link>
           {" / "}
-          <Link href="/blog" className="hover:text-foreground">Blog</Link>
+          <Link href="/blog" className="hover:text-foreground">Journal</Link>
           {" / "}
           <span className="text-foreground">{t.title}</span>
         </nav>
