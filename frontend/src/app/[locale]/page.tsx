@@ -196,6 +196,13 @@ export default function LandingPage() {
               </div>
             ))}
           </div>
+          <div className="mt-6 max-w-3xl mx-auto rounded-lg bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20 p-4 text-center">
+            <p className="text-sm font-medium">Regional Pricing Available</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Prices are automatically adjusted based on your country — up to 80% off in eligible regions.
+              We believe everyone should have access to AI creative tools, regardless of where they live.
+            </p>
+          </div>
         </section>
 
         {/* Creative Tools — Main Navigation Hub */}
