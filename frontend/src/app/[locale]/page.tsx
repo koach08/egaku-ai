@@ -136,9 +136,9 @@ export default function LandingPage() {
               { name: "Veo 3", tag: "Google Video", badge: "", sample: "/samples/veo3.mp4", type: "video" },
               { name: "Seedance 2", tag: "ByteDance Video", badge: "", sample: "", type: "none", color: "from-orange-600 to-red-600" },
               { name: "Ideogram v3", tag: "Text + Logo", badge: "", sample: "/samples/ideogram.png", type: "image" },
-              { name: "CivitAI", tag: "100K+ Community Models", badge: "", sample: "/samples/civitai.jpg", type: "image" },
+              { name: "CivitAI", tag: "100K+ Community Models", badge: "", sample: "", type: "grid", gridImages: ["/samples/civitai_realistic.jpg","/samples/civitai_anime.jpg","/samples/civitai_fantasy.jpg","/samples/civitai_scifi.jpg"] },
               { name: "SDXL", tag: "Free — 1024px", badge: "Free", sample: "/samples/sdxl.jpg", type: "image" },
-              { name: "Wan 2.6", tag: "Free Video", badge: "Free", sample: "", type: "none", color: "from-rose-600 to-pink-600" },
+              { name: "Wan 2.6", tag: "Free Video", badge: "Free", sample: "/samples/wan26.mp4", type: "video" },
               { name: "Nano Banana 2", tag: "2K Ultra Detail", badge: "", sample: "/samples/nano_banana.png", type: "image" },
             ].map((m) => (
               <Link key={m.name} href="/generate" className="group relative rounded-xl border border-muted bg-card overflow-hidden hover:border-purple-500/40 transition-all hover:shadow-lg">
@@ -150,8 +150,14 @@ export default function LandingPage() {
                 <div className="aspect-[4/3] bg-muted overflow-hidden">
                   {m.type === "video" ? (
                     <video src={m.sample} className="w-full h-full object-cover" autoPlay loop muted playsInline />
+                  ) : m.type === "grid" ? (
+                    <div className="w-full h-full grid grid-cols-2 gap-0.5 p-0.5 bg-muted">
+                      {((m as Record<string, unknown>).gridImages as string[] || []).map((src, gi) => (
+                        <img key={gi} src={src} alt={`${m.name} sample ${gi+1}`} className="w-full h-full object-cover" loading="lazy" />
+                      ))}
+                    </div>
                   ) : m.type === "none" ? (
-                    <div className={`w-full h-full bg-gradient-to-br ${(m as Record<string, string>).color || "from-gray-600 to-slate-600"} flex items-center justify-center`}>
+                    <div className={`w-full h-full bg-gradient-to-br ${"color" in m ? (m as unknown as {color:string}).color : "from-gray-600 to-slate-600"} flex items-center justify-center`}>
                       <span className="text-white/60 text-2xl font-bold">{m.name.charAt(0)}</span>
                     </div>
                   ) : (
