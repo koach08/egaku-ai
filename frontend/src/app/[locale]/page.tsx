@@ -131,16 +131,16 @@ export default function LandingPage() {
             {[
               { name: "Kling 3.0", tag: "4K Video", badge: "NEW", sample: "/samples/kling3_castle.mp4", type: "video" },
               { name: "Kling O3", tag: "4K + Audio", badge: "NEW", sample: "/samples/kling3_cyberpunk.mp4", type: "video" },
-              { name: "Flux Pro", tag: "Best Image Quality", badge: "", sample: "/samples/portrait.jpg", type: "image" },
+              { name: "Flux Pro", tag: "Best Image Quality", badge: "", sample: "/samples/flux_dev.jpg", type: "image" },
               { name: "GPT Image 2", tag: "OpenAI Latest", badge: "NEW", sample: "/samples/gpt_image2.png", type: "image" },
-              { name: "Sora 2", tag: "OpenAI Video", badge: "", sample: "/samples/fantasy.jpg", type: "image" },
-              { name: "Veo 3", tag: "Google Video", badge: "", sample: "/samples/flux_dev.jpg", type: "image" },
-              { name: "Seedance 2", tag: "ByteDance Video", badge: "", sample: "/samples/anime.jpg", type: "image" },
+              { name: "Sora 2", tag: "OpenAI Video", badge: "", sample: "", type: "none", color: "from-green-600 to-emerald-600" },
+              { name: "Veo 3", tag: "Google Video", badge: "", sample: "/samples/veo3.mp4", type: "video" },
+              { name: "Seedance 2", tag: "ByteDance Video", badge: "", sample: "", type: "none", color: "from-orange-600 to-red-600" },
               { name: "Ideogram v3", tag: "Text + Logo", badge: "", sample: "/samples/ideogram.png", type: "image" },
-              { name: "CivitAI", tag: "100K+ Community Models", badge: "", sample: "/samples/anime.jpg", type: "image" },
-              { name: "SDXL", tag: "Free — 1024px", badge: "Free", sample: "/samples/flux_dev.jpg", type: "image" },
-              { name: "Wan 2.6", tag: "Free Video", badge: "Free", sample: "/samples/fantasy.jpg", type: "image" },
-              { name: "Nano Banana 2", tag: "2K Ultra Detail", badge: "", sample: "/samples/portrait.jpg", type: "image" },
+              { name: "CivitAI", tag: "100K+ Community Models", badge: "", sample: "/samples/civitai.jpg", type: "image" },
+              { name: "SDXL", tag: "Free — 1024px", badge: "Free", sample: "/samples/sdxl.jpg", type: "image" },
+              { name: "Wan 2.6", tag: "Free Video", badge: "Free", sample: "", type: "none", color: "from-rose-600 to-pink-600" },
+              { name: "Nano Banana 2", tag: "2K Ultra Detail", badge: "", sample: "/samples/nano_banana.png", type: "image" },
             ].map((m) => (
               <Link key={m.name} href="/generate" className="group relative rounded-xl border border-muted bg-card overflow-hidden hover:border-purple-500/40 transition-all hover:shadow-lg">
                 {m.badge && (
@@ -151,6 +151,10 @@ export default function LandingPage() {
                 <div className="aspect-[4/3] bg-muted overflow-hidden">
                   {m.type === "video" ? (
                     <video src={m.sample} className="w-full h-full object-cover" autoPlay loop muted playsInline />
+                  ) : m.type === "none" ? (
+                    <div className={`w-full h-full bg-gradient-to-br ${(m as Record<string, string>).color || "from-gray-600 to-slate-600"} flex items-center justify-center`}>
+                      <span className="text-white/60 text-2xl font-bold">{m.name.charAt(0)}</span>
+                    </div>
                   ) : (
                     <img src={m.sample} alt={`${m.name} sample`} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
                   )}
