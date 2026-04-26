@@ -140,6 +140,7 @@ export default function LandingPage() {
               { name: "Wan 2.6", tag: "NSFW OK", badge: "Free", color: "from-rose-600 to-pink-600" },
               { name: "LTX 2.3", tag: "Fast Video", badge: "Free", color: "from-cyan-600 to-blue-600" },
               { name: "Ideogram v3", tag: "Text+Logo", badge: "", color: "from-teal-600 to-green-600" },
+              { name: "GPT Image 2", tag: "OpenAI", badge: "NEW", color: "from-emerald-600 to-green-600" },
               { name: "Nano Banana 2", tag: "2K Image", badge: "", color: "from-yellow-600 to-amber-600" },
             ].map((m) => (
               <div key={m.name} className="relative rounded-lg border border-muted bg-card p-3 text-center hover:border-purple-500/40 transition-colors">
@@ -166,24 +167,31 @@ export default function LandingPage() {
 
         {/* Price Comparison — why EGAKU AI */}
         <section className="container mx-auto px-4 py-12">
-          <h2 className="text-2xl font-bold text-center mb-8">Same Models, Lower Price</h2>
-          <div className="max-w-2xl mx-auto rounded-xl border border-muted overflow-hidden">
-            <div className="grid grid-cols-3 text-center text-xs font-semibold bg-muted/50 p-3 border-b border-muted">
-              <span>Feature</span>
-              <span>Others</span>
+          <h2 className="text-2xl font-bold text-center mb-3">How We Compare</h2>
+          <p className="text-sm text-muted-foreground text-center mb-8">Same cutting-edge models. More features. Better price.</p>
+          <div className="max-w-3xl mx-auto rounded-xl border border-muted overflow-hidden">
+            <div className="grid grid-cols-4 text-center text-[11px] font-semibold bg-muted/50 p-3 border-b border-muted">
+              <span className="text-left pl-2">Feature</span>
+              <span>Site A</span>
+              <span>Site B</span>
               <span className="text-purple-400">EGAKU AI</span>
             </div>
             {[
-              { feat: "Kling 3.0 4K", others: "$19-89/mo", egaku: "¥980/mo" },
-              { feat: "Sora 2 + Veo 3", others: "$39+/mo", egaku: "¥2,980/mo" },
-              { feat: "CivitAI Models", others: "Limited", egaku: "100,000+" },
-              { feat: "Image + Video", others: "Video only", egaku: "Both" },
-              { feat: "Watermark-free", others: "Paid only", egaku: "Pro ¥980/mo" },
-              { feat: "Free tier", others: "3-5 videos", egaku: "50 credits" },
+              { feat: "Starting price", c1: "$19/mo", c2: "$9.99/mo", egaku: "¥980/mo (~$6.50)" },
+              { feat: "Kling 3.0 4K", c1: "Yes", c2: "Yes", egaku: "Yes" },
+              { feat: "Sora 2 / Veo 3", c1: "No", c2: "Yes", egaku: "Yes" },
+              { feat: "GPT Image 2", c1: "No", c2: "Yes", egaku: "Yes" },
+              { feat: "Image models", c1: "3-5", c2: "5-8", egaku: "25+" },
+              { feat: "CivitAI (100K+ models)", c1: "No", c2: "No", egaku: "Yes" },
+              { feat: "Free tier", c1: "Limited", c2: "Limited", egaku: "50 credits" },
+              { feat: "Multi-language prompts", c1: "English", c2: "English", egaku: "All languages" },
+              { feat: "Vid2Vid style transfer", c1: "No", c2: "No", egaku: "Yes" },
+              { feat: "Gallery remix", c1: "No", c2: "No", egaku: "Yes" },
             ].map((row, i) => (
-              <div key={i} className={`grid grid-cols-3 text-center text-xs p-3 ${i % 2 === 0 ? "bg-card" : "bg-muted/20"}`}>
+              <div key={i} className={`grid grid-cols-4 text-center text-xs p-3 ${i % 2 === 0 ? "bg-card" : "bg-muted/20"}`}>
                 <span className="font-medium text-left pl-2">{row.feat}</span>
-                <span className="text-muted-foreground">{row.others}</span>
+                <span className="text-muted-foreground">{row.c1}</span>
+                <span className="text-muted-foreground">{row.c2}</span>
                 <span className="text-purple-400 font-semibold">{row.egaku}</span>
               </div>
             ))}

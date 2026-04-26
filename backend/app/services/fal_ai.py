@@ -68,6 +68,14 @@ MODELS = {
         "min_plan": "lite",
         "credits": 8,
     },
+    "fal_gpt_image_2": {
+        "fal_id": "openai/gpt-image-2",
+        "name": "GPT Image 2 (OpenAI)",
+        "category": "premium",
+        "description": "OpenAI's latest — extremely detailed images with fine typography",
+        "min_plan": "pro",
+        "credits": 10,
+    },
     "fal_grok_imagine": {
         "fal_id": "xai/grok-imagine-image",
         "name": "Grok Imagine (xAI)",
