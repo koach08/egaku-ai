@@ -172,20 +172,20 @@ export default function LandingPage() {
           <div className="max-w-3xl mx-auto rounded-xl border border-muted overflow-hidden">
             <div className="grid grid-cols-4 text-center text-[11px] font-semibold bg-muted/50 p-3 border-b border-muted">
               <span className="text-left pl-2">Feature</span>
-              <span>Site A</span>
-              <span>Site B</span>
+              <span>Video-only tools</span>
+              <span>General AI tools</span>
               <span className="text-purple-400">EGAKU AI</span>
             </div>
             {[
-              { feat: "Starting price", c1: "$19/mo", c2: "$9.99/mo", egaku: "¥980/mo (~$6.50)" },
-              { feat: "Kling 3.0 4K", c1: "Yes", c2: "Yes", egaku: "Yes" },
-              { feat: "Sora 2 / Veo 3", c1: "No", c2: "Yes", egaku: "Yes" },
-              { feat: "GPT Image 2", c1: "No", c2: "Yes", egaku: "Yes" },
+              { feat: "Starting price", c1: "$19-89/mo", c2: "$9-20/mo", egaku: "¥980/mo (~$6.50)" },
+              { feat: "Kling 3.0 4K", c1: "Some", c2: "Some", egaku: "Yes" },
+              { feat: "Sora 2 / Veo 3", c1: "Rare", c2: "Some", egaku: "Yes" },
+              { feat: "GPT Image 2", c1: "No", c2: "Some", egaku: "Yes" },
               { feat: "Image models", c1: "3-5", c2: "5-8", egaku: "25+" },
               { feat: "CivitAI (100K+ models)", c1: "No", c2: "No", egaku: "Yes" },
               { feat: "Free tier", c1: "Limited", c2: "Limited", egaku: "50 credits" },
-              { feat: "Multi-language prompts", c1: "English", c2: "English", egaku: "All languages" },
-              { feat: "Vid2Vid style transfer", c1: "No", c2: "No", egaku: "Yes" },
+              { feat: "Multi-language prompts", c1: "English only", c2: "English only", egaku: "All languages" },
+              { feat: "Vid2Vid style transfer", c1: "Rare", c2: "No", egaku: "Yes" },
               { feat: "Gallery remix", c1: "No", c2: "No", egaku: "Yes" },
             ].map((row, i) => (
               <div key={i} className={`grid grid-cols-4 text-center text-xs p-3 ${i % 2 === 0 ? "bg-card" : "bg-muted/20"}`}>
