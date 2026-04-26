@@ -110,25 +110,84 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Social Proof / Models */}
-        <section className="container mx-auto px-4 py-12">
-          <div className="text-center mb-8">
-            <p className="text-sm text-muted-foreground uppercase tracking-wider mb-4">
-              Powered by the best AI models
-            </p>
-            <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-muted-foreground">
-              <span className="text-lg font-semibold text-purple-400">Sora 2</span>
-              <span className="text-lg font-semibold text-purple-400">Veo 3</span>
-              <span className="text-lg font-semibold text-purple-400">Seedance 2</span>
-              <span className="text-lg font-semibold text-purple-400">Nano Banana 2</span>
-              <span className="text-lg font-semibold text-purple-400">Grok Imagine</span>
-              <span className="text-lg font-semibold">Flux</span>
-              <span className="text-lg font-semibold">SDXL</span>
-              <span className="text-lg font-semibold">Kling 2.5</span>
-              <span className="text-lg font-semibold">CivitAI</span>
+        {/* NEW: Kling 3.0 Announcement Banner */}
+        <section className="container mx-auto px-4 py-6">
+          <div className="rounded-xl bg-gradient-to-r from-purple-600/20 via-pink-600/20 to-cyan-600/20 border border-purple-500/30 p-4 sm:p-6 text-center">
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <span className="text-xs font-bold bg-gradient-to-r from-purple-500 to-pink-500 text-white px-2.5 py-0.5 rounded-full animate-pulse">NEW</span>
+              <span className="text-sm sm:text-base font-bold">Kling 3.0 4K + Kling O3 Now Available</span>
             </div>
+            <p className="text-xs sm:text-sm text-muted-foreground">
+              Native 4K video generation with cinematic quality. Plus Sora 2, Veo 3, Seedance 2 and 25+ more models.
+            </p>
+          </div>
+        </section>
+
+        {/* AI Models Showcase — card-based like BigMotion */}
+        <section className="container mx-auto px-4 py-12">
+          <h2 className="text-2xl font-bold text-center mb-3">25+ AI Models, One Platform</h2>
+          <p className="text-sm text-muted-foreground text-center mb-8">The latest and best models — at a fraction of the cost.</p>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 max-w-5xl mx-auto">
+            {[
+              { name: "Kling 3.0", tag: "4K Video", badge: "NEW", color: "from-purple-600 to-pink-600" },
+              { name: "Kling O3", tag: "4K + Audio", badge: "NEW", color: "from-pink-600 to-red-600" },
+              { name: "Sora 2", tag: "OpenAI Video", badge: "", color: "from-green-600 to-emerald-600" },
+              { name: "Veo 3", tag: "Google Video", badge: "", color: "from-blue-600 to-cyan-600" },
+              { name: "Flux Pro", tag: "Best Image", badge: "", color: "from-violet-600 to-purple-600" },
+              { name: "Seedance 2", tag: "ByteDance", badge: "", color: "from-orange-600 to-red-600" },
+              { name: "SDXL", tag: "1024px", badge: "Free", color: "from-gray-600 to-slate-600" },
+              { name: "CivitAI", tag: "100K+ Models", badge: "", color: "from-amber-600 to-orange-600" },
+              { name: "Wan 2.6", tag: "NSFW OK", badge: "Free", color: "from-rose-600 to-pink-600" },
+              { name: "LTX 2.3", tag: "Fast Video", badge: "Free", color: "from-cyan-600 to-blue-600" },
+              { name: "Ideogram v3", tag: "Text+Logo", badge: "", color: "from-teal-600 to-green-600" },
+              { name: "Nano Banana 2", tag: "2K Image", badge: "", color: "from-yellow-600 to-amber-600" },
+            ].map((m) => (
+              <div key={m.name} className="relative rounded-lg border border-muted bg-card p-3 text-center hover:border-purple-500/40 transition-colors">
+                {m.badge && (
+                  <span className={`absolute -top-2 -right-2 text-[9px] font-bold text-white px-1.5 py-0.5 rounded-full ${m.badge === "NEW" ? "bg-gradient-to-r from-purple-500 to-pink-500" : m.badge === "Free" ? "bg-green-600" : "bg-gray-600"}`}>
+                    {m.badge}
+                  </span>
+                )}
+                <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${m.color} mx-auto mb-2 flex items-center justify-center`}>
+                  <span className="text-white text-xs font-bold">{m.name.charAt(0)}</span>
+                </div>
+                <p className="text-xs font-semibold">{m.name}</p>
+                <p className="text-[10px] text-muted-foreground">{m.tag}</p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-6 text-center">
+            <Link href="/generate" className="text-sm text-purple-400 hover:underline">
+              Try all models free →
+            </Link>
           </div>
           <LiveStats />
+        </section>
+
+        {/* Price Comparison — why EGAKU AI */}
+        <section className="container mx-auto px-4 py-12">
+          <h2 className="text-2xl font-bold text-center mb-8">Same Models, Lower Price</h2>
+          <div className="max-w-2xl mx-auto rounded-xl border border-muted overflow-hidden">
+            <div className="grid grid-cols-3 text-center text-xs font-semibold bg-muted/50 p-3 border-b border-muted">
+              <span>Feature</span>
+              <span>Others</span>
+              <span className="text-purple-400">EGAKU AI</span>
+            </div>
+            {[
+              { feat: "Kling 3.0 4K", others: "$19-89/mo", egaku: "¥980/mo" },
+              { feat: "Sora 2 + Veo 3", others: "$39+/mo", egaku: "¥2,980/mo" },
+              { feat: "CivitAI Models", others: "Limited", egaku: "100,000+" },
+              { feat: "Image + Video", others: "Video only", egaku: "Both" },
+              { feat: "Watermark-free", others: "Paid only", egaku: "Pro ¥980/mo" },
+              { feat: "Free tier", others: "3-5 videos", egaku: "50 credits" },
+            ].map((row, i) => (
+              <div key={i} className={`grid grid-cols-3 text-center text-xs p-3 ${i % 2 === 0 ? "bg-card" : "bg-muted/20"}`}>
+                <span className="font-medium text-left pl-2">{row.feat}</span>
+                <span className="text-muted-foreground">{row.others}</span>
+                <span className="text-purple-400 font-semibold">{row.egaku}</span>
+              </div>
+            ))}
+          </div>
         </section>
 
         {/* Creative Tools — Main Navigation Hub */}
