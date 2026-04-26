@@ -5,6 +5,7 @@ import logging
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, Request
+from pydantic import BaseModel, Field
 
 from app.core.config import Settings, get_settings
 from app.core.legal import check_prompt_compliance
