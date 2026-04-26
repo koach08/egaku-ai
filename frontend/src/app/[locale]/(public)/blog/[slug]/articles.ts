@@ -708,4 +708,121 @@ export const ARTICLES: Article[] = [
       },
     },
   },
+
+  // ── SEO: Best Free AI Image Generators 2026 ──
+  {
+    slug: "best-free-ai-image-generators-2026",
+    category: "guide",
+    tags: ["free", "comparison", "2026", "flux", "sdxl", "beginners"],
+    publishedAt: "2026-04-27",
+    readingTime: 6,
+    translations: {
+      en: {
+        title: "Best Free AI Image Generators in 2026: Honest Comparison",
+        description: "Compare the best free AI image generators in 2026. Flux, SDXL, Ideogram, and more — features, quality, limits, and which one to pick.",
+        sections: [
+          { heading: "What to Look For in a Free AI Generator", content: `<p>Not all "free" AI image generators are equal. Key factors:</p><ul><li><strong>Image quality</strong> — Does it produce sharp, detailed images?</li><li><strong>Free tier limits</strong> — How many images per day/month?</li><li><strong>Model variety</strong> — One model or multiple options?</li><li><strong>Features</strong> — Just txt2img or also img2img, video, upscale?</li><li><strong>No watermark?</strong> — Some add watermarks on free tier</li></ul>` },
+          { heading: "Top Free Options Compared", content: `<table><tr><th>Platform</th><th>Free Tier</th><th>Best Model</th><th>Video?</th><th>CivitAI?</th></tr><tr><td><strong>EGAKU AI</strong></td><td>50 credits/mo + daily bonus</td><td>Flux Dev, SDXL</td><td>Yes (Wan 2.6, LTX)</td><td>100K+ models</td></tr><tr><td>Leonardo.ai</td><td>150 tokens/day</td><td>Phoenix</td><td>Limited</td><td>No</td></tr><tr><td>Playground AI</td><td>500 images/day</td><td>Custom</td><td>No</td><td>No</td></tr><tr><td>Craiyon</td><td>Unlimited (slow)</td><td>Custom</td><td>No</td><td>No</td></tr><tr><td>Microsoft Designer</td><td>15 images/day</td><td>DALL-E 3</td><td>No</td><td>No</td></tr></table>` },
+          { heading: "Why EGAKU AI Stands Out", content: `<ul><li><strong>25+ models in one place</strong> — Flux Dev, SDXL, Ideogram, GPT Image 2, and more</li><li><strong>Free video generation</strong> — Wan 2.6 (up to 15 seconds) and LTX included free</li><li><strong>CivitAI integration</strong> — Browse and use 100,000+ community models</li><li><strong>Multi-language</strong> — Write prompts in English, Japanese, Spanish, Chinese, or any language</li><li><strong>No download needed</strong> — Everything runs in your browser</li></ul><p><a href="/register">Try EGAKU AI free →</a></p>` },
+          { heading: "The Honest Truth About 'Free'", content: `<p>Every platform has costs (GPUs are expensive). "Free" tiers exist to let you try before buying. The real question is: which platform gives you the most value in the free tier?</p><p>EGAKU AI gives 50 credits + daily bonuses, which translates to roughly 50-100 images per month on free tier — more than enough to decide if it's right for you.</p>` },
+        ],
+      },
+      ja: {
+        title: "2026年 無料AI画像生成ツール比較：正直なレビュー",
+        description: "2026年のベスト無料AI画像生成ツールを比較。Flux、SDXL、Ideogram等。機能、品質、制限を解説。",
+        sections: [
+          { heading: "無料AI生成ツールの選び方", content: `<p>「無料」でも品質はまちまち。チェックポイント：画質、月間制限、モデルの種類、動画対応、ウォーターマークの有無。</p>` },
+          { heading: "主要プラットフォーム比較", content: `<p><strong>EGAKU AI：</strong> 50クレジット/月+日次ボーナス、25+モデル、動画無料（Wan 2.6）、CivitAI 10万+モデル</p><p>Leonardo.ai: 150トークン/日。Playground: 500枚/日。Craiyon: 無制限（低速）。Microsoft Designer: 15枚/日。</p>` },
+          { heading: "EGAKU AIの強み", content: `<ul><li>25+モデルが1箇所で使える</li><li>無料で動画生成（Wan 2.6、最長15秒）</li><li>CivitAI 10万+モデル対応</li><li>日本語プロンプト対応</li><li>ダウンロード不要</li></ul>` },
+        ],
+      },
+      es: {
+        title: "Mejores Generadores de Imágenes IA Gratis en 2026",
+        description: "Compara los mejores generadores de imágenes IA gratuitos de 2026. Flux, SDXL, Ideogram y más.",
+        sections: [
+          { heading: "Qué Buscar", content: `<p>No todos los generadores "gratis" son iguales. Factores clave: calidad, límites, variedad de modelos, video, marcas de agua.</p>` },
+          { heading: "Por Qué EGAKU AI Destaca", content: `<ul><li>25+ modelos en un solo lugar</li><li>Generación de video gratis (Wan 2.6)</li><li>100,000+ modelos CivitAI</li><li>Prompts en cualquier idioma</li></ul>` },
+        ],
+      },
+    },
+  },
+
+  // ── Guide: AI Art for Instagram/TikTok ──
+  {
+    slug: "how-to-make-ai-art-instagram-tiktok",
+    category: "guide",
+    tags: ["instagram", "tiktok", "social-media", "content-creation", "reels"],
+    publishedAt: "2026-04-27",
+    readingTime: 5,
+    translations: {
+      en: {
+        title: "How to Make AI Art for Instagram & TikTok: Creator's Guide",
+        description: "Create scroll-stopping AI art for Instagram and TikTok. Best sizes, models, styles, and tips for growing your audience with AI-generated content.",
+        sections: [
+          { heading: "Why AI Art Works on Social Media", content: `<p>AI-generated art is exploding on social media. Accounts posting AI art regularly gain thousands of followers because:</p><ul><li>Visually striking — stops the scroll</li><li>Unique — no one else has the exact same image</li><li>Fast to produce — post daily without burnout</li><li>Trendy — "Made with AI" is a conversation starter</li></ul>` },
+          { heading: "Best Sizes for Each Platform", content: `<table><tr><th>Platform</th><th>Format</th><th>Size</th><th>EGAKU AI Setting</th></tr><tr><td>Instagram Post</td><td>Square</td><td>1080x1080</td><td>1024x1024</td></tr><tr><td>Instagram Story/Reel</td><td>Vertical</td><td>1080x1920</td><td>576x1024</td></tr><tr><td>TikTok</td><td>Vertical</td><td>1080x1920</td><td>576x1024</td></tr><tr><td>X (Twitter)</td><td>Landscape</td><td>1200x675</td><td>1024x576</td></tr><tr><td>YouTube Thumbnail</td><td>Landscape</td><td>1280x720</td><td>1024x576</td></tr></table>` },
+          { heading: "Best Models for Social Content", content: `<ul><li><strong>Flux Pro:</strong> Photorealistic content that looks like real photography</li><li><strong>Flux Dev:</strong> High quality, slightly more artistic. Free tier available</li><li><strong>GPT Image 2:</strong> Excellent for text-heavy designs, infographics</li><li><strong>Ideogram v3:</strong> Best for logos, text in images, typography-heavy designs</li><li><strong>CivitAI anime models:</strong> Anime/illustration content has huge audiences</li></ul>` },
+          { heading: "Content Ideas That Go Viral", content: `<ol><li><strong>"Same prompt, different style"</strong> — Generate the same scene in 6 different art styles. Carousel post.</li><li><strong>AI vs Reality</strong> — Put AI image next to a real photo. People love guessing.</li><li><strong>Character series</strong> — Create an AI character and post their "daily life" as a series.</li><li><strong>Style transformations</strong> — Take a famous landmark and render it in Ghibli/Cyberpunk/Ukiyo-e style.</li><li><strong>Before/After</strong> — Show the prompt and the result. Educational + engaging.</li></ol>` },
+          { heading: "Workflow: Prompt to Post", content: `<ol><li><strong>Generate</strong> on EGAKU AI — use templates for consistent quality</li><li><strong>Upscale</strong> if needed (4x upscaler built in)</li><li><strong>Add text/branding</strong> in Canva or directly in Instagram</li><li><strong>Post with hashtags:</strong> #AIart #AIgenerated #FluxAI #AIillustration #digitalart</li><li><strong>Engage</strong> — reply to comments, share your prompt in caption</li></ol>` },
+          { heading: "Making Videos for TikTok/Reels", content: `<p>EGAKU AI can generate videos directly:</p><ul><li>Use <strong>Short Story Generator</strong> — story idea → visual scenes → ready for TikTok</li><li>Use <strong>Image-to-Video</strong> — generate a stunning image, then animate it</li><li>Use <strong>Vid2Vid</strong> — take existing footage and restyle it (anime, cyberpunk, etc.)</li></ul><p>Free models (Wan 2.6, LTX) can generate up to 15 seconds — perfect for Reels/TikTok.</p>` },
+        ],
+      },
+      ja: {
+        title: "Instagram・TikTok向けAIアート作成ガイド",
+        description: "SNS映えするAIアートの作り方。最適サイズ、モデル選び、バズるコンテンツのコツ。",
+        sections: [
+          { heading: "なぜAIアートがSNSで伸びるか", content: `<p>AIアートはSNSで爆発的に伸びている。理由：視覚的に目を引く、ユニークで他と被らない、毎日投稿できる制作速度、「AI製」が話題になる。</p>` },
+          { heading: "プラットフォーム別推奨サイズ", content: `<p>Instagram投稿: 1024x1024 / Story・Reel: 576x1024 / TikTok: 576x1024 / X: 1024x576</p>` },
+          { heading: "バズるコンテンツアイデア", content: `<ol><li>同じプロンプト×6スタイル（カルーセル投稿）</li><li>AI vs 現実（どっちがAI？クイズ形式）</li><li>AIキャラの日常シリーズ</li><li>名所のスタイル変換（渋谷をジブリ風に等）</li><li>プロンプト公開（教育系+エンゲージメント）</li></ol>` },
+          { heading: "動画作成", content: `<p>Short Story Generator: ストーリー→ビジュアルシーン→TikTok用 / Img2Vid: 画像をアニメーション化 / Vid2Vid: 既存動画をスタイル変換</p>` },
+        ],
+      },
+      es: {
+        title: "Cómo Crear Arte IA para Instagram y TikTok",
+        description: "Crea arte IA viral para Instagram y TikTok. Tamaños, modelos, estilos y consejos para crecer tu audiencia.",
+        sections: [
+          { heading: "Por Qué el Arte IA Funciona en Redes Sociales", content: `<p>El arte generado por IA está explotando en redes sociales. Es visualmente impactante, único, rápido de producir y tendencia.</p>` },
+          { heading: "Ideas de Contenido Viral", content: `<ol><li>Mismo prompt, 6 estilos diferentes (carrusel)</li><li>IA vs Realidad (¿cuál es cuál?)</li><li>Serie de personajes IA</li><li>Transformaciones de estilo</li></ol>` },
+        ],
+      },
+    },
+  },
+
+  // ── Guide: Flux vs SDXL vs SD1.5 ──
+  {
+    slug: "flux-vs-sdxl-vs-sd15-which-model",
+    category: "guide",
+    tags: ["flux", "sdxl", "sd15", "comparison", "models", "technical"],
+    publishedAt: "2026-04-27",
+    readingTime: 5,
+    translations: {
+      en: {
+        title: "Flux vs SDXL vs SD 1.5: Which AI Model Should You Choose?",
+        description: "Detailed comparison of Flux, SDXL, and Stable Diffusion 1.5. Quality, speed, NSFW support, CivitAI compatibility, and best use cases.",
+        sections: [
+          { heading: "The Three Generations", content: `<p>AI image generation has gone through three major generations:</p><ul><li><strong>SD 1.5 (2022)</strong> — The original that started it all. 512x512 native resolution.</li><li><strong>SDXL (2023)</strong> — Double the resolution (1024x1024), much better quality.</li><li><strong>Flux (2024-2025)</strong> — New architecture from Black Forest Labs. Best overall quality.</li></ul>` },
+          { heading: "Head-to-Head Comparison", content: `<table><tr><th>Feature</th><th>SD 1.5</th><th>SDXL</th><th>Flux Dev</th></tr><tr><td>Native Resolution</td><td>512x512</td><td>1024x1024</td><td>Up to 2048</td></tr><tr><td>Image Quality</td><td>Good</td><td>Very Good</td><td>Excellent</td></tr><tr><td>Text in Images</td><td>Poor</td><td>Decent</td><td>Good</td></tr><tr><td>Speed</td><td>Fast</td><td>Medium</td><td>Medium</td></tr><tr><td>CivitAI Models</td><td>50,000+</td><td>30,000+</td><td>Growing</td></tr><tr><td>NSFW Support</td><td>CivitAI models</td><td>CivitAI models</td><td>Flux Dev only</td></tr><tr><td>Prompt Style</td><td>Tags (booru)</td><td>Tags or natural</td><td>Natural language</td></tr><tr><td>Cost</td><td>Cheapest</td><td>Medium</td><td>Higher</td></tr></table>` },
+          { heading: "When to Use Each", content: `<p><strong>Use Flux Dev when:</strong></p><ul><li>You want the best possible image quality</li><li>You're doing photorealistic or artistic content</li><li>You want to write prompts in natural language</li><li>You don't need specific CivitAI models</li></ul><p><strong>Use SDXL when:</strong></p><ul><li>You want high quality + CivitAI model compatibility</li><li>You need specific styles from CivitAI checkpoints</li><li>You want a balance of quality and cost</li></ul><p><strong>Use SD 1.5 when:</strong></p><ul><li>You need specific CivitAI models only available for SD 1.5</li><li>You want the fastest, cheapest generation</li><li>You're using specialized NSFW models</li></ul>` },
+          { heading: "On EGAKU AI", content: `<p>You don't have to choose — EGAKU AI offers all three. Start with Flux Dev for best quality, switch to SDXL/CivitAI models when you need specific styles.</p><p>Free tier includes Flux Schnell (fast) and SDXL. Flux Dev and Pro require Basic plan or above.</p><p><a href="/generate">Try all models →</a></p>` },
+        ],
+      },
+      ja: {
+        title: "Flux vs SDXL vs SD 1.5：どのAIモデルを選ぶべきか",
+        description: "Flux、SDXL、SD 1.5を詳細比較。品質、速度、NSFW対応、CivitAI互換性。",
+        sections: [
+          { heading: "3つの世代", content: `<p><strong>SD 1.5（2022年）：</strong> 元祖。512x512。<strong>SDXL（2023年）：</strong> 解像度2倍（1024x1024）。<strong>Flux（2024-2025年）：</strong> 新アーキテクチャ。最高品質。</p>` },
+          { heading: "使い分け", content: `<p><strong>Flux Dev：</strong> 最高品質、自然言語プロンプト、フォトリアル</p><p><strong>SDXL：</strong> 高品質+CivitAIモデル互換、特定スタイル</p><p><strong>SD 1.5：</strong> 最速・最安、特定のCivitAI NSFWモデル用</p>` },
+          { heading: "EGAKU AIでは", content: `<p>全モデル利用可能。Flux Schnell（高速）とSDXLは無料。Flux Dev/ProはBasicプラン以上。</p>` },
+        ],
+      },
+      es: {
+        title: "Flux vs SDXL vs SD 1.5: ¿Qué Modelo IA Elegir?",
+        description: "Comparación detallada de Flux, SDXL y SD 1.5. Calidad, velocidad, soporte NSFW y compatibilidad CivitAI.",
+        sections: [
+          { heading: "Tres Generaciones", content: `<p><strong>SD 1.5:</strong> El original. 512x512. <strong>SDXL:</strong> Doble resolución. <strong>Flux:</strong> Nueva arquitectura, mejor calidad.</p>` },
+          { heading: "Cuándo Usar Cada Uno", content: `<p>Flux: mejor calidad. SDXL: calidad + CivitAI. SD 1.5: más rápido y barato, modelos NSFW específicos.</p>` },
+        ],
+      },
+    },
+  },
 ];
