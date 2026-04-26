@@ -348,4 +348,132 @@ export const ARTICLES: Article[] = [
       },
     },
   },
+
+  // ── Essay: Creative Freedom in AI ──
+  {
+    slug: "creative-freedom-ai-generation-where-do-we-draw-the-line",
+    category: "news",
+    tags: ["opinion", "ethics", "censorship", "freedom", "ai-policy"],
+    publishedAt: "2026-04-27",
+    readingTime: 6,
+    translations: {
+      en: {
+        title: "Creative Freedom in AI Generation: Where Do We Draw the Line?",
+        description: "As AI image generation becomes mainstream, the tension between creative freedom and content safety grows. Who decides what's harmful? An exploration of the challenges facing AI platforms.",
+        sections: [
+          {
+            heading: "The Promise of Unrestricted Creativity",
+            content: `<p>When Stable Diffusion was released as open-source in 2022, it represented something radical: the democratization of image creation. Anyone with a computer could generate anything they imagined. No gatekeepers, no approval process, no censorship.</p>
+<p>Communities like Unstable Diffusion embraced this ethos fully — building platforms around the idea that AI creativity should have no limits. At their peak, they had 350,000 daily active users generating half a million images per day.</p>
+<p>But the story didn't end with triumph. It ended with payment processors refusing service, platforms shutting down campaigns, and the fundamental question left unanswered: <strong>can absolute creative freedom sustain itself?</strong></p>`,
+          },
+          {
+            heading: "The Cost of Freedom",
+            content: `<p>Running an AI generation platform costs real money. GPUs don't run on ideology. A platform generating 500,000 images per day faces infrastructure costs that dwarf what community donations can cover.</p>
+<p>Unstable Diffusion earned roughly $2,500 per month from crowdfunding — while serving 350,000 daily users. The math simply didn't work.</p>
+<p>This reveals an uncomfortable truth: <strong>systems need sustainability to survive, and sustainability requires revenue, and revenue requires payment processors who have their own content policies.</strong></p>
+<p>The moment you depend on Stripe, PayPal, Visa, or Mastercard, you operate within their rules — not yours.</p>`,
+          },
+          {
+            heading: "Who Decides What's Harmful?",
+            content: `<p>This is perhaps the most difficult question in AI content policy. Consider:</p>
+<ul>
+<li>A nude figure study — art or pornography?</li>
+<li>A violent battle scene — creative expression or harmful content?</li>
+<li>An AI-generated face — creative freedom or potential deepfake?</li>
+<li>NSFW anime illustration — fiction or problematic content?</li>
+</ul>
+<p>Different cultures answer these questions differently. Japanese obscenity law (Article 175) requires mosaic censorship on genitalia, while the same content is perfectly legal in many other countries. Korean law prohibits creation and possession of obscene material entirely.</p>
+<p>There is no universal answer. What exists is a patchwork of regional laws, platform policies, and payment processor rules — none of which fully align with each other.</p>`,
+          },
+          {
+            heading: "The Line That Everyone Agrees On",
+            content: `<p>Despite the debate, there are absolutes that virtually every platform, law, and ethical framework agrees on:</p>
+<ul>
+<li><strong>Child Sexual Abuse Material (CSAM)</strong> — universally prohibited, AI-generated or not</li>
+<li><strong>Non-consensual intimate imagery</strong> — using real people's faces in sexual content without consent</li>
+<li><strong>Content promoting terrorism or extreme violence targeting real people</strong></li>
+</ul>
+<p>These aren't matters of cultural perspective. They're fundamental protections.</p>
+<p>Everything else — from artistic nudity to fictional adult content to violent fantasy art — exists on a spectrum where reasonable people disagree.</p>`,
+          },
+          {
+            heading: "A Sustainable Middle Path",
+            content: `<p>At EGAKU AI, we believe in creative freedom — but we also believe in sustainability and responsibility. Our approach:</p>
+<ul>
+<li><strong>Absolute prohibitions are non-negotiable.</strong> CSAM, non-consensual deepfakes, and content targeting real people are permanently banned.</li>
+<li><strong>Adult content is available with proper safeguards.</strong> Age verification, regional compliance (JP mosaic, KR restrictions), and user responsibility.</li>
+<li><strong>The platform must sustain itself.</strong> Creative freedom means nothing if the platform shuts down. Revenue, cost control, and legal compliance keep the lights on.</li>
+<li><strong>Users bear responsibility for their creations.</strong> We provide the tools; users decide how to use them within our guidelines.</li>
+</ul>
+<p>This isn't the radical position of "no limits." It's the pragmatic position of "maximum freedom within sustainable boundaries."</p>`,
+          },
+          {
+            heading: "The Future Is Still Being Written",
+            content: `<p>AI content regulation is evolving rapidly. Laws change, technology advances, and social norms shift. What's considered acceptable today may not be tomorrow — and vice versa.</p>
+<p>The platforms that survive won't be the ones with the most radical positions or the strictest censorship. They'll be the ones that can <strong>adapt</strong> — balancing creative freedom with legal compliance, user safety with artistic expression, and sustainability with accessibility.</p>
+<p>The conversation about where to draw the line isn't over. It's just beginning.</p>`,
+          },
+        ],
+      },
+      ja: {
+        title: "AI生成における表現の自由：どこに線を引くか",
+        description: "AI画像生成が主流になるにつれ、表現の自由とコンテンツの安全性の間の緊張が高まっている。何が有害かは誰が決めるのか。",
+        sections: [
+          {
+            heading: "無制限の創造性という約束",
+            content: `<p>2022年にStable Diffusionがオープンソースとして公開された時、それは画像制作の民主化を意味していた。誰でもコンピュータさえあれば、想像するものを何でも生成できる。ゲートキーパーなし、承認プロセスなし、検閲なし。</p>
+<p>Unstable Diffusionのようなコミュニティはこの精神を全面的に受け入れ、AIの創造性に制限があるべきではないという理念のもとにプラットフォームを構築した。ピーク時には35万人のDAU、1日50万枚の画像を生成していた。</p>
+<p>しかし結末は勝利ではなかった。決済プロセッサーがサービスを拒否し、プラットフォームがキャンペーンを停止し、根本的な問いだけが残った：<strong>絶対的な表現の自由は、自らを維持できるのか？</strong></p>`,
+          },
+          {
+            heading: "自由のコスト",
+            content: `<p>AI生成プラットフォームの運営にはお金がかかる。GPUは理念では動かない。1日50万枚を生成するプラットフォームのインフラコストは、コミュニティの寄付で賄える範囲をはるかに超える。</p>
+<p>Unstable Diffusionのクラウドファンディング収入は月約$2,500 — 35万人のDAUを抱えながら。計算が合わなかった。</p>
+<p>不都合な真実がここにある：<strong>システムが存続するには持続可能性が必要で、持続可能性には収益が必要で、収益には独自のコンテンツポリシーを持つ決済プロセッサーが必要。</strong></p>`,
+          },
+          {
+            heading: "何が「害」かは誰が決めるのか",
+            content: `<p>これはAIコンテンツポリシーにおいて最も難しい問いかもしれない：</p>
+<ul>
+<li>裸体のデッサン — 芸術か、ポルノか？</li>
+<li>激しい戦闘シーン — 創造的表現か、有害コンテンツか？</li>
+<li>AI生成の顔 — 表現の自由か、Deepfakeの可能性か？</li>
+<li>NSFWアニメイラスト — フィクションか、問題のあるコンテンツか？</li>
+</ul>
+<p>文化によって答えは異なる。日本のわいせつ物頒布罪（刑法175条）は性器にモザイクを要求するが、多くの国では同じコンテンツが完全に合法。韓国法はわいせつ物の作成と所持自体を禁止している。</p>
+<p>普遍的な答えは存在しない。存在するのは、地域の法律、プラットフォームポリシー、決済プロセッサーのルールのパッチワーク — そのどれもが完全には一致しない。</p>`,
+          },
+          {
+            heading: "誰もが同意する一線",
+            content: `<p>議論はあれど、事実上すべてのプラットフォーム、法律、倫理的枠組みが同意する絶対的な一線がある：</p>
+<ul>
+<li><strong>児童性的虐待素材（CSAM）</strong> — AI生成であろうと普遍的に禁止</li>
+<li><strong>同意のない親密な画像</strong> — 実在の人物の顔を同意なく性的コンテンツに使用すること</li>
+<li><strong>テロや実在の人物に対する極端な暴力を助長するコンテンツ</strong></li>
+</ul>
+<p>これらは文化的視点の問題ではない。根本的な保護だ。</p>
+<p>それ以外のすべて — 芸術的なヌードからフィクションのアダルトコンテンツ、暴力的なファンタジーアートまで — は、合理的な人々が意見を異にするスペクトラム上に存在する。</p>`,
+          },
+          {
+            heading: "持続可能な中道",
+            content: `<p>EGAKU AIでは、表現の自由を信じている — と同時に、持続可能性と責任も信じている：</p>
+<ul>
+<li><strong>絶対的な禁止事項は交渉の余地がない。</strong> CSAM、同意のないDeepfake、実在の人物を標的にしたコンテンツは永久に禁止。</li>
+<li><strong>アダルトコンテンツは適切な保護措置とともに利用可能。</strong> 年齢確認、地域コンプライアンス（日本のモザイク、韓国の制限）、ユーザーの自己責任。</li>
+<li><strong>プラットフォームは自らを維持しなければならない。</strong> プラットフォームが閉鎖されたら表現の自由は意味がない。収益、コスト管理、法的コンプライアンスが存続を支える。</li>
+<li><strong>ユーザーは自分の作品に責任を持つ。</strong> ツールを提供する。ガイドラインの範囲内でどう使うかはユーザーが決める。</li>
+</ul>
+<p>これは「制限なし」という過激な立場ではない。「持続可能な境界の中での最大限の自由」という現実的な立場だ。</p>`,
+          },
+          {
+            heading: "未来はまだ書かれていない",
+            content: `<p>AIコンテンツ規制は急速に進化している。法律は変わり、技術は進歩し、社会規範は移り変わる。今日受け入れられていることが明日も同じとは限らない — その逆もまた然り。</p>
+<p>生き残るプラットフォームは、最も過激な立場のものでも、最も厳しい検閲のものでもない。<strong>適応</strong>できるものだ — 表現の自由と法的コンプライアンス、ユーザーの安全と芸術的表現、持続可能性とアクセシビリティのバランスを取れるもの。</p>
+<p>どこに線を引くかの議論は終わっていない。始まったばかりだ。</p>`,
+          },
+        ],
+      },
+    },
+  },
 ];
