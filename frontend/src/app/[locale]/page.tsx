@@ -133,7 +133,6 @@ export default function LandingPage() {
               { name: "Kling O3", tag: "4K + Audio", badge: "NEW", sample: "/samples/kling3_cyberpunk.mp4", type: "video" },
               { name: "Flux Pro", tag: "Best Image Quality", badge: "", sample: "/samples/flux_dev.jpg", type: "image" },
               { name: "GPT Image 2", tag: "OpenAI Latest", badge: "NEW", sample: "/samples/gpt_image2.png", type: "image" },
-              { name: "Sora 2", tag: "OpenAI Video", badge: "", sample: "", type: "none", color: "from-green-600 to-emerald-600" },
               { name: "Veo 3", tag: "Google Video", badge: "", sample: "/samples/veo3.mp4", type: "video" },
               { name: "Seedance 2", tag: "ByteDance Video", badge: "", sample: "", type: "none", color: "from-orange-600 to-red-600" },
               { name: "Ideogram v3", tag: "Text + Logo", badge: "", sample: "/samples/ideogram.png", type: "image" },
