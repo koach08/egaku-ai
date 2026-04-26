@@ -127,34 +127,39 @@ export default function LandingPage() {
         <section className="container mx-auto px-4 py-12">
           <h2 className="text-2xl font-bold text-center mb-3">25+ AI Models, One Platform</h2>
           <p className="text-sm text-muted-foreground text-center mb-8">The latest and best models — at a fraction of the cost.</p>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 max-w-5xl mx-auto">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 max-w-5xl mx-auto">
             {[
-              { name: "Kling 3.0", tag: "4K Video", badge: "NEW", color: "from-purple-600 to-pink-600" },
-              { name: "Kling O3", tag: "4K + Audio", badge: "NEW", color: "from-pink-600 to-red-600" },
-              { name: "Sora 2", tag: "OpenAI Video", badge: "", color: "from-green-600 to-emerald-600" },
-              { name: "Veo 3", tag: "Google Video", badge: "", color: "from-blue-600 to-cyan-600" },
-              { name: "Flux Pro", tag: "Best Image", badge: "", color: "from-violet-600 to-purple-600" },
-              { name: "Seedance 2", tag: "ByteDance", badge: "", color: "from-orange-600 to-red-600" },
-              { name: "SDXL", tag: "1024px", badge: "Free", color: "from-gray-600 to-slate-600" },
-              { name: "CivitAI", tag: "100K+ Models", badge: "", color: "from-amber-600 to-orange-600" },
-              { name: "Wan 2.6", tag: "NSFW OK", badge: "Free", color: "from-rose-600 to-pink-600" },
-              { name: "LTX 2.3", tag: "Fast Video", badge: "Free", color: "from-cyan-600 to-blue-600" },
-              { name: "Ideogram v3", tag: "Text+Logo", badge: "", color: "from-teal-600 to-green-600" },
-              { name: "GPT Image 2", tag: "OpenAI", badge: "NEW", color: "from-emerald-600 to-green-600" },
-              { name: "Nano Banana 2", tag: "2K Image", badge: "", color: "from-yellow-600 to-amber-600" },
+              { name: "Kling 3.0", tag: "4K Video", badge: "NEW", sample: "/samples/kling3_castle.mp4", type: "video" },
+              { name: "Kling O3", tag: "4K + Audio", badge: "NEW", sample: "/samples/kling3_cyberpunk.mp4", type: "video" },
+              { name: "Flux Pro", tag: "Best Image Quality", badge: "", sample: "/samples/portrait.jpg", type: "image" },
+              { name: "GPT Image 2", tag: "OpenAI Latest", badge: "NEW", sample: "/samples/gpt_image2.png", type: "image" },
+              { name: "Sora 2", tag: "OpenAI Video", badge: "", sample: "/samples/fantasy.jpg", type: "image" },
+              { name: "Veo 3", tag: "Google Video", badge: "", sample: "/samples/flux_dev.jpg", type: "image" },
+              { name: "Seedance 2", tag: "ByteDance Video", badge: "", sample: "/samples/anime.jpg", type: "image" },
+              { name: "Ideogram v3", tag: "Text + Logo", badge: "", sample: "/samples/ideogram.png", type: "image" },
+              { name: "CivitAI", tag: "100K+ Community Models", badge: "", sample: "/samples/anime.jpg", type: "image" },
+              { name: "SDXL", tag: "Free — 1024px", badge: "Free", sample: "/samples/flux_dev.jpg", type: "image" },
+              { name: "Wan 2.6", tag: "Free Video", badge: "Free", sample: "/samples/fantasy.jpg", type: "image" },
+              { name: "Nano Banana 2", tag: "2K Ultra Detail", badge: "", sample: "/samples/portrait.jpg", type: "image" },
             ].map((m) => (
-              <div key={m.name} className="relative rounded-lg border border-muted bg-card p-3 text-center hover:border-purple-500/40 transition-colors">
+              <Link key={m.name} href="/generate" className="group relative rounded-xl border border-muted bg-card overflow-hidden hover:border-purple-500/40 transition-all hover:shadow-lg">
                 {m.badge && (
-                  <span className={`absolute -top-2 -right-2 text-[9px] font-bold text-white px-1.5 py-0.5 rounded-full ${m.badge === "NEW" ? "bg-gradient-to-r from-purple-500 to-pink-500" : m.badge === "Free" ? "bg-green-600" : "bg-gray-600"}`}>
+                  <span className={`absolute top-2 right-2 z-10 text-[9px] font-bold text-white px-2 py-0.5 rounded-full shadow-lg ${m.badge === "NEW" ? "bg-gradient-to-r from-purple-500 to-pink-500" : "bg-green-600"}`}>
                     {m.badge}
                   </span>
                 )}
-                <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${m.color} mx-auto mb-2 flex items-center justify-center`}>
-                  <span className="text-white text-xs font-bold">{m.name.charAt(0)}</span>
+                <div className="aspect-[4/3] bg-muted overflow-hidden">
+                  {m.type === "video" ? (
+                    <video src={m.sample} className="w-full h-full object-cover" autoPlay loop muted playsInline />
+                  ) : (
+                    <img src={m.sample} alt={`${m.name} sample`} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+                  )}
                 </div>
-                <p className="text-xs font-semibold">{m.name}</p>
-                <p className="text-[10px] text-muted-foreground">{m.tag}</p>
-              </div>
+                <div className="p-3">
+                  <p className="text-sm font-semibold group-hover:text-purple-400 transition-colors">{m.name}</p>
+                  <p className="text-[11px] text-muted-foreground">{m.tag}</p>
+                </div>
+              </Link>
             ))}
           </div>
           <div className="mt-6 text-center">
