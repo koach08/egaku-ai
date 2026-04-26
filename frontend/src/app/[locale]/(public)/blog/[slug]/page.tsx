@@ -78,6 +78,10 @@ export default async function BlogArticlePage({ params }: Props) {
           </div>
           <h1 className="text-3xl font-bold tracking-tight">{t.title}</h1>
           <p className="text-muted-foreground mt-3">{t.description}</p>
+          <div className="flex items-center gap-2 mt-4">
+            <div className="w-7 h-7 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white text-[10px] font-bold">E</div>
+            <span className="text-xs text-muted-foreground">by <span className="text-foreground font-medium">EGAKU AI Team</span></span>
+          </div>
           <div className="flex flex-wrap gap-1.5 mt-4">
             {article.tags.map((tag) => (
               <span key={tag} className="text-[10px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
