@@ -164,7 +164,7 @@ export default function LandingPage() {
               <span className="text-sm sm:text-base font-bold">Kling 3.0 4K + Kling O3 Now Available</span>
             </div>
             <p className="text-xs sm:text-sm text-muted-foreground">
-              Native 4K video generation with cinematic quality. Plus Sora 2, Veo 3, Seedance 2 and 25+ more models.
+              Native 4K video generation with cinematic quality. Plus Veo 3, Seedance 2, GPT Image 2 and 25+ more models.
             </p>
           </div>
         </section>
@@ -239,7 +239,7 @@ export default function LandingPage() {
             {[
               { feat: "Starting price", c1: "$19-89/mo", c2: "$9-20/mo", egaku: "¥980/mo (~$6.50)" },
               { feat: "Kling 3.0 4K", c1: "Some", c2: "Some", egaku: "Yes" },
-              { feat: "Sora 2 / Veo 3", c1: "Rare", c2: "Some", egaku: "Yes" },
+              { feat: "Veo 3 / Kling 3.0", c1: "Rare", c2: "Some", egaku: "Yes" },
               { feat: "GPT Image 2", c1: "No", c2: "Some", egaku: "Yes" },
               { feat: "Image models", c1: "3-5", c2: "5-8", egaku: "25+" },
               { feat: "CivitAI (100K+ models)", c1: "No", c2: "No", egaku: "Yes" },
@@ -271,7 +271,7 @@ export default function LandingPage() {
           <p className="text-center text-muted-foreground mb-10">Everything you need to create — all in one platform.</p>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 max-w-5xl mx-auto">
             {[
-              { name: "AI Image Generator", desc: "20+ models including Flux Pro, Sora 2, SDXL", href: "/generate", icon: "🎨", gradient: "from-purple-600 to-pink-600" },
+              { name: "AI Image Generator", desc: "25+ models including Flux Pro, Kling 3.0, GPT Image 2, SDXL", href: "/generate", icon: "🎨", gradient: "from-purple-600 to-pink-600" },
               { name: "Prompt Battle", desc: "Challenge friends to AI art duels — vote for the winner!", href: "/battle", icon: "⚔️", gradient: "from-red-600 to-orange-600" },
               { name: "Photo Booth", desc: "Selfie → professional portrait for LinkedIn, dating, social", href: "/photo-booth", icon: "📸", gradient: "from-green-600 to-emerald-600" },
               { name: "Logo Maker", desc: "Brand name → 3 professional logo variations instantly", href: "/logo", icon: "✏️", gradient: "from-violet-600 to-purple-600" },
@@ -474,7 +474,7 @@ export default function LandingPage() {
           <h2 className="text-3xl font-bold text-center mb-10">Frequently Asked Questions</h2>
           <div className="max-w-3xl mx-auto space-y-4">
             {[
-              { q: "Is EGAKU AI free to use?", a: "Yes. 50 free credits/month + daily login bonus. Free plan includes image generation (Flux, SDXL) AND video generation (LTX, Wan 2.1/2.6 — up to 15 seconds). Premium models (Sora 2, Veo 3, Flux Pro, Kling 2.5) require a paid plan from ¥480/mo." },
+              { q: "Is EGAKU AI free to use?", a: "Yes. 50 free credits/month + daily login bonus. Free plan includes image generation (Flux, SDXL) AND video generation (LTX, Wan 2.1/2.6 — up to 15 seconds). Premium models (Veo 3, Flux Pro, Kling 3.0, GPT Image 2) require a paid plan from ¥480/mo." },
               { q: "What AI models are available?", a: "We offer 20+ models including Flux Dev, Flux Pro, SDXL, Ideogram v3, Luma Photon, Nano Banana 2, Grok Imagine, and video models like Kling 2.5, Luma Dream Machine, and more. New models are added regularly." },
               { q: "Can I use CivitAI models?", a: "Yes. Basic plan and above can use CivitAI checkpoint models. Browse and search models directly from the generate page." },
               { q: "What tools are included?", a: "Image generation, video generation, Photo Booth, Logo Maker, Meme Generator, Wallpaper Generator, Video Shorts, Storyboard Studio, Face Swap, Character Lock, Style Transfer, Upscale, Background Removal, Inpainting, ControlNet, and Prompt Battle." },
@@ -598,7 +598,7 @@ export default function LandingPage() {
             </div>
             <div className="border-t pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
               <p>&copy; {new Date().getFullYear()} EGAKU AI. {t("footer.rights")}</p>
-              <p className="text-[10px]">Powered by Flux, Sora 2, Veo 3, Kling, SDXL, and 25+ AI models.</p>
+              <p className="text-[10px]">Powered by Flux, Kling 3.0, Veo 3, GPT Image 2, SDXL, and 25+ AI models.</p>
             </div>
           </div>
         </footer>
