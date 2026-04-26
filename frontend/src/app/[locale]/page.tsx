@@ -241,56 +241,55 @@ export default function LandingPage() {
 
         {/* Features */}
         <section className="container mx-auto px-4 py-16">
-          <h2 className="text-3xl font-bold text-center mb-12">
+          <h2 className="text-3xl font-bold text-center mb-4">
             {t("features.title")}
           </h2>
+          <p className="text-sm text-muted-foreground text-center mb-10">Click any feature to try it.</p>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {featureKeys.map((key) => {
-              const href =
-                key === "vid2vid" ? "/vid2vid" :
-                key === "lipSync" ? "/lip-sync" :
-                key === "talkingAvatar" ? "/talking-avatar" :
-                key === "loraTraining" ? "/lora-train" :
-                key === "characterVideo" ? "/character-video" :
-                key === "voiceClone" ? "/voice-clone" :
-                key === "txt2vid" || key === "img2vid" ? "/generate" :
-                key === "apiAccess" ? "/settings" :
-                "/generate";
+              const hrefMap: Record<string, string> = {
+                txt2img: "/generate",
+                img2img: "/generate?remix_mode=img2img",
+                style: "/generate?remix_mode=style",
+                txt2vid: "/generate",
+                img2vid: "/generate?remix_mode=i2v",
+                vid2vid: "/vid2vid",
+                lipSync: "/lip-sync",
+                talkingAvatar: "/talking-avatar",
+                loraTraining: "/lora-train",
+                characterVideo: "/character-video",
+                voiceClone: "/voice-clone",
+                upscale: "/generate",
+                inpaint: "/generate",
+                controlnet: "/generate",
+                removeBg: "/generate",
+                customModels: "/generate",
+                apiAccess: "/settings",
+              };
+              const href = hrefMap[key] || "/generate";
+              const badgeMap: Record<string, string> = {
+                vid2vid: "NEW",
+                lipSync: "NEW",
+                talkingAvatar: "NEW",
+                loraTraining: "NEW · Pro",
+                characterVideo: "NEW",
+                voiceClone: "NEW",
+                apiAccess: "Studio",
+              };
+              const badge = badgeMap[key];
               return (
                 <Link key={key} href={href}>
-                  <Card className="h-full hover:border-purple-500/50 transition-colors">
+                  <Card className="h-full hover:border-purple-500/50 transition-colors group cursor-pointer">
                     <CardHeader className="pb-2">
-                      <CardTitle className="text-base">
-                        {t(`features.${key}.title`)}
-                      </CardTitle>
-                      {key === "vid2vid" && (
+                      <div className="flex items-center justify-between">
+                        <CardTitle className="text-base group-hover:text-purple-400 transition-colors">
+                          {t(`features.${key}.title`)}
+                        </CardTitle>
+                        <span className="text-xs text-muted-foreground group-hover:text-purple-400 transition-colors">→</span>
+                      </div>
+                      {badge && (
                         <Badge variant="outline" className="w-fit text-[10px] border-purple-500 text-purple-400">
-                          New · Pro
-                        </Badge>
-                      )}
-                      {(key === "lipSync" || key === "talkingAvatar") && (
-                        <Badge variant="outline" className="w-fit text-[10px] border-purple-500 text-purple-400">
-                          New
-                        </Badge>
-                      )}
-                      {key === "loraTraining" && (
-                        <Badge variant="outline" className="w-fit text-[10px] border-purple-500 text-purple-400">
-                          NEW · Pro差別化
-                        </Badge>
-                      )}
-                      {key === "characterVideo" && (
-                        <Badge variant="outline" className="w-fit text-[10px] border-purple-500 text-purple-400">
-                          NEW
-                        </Badge>
-                      )}
-                      {key === "voiceClone" && (
-                        <Badge variant="outline" className="w-fit text-[10px] border-purple-500 text-purple-400">
-                          NEW
-                        </Badge>
-                      )}
-                      {key === "apiAccess" && (
-                        <Badge variant="outline" className="w-fit text-[10px]">
-                          Studio
+                          {badge}
                         </Badge>
                       )}
                     </CardHeader>
