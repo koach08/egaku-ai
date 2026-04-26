@@ -280,6 +280,7 @@ export default function LandingPage() {
               { name: "Wallpaper Generator", desc: "Perfect wallpapers for iPhone, Android, Desktop, 4K", href: "/wallpaper", icon: "🖼️", gradient: "from-cyan-600 to-blue-600" },
               { name: "Storyboard Studio", desc: "Multi-scene video with BGM and narration", href: "/storyboard", icon: "🎞️", gradient: "from-amber-600 to-orange-600" },
               { name: "Product Studio", desc: "Product photo → professional ad images for Amazon, Instagram, Shopify", href: "/product-studio", icon: "📦", gradient: "from-emerald-600 to-teal-600" },
+              { name: "Short Story", desc: "Story idea → AI splits into scenes → generates visuals for TikTok/Reels", href: "/short-story", icon: "📖", gradient: "from-indigo-600 to-blue-600" },
               { name: "Explore Gallery", desc: "Browse 200+ community creations, remix any prompt", href: "/gallery", icon: "🌐", gradient: "from-gray-600 to-slate-600" },
             ].map((tool) => (
               <Link
