@@ -567,4 +567,145 @@ export const ARTICLES: Article[] = [
       },
     },
   },
+
+  // ── How-to: Negative Prompts ──
+  {
+    slug: "negative-prompts-complete-guide",
+    category: "how-to",
+    tags: ["negative-prompts", "beginner", "quality", "tips"],
+    publishedAt: "2026-04-27",
+    readingTime: 4,
+    translations: {
+      en: {
+        title: "Negative Prompts: The Complete List for Better AI Images",
+        description: "Master negative prompts to dramatically improve your AI-generated images. Copy-paste ready lists for photorealistic, anime, and artistic styles.",
+        sections: [
+          { heading: "Why Negative Prompts Matter", content: `<p>Negative prompts tell the AI what to <em>avoid</em>. Without them, you'll often get: extra fingers, distorted faces, blurry backgrounds, and unwanted text. A good negative prompt is as important as the main prompt.</p>` },
+          { heading: "Universal Negative Prompt (Copy This)", content: `<p>Works with almost any model:</p><p><code>worst quality, low quality, blurry, deformed, ugly, bad anatomy, bad hands, extra fingers, missing fingers, extra limbs, disfigured, poorly drawn face, mutated, bad proportions, gross proportions, text, watermark, signature, username</code></p>` },
+          { heading: "For Photorealistic Images", content: `<p><code>worst quality, low quality, blurry, deformed, ugly, bad anatomy, bad hands, extra fingers, missing fingers, cartoon, anime, illustration, painting, drawing, CGI, 3D render, overexposed, underexposed, oversaturated, grainy noise, cropped, out of frame, text, watermark</code></p>` },
+          { heading: "For Anime / Illustration", content: `<p><code>worst quality, low quality, blurry, bad anatomy, extra fingers, poorly drawn hands, poorly drawn face, mutation, deformed, ugly, photorealistic, 3D, CGI, sketch, rough, monochrome, text, watermark, signature</code></p>` },
+          { heading: "For Product Photography", content: `<p><code>worst quality, low quality, blurry, distorted product, wrong colors, shadows on product, busy background, text overlay, watermark, people, hands, multiple products, cluttered, low resolution</code></p>` },
+          { heading: "Pro Tips", content: `<ul><li>Use <code>(keyword:1.3)</code> to emphasize avoidance of specific problems (SDXL/CivitAI models)</li><li>Flux models respond less to negative prompts — focus on the positive prompt instead</li><li>Don't make negative prompts too long — 30-50 words is optimal</li><li>If faces look wrong, add <code>bad face, asymmetric eyes, cross-eyed</code></li></ul>` },
+        ],
+      },
+      ja: {
+        title: "ネガティブプロンプト完全ガイド：AI画像を劇的に改善",
+        description: "ネガティブプロンプトでAI生成画像を改善。フォトリアル、アニメ、商品撮影向けのコピペ用リスト。",
+        sections: [
+          { heading: "なぜネガティブプロンプトが重要か", content: `<p>ネガティブプロンプトはAIに「避けるべきこと」を指示します。指定しないと、余分な指、歪んだ顔、ぼやけた背景、不要なテキストが出やすくなります。</p>` },
+          { heading: "万能ネガティブプロンプト（コピペ用）", content: `<p><code>worst quality, low quality, blurry, deformed, ugly, bad anatomy, bad hands, extra fingers, missing fingers, extra limbs, disfigured, poorly drawn face, mutated, text, watermark</code></p>` },
+          { heading: "フォトリアル用", content: `<p><code>worst quality, low quality, blurry, deformed, cartoon, anime, illustration, painting, CGI, 3D render, overexposed, undersaturated, grainy, cropped, text, watermark</code></p>` },
+          { heading: "アニメ・イラスト用", content: `<p><code>worst quality, low quality, blurry, bad anatomy, extra fingers, poorly drawn hands, photorealistic, 3D, CGI, sketch, monochrome, text, watermark</code></p>` },
+          { heading: "コツ", content: `<ul><li>SDXL/CivitAIモデルでは<code>(keyword:1.3)</code>で強調可能</li><li>Fluxモデルはネガティブプロンプトの影響が小さい — ポジティブプロンプトに集中</li><li>長すぎない方が良い（30-50語が最適）</li></ul>` },
+        ],
+      },
+      es: {
+        title: "Prompts Negativos: Guía Completa para Mejores Imágenes IA",
+        description: "Domina los prompts negativos para mejorar tus imágenes de IA. Listas listas para copiar y pegar.",
+        sections: [
+          { heading: "Por Qué Importan los Prompts Negativos", content: `<p>Los prompts negativos le dicen a la IA qué <em>evitar</em>. Sin ellos, a menudo obtendrás: dedos extra, caras distorsionadas, fondos borrosos y texto no deseado.</p>` },
+          { heading: "Prompt Negativo Universal (Copia Esto)", content: `<p><code>worst quality, low quality, blurry, deformed, ugly, bad anatomy, bad hands, extra fingers, missing fingers, text, watermark</code></p>` },
+          { heading: "Consejos", content: `<ul><li>Usa <code>(keyword:1.3)</code> para enfatizar en modelos SDXL/CivitAI</li><li>Los modelos Flux responden menos a prompts negativos</li><li>No hagas prompts negativos demasiado largos (30-50 palabras)</li></ul>` },
+        ],
+      },
+      zh: {
+        title: "负面提示词完全指南：大幅提升AI图像质量",
+        description: "掌握负面提示词，显著改善AI生成图像。提供可直接复制的列表。",
+        sections: [
+          { heading: "为什么负面提示词很重要", content: `<p>负面提示词告诉AI要<em>避免</em>什么。没有它们，你经常会得到：多余的手指、扭曲的面部、模糊的背景和不需要的文字。</p>` },
+          { heading: "通用负面提示词（直接复制）", content: `<p><code>worst quality, low quality, blurry, deformed, ugly, bad anatomy, bad hands, extra fingers, missing fingers, text, watermark</code></p>` },
+          { heading: "技巧", content: `<ul><li>SDXL/CivitAI模型中使用<code>(keyword:1.3)</code>加强效果</li><li>Flux模型对负面提示词反应较小——专注于正面提示词</li></ul>` },
+        ],
+      },
+    },
+  },
+
+  // ── Guide: Image-to-Video ──
+  {
+    slug: "image-to-video-guide-animate-photos",
+    category: "guide",
+    tags: ["img2vid", "video", "animation", "kling", "wan"],
+    publishedAt: "2026-04-27",
+    readingTime: 4,
+    translations: {
+      en: {
+        title: "Image-to-Video Guide: Animate Any Photo with AI",
+        description: "Turn still photos into videos with AI. Complete guide to image-to-video generation using Kling 3.0, Wan 2.6, and more.",
+        sections: [
+          { heading: "What is Image-to-Video?", content: `<p>Image-to-Video (I2V) takes a still image and brings it to life — adding motion, camera movement, and animation while keeping the original image's composition. It's like giving a photograph the ability to move.</p><p>Use cases: animate product photos, bring artwork to life, create social media content, turn portraits into dynamic videos.</p>` },
+          { heading: "Two Modes: Animate vs Reimagine", content: `<p><strong>Animate mode:</strong> Keeps the image mostly intact and adds subtle motion. Good for: product demos, portrait animations, nature scenes. The AI respects the original composition.</p><p><strong>Reimagine mode:</strong> Uses the image as a starting point but takes more creative liberty. Good for: artistic transformations, dramatic effects, style changes.</p>` },
+          { heading: "Best Models for I2V", content: `<table><tr><th>Model</th><th>Quality</th><th>Duration</th><th>Free?</th></tr><tr><td><strong>Kling 3.0</strong></td><td>4K Cinematic</td><td>5-10s</td><td>Pro</td></tr><tr><td><strong>Kling 2.5</strong></td><td>HD</td><td>5-10s</td><td>Basic+</td></tr><tr><td><strong>Wan 2.6</strong></td><td>720-1080p</td><td>5-15s</td><td>Free</td></tr><tr><td><strong>Wan 2.1</strong></td><td>720p</td><td>~5s</td><td>Free</td></tr></table>` },
+          { heading: "Tips for Best Results", content: `<ul><li><strong>Start with a high-quality image.</strong> Generate with Flux Pro first, then animate with Kling 3.0.</li><li><strong>Add a motion prompt.</strong> Describe what should move: "camera slowly pans right", "hair blowing in wind", "water ripples".</li><li><strong>Keep it simple.</strong> One main motion works better than complex multi-action scenes.</li><li><strong>Match the model to the content.</strong> Kling for cinematic, Wan for longer/free videos.</li></ul>` },
+          { heading: "How to Do It on EGAKU AI", content: `<ol><li>Go to <a href="/generate">Generate</a> → <strong>Img2Vid</strong> tab</li><li>Upload your image</li><li>Choose a model (Wan 2.6 is free)</li><li>Add a motion prompt (optional but recommended)</li><li>Select Animate or Reimagine mode</li><li>Generate!</li></ol><p>You can also use the <strong>Gallery Remix</strong> feature — click any image in the Explore gallery and select "Img2Vid" to animate it.</p>` },
+        ],
+      },
+      ja: {
+        title: "Image-to-Videoガイド：写真をAIで動画にする方法",
+        description: "静止画をAIで動画に変換。Kling 3.0、Wan 2.6を使った完全ガイド。",
+        sections: [
+          { heading: "Image-to-Videoとは？", content: `<p>Image-to-Video（I2V）は静止画に動きを加えて動画にする技術です。写真が動き出すイメージ。商品写真のアニメーション、アートワークの動画化、SNSコンテンツ作成に。</p>` },
+          { heading: "2つのモード", content: `<p><strong>Animate：</strong> 元画像を維持しつつ微妙な動きを追加。商品デモ、ポートレートに。</p><p><strong>Reimagine：</strong> 画像を出発点にしつつ創造的な変換。芸術的エフェクト、スタイル変更に。</p>` },
+          { heading: "モデル選び", content: `<p>Kling 3.0: 4K映画品質（Pro）/ Wan 2.6: 最長15秒（無料）/ Wan 2.1: ~5秒（無料）</p>` },
+          { heading: "コツ", content: `<ul><li>高品質な画像から始める（Flux Proで生成→Kling 3.0でアニメーション化）</li><li>動きのプロンプトを追加（「カメラがゆっくり右にパン」「髪が風に揺れる」）</li><li>シンプルに。1つの主要な動きが最も効果的</li></ul>` },
+          { heading: "EGAKU AIでの使い方", content: `<ol><li><a href="/generate">Generate</a> → Img2Vidタブ</li><li>画像アップロード</li><li>モデル選択（Wan 2.6は無料）</li><li>動きのプロンプト入力</li><li>生成！</li></ol><p>Exploreギャラリーの画像から「Img2Vid」ボタンで直接アニメーション化も可能。</p>` },
+        ],
+      },
+      es: {
+        title: "Guía Image-to-Video: Anima Cualquier Foto con IA",
+        description: "Convierte fotos en videos con IA. Guía completa usando Kling 3.0, Wan 2.6 y más.",
+        sections: [
+          { heading: "¿Qué es Image-to-Video?", content: `<p>Image-to-Video (I2V) toma una imagen fija y le da vida — añadiendo movimiento y animación manteniendo la composición original.</p>` },
+          { heading: "Mejores Modelos", content: `<p>Kling 3.0: Calidad 4K (Pro) / Wan 2.6: Hasta 15s (Gratis) / Wan 2.1: ~5s (Gratis)</p>` },
+          { heading: "Consejos", content: `<ul><li>Empieza con una imagen de alta calidad</li><li>Añade un prompt de movimiento: "la cámara se mueve lentamente a la derecha"</li><li>Mantenlo simple — un movimiento principal funciona mejor</li></ul>` },
+        ],
+      },
+    },
+  },
+
+  // ── Guide: Product Photography with AI ──
+  {
+    slug: "ai-product-photography-guide",
+    category: "guide",
+    tags: ["product", "ecommerce", "photography", "marketing", "instagram"],
+    publishedAt: "2026-04-27",
+    readingTime: 5,
+    translations: {
+      en: {
+        title: "AI Product Photography: Professional Ad Images Without a Studio",
+        description: "Create professional product photos with AI. No studio, no photographer needed. Perfect for Amazon, Shopify, Instagram sellers.",
+        sections: [
+          { heading: "Why AI Product Photography?", content: `<p>Professional product photography typically costs $50-500 per product. Studio rental, photographer, lighting equipment, post-production — it adds up fast. AI product photography gives you the same results in seconds for a fraction of the cost.</p><p>Perfect for: Amazon sellers, Shopify stores, Instagram marketers, small businesses, dropshippers.</p>` },
+          { heading: "How It Works on EGAKU AI", content: `<ol><li>Go to <a href="/product-studio">Product Studio</a></li><li><strong>Upload</strong> your product photo (even a smartphone photo works)</li><li><strong>Remove background</strong> — AI cleanly extracts just the product</li><li><strong>Choose a scene</strong> — Clean White, Marble Surface, Lifestyle, Nature, Neon Glow, Gradient, Holiday</li><li><strong>Generate</strong> — AI creates 3 professional variations</li><li><strong>Download</strong> and use anywhere</li></ol>` },
+          { heading: "Scene Presets Explained", content: `<ul><li><strong>Clean White:</strong> The Amazon/eBay standard. Pure white background, studio lighting.</li><li><strong>Marble Surface:</strong> Luxury aesthetic. Great for cosmetics, jewelry, premium products.</li><li><strong>Lifestyle:</strong> Cozy setting with natural light. Perfect for Instagram, Etsy.</li><li><strong>Nature:</strong> Organic, outdoor feel. Great for eco-friendly products, food.</li><li><strong>Neon Glow:</strong> Futuristic tech aesthetic. Great for electronics, gadgets.</li><li><strong>Gradient:</strong> Modern, clean. Great for cosmetics, fashion accessories.</li><li><strong>Holiday:</strong> Seasonal marketing. Festive decorations, warm golden bokeh.</li></ul>` },
+          { heading: "Tips for Best Results", content: `<ul><li><strong>Start with a clear photo.</strong> Good lighting and a simple background help the AI extract your product cleanly.</li><li><strong>Try multiple scenes.</strong> You get 3 variations per generation — compare and pick the best.</li><li><strong>Add a product name.</strong> Telling the AI "ceramic coffee mug" or "leather handbag" helps it create more appropriate backgrounds.</li><li><strong>Use for A/B testing.</strong> Generate different scenes and test which converts better on your store.</li></ul>` },
+          { heading: "Cost Comparison", content: `<table><tr><th>Method</th><th>Cost per Product</th><th>Time</th></tr><tr><td>Traditional Studio</td><td>$50-500</td><td>1-5 days</td></tr><tr><td>Freelance Photographer</td><td>$20-100</td><td>2-7 days</td></tr><tr><td><strong>EGAKU AI Product Studio</strong></td><td><strong>3 credits (~¥60)</strong></td><td><strong>30 seconds</strong></td></tr></table>` },
+        ],
+      },
+      ja: {
+        title: "AI商品撮影ガイド：スタジオなしでプロの広告画像を作る",
+        description: "AIで商品写真をプロ品質に。スタジオ不要、カメラマン不要。Amazon、Shopify、Instagram出品者に最適。",
+        sections: [
+          { heading: "なぜAI商品撮影？", content: `<p>プロの商品撮影は通常1商品あたり5,000-50,000円。スタジオ代、カメラマン、照明機材、後処理。AIなら数秒で同等の結果。</p><p>最適な用途：Amazon出品者、Shopifyストア、Instagramマーケター、中小企業。</p>` },
+          { heading: "EGAKU AIでの使い方", content: `<ol><li><a href="/product-studio">Product Studio</a>にアクセス</li><li>商品写真をアップロード（スマホ写真でOK）</li><li>背景自動除去</li><li>シーン選択（白背景、大理石、ライフスタイル、自然、ネオン等）</li><li>3パターン自動生成</li><li>ダウンロードして使用</li></ol>` },
+          { heading: "コスト比較", content: `<p>従来のスタジオ: ¥5,000-50,000/商品 / フリーランス: ¥2,000-10,000 / <strong>EGAKU AI: 3クレジット（約¥60）</strong></p>` },
+        ],
+      },
+      es: {
+        title: "Fotografía de Productos con IA: Imágenes Profesionales Sin Estudio",
+        description: "Crea fotos profesionales de productos con IA. Sin estudio ni fotógrafo. Perfecto para Amazon, Shopify, Instagram.",
+        sections: [
+          { heading: "¿Por Qué Fotografía de Productos con IA?", content: `<p>La fotografía profesional de productos cuesta $50-500 por producto. Con IA obtienes los mismos resultados en segundos.</p>` },
+          { heading: "Cómo Funciona", content: `<ol><li>Sube tu foto del producto</li><li>Elimina el fondo automáticamente</li><li>Elige una escena (blanco, mármol, lifestyle, naturaleza, neón)</li><li>Genera 3 variaciones profesionales</li></ol>` },
+        ],
+      },
+      zh: {
+        title: "AI产品摄影指南：无需摄影棚的专业广告图片",
+        description: "用AI创建专业产品照片。无需摄影棚和摄影师。适合亚马逊、Shopify、Instagram卖家。",
+        sections: [
+          { heading: "为什么选择AI产品摄影？", content: `<p>专业产品摄影通常每件产品需要50-500美元。AI可以在几秒钟内以极低成本获得同等效果。</p>` },
+          { heading: "使用方法", content: `<ol><li>上传产品照片</li><li>AI自动去除背景</li><li>选择场景（纯白、大理石、生活方式、自然等）</li><li>生成3种专业变体</li></ol>` },
+        ],
+      },
+    },
+  },
 ];
