@@ -179,6 +179,18 @@ export const api = {
       headers: authHeaders(token),
       body: JSON.stringify(params),
     }),
+  outpaint: (token: string, params: Record<string, unknown>) =>
+    fetchAPI("/generate/outpaint", {
+      method: "POST",
+      headers: authHeaders(token),
+      body: JSON.stringify(params),
+    }),
+  bgChange: (token: string, params: Record<string, unknown>) =>
+    fetchAPI("/generate/bg-change", {
+      method: "POST",
+      headers: authHeaders(token),
+      body: JSON.stringify(params),
+    }),
   styleTransfer: (token: string, params: Record<string, unknown>) =>
     fetchAPI("/generate/style-transfer", {
       method: "POST",

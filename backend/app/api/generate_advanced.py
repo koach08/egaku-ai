@@ -76,6 +76,81 @@ STYLE_PRESETS = {
         "negative": "photorealistic, 3d, modern",
         "denoise": 0.7,
     },
+    "monet": {
+        "prompt": "Claude Monet impressionist painting, soft brushstrokes, light and color, plein air, water lilies aesthetic",
+        "negative": "sharp lines, digital, anime, dark",
+        "denoise": 0.65,
+    },
+    "van_gogh": {
+        "prompt": "Vincent van Gogh style, swirling brushstrokes, bold colors, post-impressionist, starry night aesthetic",
+        "negative": "flat, digital, photorealistic, clean lines",
+        "denoise": 0.7,
+    },
+    "da_vinci": {
+        "prompt": "Leonardo da Vinci style, Renaissance masterpiece, sfumato technique, warm earth tones, classical composition",
+        "negative": "modern, digital, anime, bright neon",
+        "denoise": 0.65,
+    },
+    "picasso": {
+        "prompt": "Pablo Picasso cubist style, geometric shapes, abstract faces, bold colors, multiple perspectives",
+        "negative": "photorealistic, smooth, natural proportions",
+        "denoise": 0.75,
+    },
+    "dali": {
+        "prompt": "Salvador Dali surrealist style, melting objects, dreamlike landscape, bizarre proportions, hyperrealistic surrealism",
+        "negative": "normal, realistic proportions, mundane",
+        "denoise": 0.7,
+    },
+    "cartoon": {
+        "prompt": "cartoon style, clean vector lines, bright flat colors, exaggerated features, Disney Pixar aesthetic",
+        "negative": "photorealistic, dark, gritty, detailed texture",
+        "denoise": 0.7,
+    },
+    "3d_render": {
+        "prompt": "3D rendered, octane render, subsurface scattering, ray tracing, cinema 4D, Pixar quality, smooth plastic",
+        "negative": "flat, 2D, sketch, watercolor",
+        "denoise": 0.7,
+    },
+    "origami": {
+        "prompt": "origami paper art style, folded paper, geometric, clean creases, white paper with shadows, minimalist",
+        "negative": "photorealistic, painted, digital, flat",
+        "denoise": 0.75,
+    },
+    "embroidery": {
+        "prompt": "embroidery textile art, cross-stitch, thread texture, fabric background, handcrafted needlework, detailed stitching",
+        "negative": "smooth, digital, photorealistic, flat",
+        "denoise": 0.75,
+    },
+    "sculpture": {
+        "prompt": "marble sculpture, classical Greek Roman style, white stone, museum lighting, smooth carved surface, dramatic shadows",
+        "negative": "colorful, painted, digital, flat",
+        "denoise": 0.7,
+    },
+    "retro": {
+        "prompt": "retro vintage style, 1970s colors, film grain, faded warm tones, analog photography aesthetic, nostalgic",
+        "negative": "modern, digital, clean, sharp, HDR",
+        "denoise": 0.6,
+    },
+    "glass": {
+        "prompt": "stained glass art style, vibrant translucent colors, black lead lines, cathedral window, backlit, geometric patterns",
+        "negative": "photorealistic, muted colors, modern",
+        "denoise": 0.75,
+    },
+    "futuristic": {
+        "prompt": "futuristic sci-fi concept art, holographic, sleek metallic surfaces, blue and purple glow, advanced technology, clean design",
+        "negative": "old, rustic, natural, vintage",
+        "denoise": 0.7,
+    },
+    "pottery": {
+        "prompt": "ceramic pottery art style, hand-thrown clay, glazed surface, kiln-fired, earth tones, artisan crafted, Japanese wabi-sabi",
+        "negative": "digital, flat, sharp lines, modern",
+        "denoise": 0.75,
+    },
+    "drawing": {
+        "prompt": "pencil drawing, graphite sketch, fine hatching, paper texture, detailed linework, charcoal shading, monochrome",
+        "negative": "color, painted, digital, smooth",
+        "denoise": 0.65,
+    },
 }
 
 
@@ -1324,13 +1399,212 @@ async def list_styles():
     """List available style presets for style transfer."""
     return {
         "styles": [
-            {"id": "ghibli", "name": "Studio Ghibli", "description": "Miyazaki-inspired hand-painted anime"},
-            {"id": "anime", "name": "Anime", "description": "Clean anime cel-shading style"},
-            {"id": "oil_painting", "name": "Oil Painting", "description": "Classical oil painting with thick brushstrokes"},
-            {"id": "watercolor", "name": "Watercolor", "description": "Soft watercolor washes on paper"},
-            {"id": "cyberpunk", "name": "Cyberpunk", "description": "Neon-lit futuristic sci-fi style"},
-            {"id": "pixel_art", "name": "Pixel Art", "description": "Retro 16-bit game style"},
-            {"id": "comic", "name": "Comic Book", "description": "Bold comic style with halftone dots"},
-            {"id": "ukiyoe", "name": "Ukiyo-e", "description": "Japanese woodblock print style"},
+            {"id": k, "name": k.replace("_", " ").title()}
+            for k in STYLE_PRESETS
         ]
     }
+
+
+# ─── Outpainting (Canvas Expansion) ───
+
+class OutpaintRequest(BaseModel):
+    image: str = ""  # base64 encoded
+    prompt: str = ""
+    direction: str = "all"  # all, left, right, up, down
+    expand_pixels: int = Field(256, ge=64, le=1024)
+    seed: int = -1
+
+
+@router.post("/outpaint", response_model=GenerationResponse)
+async def outpaint(
+    body: OutpaintRequest,
+    request: Request,
+    settings: Settings = Depends(get_settings),
+):
+    """Extend an image beyond its borders (outpainting).
+    Uses fal-ai/flux-general/inpainting with expanded canvas + mask.
+    """
+    user, profile, supabase = await _auth_and_profile(request, settings)
+
+    if not body.image:
+        raise HTTPException(status_code=400, detail="Input image required")
+
+    from app.services.supabase import deduct_credits
+    credits_needed = 3
+    success = await deduct_credits(supabase, user.id, credits_needed, "Outpainting")
+    if not success:
+        raise HTTPException(status_code=402, detail="Insufficient credits")
+
+    job_id = str(uuid.uuid4())
+
+    # Expand canvas and create mask
+    import io
+    from PIL import Image
+
+    img_data = base64.b64decode(body.image if not body.image.startswith("data:") else body.image.split(",")[1])
+    img = Image.open(io.BytesIO(img_data)).convert("RGB")
+    orig_w, orig_h = img.size
+    expand = body.expand_pixels
+
+    # Calculate new dimensions based on direction
+    pad = {"left": 0, "right": 0, "top": 0, "bottom": 0}
+    if body.direction == "all":
+        pad = {"left": expand, "right": expand, "top": expand, "bottom": expand}
+    elif body.direction == "left":
+        pad["left"] = expand
+    elif body.direction == "right":
+        pad["right"] = expand
+    elif body.direction == "up":
+        pad["top"] = expand
+    elif body.direction == "down":
+        pad["bottom"] = expand
+
+    new_w = orig_w + pad["left"] + pad["right"]
+    new_h = orig_h + pad["top"] + pad["bottom"]
+
+    # Create expanded canvas (white background)
+    expanded = Image.new("RGB", (new_w, new_h), (255, 255, 255))
+    expanded.paste(img, (pad["left"], pad["top"]))
+
+    # Create mask (white = inpaint, black = keep)
+    mask = Image.new("RGB", (new_w, new_h), (255, 255, 255))
+    mask.paste(Image.new("RGB", (orig_w, orig_h), (0, 0, 0)), (pad["left"], pad["top"]))
+
+    # Convert to base64
+    def img_to_b64(pil_img: Image.Image) -> str:
+        buf = io.BytesIO()
+        pil_img.save(buf, format="PNG")
+        return f"data:image/png;base64,{base64.b64encode(buf.getvalue()).decode()}"
+
+    expanded_b64 = img_to_b64(expanded)
+    mask_b64 = img_to_b64(mask)
+
+    # Use fal.ai inpainting for outpaint
+    from app.services.fal_ai import FalClient
+    fal_client = FalClient(settings)
+
+    if fal_client.is_available():
+        try:
+            result = await fal_client.submit_inpaint(
+                prompt=body.prompt or "seamless continuation of the scene, high quality, detailed",
+                image_url=expanded_b64,
+                mask_url=mask_b64,
+                width=new_w,
+                height=new_h,
+                steps=25,
+                cfg=7.0,
+                seed=body.seed,
+                negative_prompt="blurry, low quality, seam, border, edge artifact",
+            )
+            img_url = fal_client.extract_image_url(result)
+            if img_url:
+                from app.api.generate import _save_generation_to_db, _store_job_status
+                plan = profile["plan"]
+                await _store_job_status(settings, job_id, "completed", {"url": img_url, "backend": "fal"})
+                await _save_generation_to_db(
+                    settings, str(user.id), job_id, "outpaint", body.prompt or "outpaint",
+                    "", "flux-inpaint", {"direction": body.direction, "expand": expand},
+                    img_url, False, user_plan=plan,
+                )
+                return GenerationResponse(
+                    job_id=job_id, status=JobStatus.completed,
+                    credits_used=credits_needed, result_url=img_url,
+                )
+        except Exception as e:
+            logger.error(f"Outpaint failed: {e}")
+
+    raise HTTPException(status_code=503, detail="Outpainting service unavailable")
+
+
+# ─── Background Change (Remove + Replace) ───
+
+class BgChangeRequest(BaseModel):
+    image: str = ""  # base64
+    new_background: str = ""  # prompt describing the new background
+    seed: int = -1
+
+
+@router.post("/bg-change", response_model=GenerationResponse)
+async def change_background(
+    body: BgChangeRequest,
+    request: Request,
+    settings: Settings = Depends(get_settings),
+):
+    """Remove background and replace with AI-generated scene."""
+    user, profile, supabase = await _auth_and_profile(request, settings)
+
+    if not body.image:
+        raise HTTPException(status_code=400, detail="Input image required")
+    if not body.new_background:
+        raise HTTPException(status_code=400, detail="New background description required")
+
+    from app.services.supabase import deduct_credits
+    credits_needed = 3
+    success = await deduct_credits(supabase, user.id, credits_needed, "Background change")
+    if not success:
+        raise HTTPException(status_code=402, detail="Insufficient credits")
+
+    job_id = str(uuid.uuid4())
+
+    from app.services.fal_ai import FalClient
+    fal_client = FalClient(settings)
+
+    if not fal_client.is_available():
+        raise HTTPException(status_code=503, detail="Service unavailable")
+
+    image_url = _b64_to_data_url(body.image)
+
+    try:
+        # Step 1: Remove background
+        rembg_result = await fal_client.submit_remove_bg(image_url=image_url)
+        nobg_url = fal_client.extract_image_url(rembg_result)
+        if not nobg_url:
+            raise RuntimeError("Background removal failed")
+
+        # Step 2: Generate new background + composite via img2img
+        # Use the no-bg image with the new background prompt
+        import io
+        from PIL import Image
+        import httpx as httpx_mod
+
+        async with httpx_mod.AsyncClient(timeout=30) as client:
+            resp = await client.get(nobg_url)
+            resp.raise_for_status()
+            fg_data = resp.content
+
+        fg_img = Image.open(io.BytesIO(fg_data)).convert("RGBA")
+        w, h = fg_img.size
+
+        # Create composited image: new bg prompt with subject overlay
+        composite_prompt = f"{body.new_background}, with the main subject in the foreground, professional composition, high quality"
+
+        result = await fal_client.submit_img2img(
+            prompt=composite_prompt,
+            image_url=f"data:image/png;base64,{base64.b64encode(fg_data).decode()}",
+            strength=0.75,
+            width=w,
+            height=h,
+            steps=25,
+            cfg=7.0,
+            seed=body.seed,
+            negative_prompt="blurry, low quality, deformed",
+        )
+
+        img_url = fal_client.extract_image_url(result)
+        if img_url:
+            from app.api.generate import _save_generation_to_db, _store_job_status
+            plan = profile["plan"]
+            await _store_job_status(settings, job_id, "completed", {"url": img_url, "backend": "fal"})
+            await _save_generation_to_db(
+                settings, str(user.id), job_id, "bg_change", body.new_background,
+                "", "flux-img2img", {"background": body.new_background},
+                img_url, False, user_plan=plan,
+            )
+            return GenerationResponse(
+                job_id=job_id, status=JobStatus.completed,
+                credits_used=credits_needed, result_url=img_url,
+            )
+    except Exception as e:
+        logger.error(f"Background change failed: {e}")
+
+    raise HTTPException(status_code=503, detail="Background change failed")

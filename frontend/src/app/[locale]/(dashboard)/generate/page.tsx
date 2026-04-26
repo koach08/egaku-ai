@@ -59,6 +59,21 @@ const STYLES = [
   { id: "pixel_art", name: "Pixel Art" },
   { id: "comic", name: "Comic Book" },
   { id: "ukiyoe", name: "Ukiyo-e" },
+  { id: "monet", name: "Monet" },
+  { id: "van_gogh", name: "Van Gogh" },
+  { id: "da_vinci", name: "Da Vinci" },
+  { id: "picasso", name: "Picasso" },
+  { id: "dali", name: "Dalí" },
+  { id: "cartoon", name: "Cartoon" },
+  { id: "3d_render", name: "3D Render" },
+  { id: "origami", name: "Origami" },
+  { id: "embroidery", name: "Embroidery" },
+  { id: "sculpture", name: "Sculpture" },
+  { id: "retro", name: "Retro / Vintage" },
+  { id: "glass", name: "Stained Glass" },
+  { id: "futuristic", name: "Futuristic" },
+  { id: "pottery", name: "Pottery" },
+  { id: "drawing", name: "Pencil Drawing" },
 ];
 
 const CONTROL_TYPES = [
@@ -1281,6 +1296,12 @@ export default function GeneratePage() {
                   <TabsTrigger value="character" className="text-xs px-3 py-1.5 h-auto">
                     Character Lock
                   </TabsTrigger>
+                  <TabsTrigger value="outpaint" className="text-xs px-3 py-1.5 h-auto">
+                    Outpaint
+                  </TabsTrigger>
+                  <TabsTrigger value="bgchange" className="text-xs px-3 py-1.5 h-auto">
+                    BG Change
+                  </TabsTrigger>
                   <TabsTrigger value="compare" className="text-xs px-3 py-1.5 h-auto">
                     Compare
                   </TabsTrigger>
@@ -1595,6 +1616,103 @@ export default function GeneratePage() {
                 {renderImageUpload()}
                 <Button onClick={handleRemoveBg} disabled={generating} className="w-full" size="lg">
                   {generating ? "Processing..." : "Remove Background (1 credit)"}
+                </Button>
+              </TabsContent>
+
+              {/* Outpainting */}
+              <TabsContent value="outpaint" className="space-y-4">
+                <div className="rounded-lg border border-dashed p-3 bg-muted/30">
+                  <p className="text-xs text-muted-foreground">Extend your image beyond its borders. Upload an image, choose direction, and AI fills in the rest.</p>
+                </div>
+                <div>
+                  <Label className="text-xs">Upload Image</Label>
+                  <Input type="file" accept="image/*" onChange={handleImageSelect} className="mt-1" />
+                  {inputImagePreview && <img src={inputImagePreview} alt="Input" className="mt-2 max-h-48 rounded-lg" />}
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <Label className="text-xs">Direction</Label>
+                    <Select defaultValue="all" onValueChange={() => {}}>
+                      <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All sides</SelectItem>
+                        <SelectItem value="left">Left</SelectItem>
+                        <SelectItem value="right">Right</SelectItem>
+                        <SelectItem value="up">Up</SelectItem>
+                        <SelectItem value="down">Down</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="text-xs">Expand (px)</Label>
+                    <Input type="number" defaultValue={256} min={64} max={1024} step={64} className="mt-1" />
+                  </div>
+                </div>
+                <Textarea placeholder="Describe what should appear in the extended area (optional)" rows={2} className="text-sm" />
+                <Button
+                  className="w-full bg-gradient-to-r from-purple-600 to-pink-600"
+                  disabled={generating || !inputImage}
+                  onClick={async () => {
+                    if (!session || !inputImage) return;
+                    setGenerating(true);
+                    try {
+                      const b64 = await fileToBase64(inputImage);
+                      const res = await api.outpaint(session.access_token, {
+                        image: b64, prompt: prompt, direction: "all", expand_pixels: 256, seed: -1,
+                      });
+                      if (res.result_url) {
+                        setJob({ jobId: res.job_id, status: "completed", resultUrl: resolveResultUrl(res.result_url), progress: 1, type: "image", startedAt: Date.now() });
+                        toast.success("Outpainting complete!");
+                      }
+                    } catch (err) {
+                      toast.error(err instanceof Error ? err.message : "Outpainting failed");
+                    } finally { setGenerating(false); }
+                  }}
+                >
+                  {generating ? "Expanding..." : "Expand Image (3 credits)"}
+                </Button>
+              </TabsContent>
+
+              {/* Background Change */}
+              <TabsContent value="bgchange" className="space-y-4">
+                <div className="rounded-lg border border-dashed p-3 bg-muted/30">
+                  <p className="text-xs text-muted-foreground">Remove background and replace with an AI-generated scene. Perfect for selfies, portraits, product shots.</p>
+                </div>
+                <div>
+                  <Label className="text-xs">Upload Image</Label>
+                  <Input type="file" accept="image/*" onChange={handleImageSelect} className="mt-1" />
+                  {inputImagePreview && <img src={inputImagePreview} alt="Input" className="mt-2 max-h-48 rounded-lg" />}
+                </div>
+                <div>
+                  <Label className="text-xs">New Background</Label>
+                  <Textarea placeholder="e.g. tropical beach at sunset, modern office, snowy mountain peak, cozy coffee shop..." value={prompt} onChange={(e) => setPrompt(e.target.value)} rows={2} className="text-sm mt-1" />
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {["tropical beach sunset", "modern city skyline", "snowy mountain", "cozy cafe interior", "neon cyberpunk street", "Japanese garden", "space station", "studio white background"].map((bg) => (
+                    <button key={bg} onClick={() => setPrompt(bg)} className="text-[10px] px-2 py-1 rounded-full border border-muted hover:border-purple-500/50 transition-colors">{bg}</button>
+                  ))}
+                </div>
+                <Button
+                  className="w-full bg-gradient-to-r from-purple-600 to-pink-600"
+                  disabled={generating || !inputImage || !prompt.trim()}
+                  onClick={async () => {
+                    if (!session || !inputImage) return;
+                    setGenerating(true);
+                    try {
+                      const b64 = await fileToBase64(inputImage);
+                      const res = await api.bgChange(session.access_token, {
+                        image: b64, new_background: prompt, seed: -1,
+                      });
+                      if (res.result_url) {
+                        setJob({ jobId: res.job_id, status: "completed", resultUrl: resolveResultUrl(res.result_url), progress: 1, type: "image", startedAt: Date.now() });
+                        toast.success("Background changed!");
+                      }
+                    } catch (err) {
+                      toast.error(err instanceof Error ? err.message : "Background change failed");
+                    } finally { setGenerating(false); }
+                  }}
+                >
+                  {generating ? "Changing background..." : "Change Background (3 credits)"}
                 </Button>
               </TabsContent>
 
