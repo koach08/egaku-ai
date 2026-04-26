@@ -92,6 +92,9 @@ export function Header() {
           <Link href="/gallery" className="hover:text-foreground/80">
             {t("nav.gallery")}
           </Link>
+          <Link href="/blog" className="hover:text-foreground/80">
+            Blog
+          </Link>
           <Link href="/#pricing" className="hover:text-foreground/80">
             {t("nav.pricing")}
           </Link>
