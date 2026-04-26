@@ -90,23 +90,69 @@ export default function LandingPage() {
 
         {/* How it works */}
         <section className="container mx-auto px-4 py-16">
-          <h2 className="text-2xl font-bold text-center mb-10">How It Works</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 max-w-4xl mx-auto">
-            <div className="text-center rounded-xl border border-muted bg-card/50 p-6">
-              <div className="w-10 h-10 rounded-full bg-purple-500/10 text-purple-400 flex items-center justify-center mx-auto mb-4 text-lg font-bold">1</div>
-              <h3 className="font-semibold mb-2">Create Your Account</h3>
-              <p className="text-sm text-muted-foreground">Sign up with Google or email in 10 seconds. 50 free credits included.</p>
+          <h2 className="text-2xl font-bold text-center mb-3">How It Works</h2>
+          <p className="text-sm text-muted-foreground text-center mb-10">From idea to professional content in 3 steps.</p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-5xl mx-auto">
+            {/* Step 1 */}
+            <div className="rounded-xl border border-muted bg-card overflow-hidden hover:border-purple-500/30 transition-colors">
+              <div className="aspect-[16/9] bg-gradient-to-br from-purple-600/20 to-pink-600/20 flex items-center justify-center relative overflow-hidden">
+                <img src="/samples/flux_dev.jpg" alt="Step 1" className="w-full h-full object-cover opacity-40" />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="bg-black/60 backdrop-blur-sm rounded-lg px-4 py-2 text-center">
+                    <p className="text-xs text-white/70">Type your prompt</p>
+                    <p className="text-sm text-white font-mono">&quot;futuristic glass skyscraper...&quot;</p>
+                  </div>
+                </div>
+              </div>
+              <div className="p-5">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-7 h-7 rounded-full bg-purple-500 text-white flex items-center justify-center text-xs font-bold">1</div>
+                  <h3 className="font-semibold">Describe or Upload</h3>
+                </div>
+                <p className="text-sm text-muted-foreground">Type a prompt in any language, upload an image, or pick a one-click template. No design skills needed.</p>
+              </div>
             </div>
-            <div className="text-center rounded-xl border border-muted bg-card/50 p-6">
-              <div className="w-10 h-10 rounded-full bg-pink-500/10 text-pink-400 flex items-center justify-center mx-auto mb-4 text-lg font-bold">2</div>
-              <h3 className="font-semibold mb-2">Describe Your Vision</h3>
-              <p className="text-sm text-muted-foreground">Type a prompt in any language. Our AI enhances it automatically for optimal results.</p>
+            {/* Step 2 */}
+            <div className="rounded-xl border border-muted bg-card overflow-hidden hover:border-pink-500/30 transition-colors">
+              <div className="aspect-[16/9] bg-gradient-to-br from-pink-600/20 to-orange-600/20 flex items-center justify-center relative overflow-hidden">
+                <div className="grid grid-cols-3 gap-1 p-3 w-full h-full">
+                  <div className="rounded bg-purple-500/30 flex items-center justify-center text-[9px] text-white/70 font-medium">Flux Pro</div>
+                  <div className="rounded bg-pink-500/30 flex items-center justify-center text-[9px] text-white/70 font-medium">Kling 3.0</div>
+                  <div className="rounded bg-cyan-500/30 flex items-center justify-center text-[9px] text-white/70 font-medium">GPT Image</div>
+                  <div className="rounded bg-green-500/30 flex items-center justify-center text-[9px] text-white/70 font-medium">CivitAI</div>
+                  <div className="rounded bg-amber-500/30 flex items-center justify-center text-[9px] text-white/70 font-medium">Veo 3</div>
+                  <div className="rounded bg-red-500/30 flex items-center justify-center text-[9px] text-white/70 font-medium">SDXL</div>
+                </div>
+              </div>
+              <div className="p-5">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-7 h-7 rounded-full bg-pink-500 text-white flex items-center justify-center text-xs font-bold">2</div>
+                  <h3 className="font-semibold">Pick a Model</h3>
+                </div>
+                <p className="text-sm text-muted-foreground">Choose from 25+ AI models. Kling 3.0 for 4K video, Flux for images, CivitAI for 100K+ community models.</p>
+              </div>
             </div>
-            <div className="text-center rounded-xl border border-muted bg-card/50 p-6">
-              <div className="w-10 h-10 rounded-full bg-cyan-500/10 text-cyan-400 flex items-center justify-center mx-auto mb-4 text-lg font-bold">3</div>
-              <h3 className="font-semibold mb-2">Generate &amp; Export</h3>
-              <p className="text-sm text-muted-foreground">Get your image or video in seconds. Download, share, or publish to the gallery.</p>
+            {/* Step 3 */}
+            <div className="rounded-xl border border-muted bg-card overflow-hidden hover:border-cyan-500/30 transition-colors">
+              <div className="aspect-[16/9] bg-muted relative overflow-hidden">
+                <div className="grid grid-cols-2 gap-1 p-2 w-full h-full">
+                  <img src="/samples/portrait.jpg" alt="Result 1" className="rounded object-cover w-full h-full" />
+                  <img src="/samples/anime.jpg" alt="Result 2" className="rounded object-cover w-full h-full" />
+                </div>
+              </div>
+              <div className="p-5">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-7 h-7 rounded-full bg-cyan-500 text-white flex items-center justify-center text-xs font-bold">3</div>
+                  <h3 className="font-semibold">Download &amp; Share</h3>
+                </div>
+                <p className="text-sm text-muted-foreground">Get HD images or 4K videos in seconds. Download, share to X, or publish to the community gallery.</p>
+              </div>
             </div>
+          </div>
+          <div className="text-center mt-8">
+            <Button size="lg" className="bg-gradient-to-r from-purple-600 to-pink-600 hover:opacity-90 px-8" render={<Link href="/register" />}>
+              Start Creating Free
+            </Button>
           </div>
         </section>
 
@@ -233,6 +279,7 @@ export default function LandingPage() {
               { name: "Video Shorts", desc: "TikTok / Reels / Shorts vertical video in seconds", href: "/shorts", icon: "📱", gradient: "from-pink-600 to-red-600" },
               { name: "Wallpaper Generator", desc: "Perfect wallpapers for iPhone, Android, Desktop, 4K", href: "/wallpaper", icon: "🖼️", gradient: "from-cyan-600 to-blue-600" },
               { name: "Storyboard Studio", desc: "Multi-scene video with BGM and narration", href: "/storyboard", icon: "🎞️", gradient: "from-amber-600 to-orange-600" },
+              { name: "Product Studio", desc: "Product photo → professional ad images for Amazon, Instagram, Shopify", href: "/product-studio", icon: "📦", gradient: "from-emerald-600 to-teal-600" },
               { name: "Explore Gallery", desc: "Browse 200+ community creations, remix any prompt", href: "/gallery", icon: "🌐", gradient: "from-gray-600 to-slate-600" },
             ].map((tool) => (
               <Link
