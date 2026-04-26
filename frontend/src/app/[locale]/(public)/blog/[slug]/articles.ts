@@ -476,4 +476,95 @@ export const ARTICLES: Article[] = [
       },
     },
   },
+
+  // ── How-to: Samplers Explained ──
+  {
+    slug: "ai-image-samplers-explained",
+    category: "how-to",
+    tags: ["samplers", "settings", "technical", "euler", "dpm"],
+    publishedAt: "2026-04-27",
+    readingTime: 4,
+    translations: {
+      en: {
+        title: "AI Image Samplers Explained: Euler vs DPM++ vs DDIM",
+        description: "What are samplers in AI image generation? Learn the differences between Euler, DPM++ 2M Karras, DDIM, and when to use each one.",
+        sections: [
+          { heading: "What is a Sampler?", content: `<p>A sampler is the algorithm that removes noise from a random field step-by-step until it becomes your image. Different samplers take different paths through "noise space," producing subtly different results even with the same prompt and seed.</p><p>Think of it like different routes to the same destination — some are faster, some are more scenic, some are more reliable.</p>` },
+          { heading: "The Main Samplers", content: `<p><strong>Euler / Euler Ancestral</strong> — The classic. Fast, simple, good baseline. Euler Ancestral adds randomness at each step (more creative, less consistent). Good for: quick iterations, exploring ideas.</p><p><strong>DPM++ 2M Karras</strong> — The current gold standard for quality. Produces clean, detailed images with good color accuracy. "Karras" uses a noise schedule that front-loads detail work. Good for: final renders, photorealistic content.</p><p><strong>DDIM</strong> — Deterministic (same seed = exact same result every time). Faster than many samplers but sometimes softer output. Good for: reproducibility, animations where frame consistency matters.</p><p><strong>UniPC</strong> — Unified predictor-corrector. Excellent quality in fewer steps (10-15 steps often enough). Good for: speed without sacrificing quality.</p>` },
+          { heading: "Quick Reference", content: `<table><tr><th>Sampler</th><th>Quality</th><th>Speed</th><th>Best For</th></tr><tr><td>DPM++ 2M Karras</td><td>Excellent</td><td>Medium</td><td>Final renders</td></tr><tr><td>Euler</td><td>Good</td><td>Fast</td><td>Quick tests</td></tr><tr><td>Euler Ancestral</td><td>Good (varied)</td><td>Fast</td><td>Creative exploration</td></tr><tr><td>DDIM</td><td>Good</td><td>Fast</td><td>Consistency</td></tr><tr><td>UniPC</td><td>Very Good</td><td>Fast</td><td>Low-step generation</td></tr></table>` },
+          { heading: "Our Recommendation", content: `<p>Start with <strong>DPM++ 2M Karras at 25 steps</strong>. This is the default on EGAKU AI and produces consistently excellent results across all model types. Only switch if you have a specific reason to.</p>` },
+        ],
+      },
+      ja: {
+        title: "AIサンプラー解説：Euler vs DPM++ vs DDIM",
+        description: "AI画像生成のサンプラーとは？Euler、DPM++ 2M Karras、DDIMの違いと使い分け。",
+        sections: [
+          { heading: "サンプラーとは？", content: `<p>サンプラーはランダムなノイズから画像を段階的に生成するアルゴリズムです。同じプロンプトとシードでも、サンプラーが違えば微妙に異なる結果が出ます。</p>` },
+          { heading: "主要サンプラー", content: `<p><strong>Euler / Euler Ancestral：</strong> 定番。高速。Ancestralはステップごとにランダム性を追加（創造的だが一貫性低め）。</p><p><strong>DPM++ 2M Karras：</strong> 現在の品質基準。クリーンで詳細な画像。フォトリアルに最適。</p><p><strong>DDIM：</strong> 決定的（同じシード=完全同一結果）。再現性とアニメーションに。</p><p><strong>UniPC：</strong> 少ないステップ（10-15）で高品質。速度重視に。</p>` },
+          { heading: "推奨設定", content: `<p><strong>DPM++ 2M Karras、25ステップ</strong>がEGAKU AIのデフォルト。全モデルで安定して高品質。特別な理由がない限りこれで十分。</p>` },
+        ],
+      },
+    },
+  },
+
+  // ── Guide: LoRA Models ──
+  {
+    slug: "what-are-lora-models-how-to-use",
+    category: "guide",
+    tags: ["lora", "civitai", "models", "customization"],
+    publishedAt: "2026-04-27",
+    readingTime: 4,
+    translations: {
+      en: {
+        title: "What Are LoRA Models? How to Use CivitAI's 100K+ Models",
+        description: "LoRA models let you customize AI image generation with specific styles, characters, or concepts. Learn how to find and use them on EGAKU AI.",
+        sections: [
+          { heading: "LoRA in Simple Terms", content: `<p><strong>LoRA (Low-Rank Adaptation)</strong> is a small add-on file that modifies how a base AI model generates images. Think of the base model (like Flux or SDXL) as a generalist painter, and a LoRA as specialized training — "now paint in this specific anime style" or "generate this particular character consistently."</p><p>LoRAs are typically 10-300MB (vs 2-7GB for full models), making them lightweight and stackable.</p>` },
+          { heading: "What Can LoRAs Do?", content: `<ul><li><strong>Style LoRAs:</strong> Apply specific art styles (e.g., "90s anime melancholy", "Art Nouveau", "GTA 6 photography")</li><li><strong>Character LoRAs:</strong> Generate a consistent character across different scenes</li><li><strong>Concept LoRAs:</strong> Add specific concepts ("transparent clothing", "retro 60s aesthetic")</li><li><strong>Detail LoRAs:</strong> Enhance specific aspects ("detailed hands", "skin texture")</li></ul>` },
+          { heading: "Finding LoRAs on CivitAI", content: `<p>CivitAI hosts over 100,000 community-created models. On EGAKU AI:</p><ol><li>Go to <a href="/generate">Generate</a> or <a href="/adult">Adult</a> page</li><li>Click the <strong>CivitAI Models</strong> browser button</li><li>Search by keyword (e.g., "anime style", "photorealistic")</li><li>Click <strong>Use Now</strong> to generate immediately, or <strong>Save</strong> for later</li></ol><p>No download needed — EGAKU AI handles everything in the cloud.</p>` },
+          { heading: "LoRA Strength", content: `<p>LoRA strength (0.0-2.0) controls how much the LoRA affects the output:</p><ul><li><strong>0.3-0.5:</strong> Subtle influence</li><li><strong>0.7-0.8:</strong> Balanced (recommended starting point)</li><li><strong>1.0+:</strong> Strong effect (may override other prompt elements)</li></ul>` },
+        ],
+      },
+      ja: {
+        title: "LoRAモデルとは？CivitAIの10万+モデルの使い方",
+        description: "LoRAモデルでAI画像生成をカスタマイズ。スタイル、キャラクター、コンセプトの適用方法。",
+        sections: [
+          { heading: "LoRAとは", content: `<p><strong>LoRA（Low-Rank Adaptation）</strong>はベースAIモデルの出力を修正する小さなアドオンファイルです。ベースモデル（FluxやSDXL）が万能画家だとすると、LoRAは専門トレーニング — 「このアニメスタイルで描いて」「このキャラクターを一貫して生成して」といった指示です。</p><p>サイズは10-300MB（フルモデルの2-7GBに比べて軽量）。複数重ね掛け可能。</p>` },
+          { heading: "LoRAの種類", content: `<ul><li><strong>スタイルLoRA：</strong> 特定の画風（90年代アニメ、アールヌーヴォー、GTA風等）</li><li><strong>キャラクターLoRA：</strong> 一貫したキャラクターを異なるシーンで生成</li><li><strong>コンセプトLoRA：</strong> 特定の概念を追加（透け素材、レトロ60年代等）</li><li><strong>ディテールLoRA：</strong> 特定要素を強化（手の詳細、肌のテクスチャ等）</li></ul>` },
+          { heading: "EGAKU AIでの使い方", content: `<ol><li><a href="/generate">Generate</a>ページへ</li><li><strong>CivitAI Models</strong>ブラウザボタンをクリック</li><li>キーワードで検索</li><li><strong>Use Now</strong>で即生成、<strong>Save</strong>で保存</li></ol><p>ダウンロード不要 — クラウドで全て処理。</p>` },
+        ],
+      },
+    },
+  },
+
+  // ── News: AI Video Generation Comparison ──
+  {
+    slug: "ai-video-generation-comparison-2026",
+    category: "news",
+    tags: ["video", "kling", "veo", "wan", "comparison"],
+    publishedAt: "2026-04-27",
+    readingTime: 5,
+    translations: {
+      en: {
+        title: "AI Video Generation in 2026: Kling 3.0 vs Veo 3 vs Wan 2.6",
+        description: "A practical comparison of the top AI video generation models available in 2026. Quality, speed, cost, and which to choose for your project.",
+        sections: [
+          { heading: "The State of AI Video in 2026", content: `<p>AI video generation has made remarkable progress. We now have models that produce 4K cinematic quality, native audio, and consistent motion — unthinkable just two years ago. But with so many options, which model should you use?</p>` },
+          { heading: "Model Comparison", content: `<table><tr><th>Model</th><th>Resolution</th><th>Duration</th><th>Quality</th><th>Speed</th><th>Best For</th></tr><tr><td><strong>Kling 3.0</strong></td><td>Native 4K</td><td>5-10s</td><td>Cinematic</td><td>2-5 min</td><td>Professional, ads</td></tr><tr><td><strong>Kling O3</strong></td><td>Native 4K</td><td>5-10s</td><td>Cinematic + Audio</td><td>3-6 min</td><td>Films, audio needed</td></tr><tr><td><strong>Veo 3</strong></td><td>1080p</td><td>4-8s</td><td>Excellent</td><td>2-4 min</td><td>Creative, diverse styles</td></tr><tr><td><strong>Wan 2.6</strong></td><td>720p-1080p</td><td>5-15s</td><td>Good</td><td>1-3 min</td><td>Free tier, longer videos</td></tr><tr><td><strong>LTX 2.3</strong></td><td>720p</td><td>3-5s</td><td>Good</td><td>30s-1 min</td><td>Quick drafts</td></tr></table>` },
+          { heading: "Which Model to Choose", content: `<ul><li><strong>Need 4K quality?</strong> → Kling 3.0</li><li><strong>Need video with audio?</strong> → Kling O3</li><li><strong>Budget-conscious?</strong> → Wan 2.6 (free tier) or LTX 2.3</li><li><strong>Longest duration?</strong> → Wan 2.6 (up to 15 seconds)</li><li><strong>Fastest results?</strong> → LTX 2.3 (under 1 minute)</li></ul><p>On EGAKU AI, all these models are available from a single interface. Free users can access Wan 2.6 and LTX. Pro users unlock Kling 3.0, Veo 3, and more.</p>` },
+          { heading: "Image-to-Video vs Text-to-Video", content: `<p><strong>Text-to-Video (T2V):</strong> Describe a scene in text. The AI creates everything from scratch. Best for: concepts, creative exploration.</p><p><strong>Image-to-Video (I2V):</strong> Upload a still image and the AI animates it. Best for: animating photos, product demos, bringing artwork to life. Generally produces more consistent results because the AI has a visual reference.</p><p><strong>Pro tip:</strong> Generate a high-quality image first with Flux Pro, then animate it with Kling 3.0 I2V for the best results.</p>` },
+        ],
+      },
+      ja: {
+        title: "2026年 AI動画生成比較：Kling 3.0 vs Veo 3 vs Wan 2.6",
+        description: "2026年のトップAI動画生成モデルを実用的に比較。品質、速度、コスト、プロジェクト別の選び方。",
+        sections: [
+          { heading: "2026年のAI動画生成", content: `<p>AI動画生成は驚異的な進歩を遂げた。4Kシネマ品質、ネイティブ音声、一貫した動きが可能に。しかし選択肢が多すぎて、どのモデルを使うべきか迷う。</p>` },
+          { heading: "モデル比較", content: `<p><strong>Kling 3.0：</strong> ネイティブ4K、映画品質。プロ向け。</p><p><strong>Kling O3：</strong> 4K + 音声。映像作品に。</p><p><strong>Veo 3：</strong> 1080p、多様なスタイル。クリエイティブに。</p><p><strong>Wan 2.6：</strong> 無料枠あり、最長15秒。コスト重視に。</p><p><strong>LTX 2.3：</strong> 最速（1分以内）。ドラフトに。</p>` },
+          { heading: "選び方", content: `<ul><li><strong>4K品質が必要</strong> → Kling 3.0</li><li><strong>音声付き</strong> → Kling O3</li><li><strong>予算重視</strong> → Wan 2.6（無料）/ LTX 2.3</li><li><strong>長尺</strong> → Wan 2.6（最長15秒）</li></ul><p>EGAKU AIでは全モデルが1つのインターフェースから利用可能。</p>` },
+          { heading: "プロのコ��", content: `<p>最高品質の動画を作るなら：Flux Proで高品質画像を生成 → Kling 3.0 I2Vでアニメーション化。</p>` },
+        ],
+      },
+    },
+  },
 ];
