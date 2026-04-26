@@ -643,8 +643,30 @@ export default function GeneratePage() {
     setGenerating(false);
   };
 
+  // NSFW prompt detection — guide users to /adult instead of blocking
+  const NSFW_WORDS = [
+    "nude", "naked", "nsfw", "porn", "sex", "hentai", "xxx", "erotic",
+    "topless", "lingerie", "bikini", "underwear", "undress", "strip",
+    "boobs", "breast", "nipple", "pussy", "penis", "cock", "dick",
+    "ass", "butt", "thong", "orgasm", "cum", "blowjob", "fuck",
+    "nua", "pelada", "sexo", "desnuda", "裸", "エロ", "おっぱい",
+  ];
+  const checkNsfwPrompt = (text: string): boolean => {
+    const lower = text.toLowerCase();
+    return NSFW_WORDS.some((w) => lower.includes(w));
+  };
+
   const handleTxt2Img = async () => {
     if (!prompt.trim()) { toast.error("Please enter a prompt"); return; }
+    // Guide NSFW prompts to /adult page (don't block, just suggest)
+    if (!nsfwMode && checkNsfwPrompt(prompt)) {
+      toast.error(
+        "This prompt contains adult content. Use our 18+ page for unrestricted generation.", {
+        action: { label: "Go to 18+ Page", onClick: () => window.location.href = "/adult" },
+        duration: 10000,
+      });
+      return;
+    }
     trackEvent(CONVERSIONS.START_GENERATE, "generation", "txt2img");
     setGenerating(true); setJob(null); setElapsed(0); setResultBlurred(nsfwMode);
     try {
