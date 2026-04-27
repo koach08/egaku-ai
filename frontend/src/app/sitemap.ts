@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { GENERATED_PAGES } from "./[locale]/(public)/ai/[slug]/generated-pages";
+import { ARTICLES } from "./[locale]/(public)/blog/[slug]/articles";
 
 const BASE_URL = "https://egaku-ai.com";
 const LOCALES = ["en", "ja", "es", "zh"];
@@ -56,6 +57,21 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly" as const,
     });
   }
+
+  // Blog / Journal articles
+  pages.push({ path: "/blog", priority: 0.7, changeFrequency: "weekly" as const });
+  for (const article of ARTICLES) {
+    pages.push({
+      path: `/blog/${article.slug}`,
+      priority: 0.7,
+      changeFrequency: "monthly" as const,
+    });
+  }
+
+  // New feature pages
+  pages.push({ path: "/product-studio", priority: 0.8, changeFrequency: "weekly" as const });
+  pages.push({ path: "/short-story", priority: 0.8, changeFrequency: "weekly" as const });
+  pages.push({ path: "/vid2vid", priority: 0.7, changeFrequency: "weekly" as const });
 
   const langAlternates = (path: string) => {
     const result: Record<string, string> = {};
