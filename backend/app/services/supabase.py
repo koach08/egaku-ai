@@ -25,6 +25,21 @@ async def get_user_profile(supabase: Client, user_id: str) -> dict | None:
         return None
 
 
+DISPOSABLE_EMAIL_DOMAINS = {
+    "emltmp.com", "yomail.info", "emlhub.com", "dropmail.me",
+    "mail2me.co", "10mail.info", "freeml.net", "10mail.org",
+    "mimimail.me", "mailtowin.com", "maximail.vip",
+    "tempmail.com", "guerrillamail.com", "mailinator.com",
+    "throwaway.email", "temp-mail.org", "fakeinbox.com",
+    "sharklasers.com", "grr.la", "guerrillamailblock.com",
+    "yopmail.com", "tempail.com", "dispostable.com",
+    "maildrop.cc", "trashmail.com", "getnada.com",
+    "mohmal.com", "minutemail.it", "harakirimail.com",
+    "emailondeck.com", "tempr.email", "burnermail.io",
+    "mailnesia.com", "inboxkitten.com",
+}
+
+
 async def ensure_user_exists(supabase: Client, user_id: str, email: str, provider: str = "email") -> dict:
     """Create user record if it doesn't exist (first login)."""
     try:
@@ -33,6 +48,13 @@ async def ensure_user_exists(supabase: Client, user_id: str, email: str, provide
             return existing.data
     except Exception:
         pass
+
+    # Block disposable email domains
+    if email and "@" in email:
+        domain = email.split("@")[1].lower()
+        if domain in DISPOSABLE_EMAIL_DOMAINS:
+            logger.warning(f"Blocked disposable email: {email}")
+            raise Exception(f"Disposable email addresses are not allowed. Please use Gmail, Outlook, or another permanent email.")
 
     # OAuth providers (google, discord, github, twitter) already verify email
     email_verified = provider != "email"
