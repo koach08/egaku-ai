@@ -907,44 +907,6 @@ export const ARTICLES: Article[] = [
     },
   },
 
-  // ── SEO: Best Free AI Image Generators 2026 ──
-  {
-    slug: "best-free-ai-image-generators-2026",
-    category: "guide",
-    tags: ["free", "comparison", "2026", "flux", "sdxl", "beginners"],
-    publishedAt: "2026-04-27",
-    readingTime: 6,
-    translations: {
-      en: {
-        title: "Best Free AI Image Generators in 2026: Honest Comparison",
-        description: "Compare the best free AI image generators in 2026. Flux, SDXL, Ideogram, and more — features, quality, limits, and which one to pick.",
-        sections: [
-          { heading: "What to Look For in a Free AI Generator", content: `<p>Not all "free" AI image generators are equal. Key factors:</p><ul><li><strong>Image quality</strong> — Does it produce sharp, detailed images?</li><li><strong>Free tier limits</strong> — How many images per day/month?</li><li><strong>Model variety</strong> — One model or multiple options?</li><li><strong>Features</strong> — Just txt2img or also img2img, video, upscale?</li><li><strong>No watermark?</strong> — Some add watermarks on free tier</li></ul>` },
-          { heading: "Top Free Options Compared", content: `<table><tr><th>Platform</th><th>Free Tier</th><th>Best Model</th><th>Video?</th><th>CivitAI?</th></tr><tr><td><strong>EGAKU AI</strong></td><td>50 credits/mo + daily bonus</td><td>Flux Dev, SDXL</td><td>Yes (Wan 2.6, LTX)</td><td>100K+ models</td></tr><tr><td>Leonardo.ai</td><td>150 tokens/day</td><td>Phoenix</td><td>Limited</td><td>No</td></tr><tr><td>Playground AI</td><td>500 images/day</td><td>Custom</td><td>No</td><td>No</td></tr><tr><td>Craiyon</td><td>Unlimited (slow)</td><td>Custom</td><td>No</td><td>No</td></tr><tr><td>Microsoft Designer</td><td>15 images/day</td><td>DALL-E 3</td><td>No</td><td>No</td></tr></table>` },
-          { heading: "Why EGAKU AI Stands Out", content: `<ul><li><strong>25+ models in one place</strong> — Flux Dev, SDXL, Ideogram, GPT Image 2, and more</li><li><strong>Free video generation</strong> — Wan 2.6 (up to 15 seconds) and LTX included free</li><li><strong>CivitAI integration</strong> — Browse and use 100,000+ community models</li><li><strong>Multi-language</strong> — Write prompts in English, Japanese, Spanish, Chinese, or any language</li><li><strong>No download needed</strong> — Everything runs in your browser</li></ul><p><a href="/register">Try EGAKU AI free →</a></p>` },
-          { heading: "The Honest Truth About 'Free'", content: `<p>Every platform has costs (GPUs are expensive). "Free" tiers exist to let you try before buying. The real question is: which platform gives you the most value in the free tier?</p><p>EGAKU AI gives 50 credits + daily bonuses, which translates to roughly 50-100 images per month on free tier — more than enough to decide if it's right for you.</p>` },
-        ],
-      },
-      ja: {
-        title: "2026年 無料AI画像生成ツール比較：正直なレビュー",
-        description: "2026年のベスト無料AI画像生成ツールを比較。Flux、SDXL、Ideogram等。機能、品質、制限を解説。",
-        sections: [
-          { heading: "無料AI生成ツールの選び方", content: `<p>「無料」でも品質はまちまち。チェックポイント：画質、月間制限、モデルの種類、動画対応、ウォーターマークの有無。</p>` },
-          { heading: "主要プラットフォーム比較", content: `<p><strong>EGAKU AI：</strong> 50クレジット/月+日次ボーナス、25+モデル、動画無料（Wan 2.6）、CivitAI 10万+モデル</p><p>Leonardo.ai: 150トークン/日。Playground: 500枚/日。Craiyon: 無制限（低速）。Microsoft Designer: 15枚/日。</p>` },
-          { heading: "EGAKU AIの強み", content: `<ul><li>25+モデルが1箇所で使える</li><li>無料で動画生成（Wan 2.6、最長15秒）</li><li>CivitAI 10万+モデル対応</li><li>日本語プロンプト対応</li><li>ダウンロード不要</li></ul>` },
-        ],
-      },
-      es: {
-        title: "Mejores Generadores de Imágenes IA Gratis en 2026",
-        description: "Compara los mejores generadores de imágenes IA gratuitos de 2026. Flux, SDXL, Ideogram y más.",
-        sections: [
-          { heading: "Qué Buscar", content: `<p>No todos los generadores "gratis" son iguales. Factores clave: calidad, límites, variedad de modelos, video, marcas de agua.</p>` },
-          { heading: "Por Qué EGAKU AI Destaca", content: `<ul><li>25+ modelos en un solo lugar</li><li>Generación de video gratis (Wan 2.6)</li><li>100,000+ modelos CivitAI</li><li>Prompts en cualquier idioma</li></ul>` },
-        ],
-      },
-    },
-  },
-
   // ── Guide: AI Art for Instagram/TikTok ──
   {
     slug: "how-to-make-ai-art-instagram-tiktok",
