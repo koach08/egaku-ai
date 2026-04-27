@@ -985,4 +985,449 @@ export const ARTICLES: Article[] = [
       },
     },
   },
+
+  // ── How-to: Steps Optimization ──
+  {
+    slug: "how-many-steps-ai-image-generation",
+    category: "how-to",
+    tags: ["steps", "settings", "optimization", "speed", "quality"],
+    publishedAt: "2026-04-27",
+    readingTime: 4,
+    translations: {
+      en: {
+        title: "How Many Steps Do You Need? Optimizing AI Image Generation Speed",
+        description: "Find the sweet spot between quality and speed. Step count guide for Flux, SDXL, and SD 1.5 models.",
+        sections: [
+          { heading: "What Are Steps?", content: `<p>Each "step" is one pass of the AI refining your image from noise. More steps = more refinement, but diminishing returns after a point. The goal is finding the minimum steps for maximum quality.</p>` },
+          { heading: "The Diminishing Returns Problem", content: `<p>Going from 5 to 15 steps produces a massive quality jump. Going from 25 to 50 steps? Often no visible difference — just 2x the wait time and cost.</p><p>This is why step optimization matters. You want to avoid paying (in time and credits) for invisible improvements.</p>` },
+          { heading: "Optimal Steps by Model", content: `<table><tr><th>Model</th><th>Minimum</th><th>Recommended</th><th>Maximum Useful</th></tr><tr><td>Flux Schnell</td><td>1</td><td>4</td><td>4 (designed for 4 steps)</td></tr><tr><td>Flux Dev</td><td>15</td><td>25-28</td><td>50</td></tr><tr><td>SDXL</td><td>15</td><td>25-30</td><td>40</td></tr><tr><td>SD 1.5 / CivitAI</td><td>15</td><td>25-30</td><td>50</td></tr><tr><td>Lightning/Turbo models</td><td>4</td><td>6-8</td><td>10</td></tr></table>` },
+          { heading: "When to Use More Steps", content: `<ul><li><strong>Complex scenes</strong> with many elements — 30-40 steps</li><li><strong>Fine detail</strong> (jewelry, architecture, text) — 30+ steps</li><li><strong>Photorealistic faces</strong> — 25-35 steps for fewer artifacts</li></ul><p>For everything else, 25 steps is the sweet spot.</p>` },
+          { heading: "Speed vs Quality Workflow", content: `<ol><li><strong>Explore phase:</strong> Use Flux Schnell (4 steps) or low steps (15) to test ideas quickly</li><li><strong>Refine phase:</strong> Increase to 25-30 steps on your best compositions</li><li><strong>Final render:</strong> 30-40 steps with your chosen model for the finished piece</li></ol>` },
+        ],
+      },
+      ja: {
+        title: "ステップ数の最適化：AI画像生成の速度と品質のバランス",
+        description: "品質と速度の最適バランスを見つける。Flux、SDXL、SD 1.5のステップ数ガイド。",
+        sections: [
+          { heading: "ステップとは？", content: `<p>各「ステップ」はAIがノイズから画像を精製する1回のパス。多いほど精密だが、一定以上は効果が激減する。</p>` },
+          { heading: "モデル別最適ステップ数", content: `<p>Flux Schnell: 4ステップ / Flux Dev: 25-28 / SDXL: 25-30 / SD 1.5: 25-30 / Lightning系: 6-8</p>` },
+          { heading: "ワークフロー", content: `<ol><li><strong>探索フェーズ：</strong> Flux Schnell（4ステップ）でアイデアテスト</li><li><strong>精製フェーズ：</strong> 25-30ステップに増加</li><li><strong>最終出力：</strong> 30-40ステップで完成版</li></ol>` },
+        ],
+      },
+      es: {
+        title: "¿Cuántos Steps Necesitas? Optimizando la Generación de Imágenes IA",
+        description: "Encuentra el equilibrio entre calidad y velocidad. Guía de steps para Flux, SDXL y SD 1.5.",
+        sections: [
+          { heading: "¿Qué Son los Steps?", content: `<p>Cada step es una pasada del AI refinando tu imagen. Más steps = más refinamiento, pero con rendimientos decrecientes.</p>` },
+          { heading: "Steps Óptimos por Modelo", content: `<p>Flux Schnell: 4 / Flux Dev: 25-28 / SDXL: 25-30 / Lightning: 6-8</p>` },
+        ],
+      },
+      zh: {
+        title: "需要多少步？优化AI图像生成速度",
+        description: "找到质量与速度的最佳平衡。各模型的步数指南。",
+        sections: [
+          { heading: "什么是步数？", content: `<p>每一步是AI从噪声中精炼图像的一次处理。步数越多越精细，但超过一定值后效果递减。</p>` },
+          { heading: "各模型最优步数", content: `<p>Flux Schnell: 4 / Flux Dev: 25-28 / SDXL: 25-30 / Lightning: 6-8</p>` },
+        ],
+      },
+      pt: {
+        title: "Quantos Steps Você Precisa? Otimizando a Geração de Imagens IA",
+        description: "Encontre o equilíbrio entre qualidade e velocidade.",
+        sections: [
+          { heading: "O Que São Steps?", content: `<p>Cada step é uma passagem do AI refinando sua imagem. Mais steps = mais refinamento, mas com retornos decrescentes.</p>` },
+          { heading: "Steps por Modelo", content: `<p>Flux Schnell: 4 / Flux Dev: 25-28 / SDXL: 25-30 / Lightning: 6-8</p>` },
+        ],
+      },
+    },
+  },
+
+  // ── Guide: Resolution & Aspect Ratio ──
+  {
+    slug: "ai-image-resolution-aspect-ratio-guide",
+    category: "guide",
+    tags: ["resolution", "aspect-ratio", "size", "4k", "quality"],
+    publishedAt: "2026-04-27",
+    readingTime: 4,
+    translations: {
+      en: {
+        title: "AI Image Resolution & Aspect Ratio: Complete Guide",
+        description: "Choose the right resolution and aspect ratio for AI-generated images. Platform-specific sizes, upscaling tips, and common pitfalls.",
+        sections: [
+          { heading: "Why Resolution Matters", content: `<p>Resolution determines the level of detail in your image. Higher resolution = more detail, but also more generation time and cost. The key is matching resolution to your use case.</p>` },
+          { heading: "Standard Resolutions by Model", content: `<table><tr><th>Model</th><th>Native</th><th>Best Range</th></tr><tr><td>Flux Dev/Pro</td><td>1024x1024</td><td>768-2048 per side</td></tr><tr><td>SDXL</td><td>1024x1024</td><td>768-1536 per side</td></tr><tr><td>SD 1.5</td><td>512x512</td><td>384-768 per side</td></tr></table><p><strong>Important:</strong> Going below native resolution produces blurry results. Going far above wastes time without quality gain (use upscaling instead).</p>` },
+          { heading: "Common Aspect Ratios", content: `<ul><li><strong>1:1 (Square)</strong> — Instagram posts, profile pictures. 1024x1024.</li><li><strong>3:4 (Portrait)</strong> — Pinterest, portraits, character art. 768x1024.</li><li><strong>4:3 (Landscape)</strong> — Desktop wallpaper, presentations. 1024x768.</li><li><strong>16:9 (Widescreen)</strong> — YouTube thumbnails, cinematic. 1216x684.</li><li><strong>9:16 (Vertical)</strong> — TikTok, Instagram Stories/Reels. 576x1024.</li></ul>` },
+          { heading: "The Upscaling Trick", content: `<p>Instead of generating at 2048x2048 (slow, expensive, often worse quality), generate at 1024x1024 and then <strong>upscale 2x or 4x</strong>. This is faster, cheaper, and often produces better results because the AI works best at its native resolution.</p><p>EGAKU AI has a built-in 4x upscaler (RealESRGAN) — one click to go from 1024px to 4096px.</p>` },
+          { heading: "Common Pitfalls", content: `<ul><li><strong>Don't use odd numbers.</strong> Stick to multiples of 64 (e.g., 768, 832, 1024, 1216).</li><li><strong>Don't mix up width/height.</strong> 768x1024 is portrait, 1024x768 is landscape.</li><li><strong>Non-square ratios need model support.</strong> Flux handles any ratio well. Some SDXL/SD1.5 models are trained on specific ratios.</li></ul>` },
+        ],
+      },
+      ja: {
+        title: "AI画像の解像度とアスペクト比：完全ガイド",
+        description: "AI生成画像に最適な解像度とアスペクト比の選び方。用途別サイズ、アップスケールのコツ。",
+        sections: [
+          { heading: "解像度が重要な理由", content: `<p>解像度は画像の詳細度を決定する。高解像度=より精細だが、生成時間とコストも増加。用途に合わせるのが鍵。</p>` },
+          { heading: "モデル別標準解像度", content: `<p>Flux: 1024x1024（768-2048） / SDXL: 1024x1024（768-1536） / SD 1.5: 512x512（384-768）</p>` },
+          { heading: "主なアスペクト比", content: `<ul><li><strong>1:1（正方形）:</strong> Instagram投稿。1024x1024</li><li><strong>3:4（縦長）:</strong> Pinterest、ポートレート。768x1024</li><li><strong>16:9（横長）:</strong> YouTube、シネマ。1216x684</li><li><strong>9:16（縦長）:</strong> TikTok、Stories。576x1024</li></ul>` },
+          { heading: "アップスケールのコツ", content: `<p>2048x2048で生成するより、1024x1024で生成→4xアップスケールの方が速く、安く、高品質。EGAKU AIには4xアップスケーラー内蔵。</p>` },
+        ],
+      },
+      es: {
+        title: "Resolución y Relación de Aspecto en Imágenes IA: Guía Completa",
+        description: "Elige la resolución y relación de aspecto correctas. Tamaños por plataforma y trucos de upscaling.",
+        sections: [
+          { heading: "Por Qué Importa la Resolución", content: `<p>La resolución determina el nivel de detalle. Mayor resolución = más detalle, pero más tiempo y costo.</p>` },
+          { heading: "Relaciones de Aspecto Comunes", content: `<ul><li>1:1: Instagram (1024x1024)</li><li>9:16: TikTok (576x1024)</li><li>16:9: YouTube (1216x684)</li></ul>` },
+          { heading: "Truco de Upscaling", content: `<p>Genera a 1024x1024, luego usa upscale 4x. Más rápido y mejor calidad que generar directamente a alta resolución.</p>` },
+        ],
+      },
+      zh: {
+        title: "AI图像分辨率与宽高比完全指南",
+        description: "选择正确的分辨率和宽高比。各平台尺寸和放大技巧。",
+        sections: [
+          { heading: "为什么分辨率重要", content: `<p>分辨率决定图像细节程度。更高=更精细，但也更慢更贵。</p>` },
+          { heading: "常见宽高比", content: `<ul><li>1:1: Instagram (1024x1024)</li><li>9:16: TikTok (576x1024)</li><li>16:9: YouTube (1216x684)</li></ul>` },
+          { heading: "放大技巧", content: `<p>先生成1024x1024，再4倍放大。比直接生成高分辨率更快更好。</p>` },
+        ],
+      },
+      pt: {
+        title: "Resolução e Proporção em Imagens IA: Guia Completo",
+        description: "Escolha a resolução e proporção certas. Tamanhos por plataforma e dicas de upscaling.",
+        sections: [
+          { heading: "Por Que a Resolução Importa", content: `<p>Resolução determina o nível de detalhe. Maior = mais detalhado, mas mais lento e caro.</p>` },
+          { heading: "Proporções Comuns", content: `<ul><li>1:1: Instagram (1024x1024)</li><li>9:16: TikTok (576x1024)</li><li>16:9: YouTube (1216x684)</li></ul>` },
+        ],
+      },
+    },
+  },
+
+  // ── Guide: Img2Img Practical ──
+  {
+    slug: "image-to-image-transform-photos-ai",
+    category: "guide",
+    tags: ["img2img", "transform", "photos", "denoise", "practical"],
+    publishedAt: "2026-04-27",
+    readingTime: 5,
+    translations: {
+      en: {
+        title: "Image-to-Image: Transform Any Photo with AI",
+        description: "Master img2img to transform photos into art, fix compositions, and create variations. Denoise strength, best practices, and creative techniques.",
+        sections: [
+          { heading: "What is Image-to-Image?", content: `<p>Image-to-Image (img2img) takes an existing image and transforms it based on your prompt. Unlike text-to-image which creates from scratch, img2img uses your photo as a structural guide — preserving composition while changing style, details, or content.</p>` },
+          { heading: "The Denoise Strength Secret", content: `<p>Denoise strength (0.0-1.0) is the most important setting in img2img. It controls how much the AI changes your image:</p><ul><li><strong>0.2-0.4:</strong> Subtle changes. Enhances details, adjusts colors. Good for: photo enhancement, minor fixes.</li><li><strong>0.5-0.6:</strong> Moderate transformation. Keeps structure, changes style. Good for: artistic filters, style transfer.</li><li><strong>0.7-0.8:</strong> Major transformation. Loosely follows the original. Good for: complete restyling, artistic reinterpretation.</li><li><strong>0.9-1.0:</strong> Almost a new image. Only vague composition preserved. Rarely useful.</li></ul><p><strong>Start at 0.5 and adjust.</strong> This is the most reliable starting point.</p>` },
+          { heading: "5 Practical Use Cases", content: `<ol><li><strong>Photo → Painting:</strong> Upload a photo, set denoise 0.6, prompt "oil painting, thick brushstrokes, warm colors". Instant art.</li><li><strong>Sketch → Finished Art:</strong> Draw a rough sketch, set denoise 0.7, prompt your desired style. The AI fills in the details.</li><li><strong>Fix Bad Composition:</strong> Take a decent photo that needs tweaking. Low denoise (0.3) + specific prompt to fix issues.</li><li><strong>Seasonal Variants:</strong> Product photo → transform to winter/summer/holiday scene. Denoise 0.5-0.6.</li><li><strong>Style Consistency:</strong> Transform multiple photos with the same prompt to create a consistent series.</li></ol>` },
+          { heading: "Common Mistakes", content: `<ul><li><strong>Denoise too high:</strong> The AI ignores your image entirely. Start low, increase gradually.</li><li><strong>Wrong resolution:</strong> Use the same aspect ratio as your input image.</li><li><strong>Vague prompts:</strong> Be specific about what you want to change, not just "make it better".</li></ul>` },
+        ],
+      },
+      ja: {
+        title: "Image-to-Image：写真をAIで自在に変換する方法",
+        description: "img2imgで写真をアートに変換。Denoise強度の使い分け、実用テクニック。",
+        sections: [
+          { heading: "Image-to-Imageとは？", content: `<p>img2imgは既存画像をプロンプトに基づいて変換する技術。構図を保ちながらスタイルを変更できる。</p>` },
+          { heading: "Denoise強度の秘訣", content: `<p>0.2-0.4: 微妙な変更（写真補正）/ 0.5-0.6: 中程度（スタイル変換）/ 0.7-0.8: 大幅変換（リスタイル）</p><p><strong>0.5から始めて調整</strong>が最も確実。</p>` },
+          { heading: "5つの実用例", content: `<ol><li>写真→油絵（denoise 0.6）</li><li>スケッチ→完成イラスト（denoise 0.7）</li><li>構図修正（denoise 0.3）</li><li>季節バリエーション（denoise 0.5）</li><li>シリーズの統一感（同じプロンプトで複数変換）</li></ol>` },
+        ],
+      },
+      es: {
+        title: "Image-to-Image: Transforma Cualquier Foto con IA",
+        description: "Domina img2img para transformar fotos en arte. Fuerza de denoise y técnicas creativas.",
+        sections: [
+          { heading: "¿Qué es Image-to-Image?", content: `<p>Img2img toma una imagen existente y la transforma según tu prompt, preservando la composición mientras cambia el estilo.</p>` },
+          { heading: "El Secreto del Denoise", content: `<p>0.2-0.4: Cambios sutiles / 0.5-0.6: Transformación moderada / 0.7-0.8: Transformación mayor. <strong>Empieza en 0.5.</strong></p>` },
+        ],
+      },
+      zh: {
+        title: "图生图：用AI变换任何照片",
+        description: "掌握img2img将照片变为艺术品。去噪强度使用技巧和创意方法。",
+        sections: [
+          { heading: "什么是图生图？", content: `<p>图生图将现有图像根据提示词进行变换，保留构图同时改变风格。</p>` },
+          { heading: "去噪强度秘诀", content: `<p>0.2-0.4: 微调 / 0.5-0.6: 中度变换 / 0.7-0.8: 大幅变换。<strong>从0.5开始调整。</strong></p>` },
+        ],
+      },
+      pt: {
+        title: "Image-to-Image: Transforme Qualquer Foto com IA",
+        description: "Domine img2img para transformar fotos em arte.",
+        sections: [
+          { heading: "O Que é Image-to-Image?", content: `<p>Img2img transforma uma imagem existente baseado no seu prompt, preservando composição enquanto muda o estilo.</p>` },
+          { heading: "O Segredo do Denoise", content: `<p>0.2-0.4: Sutil / 0.5-0.6: Moderado / 0.7-0.8: Major. <strong>Comece em 0.5.</strong></p>` },
+        ],
+      },
+    },
+  },
+
+  // ── News: AI Image Ethics & Privacy ──
+  {
+    slug: "ai-generated-images-ethics-privacy-2026",
+    category: "news",
+    tags: ["ethics", "privacy", "deepfake", "responsible-ai", "policy"],
+    publishedAt: "2026-04-27",
+    readingTime: 5,
+    translations: {
+      en: {
+        title: "AI-Generated Images: Ethics, Privacy & Responsible Use in 2026",
+        description: "Navigate the ethical landscape of AI image generation. Deepfakes, consent, copyright, and how platforms are addressing these challenges.",
+        sections: [
+          { heading: "The Power and Responsibility", content: `<p>AI image generation is incredibly powerful. You can create photorealistic images of anything imaginable in seconds. But with this power comes serious ethical questions that every user and platform must address.</p>` },
+          { heading: "The Clear Red Lines", content: `<p>Some uses of AI image generation are universally condemned and illegal:</p><ul><li><strong>Child Sexual Abuse Material (CSAM):</strong> AI-generated or not, creating sexual content involving minors is illegal everywhere. Period.</li><li><strong>Non-consensual intimate imagery:</strong> Using real people's faces to create sexual content without their explicit consent. This is a growing legal issue with deepfake technology.</li><li><strong>Fraud and impersonation:</strong> Using AI-generated images to impersonate someone for financial or reputational harm.</li></ul>` },
+          { heading: "The Gray Areas", content: `<p>Many ethical questions don't have clear answers:</p><ul><li><strong>Artistic nudity:</strong> Where does art end and exploitation begin? Different cultures draw the line differently.</li><li><strong>Fan art of real people:</strong> Generating non-sexual images of celebrities or public figures. Legal in most places, but ethically complex.</li><li><strong>Style mimicry:</strong> Generating images "in the style of" a living artist. Copyright law is still catching up.</li><li><strong>Training data consent:</strong> Were the images used to train AI models uploaded with consent for this purpose?</li></ul>` },
+          { heading: "What Responsible Platforms Do", content: `<ul><li><strong>Clear content policies</strong> that users agree to</li><li><strong>Age verification</strong> for adult content</li><li><strong>Report mechanisms</strong> for policy violations</li><li><strong>Regional compliance</strong> (different laws in different countries)</li><li><strong>CSAM detection</strong> and law enforcement cooperation</li><li><strong>Transparency</strong> about what's allowed and what isn't</li></ul>` },
+          { heading: "Your Responsibility as a User", content: `<p>As an AI image generator user, you should:</p><ul><li>Never create content depicting real people in compromising situations without their consent</li><li>Respect copyright and intellectual property</li><li>Be aware of the laws in your jurisdiction</li><li>Consider the potential impact of the content you create</li><li>Use the tools creatively and constructively</li></ul><p>AI image generation is a tool. Like any tool, its value depends on how it's used.</p>` },
+        ],
+      },
+      ja: {
+        title: "AI生成画像の倫理とプライバシー：2026年の責任ある利用",
+        description: "AI画像生成の倫理的課題。Deepfake、同意、著作権、プラットフォームの対応。",
+        sections: [
+          { heading: "力と責任", content: `<p>AI画像生成は極めて強力。数秒で想像するものを生成できる。しかし、全てのユーザーとプラットフォームが向き合うべき倫理的問いがある。</p>` },
+          { heading: "明確な一線", content: `<ul><li><strong>CSAM：</strong> AI生成でも児童の性的コンテンツは世界中で違法</li><li><strong>非同意の親密画像：</strong> 実在人物の顔を同意なく使用</li><li><strong>詐欺・なりすまし：</strong> AI画像を悪用した金銭的・名誉的被害</li></ul>` },
+          { heading: "グレーゾーン", content: `<p>芸術的ヌード、有名人のファンアート、スタイルの模倣、学習データの同意問題。文化や法律によって判断が分かれる。</p>` },
+          { heading: "ユーザーの責任", content: `<ul><li>実在の人物を同意なく不利な状況に描かない</li><li>著作権と知的財産を尊重</li><li>自国の法律を認識</li><li>コンテンツの影響を考慮</li></ul>` },
+        ],
+      },
+      es: {
+        title: "Imágenes Generadas por IA: Ética, Privacidad y Uso Responsable en 2026",
+        description: "Navega el panorama ético de la generación de imágenes IA. Deepfakes, consentimiento y derechos de autor.",
+        sections: [
+          { heading: "Las Líneas Rojas Claras", content: `<ul><li><strong>CSAM:</strong> Ilegal en todas partes</li><li><strong>Imágenes íntimas sin consentimiento</strong></li><li><strong>Fraude e suplantación</strong></li></ul>` },
+          { heading: "Tu Responsabilidad", content: `<p>Nunca crees contenido de personas reales sin su consentimiento. Respeta los derechos de autor. Conoce las leyes de tu jurisdicción.</p>` },
+        ],
+      },
+      zh: {
+        title: "AI生成图像：2026年的伦理、隐私与负责任使用",
+        description: "AI图像生成的伦理挑战。深度伪造、同意权、版权及平台应对措施。",
+        sections: [
+          { heading: "明确的红线", content: `<ul><li><strong>CSAM：</strong>全球违法</li><li><strong>未经同意的亲密图像</strong></li><li><strong>欺诈和冒充</strong></li></ul>` },
+          { heading: "用户责任", content: `<p>不要未经同意创建真人的敏感内容。尊重版权。了解当地法律。</p>` },
+        ],
+      },
+      pt: {
+        title: "Imagens Geradas por IA: Ética, Privacidade e Uso Responsável em 2026",
+        description: "Navegue o panorama ético da geração de imagens IA.",
+        sections: [
+          { heading: "As Linhas Vermelhas", content: `<ul><li><strong>CSAM:</strong> Ilegal em todo lugar</li><li><strong>Imagens íntimas sem consentimento</strong></li></ul>` },
+          { heading: "Sua Responsabilidade", content: `<p>Nunca crie conteúdo de pessoas reais sem consentimento. Respeite direitos autorais.</p>` },
+        ],
+      },
+    },
+  },
+
+  // ── Guide: Text in AI Images ──
+  {
+    slug: "how-to-generate-text-in-ai-images",
+    category: "how-to",
+    tags: ["text", "typography", "logos", "ideogram", "flux"],
+    publishedAt: "2026-04-27",
+    readingTime: 3,
+    translations: {
+      en: {
+        title: "How to Generate Text in AI Images: Logos, Signs & Typography",
+        description: "AI models often struggle with text. Learn which models handle text best and techniques for clean typography in AI-generated images.",
+        sections: [
+          { heading: "The Text Problem in AI", content: `<p>Most AI image generators struggle with text. You ask for "a coffee shop sign saying LUNA CAFE" and get something like "LUMA CAEF." This is because diffusion models don't understand language — they learn visual patterns, and text requires precise character-level understanding.</p>` },
+          { heading: "Best Models for Text", content: `<ul><li><strong>Ideogram v3:</strong> Purpose-built for text rendering. The most reliable for clean, readable text in images. Best for: logos, signs, posters, business cards.</li><li><strong>GPT Image 2:</strong> OpenAI's model handles text reasonably well thanks to its multimodal training.</li><li><strong>Flux Pro:</strong> Better than SDXL at text but still not perfect. Works for short words (1-3 words).</li><li><strong>SDXL / SD 1.5:</strong> Poor text rendering. Avoid if text is important.</li></ul>` },
+          { heading: "Tips for Better Text", content: `<ul><li><strong>Use quotes:</strong> Put the text in quotes in your prompt: <code>a neon sign saying "OPEN 24/7"</code></li><li><strong>Keep it short:</strong> 1-3 words work best. Longer text = more errors.</li><li><strong>Specify the font style:</strong> "bold sans-serif", "elegant script", "hand-lettered"</li><li><strong>Use Ideogram v3 for anything text-heavy</strong></li><li><strong>Post-process:</strong> Generate the image without text, then add text in Canva/Photoshop for perfect results.</li></ul>` },
+        ],
+      },
+      ja: {
+        title: "AI画像にテキストを入れる方法：ロゴ、看板、タイポグラフィ",
+        description: "AIモデルはテキストが苦手。どのモデルが最適か、きれいな文字を出すテクニック。",
+        sections: [
+          { heading: "AIとテキストの問題", content: `<p>ほとんどのAI画像生成はテキストが苦手。「LUNA CAFE」と指定しても「LUMA CAEF」になりがち。拡散モデルは言語を理解せず、視覚パターンを学習するため。</p>` },
+          { heading: "テキストに強いモデル", content: `<ul><li><strong>Ideogram v3：</strong> テキスト描画専用。最も信頼性高い</li><li><strong>GPT Image 2：</strong> マルチモーダル学習により文字が比較的正確</li><li><strong>Flux Pro：</strong> SDXLより良いが完璧ではない。1-3語程度</li></ul>` },
+          { heading: "コツ", content: `<ul><li>テキストをクォートで囲む：<code>"OPEN 24/7"</code></li><li>短く（1-3語）</li><li>フォントスタイルを指定</li><li>テキスト重視ならIdeogram v3を使う</li><li>または画像生成後にCanvaでテキスト追加</li></ul>` },
+        ],
+      },
+      es: {
+        title: "Cómo Generar Texto en Imágenes IA: Logos, Letreros y Tipografía",
+        description: "Los modelos IA luchan con el texto. Aprende cuáles lo manejan mejor y técnicas para tipografía limpia.",
+        sections: [
+          { heading: "Mejores Modelos para Texto", content: `<p><strong>Ideogram v3:</strong> El más fiable. <strong>GPT Image 2:</strong> Razonablemente bueno. <strong>Flux Pro:</strong> OK para 1-3 palabras.</p>` },
+          { heading: "Consejos", content: `<ul><li>Usa comillas en el prompt</li><li>Mantén el texto corto (1-3 palabras)</li><li>Para texto perfecto: genera imagen sin texto, añade en Canva</li></ul>` },
+        ],
+      },
+      zh: {
+        title: "如何在AI图像中生成文字：Logo、标牌和排版",
+        description: "AI模型通常难以处理文字。了解哪些模型最适合以及获得清晰排版的技巧。",
+        sections: [
+          { heading: "最佳文字模型", content: `<p><strong>Ideogram v3：</strong>最可靠。<strong>GPT Image 2：</strong>较好。<strong>Flux Pro：</strong>短文字可以。</p>` },
+          { heading: "技巧", content: `<ul><li>提示词中用引号包裹文字</li><li>保持简短（1-3个词）</li><li>完美文字：先生成图像，再用Canva添加文字</li></ul>` },
+        ],
+      },
+      pt: {
+        title: "Como Gerar Texto em Imagens IA: Logos, Placas e Tipografia",
+        description: "Modelos IA lutam com texto. Aprenda quais são melhores e técnicas para tipografia limpa.",
+        sections: [
+          { heading: "Melhores Modelos para Texto", content: `<p><strong>Ideogram v3:</strong> Mais confiável. <strong>GPT Image 2:</strong> Razoável. <strong>Flux Pro:</strong> OK para 1-3 palavras.</p>` },
+          { heading: "Dicas", content: `<ul><li>Use aspas no prompt</li><li>Mantenha curto (1-3 palavras)</li></ul>` },
+        ],
+      },
+    },
+  },
+
+  // ── Guide: AI Video for Business ──
+  {
+    slug: "ai-video-generation-business-use-cases",
+    category: "guide",
+    tags: ["video", "business", "marketing", "ecommerce", "ads"],
+    publishedAt: "2026-04-27",
+    readingTime: 5,
+    translations: {
+      en: {
+        title: "AI Video for Business: Practical Use Cases & ROI",
+        description: "How businesses are using AI video generation for marketing, e-commerce, and content creation. Real use cases with practical advice.",
+        sections: [
+          { heading: "Why AI Video Matters for Business", content: `<p>Video content gets 2x more engagement than static images on social media. But producing video traditionally is expensive ($1,000-$10,000+ per minute of finished content). AI video generation changes the economics entirely — producing quality video content for cents instead of thousands.</p>` },
+          { heading: "5 High-ROI Business Use Cases", content: `<ol><li><strong>Product Demos:</strong> Turn product photos into dynamic videos. A spinning shoe, a pouring coffee, a dress flowing in wind. Use Image-to-Video with Kling 3.0 for cinematic quality.</li><li><strong>Social Media Ads:</strong> Generate 10 ad variations in minutes instead of days. Test different styles, angles, and moods. A/B test at scale.</li><li><strong>Email Marketing:</strong> Static emails get 20% open rates. Add a short AI-generated video preview and watch engagement spike.</li><li><strong>Website Hero Videos:</strong> That auto-playing background video on your landing page? Generate it in seconds instead of hiring a videographer.</li><li><strong>Training & Education:</strong> Visualize concepts that are hard to film. Medical procedures, architectural walkthroughs, historical recreations.</li></ol>` },
+          { heading: "Cost Comparison", content: `<table><tr><th>Method</th><th>Cost per Video</th><th>Time</th></tr><tr><td>Traditional Production</td><td>$1,000-10,000</td><td>1-4 weeks</td></tr><tr><td>Freelance Editor</td><td>$200-1,000</td><td>3-7 days</td></tr><tr><td>AI Generation</td><td>$0.30-1.00</td><td>2-5 minutes</td></tr></table>` },
+          { heading: "Getting Started", content: `<ol><li>Start with <strong>Image-to-Video</strong> — it's the most reliable. Upload a product photo, add a motion prompt.</li><li>Use <strong>free models first</strong> (Wan 2.6, LTX) to prototype, then upgrade to Kling 3.0 for final versions.</li><li>Keep videos <strong>5-10 seconds</strong> — this is the sweet spot for social media and ads.</li><li>Add text and branding in a video editor (CapCut is free) after generating.</li></ol>` },
+        ],
+      },
+      ja: {
+        title: "ビジネスのためのAI動画：実用的な活用法とROI",
+        description: "企業がマーケティング、EC、コンテンツ制作にAI動画生成をどう活用しているか。",
+        sections: [
+          { heading: "なぜAI動画がビジネスに重要か", content: `<p>動画コンテンツは静止画の2倍のエンゲージメント。従来の動画制作は1分あたり10万-100万円以上。AI動画なら数十円で同等品質。</p>` },
+          { heading: "5つの高ROI活用法", content: `<ol><li><strong>商品デモ：</strong> 商品写真→動画化（回転、注ぐ、風になびく等）</li><li><strong>SNS広告：</strong> 数分で10バリエーション。A/Bテストが容易に</li><li><strong>メールマーケティング：</strong> 動画プレビュー追加でエンゲージメント向上</li><li><strong>Webサイト背景動画：</strong> ランディングページの自動再生動画を数秒で</li><li><strong>教育・研修：</strong> 撮影困難なコンセプトを視覚化</li></ol>` },
+          { heading: "始め方", content: `<ol><li>Image-to-Videoから始める（最も安定）</li><li>無料モデル（Wan 2.6）でプロトタイプ→Kling 3.0で仕上げ</li><li>5-10秒が最適（SNS・広告向け）</li></ol>` },
+        ],
+      },
+      es: {
+        title: "Video IA para Negocios: Casos de Uso Prácticos y ROI",
+        description: "Cómo las empresas usan la generación de video IA para marketing y e-commerce.",
+        sections: [
+          { heading: "5 Casos de Uso de Alto ROI", content: `<ol><li>Demos de producto</li><li>Anuncios en redes sociales</li><li>Email marketing</li><li>Videos hero para web</li><li>Capacitación</li></ol>` },
+          { heading: "Cómo Empezar", content: `<p>Empieza con Image-to-Video. Usa modelos gratis para prototipar, Kling 3.0 para versiones finales. Mantén 5-10 segundos.</p>` },
+        ],
+      },
+      zh: {
+        title: "商业AI视频：实用案例与投资回报",
+        description: "企业如何将AI视频生成用于营销、电商和内容创作。",
+        sections: [
+          { heading: "5个高回报应用场景", content: `<ol><li>产品演示视频</li><li>社交媒体广告（分钟级制作10个变体）</li><li>邮件营销视频预览</li><li>网站首页背景视频</li><li>培训教育可视化</li></ol>` },
+          { heading: "开始使用", content: `<p>从图生视频开始。免费模型原型制作，Kling 3.0做最终版本。5-10秒最佳。</p>` },
+        ],
+      },
+      pt: {
+        title: "Vídeo IA para Negócios: Casos de Uso Práticos e ROI",
+        description: "Como empresas usam geração de vídeo IA para marketing e e-commerce.",
+        sections: [
+          { heading: "5 Casos de Alto ROI", content: `<ol><li>Demos de produto</li><li>Anúncios sociais</li><li>Email marketing</li><li>Vídeos hero para web</li><li>Treinamento</li></ol>` },
+          { heading: "Como Começar", content: `<p>Comece com Image-to-Video. Use modelos grátis para prototipar. Mantenha 5-10 segundos.</p>` },
+        ],
+      },
+    },
+  },
+
+  // ── Guide: CivitAI Ecosystem ──
+  {
+    slug: "civitai-ecosystem-explained",
+    category: "guide",
+    tags: ["civitai", "community", "models", "ecosystem", "lora", "checkpoint"],
+    publishedAt: "2026-04-27",
+    readingTime: 5,
+    translations: {
+      en: {
+        title: "The CivitAI Ecosystem: 100,000+ AI Models Explained",
+        description: "Understanding CivitAI's community of AI models. Checkpoints, LoRAs, embeddings — what they are, how to find good ones, and how to use them.",
+        sections: [
+          { heading: "What is CivitAI?", content: `<p>CivitAI is the world's largest open-source AI model community. Think of it as the "GitHub for AI art models." Over 100,000 models are shared by creators worldwide — each trained for specific styles, characters, or capabilities.</p><p>These models work with Stable Diffusion, SDXL, and increasingly with Flux — the engines that power most AI image generation.</p>` },
+          { heading: "Types of Models", content: `<ul><li><strong>Checkpoints (2-7 GB):</strong> Complete base models. Replace the entire AI engine. Examples: RealVisXL (photorealistic), Pony Diffusion (anime), DreamShaper (versatile). Use when: you want a fundamentally different style.</li><li><strong>LoRAs (10-300 MB):</strong> Small add-ons that modify a base model. Like adding a specialty lens to a camera. Examples: specific art styles, character consistency, detail enhancement. Use when: you want to fine-tune an existing model.</li><li><strong>Embeddings (10-100 KB):</strong> Tiny files that teach the AI new concepts via a trigger word. Use when: you want to add a specific concept without changing the model.</li><li><strong>VAEs:</strong> Affect color processing. Most users never need to touch these.</li></ul>` },
+          { heading: "How to Find Good Models", content: `<ul><li><strong>Sort by downloads:</strong> Popular models are popular for a reason.</li><li><strong>Check the preview images:</strong> They show what the model actually produces.</li><li><strong>Read the description:</strong> Good model pages explain recommended settings (steps, CFG, sampler).</li><li><strong>Check the base model:</strong> Make sure it's compatible (SD 1.5, SDXL, or Flux).</li><li><strong>Look at community reviews:</strong> Comments and ratings from other users.</li></ul>` },
+          { heading: "Using CivitAI Models on EGAKU AI", content: `<p>You don't need to download anything. EGAKU AI integrates CivitAI directly:</p><ol><li>Open the <strong>CivitAI Browser</strong> on the Generate or Adult page</li><li>Search by keyword, filter by type (Checkpoint/LoRA)</li><li>Click <strong>Use Now</strong> to generate instantly</li><li>Or <strong>Save</strong> to your model library for future use</li></ol><p>Over 100,000 models are available — from photorealistic to anime, from landscapes to portraits.</p>` },
+          { heading: "The Community Effect", content: `<p>CivitAI's real power is its community. Model creators constantly improve and release new models. When a new technique is discovered, the community adapts within days. This means EGAKU AI users always have access to the cutting edge — without waiting for corporate AI labs to release updates.</p>` },
+        ],
+      },
+      ja: {
+        title: "CivitAIエコシステム解説：10万+AIモデルの世界",
+        description: "CivitAIのAIモデルコミュニティを理解する。チェックポイント、LoRA、エンベディングの使い分け。",
+        sections: [
+          { heading: "CivitAIとは？", content: `<p>CivitAIは世界最大のオープンソースAIモデルコミュニティ。「AIアートモデルのGitHub」。10万以上のモデルがクリエイターによって共有されている。</p>` },
+          { heading: "モデルの種類", content: `<ul><li><strong>Checkpoint（2-7GB）：</strong> 完全なベースモデル。根本的にスタイルを変えたい時に</li><li><strong>LoRA（10-300MB）：</strong> ベースモデルの微調整用アドオン。特定スタイルやキャラクター用</li><li><strong>Embedding（10-100KB）：</strong> 特定の概念をトリガーワードで追加</li></ul>` },
+          { heading: "良いモデルの見つけ方", content: `<ul><li>ダウンロード数でソート</li><li>プレビュー画像を確認</li><li>説明文を読む（推奨設定）</li><li>ベースモデルの互換性を確認</li><li>コミュニティレビューを参照</li></ul>` },
+          { heading: "EGAKU AIでの使い方", content: `<p>ダウンロード不要。CivitAIブラウザで検索→Use Nowで即生成。10万+モデルが利用可能。</p>` },
+        ],
+      },
+      es: {
+        title: "El Ecosistema CivitAI: 100,000+ Modelos IA Explicados",
+        description: "Entendiendo la comunidad de modelos IA de CivitAI. Checkpoints, LoRAs y cómo encontrar buenos modelos.",
+        sections: [
+          { heading: "¿Qué es CivitAI?", content: `<p>La comunidad más grande de modelos IA de código abierto. Como "GitHub para modelos de arte IA". Más de 100,000 modelos compartidos.</p>` },
+          { heading: "Tipos de Modelos", content: `<ul><li><strong>Checkpoints:</strong> Modelos base completos (2-7GB)</li><li><strong>LoRAs:</strong> Add-ons pequeños para estilos específicos (10-300MB)</li><li><strong>Embeddings:</strong> Conceptos en trigger words (10-100KB)</li></ul>` },
+          { heading: "En EGAKU AI", content: `<p>Sin descarga. Busca en el navegador CivitAI → Use Now para generar al instante.</p>` },
+        ],
+      },
+      zh: {
+        title: "CivitAI生态系统：10万+AI模型详解",
+        description: "了解CivitAI的AI模型社区。检查点、LoRA、嵌入——它们是什么以及如何使用。",
+        sections: [
+          { heading: "什么是CivitAI？", content: `<p>世界最大的开源AI模型社区，超过10万个模型由创作者共享。</p>` },
+          { heading: "模型类型", content: `<ul><li><strong>Checkpoint（2-7GB）：</strong>完整基础模型</li><li><strong>LoRA（10-300MB）：</strong>小型微调附加文件</li><li><strong>Embedding（10-100KB）：</strong>触发词概念</li></ul>` },
+          { heading: "在EGAKU AI中使用", content: `<p>无需下载。在CivitAI浏览器中搜索→点击Use Now即时生成。</p>` },
+        ],
+      },
+      pt: {
+        title: "O Ecossistema CivitAI: 100,000+ Modelos IA Explicados",
+        description: "Entendendo a comunidade de modelos IA do CivitAI.",
+        sections: [
+          { heading: "O Que é CivitAI?", content: `<p>A maior comunidade de modelos IA de código aberto do mundo. Mais de 100,000 modelos compartilhados.</p>` },
+          { heading: "Tipos de Modelos", content: `<ul><li><strong>Checkpoints:</strong> Modelos base (2-7GB)</li><li><strong>LoRAs:</strong> Add-ons de estilo (10-300MB)</li></ul>` },
+          { heading: "No EGAKU AI", content: `<p>Sem download. Navegador CivitAI → Use Now para gerar instantaneamente.</p>` },
+        ],
+      },
+    },
+  },
+
+  // ── Guide: Inpainting ──
+  {
+    slug: "inpainting-guide-edit-parts-of-ai-images",
+    category: "how-to",
+    tags: ["inpainting", "editing", "mask", "fix", "repair"],
+    publishedAt: "2026-04-27",
+    readingTime: 4,
+    translations: {
+      en: {
+        title: "Inpainting Guide: Edit Specific Parts of AI Images",
+        description: "Learn to use inpainting to fix hands, change faces, replace objects, and edit specific regions of AI-generated images.",
+        sections: [
+          { heading: "What is Inpainting?", content: `<p>Inpainting lets you select a specific area of an image and regenerate just that part. The rest of the image stays untouched. It's like using an eraser and then having the AI fill in what you erased.</p><p>This is the most powerful editing tool in AI image generation — and the one most people overlook.</p>` },
+          { heading: "Common Use Cases", content: `<ul><li><strong>Fix bad hands:</strong> The #1 problem in AI images. Mask the hands, prompt "detailed realistic hands, correct anatomy".</li><li><strong>Change facial expression:</strong> Mask the face, prompt "smiling face" or "serious expression".</li><li><strong>Replace objects:</strong> Mask an object, prompt what you want instead. "Replace the cat with a dog."</li><li><strong>Fix artifacts:</strong> Any weird distortion or anomaly — mask it, describe what should be there.</li><li><strong>Add elements:</strong> Mask an empty area, prompt what you want to add. "A butterfly on the flower."</li></ul>` },
+          { heading: "How to Inpaint Well", content: `<ul><li><strong>Mask slightly larger than the problem area.</strong> Give the AI context around the edges for seamless blending.</li><li><strong>Be specific in your prompt.</strong> Don't just prompt "fix this." Describe exactly what should appear in the masked area.</li><li><strong>Use appropriate denoise.</strong> 0.6-0.8 works best for most inpainting. Lower = keeps more of the original, higher = more freedom for the AI.</li><li><strong>Match the style.</strong> If the image is anime, prompt in anime style. If photorealistic, use photorealistic language.</li></ul>` },
+          { heading: "Step by Step", content: `<ol><li>Go to the <strong>Inpaint</strong> tab on the Generate page</li><li>Upload your image</li><li>Paint a mask over the area you want to change (white = change, black = keep)</li><li>Write a prompt describing what should appear in the masked area</li><li>Set denoise to 0.7 (adjust as needed)</li><li>Generate!</li></ol>` },
+        ],
+      },
+      ja: {
+        title: "Inpaintingガイド：AI画像の特定部分を編集する",
+        description: "Inpaintingで手の修正、顔の変更、オブジェクト置換。AI画像の部分編集テクニック。",
+        sections: [
+          { heading: "Inpaintingとは？", content: `<p>画像の特定領域を選択して、その部分だけを再生成する技術。残りはそのまま。消しゴムで消して、AIが埋めるイメージ。</p>` },
+          { heading: "主な用途", content: `<ul><li><strong>手の修正：</strong> AI画像の最大の問題。手をマスク→「正確な解剖学の手」</li><li><strong>表情変更：</strong> 顔をマスク→「笑顔」「真剣な表情」</li><li><strong>オブジェクト置換：</strong> 物体をマスク→別のものに</li><li><strong>アーティファクト修正：</strong> 歪みをマスク→正しい描写に</li></ul>` },
+          { heading: "コツ", content: `<ul><li>問題領域より少し大きめにマスク</li><li>プロンプトは具体的に</li><li>denoise 0.6-0.8が最適</li><li>元画像のスタイルに合わせる</li></ul>` },
+        ],
+      },
+      es: {
+        title: "Guía de Inpainting: Edita Partes Específicas de Imágenes IA",
+        description: "Aprende a usar inpainting para arreglar manos, cambiar caras y reemplazar objetos.",
+        sections: [
+          { heading: "¿Qué es Inpainting?", content: `<p>Selecciona un área específica y regenera solo esa parte. El resto queda intacto.</p>` },
+          { heading: "Usos Comunes", content: `<ul><li>Arreglar manos (problema #1)</li><li>Cambiar expresiones faciales</li><li>Reemplazar objetos</li><li>Corregir artefactos</li></ul>` },
+          { heading: "Consejos", content: `<p>Máscara ligeramente más grande que el área. Prompt específico. Denoise 0.6-0.8.</p>` },
+        ],
+      },
+      zh: {
+        title: "Inpainting指南：编辑AI图像的特定部分",
+        description: "学习使用inpainting修复手部、改变面部、替换物体等。",
+        sections: [
+          { heading: "什么是Inpainting？", content: `<p>选择图像的特定区域，只重新生成该部分。其余保持不变。</p>` },
+          { heading: "常见用途", content: `<ul><li>修复手部（AI图像最大问题）</li><li>改变面部表情</li><li>替换物体</li><li>修复伪影</li></ul>` },
+          { heading: "技巧", content: `<p>遮罩比问题区域稍大。提示词要具体。去噪0.6-0.8最佳。</p>` },
+        ],
+      },
+      pt: {
+        title: "Guia de Inpainting: Edite Partes Específicas de Imagens IA",
+        description: "Aprenda a usar inpainting para corrigir mãos, mudar rostos e substituir objetos.",
+        sections: [
+          { heading: "O Que é Inpainting?", content: `<p>Selecione uma área específica e regenere apenas essa parte.</p>` },
+          { heading: "Usos Comuns", content: `<ul><li>Corrigir mãos</li><li>Mudar expressões</li><li>Substituir objetos</li></ul>` },
+        ],
+      },
+    },
+  },
 ];
