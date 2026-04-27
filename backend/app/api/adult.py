@@ -71,6 +71,45 @@ ADULT_PROHIBITED_KEYWORDS = [
     "リベンジポルノ", "盗撮", "流出", "無断",
 ]
 
+# Deepfake prompt patterns — detected and silently replaced with harmless NSFW
+# These users get a normal-looking result but NOT what they asked for
+import random as _random
+DEEPFAKE_PATTERNS = [
+    "fidelity to the original image",
+    "カメラ目線を維持",
+    "original image's face",
+    "脱がし",
+    "脱がせ",
+    "服を脱ぎ",
+    "水着を脱が",
+    "トップレスにさせる",
+    "乳房を性的に",
+    "乳房をマッサージ",
+    "乳房を卑猥に",
+    "腋を舐め",
+    "腋に匂い",
+]
+DEEPFAKE_REPLACEMENTS = [
+    "beautiful woman in elegant evening dress, soft studio lighting, photorealistic portrait, 8K",
+    "stunning landscape with cherry blossoms, Japanese garden, golden hour, cinematic",
+    "anime girl with flowing hair, detailed eyes, vibrant colors, masterpiece illustration",
+    "professional fashion photography, woman in designer outfit, runway lighting",
+    "beautiful sunset over ocean, dramatic clouds, golden light, landscape photography",
+    "cute cat sitting on a windowsill, warm afternoon light, cozy room, photorealistic",
+    "detailed portrait of a woman, soft natural lighting, shallow depth of field, 8K",
+    "fantasy castle on floating island, magical atmosphere, volumetric clouds, digital art",
+]
+
+
+def _check_deepfake_and_replace(prompt: str) -> tuple[str, bool]:
+    """Check if prompt matches deepfake patterns. If so, return a harmless replacement.
+    Returns (prompt, was_replaced). The user never knows their prompt was swapped.
+    """
+    prompt_lower = prompt.lower()
+    if any(pattern.lower() in prompt_lower for pattern in DEEPFAKE_PATTERNS):
+        return _random.choice(DEEPFAKE_REPLACEMENTS), True
+    return prompt, False
+
 # NSFW-optimized models (Novita.ai + fal uncensored)
 ADULT_MODELS = [
     # SDXL (high quality, 1024x1024)
@@ -823,6 +862,11 @@ async def generate_adult(
     # 1. Prompt compliance (CSAM + real person block)
     _check_adult_prompt(body.prompt)
 
+    # 1b. Deepfake detection — silently replace with harmless content
+    body.prompt, was_deepfake = _check_deepfake_and_replace(body.prompt)
+    if was_deepfake:
+        logger.warning(f"Deepfake prompt detected and replaced. Original user will receive harmless content.")
+
     # 2. Auth
     auth_header = request.headers.get("authorization", "")
     if not auth_header.startswith("Bearer "):
@@ -1047,6 +1091,9 @@ async def generate_adult_video(
 
     # 1. Prompt compliance
     _check_adult_prompt(body.prompt)
+    body.prompt, was_deepfake = _check_deepfake_and_replace(body.prompt)
+    if was_deepfake:
+        logger.warning("Deepfake video prompt detected and replaced.")
 
     # 2. Auth
     auth_header = request.headers.get("authorization", "")
@@ -1469,6 +1516,7 @@ async def generate_with_civitai_model(
     from app.services.supabase import deduct_credits
 
     _check_adult_prompt(body.prompt)
+    body.prompt, _ = _check_deepfake_and_replace(body.prompt)
 
     auth_header = request.headers.get("authorization", "")
     if not auth_header.startswith("Bearer "):
@@ -1620,6 +1668,7 @@ async def adult_img2img(
 ):
     """Image-to-image with NSFW models (Novita.ai, no filters)."""
     _check_adult_prompt(body.prompt)
+    body.prompt, _ = _check_deepfake_and_replace(body.prompt)
     user, profile, supabase = await _adult_auth(request, settings)
 
     if not body.image:
@@ -1840,6 +1889,7 @@ async def adult_vid2vid(
 ):
     """Video-to-video style transfer with NSFW support (fal.ai Wan 2.7)."""
     _check_adult_prompt(body.prompt)
+    body.prompt, _ = _check_deepfake_and_replace(body.prompt)
     user, profile, supabase = await _adult_auth(request, settings)
 
     from app.services.supabase import deduct_credits
