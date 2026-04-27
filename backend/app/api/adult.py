@@ -1041,14 +1041,9 @@ async def generate_adult(
             ("leosamsHelloworldSDXL_helloworldSDXL50_268813.safetensors", 1024, 1024),
             ("sd_xl_base_1.0.safetensors", 1024, 1024),
         ]
-        # SD1.5 models (512x768, lower quality but fully uncensored)
-        CIVITAI_SD15_NSFW = [
-            ("uberRealisticPornMerge_urpmv13.safetensors", 512, 768),
-            ("babes_20.safetensors", 512, 768),
-            ("chilloutmix_NiPrunedFp32Fix.safetensors", 512, 768),
-        ]
-
-        all_models = CIVITAI_SDXL_NSFW + CIVITAI_SD15_NSFW
+        # SD1.5 removed — too many horror/deformed outputs at full body
+        # SDXL only for quality assurance
+        all_models = CIVITAI_SDXL_NSFW
         for civitai_model, max_w, max_h in all_models:
             try:
                 from app.services.novita import NovitaClient
