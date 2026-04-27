@@ -131,6 +131,34 @@ export const ARTICLES: Article[] = [
           },
         ],
       },
+      es: {
+        title: "Cómo Escribir Prompts para Imágenes IA: Guía Completa",
+        description: "Aprende a escribir prompts efectivos para generación de imágenes IA. Consejos para Flux, SDXL y más.",
+        sections: [
+          { heading: "¿Qué es un Prompt?", content: `<p>Un prompt es la descripción de texto que le das a un modelo IA para generar una imagen. La calidad del prompt afecta directamente la calidad del resultado.</p>` },
+          { heading: "Estructura Básica", content: `<p><strong>[Sujeto] + [Descripción] + [Estilo] + [Calidad] + [Técnico]</strong></p><p>Ejemplo: <code>una mujer japonesa en kimono, bosque de bambú, luz natural, fotorrealista, 8K</code></p>` },
+          { heading: "Prompts Negativos", content: `<p><code>worst quality, low quality, blurry, deformed, ugly, bad anatomy, bad hands, extra fingers</code></p>` },
+          { heading: "Consejos por Modelo", content: `<p><strong>Flux:</strong> Lenguaje natural. <strong>SDXL/CivitAI:</strong> Tags separados por comas. <strong>Video:</strong> Describe el movimiento explícitamente.</p>` },
+        ],
+      },
+      zh: {
+        title: "AI图像提示词写作完全指南",
+        description: "学习如何为AI图像生成写出有效的提示词。适用于Flux、SDXL等模型的技巧。",
+        sections: [
+          { heading: "什么是提示词？", content: `<p>提示词是你给AI模型的文字描述，用于生成图像。提示词的质量直接影响输出质量。</p>` },
+          { heading: "基本结构", content: `<p><strong>[主体] + [描述] + [风格] + [质量] + [技术]</strong></p><p>例：<code>穿和服的日本女性，竹林中，自然光，照片级真实，8K</code></p>` },
+          { heading: "各模型技巧", content: `<p><strong>Flux：</strong>自然语言。<strong>SDXL/CivitAI：</strong>逗号分隔标签。<strong>视频：</strong>明确描述运动。</p>` },
+        ],
+      },
+      pt: {
+        title: "Como Escrever Prompts para Imagens IA: Guia Completo",
+        description: "Aprenda a escrever prompts eficazes para geração de imagens IA. Dicas para Flux, SDXL e mais.",
+        sections: [
+          { heading: "O Que é um Prompt?", content: `<p>Um prompt é a descrição de texto que você dá ao modelo IA para gerar uma imagem. A qualidade do prompt afeta diretamente a qualidade do resultado.</p>` },
+          { heading: "Estrutura Básica", content: `<p><strong>[Sujeito] + [Descrição] + [Estilo] + [Qualidade] + [Técnico]</strong></p>` },
+          { heading: "Dicas por Modelo", content: `<p><strong>Flux:</strong> Linguagem natural. <strong>SDXL/CivitAI:</strong> Tags separadas por vírgulas. <strong>Vídeo:</strong> Descreva o movimento explicitamente.</p>` },
+        ],
+      },
     },
   },
 
@@ -206,6 +234,30 @@ export const ARTICLES: Article[] = [
 <li><strong>プロンプト通り</strong>に作りたい → CFG 8-12</li>
 </ul>`,
           },
+        ],
+      },
+      es: {
+        title: "¿Qué es CFG Scale? Cómo Ajustarlo para Mejores Imágenes",
+        description: "CFG Scale controla cuánto sigue la IA tu prompt. Aprende qué valores usar.",
+        sections: [
+          { heading: "CFG Scale Explicado", content: `<p><strong>CFG Scale</strong> controla cuánto sigue la IA tu prompt. Bajo (1-4): más creativo. Medio (5-8): equilibrado. Alto (9-15): sigue estrictamente el prompt.</p>` },
+          { heading: "Valores Recomendados", content: `<p>Flux: 3.0-4.0 / SDXL: 6.0-8.0 / SD1.5: 7.0-9.0 / Anime: 7.0-11.0</p>` },
+        ],
+      },
+      zh: {
+        title: "什么是CFG Scale？如何调整以获得更好的AI图像",
+        description: "CFG Scale控制AI对提示词的遵循程度。了解不同模型的推荐值。",
+        sections: [
+          { heading: "CFG Scale说明", content: `<p>低(1-4)：更有创意。中(5-8)：平衡。高(9-15)：严格遵循提示词。</p>` },
+          { heading: "推荐值", content: `<p>Flux: 3.0-4.0 / SDXL: 6.0-8.0 / SD1.5: 7.0-9.0</p>` },
+        ],
+      },
+      pt: {
+        title: "O Que é CFG Scale? Como Ajustar para Melhores Imagens IA",
+        description: "CFG Scale controla quanto a IA segue seu prompt. Aprenda os valores ideais.",
+        sections: [
+          { heading: "CFG Scale Explicado", content: `<p>Baixo (1-4): mais criativo. Médio (5-8): equilibrado. Alto (9-15): segue estritamente o prompt.</p>` },
+          { heading: "Valores Recomendados", content: `<p>Flux: 3.0-4.0 / SDXL: 6.0-8.0 / SD1.5: 7.0-9.0</p>` },
         ],
       },
     },
@@ -285,6 +337,30 @@ export const ARTICLES: Article[] = [
           },
         ],
       },
+      es: {
+        title: "Guía ControlNet: Controla la Generación de Imágenes IA con Precisión",
+        description: "Aprende a usar ControlNet para control preciso. Modos Canny, Depth, OpenPose y Scribble.",
+        sections: [
+          { heading: "¿Qué es ControlNet?", content: `<p>ControlNet te permite guiar la generación usando una imagen de referencia — pose, bordes o mapa de profundidad.</p>` },
+          { heading: "4 Modos", content: `<p><strong>Canny Edge:</strong> Arquitectura, objetos. <strong>Depth:</strong> Escenas 3D. <strong>OpenPose:</strong> Poses de personajes. <strong>Scribble:</strong> Bocetos rápidos.</p>` },
+        ],
+      },
+      zh: {
+        title: "ControlNet指南：精确控制AI图像生成",
+        description: "学习使用ControlNet精确控制AI图像。Canny、Depth、OpenPose、Scribble四种模式详解。",
+        sections: [
+          { heading: "什么是ControlNet？", content: `<p>ControlNet让你用参考图像引导AI生成——姿势、边缘或深度图。</p>` },
+          { heading: "4种模式", content: `<p><strong>Canny Edge：</strong>建筑、物体。<strong>Depth：</strong>3D场景。<strong>OpenPose：</strong>人物姿势。<strong>Scribble：</strong>速写草稿。</p>` },
+        ],
+      },
+      pt: {
+        title: "Guia ControlNet: Controle Preciso na Geração de Imagens IA",
+        description: "Aprenda a usar ControlNet para controle preciso. Modos Canny, Depth, OpenPose e Scribble.",
+        sections: [
+          { heading: "O Que é ControlNet?", content: `<p>ControlNet permite guiar a geração usando uma imagem de referência — pose, bordas ou mapa de profundidade.</p>` },
+          { heading: "4 Modos", content: `<p><strong>Canny:</strong> Arquitetura. <strong>Depth:</strong> Cenas 3D. <strong>OpenPose:</strong> Poses. <strong>Scribble:</strong> Esboços.</p>` },
+        ],
+      },
     },
   },
 
@@ -344,6 +420,30 @@ export const ARTICLES: Article[] = [
             content: `<p>Kling 3.0 4KはProプラン（¥980/月）で利用可能。テキストから映画的4K動画を生成、または静止画をアニメーション化。</p>
 <p><a href="/generate">Kling 3.0を試す →</a></p>`,
           },
+        ],
+      },
+      es: {
+        title: "Kling 3.0: Generación de Video IA en 4K Nativo",
+        description: "Kling 3.0 trae resolución 4K nativa y calidad cinematográfica a la generación de video IA.",
+        sections: [
+          { heading: "Novedades de Kling 3.0", content: `<ul><li><strong>4K nativo</strong> — Sin necesidad de upscaling</li><li><strong>Calidad cinematográfica</strong> — Movimiento fluido y natural</li><li><strong>Audio nativo</strong> — Kling O3 genera audio</li></ul>` },
+          { heading: "Pruébalo", content: `<p>Disponible para usuarios Pro (¥980/mes). <a href="/generate">Probar Kling 3.0 →</a></p>` },
+        ],
+      },
+      zh: {
+        title: "Kling 3.0来了：原生4K AI视频生成",
+        description: "Kling 3.0带来原生4K分辨率、电影级画质和流畅动态。",
+        sections: [
+          { heading: "Kling 3.0新功能", content: `<ul><li><strong>原生4K</strong>——无需放大</li><li><strong>电影画质</strong>——自然流畅的运动</li><li><strong>音频支持</strong>——Kling O3原生音频</li></ul>` },
+          { heading: "立即体验", content: `<p>Pro计划用户可用（¥980/月）。<a href="/generate">试用Kling 3.0 →</a></p>` },
+        ],
+      },
+      pt: {
+        title: "Kling 3.0: Geração de Vídeo IA em 4K Nativo",
+        description: "Kling 3.0 traz resolução 4K nativa e qualidade cinematográfica para geração de vídeo IA.",
+        sections: [
+          { heading: "Novidades", content: `<ul><li><strong>4K nativo</strong></li><li><strong>Qualidade cinematográfica</strong></li><li><strong>Áudio nativo</strong> com Kling O3</li></ul>` },
+          { heading: "Experimente", content: `<p>Disponível para Pro (¥980/mês). <a href="/generate">Testar Kling 3.0 →</a></p>` },
         ],
       },
     },
@@ -474,6 +574,32 @@ export const ARTICLES: Article[] = [
           },
         ],
       },
+      es: {
+        title: "Libertad Creativa en la Generación IA: ¿Dónde Trazamos la Línea?",
+        description: "La tensión entre libertad creativa y seguridad de contenido crece. ¿Quién decide qué es dañino?",
+        sections: [
+          { heading: "La Promesa de la Creatividad Sin Restricciones", content: `<p>Cuando Stable Diffusion se lanzó como código abierto en 2022, democratizó la creación de imágenes. Comunidades como Unstable Diffusion abrazaron esta filosofía — 350,000 usuarios diarios, 500,000 imágenes por día. Pero no sobrevivió.</p>` },
+          { heading: "El Costo de la Libertad", content: `<p>Las GPUs no funcionan con ideología. Unstable Diffusion ganaba $2,500/mes sirviendo a 350,000 usuarios. Las matemáticas no funcionaban.</p>` },
+          { heading: "Un Camino Sostenible", content: `<p>En EGAKU AI creemos en la libertad creativa — pero también en la sostenibilidad. Prohibiciones absolutas (CSAM, deepfakes) + contenido adulto con salvaguardas + plataforma que se mantenga a sí misma.</p>` },
+        ],
+      },
+      zh: {
+        title: "AI生成中的创作自由：界限在哪里？",
+        description: "随着AI图像生成成为主流，创作自由与内容安全之间的张力日益增长。",
+        sections: [
+          { heading: "无限创意的承诺", content: `<p>2022年Stable Diffusion开源发布，实现了图像创作的民主化。Unstable Diffusion拥抱这一理念——35万日活，每天50万张图像。但最终没能持续。</p>` },
+          { heading: "自由的代价", content: `<p>GPU不靠理想运转。Unstable Diffusion每月收入$2,500，却服务35万用户。</p>` },
+          { heading: "可持续的中间路线", content: `<p>EGAKU AI相信创作自由，同时相信可持续性。绝对禁止事项不可协商（CSAM、深度伪造）。成人内容在合规框架内提供。</p>` },
+        ],
+      },
+      pt: {
+        title: "Liberdade Criativa na Geração IA: Onde Traçar a Linha?",
+        description: "A tensão entre liberdade criativa e segurança de conteúdo cresce. Quem decide o que é prejudicial?",
+        sections: [
+          { heading: "A Promessa da Criatividade Irrestrita", content: `<p>Quando o Stable Diffusion foi lançado como código aberto, democratizou a criação de imagens. Mas comunidades como Unstable Diffusion não sobreviveram — processadores de pagamento recusaram serviço.</p>` },
+          { heading: "Um Caminho Sustentável", content: `<p>No EGAKU AI acreditamos em liberdade criativa com sustentabilidade. Proibições absolutas (CSAM, deepfakes) + conteúdo adulto com salvaguardas.</p>` },
+        ],
+      },
     },
   },
 
@@ -502,6 +628,30 @@ export const ARTICLES: Article[] = [
           { heading: "サンプラーとは？", content: `<p>サンプラーはランダムなノイズから画像を段階的に生成するアルゴリズムです。同じプロンプトとシードでも、サンプラーが違えば微妙に異なる結果が出ます。</p>` },
           { heading: "主要サンプラー", content: `<p><strong>Euler / Euler Ancestral：</strong> 定番。高速。Ancestralはステップごとにランダム性を追加（創造的だが一貫性低め）。</p><p><strong>DPM++ 2M Karras：</strong> 現在の品質基準。クリーンで詳細な画像。フォトリアルに最適。</p><p><strong>DDIM：</strong> 決定的（同じシード=完全同一結果）。再現性とアニメーションに。</p><p><strong>UniPC：</strong> 少ないステップ（10-15）で高品質。速度重視に。</p>` },
           { heading: "推奨設定", content: `<p><strong>DPM++ 2M Karras、25ステップ</strong>がEGAKU AIのデフォルト。全モデルで安定して高品質。特別な理由がない限りこれで十分。</p>` },
+        ],
+      },
+      es: {
+        title: "Samplers de Imágenes IA: Euler vs DPM++ vs DDIM",
+        description: "¿Qué son los samplers? Diferencias entre Euler, DPM++ 2M Karras y DDIM.",
+        sections: [
+          { heading: "¿Qué es un Sampler?", content: `<p>Un sampler es el algoritmo que elimina ruido paso a paso hasta formar tu imagen. Diferentes samplers producen resultados sutilmente diferentes.</p>` },
+          { heading: "Recomendación", content: `<p>Empieza con <strong>DPM++ 2M Karras a 25 pasos</strong>. Es el estándar de calidad actual.</p>` },
+        ],
+      },
+      zh: {
+        title: "AI图像采样器详解：Euler vs DPM++ vs DDIM",
+        description: "什么是采样器？了解Euler、DPM++ 2M Karras、DDIM的区别和使用场景。",
+        sections: [
+          { heading: "什么是采样器？", content: `<p>采样器是逐步从随机噪声生成图像的算法。不同采样器产生略有不同的结果。</p>` },
+          { heading: "推荐", content: `<p>默认使用<strong>DPM++ 2M Karras，25步</strong>。所有模型类型都能稳定产出高质量结果。</p>` },
+        ],
+      },
+      pt: {
+        title: "Samplers de Imagens IA: Euler vs DPM++ vs DDIM",
+        description: "O que são samplers? Diferenças entre Euler, DPM++ 2M Karras e DDIM.",
+        sections: [
+          { heading: "O Que é um Sampler?", content: `<p>Um sampler é o algoritmo que remove ruído passo a passo até formar sua imagem.</p>` },
+          { heading: "Recomendação", content: `<p>Comece com <strong>DPM++ 2M Karras a 25 passos</strong>.</p>` },
         ],
       },
     },
@@ -534,6 +684,30 @@ export const ARTICLES: Article[] = [
           { heading: "EGAKU AIでの使い方", content: `<ol><li><a href="/generate">Generate</a>ページへ</li><li><strong>CivitAI Models</strong>ブラウザボタンをクリック</li><li>キーワードで検索</li><li><strong>Use Now</strong>で即生成、<strong>Save</strong>で保存</li></ol><p>ダウンロード不要 — クラウドで全て処理。</p>` },
         ],
       },
+      es: {
+        title: "¿Qué Son los Modelos LoRA? Cómo Usar 100K+ Modelos de CivitAI",
+        description: "Los modelos LoRA personalizan la generación de imágenes IA. Aprende a encontrarlos y usarlos.",
+        sections: [
+          { heading: "LoRA en Términos Simples", content: `<p><strong>LoRA</strong> es un archivo pequeño que modifica cómo genera imágenes un modelo base. Como entrenamiento especializado para un pintor generalista.</p>` },
+          { heading: "Cómo Usarlos en EGAKU AI", content: `<ol><li>Ve a Generate → botón CivitAI Models</li><li>Busca por palabra clave</li><li>Haz clic en Use Now para generar al instante</li></ol>` },
+        ],
+      },
+      zh: {
+        title: "什么是LoRA模型？如何使用CivitAI的10万+模型",
+        description: "LoRA模型让你用特定风格、角色或概念自定义AI图像生成。",
+        sections: [
+          { heading: "简单说明", content: `<p><strong>LoRA</strong>是修改基础AI模型输出的小型附加文件。大小仅10-300MB，可叠加使用。</p>` },
+          { heading: "在EGAKU AI中使用", content: `<ol><li>前往Generate → CivitAI Models按钮</li><li>搜索关键词</li><li>点击Use Now即时生成</li></ol>` },
+        ],
+      },
+      pt: {
+        title: "O Que São Modelos LoRA? Como Usar 100K+ Modelos do CivitAI",
+        description: "Modelos LoRA personalizam a geração de imagens IA. Aprenda a encontrá-los e usá-los.",
+        sections: [
+          { heading: "LoRA em Termos Simples", content: `<p><strong>LoRA</strong> é um arquivo pequeno que modifica como o modelo base gera imagens.</p>` },
+          { heading: "Como Usar no EGAKU AI", content: `<ol><li>Vá para Generate → botão CivitAI Models</li><li>Pesquise por palavra-chave</li><li>Clique em Use Now</li></ol>` },
+        ],
+      },
     },
   },
 
@@ -563,6 +737,30 @@ export const ARTICLES: Article[] = [
           { heading: "モデル比較", content: `<p><strong>Kling 3.0：</strong> ネイティブ4K、映画品質。プロ向け。</p><p><strong>Kling O3：</strong> 4K + 音声。映像作品に。</p><p><strong>Veo 3：</strong> 1080p、多様なスタイル。クリエイティブに。</p><p><strong>Wan 2.6：</strong> 無料枠あり、最長15秒。コスト重視に。</p><p><strong>LTX 2.3：</strong> 最速（1分以内）。ドラフトに。</p>` },
           { heading: "選び方", content: `<ul><li><strong>4K品質が必要</strong> → Kling 3.0</li><li><strong>音声付き</strong> → Kling O3</li><li><strong>予算重視</strong> → Wan 2.6（無料）/ LTX 2.3</li><li><strong>長尺</strong> → Wan 2.6（最長15秒）</li></ul><p>EGAKU AIでは全モデルが1つのインターフェースから利用可能。</p>` },
           { heading: "プロのコ��", content: `<p>最高品質の動画を作るなら：Flux Proで高品質画像を生成 → Kling 3.0 I2Vでアニメーション化。</p>` },
+        ],
+      },
+      es: {
+        title: "Generación de Video IA en 2026: Kling 3.0 vs Veo 3 vs Wan 2.6",
+        description: "Comparación práctica de los principales modelos de generación de video IA en 2026.",
+        sections: [
+          { heading: "Comparación", content: `<p><strong>Kling 3.0:</strong> 4K nativo, cinematográfico. <strong>Veo 3:</strong> 1080p, diverso. <strong>Wan 2.6:</strong> Gratis, hasta 15s. <strong>LTX:</strong> Rápido, borradores.</p>` },
+          { heading: "Consejo Pro", content: `<p>Genera una imagen con Flux Pro, luego anímala con Kling 3.0 I2V.</p>` },
+        ],
+      },
+      zh: {
+        title: "2026年AI视频生成比较：Kling 3.0 vs Veo 3 vs Wan 2.6",
+        description: "2026年顶级AI视频生成模型实用比较。质量、速度、成本和选择指南。",
+        sections: [
+          { heading: "模型对比", content: `<p><strong>Kling 3.0：</strong>原生4K，电影级。<strong>Veo 3：</strong>1080p，多样风格。<strong>Wan 2.6：</strong>免费，最长15秒。<strong>LTX：</strong>最快。</p>` },
+          { heading: "专业技巧", content: `<p>先用Flux Pro生成高质量图片，再用Kling 3.0 I2V制作动画。</p>` },
+        ],
+      },
+      pt: {
+        title: "Geração de Vídeo IA em 2026: Kling 3.0 vs Veo 3 vs Wan 2.6",
+        description: "Comparação prática dos melhores modelos de geração de vídeo IA em 2026.",
+        sections: [
+          { heading: "Comparação", content: `<p><strong>Kling 3.0:</strong> 4K nativo. <strong>Veo 3:</strong> 1080p. <strong>Wan 2.6:</strong> Grátis, até 15s. <strong>LTX:</strong> Mais rápido.</p>` },
+          { heading: "Dica Pro", content: `<p>Gere imagem com Flux Pro, depois anime com Kling 3.0 I2V.</p>` },
         ],
       },
     },
