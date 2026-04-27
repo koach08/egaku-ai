@@ -164,7 +164,7 @@ export default function LandingPage() {
               <span className="text-sm sm:text-base font-bold">Kling 3.0 4K + Kling O3 Now Available</span>
             </div>
             <p className="text-xs sm:text-sm text-muted-foreground">
-              Native 4K video generation with cinematic quality. Plus Veo 3, Seedance 2, GPT Image 2 and 25+ more models.
+              Native 4K video generation with cinematic quality. Plus Veo 3, GPT Image 2 and 25+ more models.
             </p>
           </div>
         </section>
@@ -180,7 +180,6 @@ export default function LandingPage() {
               { name: "Flux Pro", tag: "Best Image Quality", badge: "", sample: "/samples/flux_dev.jpg", type: "image" },
               { name: "GPT Image 2", tag: "OpenAI Latest", badge: "NEW", sample: "/samples/gpt_image2.png", type: "image" },
               { name: "Veo 3", tag: "Google Video", badge: "", sample: "/samples/veo3.mp4", type: "video" },
-              { name: "Seedance 2", tag: "ByteDance Video", badge: "", sample: "", type: "none", color: "from-orange-600 to-red-600" },
               { name: "Ideogram v3", tag: "Text + Logo", badge: "", sample: "/samples/ideogram.png", type: "image" },
               { name: "CivitAI", tag: "100K+ Community Models", badge: "", sample: "", type: "grid", gridImages: ["/samples/civitai_realistic.jpg","/samples/civitai_anime.jpg","/samples/civitai_fantasy.jpg","/samples/civitai_scifi.jpg"] },
               { name: "SDXL", tag: "Free — 1024px", badge: "Free", sample: "/samples/sdxl.jpg", type: "image" },
