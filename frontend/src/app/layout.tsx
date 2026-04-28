@@ -50,7 +50,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "EGAKU AI - Free AI Image & Video Generator",
     description:
-      "Create stunning AI art and cinematic videos with 25+ models. Kling 3.0 4K, Veo 3, Flux, GPT Image 2, CivitAI. Face Swap, Vid2Vid, Photo Booth & more. Free to start.",
+      "Create images and videos with audio using 30+ AI models. Veo 3, Grok, Flux, Kling 3.0, Sora 2, CivitAI. Anyone can create. Free to start.",
     url: "https://egaku-ai.com",
     siteName: "EGAKU AI",
     type: "website",
@@ -61,7 +61,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "EGAKU AI - Free AI Image & Video Generator",
     description:
-      "Create stunning AI art with 25+ models. Kling 3.0, Veo 3, Flux, GPT Image 2, CivitAI. Free to start.",
+      "Create images and videos with 30+ AI models. Veo 3, Grok, Flux, Kling 3.0, Sora 2. Free to start.",
   },
   robots: {
     index: true,
