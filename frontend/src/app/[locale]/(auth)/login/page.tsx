@@ -57,9 +57,6 @@ export default function LoginPage() {
               <Button variant="outline" className="w-full" onClick={() => handleOAuth("twitter")}>
                 Continue with X (Twitter)
               </Button>
-              <Button variant="outline" className="w-full" onClick={() => handleOAuth("github")}>
-                Continue with GitHub
-              </Button>
             </div>
 
             <div className="my-6 flex items-center gap-3">
