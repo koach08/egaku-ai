@@ -1430,4 +1430,329 @@ export const ARTICLES: Article[] = [
       },
     },
   },
+
+  // ── How-to: Veo 3 Video with Audio ──
+  {
+    slug: "veo-3-video-with-audio-guide",
+    category: "how-to",
+    tags: ["veo3", "video", "audio", "google", "beginner"],
+    publishedAt: "2026-04-28",
+    readingTime: 4,
+    translations: {
+      en: {
+        title: "How to Create Videos with Audio Using Veo 3",
+        description: "Step-by-step guide to generating videos with native audio using Google's Veo 3 on EGAKU AI. No editing software needed.",
+        sections: [
+          { heading: "What is Veo 3?", content: `<p>Veo 3 is Google's latest video generation model. What sets it apart: it generates <strong>native audio</strong> alongside video. Rain sounds with rain scenes, music with dance scenes, dialogue with character scenes. No post-production audio editing needed.</p>` },
+          { heading: "Getting Started", content: `<p>On EGAKU AI:</p><ol><li>Go to <strong>Generate</strong> page</li><li>Switch to <strong>Text-to-Video</strong> tab</li><li>Select <strong>Veo 3 (Google)</strong> from the model dropdown</li><li>Write your prompt describing both visuals and sounds</li><li>Click Generate (costs 40 credits)</li></ol><p>Generation takes 1-3 minutes. The result includes both video and audio.</p>` },
+          { heading: "Prompt Tips for Audio", content: `<p>Veo 3 responds to audio cues in your prompt:</p><ul><li><code>rain falling on cobblestones, sound of distant thunder</code></li><li><code>musician playing acoustic guitar, warm cafe ambience</code></li><li><code>waves crashing on beach, seagulls calling</code></li><li><code>busy Tokyo street, car horns and chatter</code></li></ul><p>Be specific about the sounds you want. The model understands audio descriptions naturally.</p>` },
+          { heading: "Best Use Cases", content: `<ul><li><strong>Ambient scenes:</strong> Nature, weather, cityscapes with matching soundscapes</li><li><strong>Music videos:</strong> Describe instruments and genres</li><li><strong>Social media content:</strong> Short clips with built-in audio for TikTok/Reels</li><li><strong>Presentations:</strong> Background videos with ambient sound</li></ul>` },
+          { heading: "Veo 3 vs Other Video Models", content: `<table style="width:100%;border-collapse:collapse;"><tr style="border-bottom:1px solid #333;"><th style="text-align:left;padding:8px;">Feature</th><th>Veo 3</th><th>Kling 3.0</th><th>Sora 2</th></tr><tr style="border-bottom:1px solid #222;"><td style="padding:8px;">Audio</td><td>Native</td><td>No</td><td>No</td></tr><tr style="border-bottom:1px solid #222;"><td style="padding:8px;">Max Resolution</td><td>720p</td><td>4K</td><td>1080p</td></tr><tr style="border-bottom:1px solid #222;"><td style="padding:8px;">Duration</td><td>4-8s</td><td>5-10s</td><td>4-20s</td></tr><tr><td style="padding:8px;">Credits</td><td>40</td><td>40</td><td>50</td></tr></table>` },
+        ],
+      },
+      ja: {
+        title: "Veo 3で音声付き動画を作る方法",
+        description: "GoogleのVeo 3を使って音声付き動画を生成するガイド。EGAKU AIで編集ソフト不要で動画制作。",
+        sections: [
+          { heading: "Veo 3とは？", content: `<p>Veo 3はGoogleの最新動画生成モデルです。最大の特徴は<strong>ネイティブ音声生成</strong>。雨のシーンには雨音、カフェのシーンにはBGM、街のシーンには環境音が自動で付きます。後から音声を編集する必要がありません。</p>` },
+          { heading: "使い方", content: `<ol><li><strong>Generate</strong>ページへ</li><li><strong>Text-to-Video</strong>タブに切り替え</li><li>モデルで<strong>Veo 3 (Google)</strong>を選択</li><li>映像と音声の両方をプロンプトで記述</li><li>生成（40クレジット）</li></ol><p>1〜3分で音声付き動画が完成します。</p>` },
+          { heading: "音声を意識したプロンプト", content: `<p>音の描写をプロンプトに含めると効果的：</p><ul><li><code>雨が石畳に降り注ぐ、遠くの雷鳴</code></li><li><code>ギタリストがカフェで演奏、暖かい雰囲気</code></li><li><code>波が砂浜に打ち寄せる、カモメの鳴き声</code></li></ul>` },
+          { heading: "活用シーン", content: `<ul><li><strong>環境映像：</strong>自然、天候、都市の風景+サウンドスケープ</li><li><strong>SNSコンテンツ：</strong>TikTok/Reels用の音声付きショートクリップ</li><li><strong>プレゼン素材：</strong>BGM付き背景動画</li></ul>` },
+        ],
+      },
+      es: {
+        title: "Como crear videos con audio usando Veo 3",
+        description: "Guia paso a paso para generar videos con audio nativo usando Veo 3 de Google en EGAKU AI.",
+        sections: [
+          { heading: "Que es Veo 3?", content: `<p>Veo 3 es el modelo de video mas reciente de Google. Genera <strong>audio nativo</strong> junto con el video automaticamente.</p>` },
+          { heading: "Como empezar", content: `<ol><li>Ve a la pagina <strong>Generate</strong></li><li>Cambia a <strong>Text-to-Video</strong></li><li>Selecciona <strong>Veo 3 (Google)</strong></li><li>Escribe tu prompt describiendo tanto visuales como sonidos</li></ol>` },
+        ],
+      },
+      zh: {
+        title: "如何使用Veo 3创建带音频的视频",
+        description: "使用Google Veo 3在EGAKU AI上生成带原生音频的视频的完整指南。",
+        sections: [
+          { heading: "什么是Veo 3?", content: `<p>Veo 3是Google最新的视频生成模型，最大特点是<strong>原生音频生成</strong>。无需后期编辑音频。</p>` },
+          { heading: "如何开始", content: `<ol><li>进入<strong>Generate</strong>页面</li><li>切换到<strong>Text-to-Video</strong></li><li>选择<strong>Veo 3 (Google)</strong></li><li>在提示词中描述画面和声音</li></ol>` },
+        ],
+      },
+      pt: {
+        title: "Como criar videos com audio usando Veo 3",
+        description: "Guia passo a passo para gerar videos com audio nativo usando Veo 3 do Google no EGAKU AI.",
+        sections: [
+          { heading: "O que e Veo 3?", content: `<p>Veo 3 e o modelo de video mais recente do Google. Gera <strong>audio nativo</strong> junto com o video automaticamente.</p>` },
+          { heading: "Como comecar", content: `<ol><li>Va para a pagina <strong>Generate</strong></li><li>Mude para <strong>Text-to-Video</strong></li><li>Selecione <strong>Veo 3 (Google)</strong></li><li>Escreva seu prompt descrevendo tanto visuais quanto sons</li></ol>` },
+        ],
+      },
+    },
+  },
+
+  // ── How-to: Grok Imagine ──
+  {
+    slug: "grok-imagine-xai-image-video-guide",
+    category: "how-to",
+    tags: ["grok", "xai", "image", "video", "beginner"],
+    publishedAt: "2026-04-28",
+    readingTime: 4,
+    translations: {
+      en: {
+        title: "Grok Imagine: xAI's Image and Video Model on EGAKU AI",
+        description: "How to use Grok Imagine for photorealistic images and videos with audio. xAI's Aurora model guide.",
+        sections: [
+          { heading: "What is Grok Imagine?", content: `<p>Grok Imagine is xAI's (Elon Musk's AI company) image and video generation model. It uses the Aurora architecture and excels at photorealistic images, precise text rendering, and logo generation. The video model also generates native audio.</p>` },
+          { heading: "Image Generation", content: `<p>Select <strong>Grok Imagine (xAI)</strong> in the model dropdown on the Generate page.</p><p>Strengths:</p><ul><li>Photorealistic portraits and scenes</li><li>Accurate text in images (signs, logos, labels)</li><li>Clean composition and lighting</li><li>8 credits per image (Lite plan+)</li></ul>` },
+          { heading: "Video Generation", content: `<p>Select <strong>Grok Imagine Video</strong> in Text-to-Video mode.</p><p>Features:</p><ul><li>720p output with native audio</li><li>Natural motion and physics</li><li>30 credits per video (Basic plan+)</li><li>Fast generation (under 30 seconds)</li></ul>` },
+          { heading: "Best Prompts for Grok", content: `<p>Grok responds well to descriptive, natural language:</p><ul><li><code>A professional headshot of a confident woman in a modern office, natural lighting, sharp focus</code></li><li><code>Neon sign reading "OPEN 24H" on a rainy Tokyo street at night</code></li><li><code>Product photography of a luxury perfume bottle on black marble</code></li></ul>` },
+        ],
+      },
+      ja: {
+        title: "Grok Imagine: xAIの画像・動画モデルガイド",
+        description: "Grok Imagineでフォトリアルな画像と音声付き動画を生成する方法。xAI Auroraモデルの使い方。",
+        sections: [
+          { heading: "Grok Imagineとは？", content: `<p>Grok ImagineはxAI（イーロン・マスクのAI企業）の画像・動画生成モデルです。Auroraアーキテクチャを採用し、フォトリアルな画像、正確なテキスト描画、ロゴ生成に強みがあります。</p>` },
+          { heading: "画像生成", content: `<p>Generateページで<strong>Grok Imagine (xAI)</strong>を選択。</p><ul><li>フォトリアルなポートレートや風景が得意</li><li>画像内テキストが正確（看板、ロゴ、ラベル）</li><li>8クレジット/枚（Liteプラン以上）</li></ul>` },
+          { heading: "動画生成", content: `<p>Text-to-Videoで<strong>Grok Imagine Video</strong>を選択。</p><ul><li>720p + ネイティブ音声付き</li><li>30クレジット/本（Basicプラン以上）</li><li>高速生成（30秒以内）</li></ul>` },
+        ],
+      },
+      es: {
+        title: "Grok Imagine: Modelo de imagen y video de xAI",
+        description: "Como usar Grok Imagine para imagenes fotorrealistas y videos con audio en EGAKU AI.",
+        sections: [
+          { heading: "Que es Grok Imagine?", content: `<p>Grok Imagine es el modelo de generacion de imagenes y video de xAI. Destaca en imagenes fotorrealistas y renderizado preciso de texto.</p>` },
+          { heading: "Generacion de imagenes", content: `<p>Selecciona <strong>Grok Imagine (xAI)</strong> en la pagina Generate. 8 creditos por imagen.</p>` },
+        ],
+      },
+      zh: {
+        title: "Grok Imagine: xAI图像和视频模型指南",
+        description: "如何使用Grok Imagine生成照片级图像和带音频的视频。",
+        sections: [
+          { heading: "什么是Grok Imagine?", content: `<p>Grok Imagine是xAI的图像和视频生成模型，擅长照片级图像、精确文本渲染和标志生成。</p>` },
+          { heading: "图像生成", content: `<p>在Generate页面选择<strong>Grok Imagine (xAI)</strong>。每张8积分。</p>` },
+        ],
+      },
+      pt: {
+        title: "Grok Imagine: Modelo de imagem e video da xAI",
+        description: "Como usar Grok Imagine para imagens fotorrealistas e videos com audio no EGAKU AI.",
+        sections: [
+          { heading: "O que e Grok Imagine?", content: `<p>Grok Imagine e o modelo de geracao de imagens e video da xAI. Destaca-se em imagens fotorrealistas e renderizacao precisa de texto.</p>` },
+          { heading: "Geracao de imagens", content: `<p>Selecione <strong>Grok Imagine (xAI)</strong> na pagina Generate. 8 creditos por imagem.</p>` },
+        ],
+      },
+    },
+  },
+
+  // ── How-to: Face Swap ──
+  {
+    slug: "face-swap-guide-swap-faces-ai",
+    category: "how-to",
+    tags: ["face-swap", "portrait", "fun", "beginner"],
+    publishedAt: "2026-04-28",
+    readingTime: 3,
+    translations: {
+      en: {
+        title: "How to Use AI Face Swap: Put Your Face on Any Image",
+        description: "Step-by-step guide to swapping faces in AI-generated images. Fun, creative, and ethical face swap with EGAKU AI.",
+        sections: [
+          { heading: "What is Face Swap?", content: `<p>Face Swap lets you take a face from one image and place it onto another. Generate a stunning AI portrait, then swap in your own face (or a friend's) to create personalized artwork. EGAKU AI uses advanced face detection to ensure natural-looking results.</p><p><strong>Note:</strong> Real-person deepfakes and non-consensual content are strictly prohibited.</p>` },
+          { heading: "How to Use It", content: `<ol><li>Go to the <strong>Generate</strong> page</li><li>Create a base image with the pose/scene you want</li><li>Click <strong>Face Swap</strong> in the tools</li><li>Upload the source face photo</li><li>Select the target image</li><li>Click Swap (3 credits)</li></ol>` },
+          { heading: "Tips for Best Results", content: `<ul><li>Use a clear, front-facing photo for the source face</li><li>Good lighting on the source face helps a lot</li><li>The face angle in the target should roughly match the source</li><li>Works best with photorealistic base images</li></ul>` },
+          { heading: "Creative Ideas", content: `<ul><li>Put yourself in a movie poster or album cover</li><li>Create personalized birthday cards</li><li>Try different hairstyles or looks before committing</li><li>Make fun profile pictures with AI backgrounds</li></ul>` },
+        ],
+      },
+      ja: {
+        title: "AI Face Swapの使い方：顔を入れ替えてオリジナル画像を作る",
+        description: "AI生成画像で顔を入れ替える方法。EGAKU AIで楽しく創造的なFace Swap。",
+        sections: [
+          { heading: "Face Swapとは？", content: `<p>Face Swapは、ある画像の顔を別の画像に合成する機能です。AIで生成したポートレートに自分の顔を入れて、パーソナライズされたアート作品を作れます。</p><p><strong>注意：</strong>実在人物のディープフェイクや同意のないコンテンツは厳禁です。</p>` },
+          { heading: "使い方", content: `<ol><li><strong>Generate</strong>ページでベース画像を作成</li><li><strong>Face Swap</strong>ツールをクリック</li><li>顔写真をアップロード</li><li>ターゲット画像を選択</li><li>Swap実行（3クレジット）</li></ol>` },
+          { heading: "活用アイデア", content: `<ul><li>映画ポスター風の自分</li><li>パーソナライズされた誕生日カード</li><li>髪型やルックスのシミュレーション</li><li>AIバックグラウンドでプロフィール写真</li></ul>` },
+        ],
+      },
+      es: {
+        title: "Como usar AI Face Swap: Pon tu cara en cualquier imagen",
+        description: "Guia paso a paso para intercambiar caras en imagenes generadas por IA con EGAKU AI.",
+        sections: [
+          { heading: "Que es Face Swap?", content: `<p>Face Swap te permite tomar una cara de una imagen y colocarla en otra. Crea retratos personalizados con IA.</p>` },
+          { heading: "Como usarlo", content: `<ol><li>Crea una imagen base</li><li>Haz clic en <strong>Face Swap</strong></li><li>Sube la foto de la cara</li><li>Selecciona la imagen objetivo</li></ol>` },
+        ],
+      },
+      zh: {
+        title: "如何使用AI换脸：将你的脸放在任何图像上",
+        description: "使用EGAKU AI在AI生成的图像中换脸的分步指南。",
+        sections: [
+          { heading: "什么是Face Swap?", content: `<p>Face Swap可以将一张图片中的脸部替换到另一张图片上，创建个性化的AI肖像。</p>` },
+          { heading: "如何使用", content: `<ol><li>创建基础图像</li><li>点击<strong>Face Swap</strong></li><li>上传脸部照片</li><li>选择目标图像</li></ol>` },
+        ],
+      },
+      pt: {
+        title: "Como usar AI Face Swap: Coloque seu rosto em qualquer imagem",
+        description: "Guia passo a passo para trocar rostos em imagens geradas por IA com EGAKU AI.",
+        sections: [
+          { heading: "O que e Face Swap?", content: `<p>Face Swap permite pegar um rosto de uma imagem e coloca-lo em outra. Crie retratos personalizados com IA.</p>` },
+          { heading: "Como usar", content: `<ol><li>Crie uma imagem base</li><li>Clique em <strong>Face Swap</strong></li><li>Envie a foto do rosto</li><li>Selecione a imagem alvo</li></ol>` },
+        ],
+      },
+    },
+  },
+
+  // ── How-to: AI Upscaling ──
+  {
+    slug: "ai-upscale-enhance-image-quality",
+    category: "how-to",
+    tags: ["upscale", "enhance", "quality", "beginner"],
+    publishedAt: "2026-04-28",
+    readingTime: 3,
+    translations: {
+      en: {
+        title: "How to Upscale AI Images to 4x Resolution",
+        description: "Enhance low-resolution AI images to crisp, detailed 4K using AI upscaling on EGAKU AI.",
+        sections: [
+          { heading: "Why Upscale?", content: `<p>AI models typically generate images at 1024x1024 or smaller. If you need images for printing, wallpapers, or professional use, upscaling can increase resolution by 2x or 4x while adding realistic detail. A 1024px image becomes a sharp 4096px image.</p>` },
+          { heading: "How to Upscale", content: `<ol><li>Generate or upload any image</li><li>Click the <strong>Upscale</strong> button (magnifying glass icon)</li><li>Choose scale: 2x or 4x</li><li>Wait 10-30 seconds</li><li>Download the enhanced image</li></ol><p>Cost: 2 credits per upscale. Available on all plans.</p>` },
+          { heading: "When to Use", content: `<ul><li><strong>Print:</strong> Upscale to 4K+ for posters, canvas prints</li><li><strong>Wallpapers:</strong> Make any AI art fit your 4K monitor</li><li><strong>Social media:</strong> Sharpen images for Instagram/X posts</li><li><strong>Detail recovery:</strong> Enhance faces and textures in complex scenes</li></ul>` },
+          { heading: "Tips", content: `<ul><li>Upscale after you're happy with the composition (it's wasteful to upscale and then regenerate)</li><li>4x is best for printing, 2x is enough for screens</li><li>Works on uploaded photos too, not just AI-generated images</li></ul>` },
+        ],
+      },
+      ja: {
+        title: "AI画像を4倍にアップスケールする方法",
+        description: "低解像度のAI画像をAIアップスケーリングで鮮明な4Kに拡大する方法。",
+        sections: [
+          { heading: "なぜアップスケール？", content: `<p>AIモデルは通常1024x1024以下で生成します。印刷用、壁紙用、プロ用途には解像度が足りません。アップスケールで2倍〜4倍に拡大し、ディテールを追加できます。</p>` },
+          { heading: "使い方", content: `<ol><li>画像を生成またはアップロード</li><li><strong>Upscale</strong>ボタンをクリック</li><li>倍率を選択（2x or 4x）</li><li>10〜30秒待つ</li><li>ダウンロード</li></ol><p>2クレジット/回。全プラン利用可。</p>` },
+          { heading: "活用シーン", content: `<ul><li><strong>印刷：</strong>ポスター、キャンバスプリント</li><li><strong>壁紙：</strong>4Kモニター用</li><li><strong>SNS：</strong>高画質投稿</li></ul>` },
+        ],
+      },
+      es: {
+        title: "Como escalar imagenes AI a resolucion 4x",
+        description: "Mejora imagenes AI de baja resolucion a 4K nitido usando el escalado AI de EGAKU AI.",
+        sections: [
+          { heading: "Por que escalar?", content: `<p>Los modelos AI generan imagenes a 1024x1024 o menos. El escalado puede aumentar la resolucion 2x o 4x anadiendo detalle realista.</p>` },
+          { heading: "Como escalar", content: `<ol><li>Genera o sube una imagen</li><li>Haz clic en <strong>Upscale</strong></li><li>Elige la escala: 2x o 4x</li></ol>` },
+        ],
+      },
+      zh: {
+        title: "如何将AI图像放大到4倍分辨率",
+        description: "使用EGAKU AI的AI放大功能将低分辨率图像增强为清晰的4K。",
+        sections: [
+          { heading: "为什么要放大?", content: `<p>AI模型通常生成1024x1024或更小的图像。放大可以将分辨率提高2倍或4倍，同时添加逼真的细节。</p>` },
+          { heading: "如何放大", content: `<ol><li>生成或上传图像</li><li>点击<strong>Upscale</strong>按钮</li><li>选择倍率：2x或4x</li></ol>` },
+        ],
+      },
+      pt: {
+        title: "Como aumentar imagens AI para resolucao 4x",
+        description: "Melhore imagens AI de baixa resolucao para 4K nitido usando o upscale AI do EGAKU AI.",
+        sections: [
+          { heading: "Por que aumentar?", content: `<p>Modelos AI geram imagens em 1024x1024 ou menor. O upscale pode aumentar a resolucao 2x ou 4x adicionando detalhes realistas.</p>` },
+          { heading: "Como aumentar", content: `<ol><li>Gere ou envie uma imagem</li><li>Clique em <strong>Upscale</strong></li><li>Escolha a escala: 2x ou 4x</li></ol>` },
+        ],
+      },
+    },
+  },
+
+  // ── How-to: Short Video for Social Media ──
+  {
+    slug: "create-short-video-social-media-ai",
+    category: "how-to",
+    tags: ["video", "social-media", "tiktok", "reels", "shorts"],
+    publishedAt: "2026-04-28",
+    readingTime: 5,
+    translations: {
+      en: {
+        title: "Create Short Videos for TikTok, Reels, and Shorts with AI",
+        description: "How to generate eye-catching short videos for social media using AI. No filming or editing required.",
+        sections: [
+          { heading: "Why AI Video for Social Media?", content: `<p>Short-form video dominates social media. But not everyone has a camera, editing skills, or time to produce content. AI video generation lets you create professional-looking clips in minutes with just a text prompt.</p>` },
+          { heading: "Choose Your Model", content: `<p>For social media videos, these models work best:</p><ul><li><strong>Kling 3.0:</strong> Highest visual quality, 4K, 5-10 seconds. Best for eye-catching visuals.</li><li><strong>Veo 3:</strong> Includes audio. Perfect for atmospheric content.</li><li><strong>Grok Video:</strong> Fast generation, includes audio. Good for quick content.</li><li><strong>Wan 2.6:</strong> Free tier available. 15 second max. Great for starting out.</li></ul>` },
+          { heading: "Vertical Video (9:16)", content: `<p>Social media videos need to be vertical. On EGAKU AI:</p><ol><li>Select your video model</li><li>Set aspect ratio to <strong>9:16</strong> (if available) or generate at default and crop</li><li>Keep prompts focused on a single subject with clear motion</li></ol>` },
+          { heading: "Prompt Formula for Viral Content", content: `<p>Structure: <strong>[Hook visual] + [Motion] + [Style] + [Mood]</strong></p><p>Examples:</p><ul><li><code>Macro shot of coffee being poured in slow motion, cream swirling, morning light, cozy aesthetic</code></li><li><code>Dramatic drone shot ascending through clouds to reveal mountain peak, epic cinematic</code></li><li><code>Cute cat pouncing on a butterfly in a sunlit garden, slow motion, adorable</code></li></ul>` },
+          { heading: "Post-Production Tips", content: `<ul><li>Add text overlays using your phone's editor or CapCut</li><li>Loop-friendly content performs better (make start and end match)</li><li>Trending audio can be added in TikTok/Reels editor</li><li>Post consistently: AI lets you produce 5-10 videos per day easily</li></ul>` },
+        ],
+      },
+      ja: {
+        title: "AIでTikTok・Reels・Shorts用ショート動画を作る方法",
+        description: "AIで目を引くSNS向けショート動画を生成する方法。撮影も編集も不要。",
+        sections: [
+          { heading: "なぜAI動画？", content: `<p>ショート動画はSNSの主流。でもカメラも編集スキルも時間もない人が多い。AI動画生成なら、テキストプロンプトだけで数分でプロ品質のクリップが作れます。</p>` },
+          { heading: "モデルの選び方", content: `<ul><li><strong>Kling 3.0：</strong>最高画質、4K、5-10秒</li><li><strong>Veo 3：</strong>音声付き。雰囲気コンテンツに最適</li><li><strong>Grok Video：</strong>高速生成、音声付き</li><li><strong>Wan 2.6：</strong>無料枠あり。15秒まで</li></ul>` },
+          { heading: "バズるプロンプト", content: `<p>構造：<strong>[目を引くビジュアル] + [動き] + [スタイル] + [ムード]</strong></p><ul><li><code>コーヒーを注ぐスローモーション、クリームが渦巻く、朝の光</code></li><li><code>ドローン上昇、雲を突き抜けて山頂、壮大なシネマティック</code></li></ul>` },
+        ],
+      },
+      es: {
+        title: "Crea videos cortos para TikTok, Reels y Shorts con IA",
+        description: "Como generar videos cortos llamativos para redes sociales usando IA. Sin filmar ni editar.",
+        sections: [
+          { heading: "Por que video AI para redes?", content: `<p>El video corto domina las redes. La generacion de video AI te permite crear clips profesionales en minutos con solo un prompt de texto.</p>` },
+          { heading: "Elige tu modelo", content: `<ul><li><strong>Kling 3.0:</strong> Mejor calidad visual, 4K</li><li><strong>Veo 3:</strong> Incluye audio</li><li><strong>Wan 2.6:</strong> Tier gratuito disponible</li></ul>` },
+        ],
+      },
+      zh: {
+        title: "用AI创建TikTok、Reels和Shorts短视频",
+        description: "如何使用AI生成吸引眼球的社交媒体短视频。无需拍摄或编辑。",
+        sections: [
+          { heading: "为什么用AI做短视频?", content: `<p>短视频主导社交媒体。AI视频生成让你只需文字提示就能在几分钟内创建专业级剪辑。</p>` },
+          { heading: "选择模型", content: `<ul><li><strong>Kling 3.0:</strong>最高画质，4K</li><li><strong>Veo 3:</strong>带音频</li><li><strong>Wan 2.6:</strong>免费可用</li></ul>` },
+        ],
+      },
+      pt: {
+        title: "Crie videos curtos para TikTok, Reels e Shorts com IA",
+        description: "Como gerar videos curtos atraentes para redes sociais usando IA. Sem filmar ou editar.",
+        sections: [
+          { heading: "Por que video AI para redes?", content: `<p>Video curto domina as redes sociais. A geracao de video AI permite criar clipes profissionais em minutos com apenas um prompt de texto.</p>` },
+          { heading: "Escolha seu modelo", content: `<ul><li><strong>Kling 3.0:</strong> Melhor qualidade visual, 4K</li><li><strong>Veo 3:</strong> Inclui audio</li><li><strong>Wan 2.6:</strong> Gratuito disponivel</li></ul>` },
+        ],
+      },
+    },
+  },
+
+  // ── How-to: Background Removal + Replace ──
+  {
+    slug: "remove-background-replace-ai-guide",
+    category: "how-to",
+    tags: ["background", "remove-bg", "product", "beginner"],
+    publishedAt: "2026-04-28",
+    readingTime: 3,
+    translations: {
+      en: {
+        title: "Remove and Replace Backgrounds with AI",
+        description: "How to remove backgrounds from photos and replace them with AI-generated scenes. Perfect for product photos and portraits.",
+        sections: [
+          { heading: "Background Removal", content: `<p>EGAKU AI uses BiRefNet for precise background removal. Upload any photo and get a clean cutout in seconds.</p><ol><li>Go to <strong>Generate</strong> page</li><li>Select <strong>Remove Background</strong> tool</li><li>Upload your image</li><li>Download the transparent PNG</li></ol><p>Cost: 1 credit. Works on all plans.</p>` },
+          { heading: "Background Replacement", content: `<p>Want to change the background entirely? Use the <strong>Background Change</strong> tool:</p><ol><li>Upload your image</li><li>Describe the new background: <code>tropical beach at sunset</code> or <code>modern office interior</code></li><li>AI removes the old background and generates a new one that matches lighting and perspective</li></ol>` },
+          { heading: "Use Cases", content: `<ul><li><strong>Product photography:</strong> Place products on clean white or styled backgrounds</li><li><strong>Portraits:</strong> Move yourself to any location</li><li><strong>E-commerce:</strong> Consistent product backgrounds for your store</li><li><strong>Social media:</strong> Creative profile photos</li></ul>` },
+        ],
+      },
+      ja: {
+        title: "AIで背景を削除・置換する方法",
+        description: "写真の背景をAIで削除し、新しいシーンに置き換える方法。商品写真やポートレートに最適。",
+        sections: [
+          { heading: "背景削除", content: `<p>EGAKU AIはBiRefNetを使用して正確な背景削除を行います。写真をアップロードするだけで数秒で切り抜き。</p><ol><li><strong>Generate</strong>ページへ</li><li><strong>Remove Background</strong>ツールを選択</li><li>画像をアップロード</li><li>透過PNGをダウンロード</li></ol><p>1クレジット。全プラン利用可。</p>` },
+          { heading: "背景置換", content: `<p><strong>Background Change</strong>ツールで背景を丸ごと変更：</p><ol><li>画像をアップロード</li><li>新しい背景を記述：<code>夕暮れのビーチ</code>や<code>モダンなオフィス</code></li><li>AIが自動で背景を生成</li></ol>` },
+        ],
+      },
+      es: {
+        title: "Eliminar y reemplazar fondos con IA",
+        description: "Como eliminar fondos de fotos y reemplazarlos con escenas generadas por IA.",
+        sections: [
+          { heading: "Eliminacion de fondo", content: `<p>Sube cualquier foto y obtendras un recorte limpio en segundos. 1 credito.</p>` },
+          { heading: "Reemplazo de fondo", content: `<p>Describe el nuevo fondo y la IA lo generara automaticamente.</p>` },
+        ],
+      },
+      zh: {
+        title: "用AI移除和替换背景",
+        description: "如何从照片中移除背景并用AI生成的场景替换。",
+        sections: [
+          { heading: "背景移除", content: `<p>上传任何照片，几秒内获得干净的抠图。1积分。</p>` },
+          { heading: "背景替换", content: `<p>描述新背景，AI会自动生成匹配光线和透视的新背景。</p>` },
+        ],
+      },
+      pt: {
+        title: "Remover e substituir fundos com IA",
+        description: "Como remover fundos de fotos e substitui-los por cenas geradas por IA.",
+        sections: [
+          { heading: "Remocao de fundo", content: `<p>Envie qualquer foto e obtenha um recorte limpo em segundos. 1 credito.</p>` },
+          { heading: "Substituicao de fundo", content: `<p>Descreva o novo fundo e a IA o gerara automaticamente.</p>` },
+        ],
+      },
+    },
+  },
 ];
