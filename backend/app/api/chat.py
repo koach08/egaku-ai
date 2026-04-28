@@ -87,7 +87,7 @@ async def prompt_assist(
                     "Content-Type": "application/json",
                 },
                 json={
-                    "model": "gpt-4o-mini",
+                    "model": "gpt-4.1-mini",
                     "messages": messages,
                     "max_tokens": 1000,
                     "temperature": 0.7,

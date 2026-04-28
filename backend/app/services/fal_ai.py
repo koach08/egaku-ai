@@ -383,12 +383,15 @@ class FalClient:
         cfg: float = 7.5,
         seed: int = -1,
         negative_prompt: str = "",
+        num_images: int = 1,
     ) -> dict:
         """Submit a txt2img job to fal.ai. Returns synchronously with result."""
         model_info = MODELS.get(model_id, MODELS["fal_flux_dev"])
         fal_model = model_info["fal_id"]
 
         input_params: dict = {"prompt": prompt}
+        if num_images > 1:
+            input_params["num_images"] = min(num_images, 4)
 
         if "nano-banana" in fal_model:
             # Nano Banana 2 uses resolution/aspect_ratio instead of width/height
@@ -930,6 +933,20 @@ class FalClient:
         if isinstance(image, str):
             return image
         return None
+
+    def extract_all_image_urls(self, result: dict) -> list[str]:
+        """Extract all image URLs from a fal.ai response (for batch generation)."""
+        urls = []
+        images = result.get("images", [])
+        for img in images:
+            url = img.get("url") if isinstance(img, dict) else None
+            if url:
+                urls.append(url)
+        if not urls:
+            single = self.extract_image_url(result)
+            if single:
+                urls.append(single)
+        return urls
 
     async def consistent_character(
         self,

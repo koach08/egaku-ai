@@ -195,6 +195,8 @@ class AdultGenerateRequest(BaseModel):
     # LoRA support: combine with any checkpoint
     lora_model: str = ""
     lora_strength: float = Field(0.8, ge=0.0, le=2.0)
+    # Batch generation (paid users only)
+    batch_size: int = Field(1, ge=1, le=4)
 
 
 class AdultVideoRequest(BaseModel):
@@ -910,46 +912,74 @@ async def generate_adult(
     # NEVER uses Flux/fal.ai — those models block NSFW content
     job_id = str(uuid.uuid4())
 
+    # Batch: paid users can generate up to 4 images
+    batch = max(1, min(4, body.batch_size))
+    plan = profile.get("plan", "free")
+    if batch > 1 and plan == "free":
+        batch = 1  # Free users: 1 image only
+
     # ─── 0. ComfyUI via vast.ai (highest quality, zero content filter) ───
     if settings.vastai_comfyui_url:
         try:
-            comfyui_result = await _generate_with_comfyui(
-                comfyui_url=settings.vastai_comfyui_url,
-                prompt=body.prompt,
-                negative_prompt=body.negative_prompt,
-                width=body.width,
-                height=body.height,
-                steps=body.steps,
-                cfg=body.cfg,
-                seed=body.seed,
-                model_id=model_id,
-            )
-            if comfyui_result:
+            import random as _rand
+            batch_urls: list[str] = []
+            for bi in range(batch):
+                batch_seed = body.seed if body.seed != -1 and bi == 0 else _rand.randint(0, 2**32 - 1)
+                comfyui_result = await _generate_with_comfyui(
+                    comfyui_url=settings.vastai_comfyui_url,
+                    prompt=body.prompt,
+                    negative_prompt=body.negative_prompt,
+                    width=body.width,
+                    height=body.height,
+                    steps=body.steps,
+                    cfg=body.cfg,
+                    seed=batch_seed,
+                    model_id=model_id,
+                )
+                if comfyui_result:
+                    batch_urls.append(comfyui_result)
+            if batch_urls:
                 from app.api.generate import _save_generation_to_db, _store_job_status
-                await _store_job_status(settings, job_id, "completed", {"url": comfyui_result, "backend": "comfyui"})
+                await _store_job_status(settings, job_id, "completed", {"url": batch_urls[0], "backend": "comfyui"})
                 await _save_generation_to_db(
                     settings, user.id, job_id, "txt2img", body.prompt,
-                    body.negative_prompt, model_id, body.model_dump(), comfyui_result, True,
+                    body.negative_prompt, model_id, body.model_dump(), batch_urls[0], True,
                 )
-                logger.info(f"Adult generation via ComfyUI succeeded")
+                for extra_url in batch_urls[1:]:
+                    extra_jid = str(uuid.uuid4())
+                    await _save_generation_to_db(
+                        settings, user.id, extra_jid, "txt2img", body.prompt,
+                        body.negative_prompt, model_id, body.model_dump(), extra_url, True,
+                    )
+                logger.info(f"Adult generation via ComfyUI succeeded ({len(batch_urls)} images)")
                 return GenerationResponse(
                     job_id=job_id, status=JobStatus.completed,
-                    credits_used=base_cost, result_url=comfyui_result,
+                    credits_used=base_cost, result_url=batch_urls[0],
+                    result_urls=batch_urls if len(batch_urls) > 1 else [],
                 )
         except Exception as e:
             logger.warning(f"ComfyUI generation failed, falling back to Novita: {e}")
 
     from app.api.generate import _save_generation_to_db, _store_job_status
 
-    async def _save_and_return(url: str, backend: str) -> GenerationResponse:
+    async def _save_and_return(url: str, backend: str, extra_urls: list[str] | None = None) -> GenerationResponse:
         await _store_job_status(settings, job_id, "completed", {"url": url, "backend": backend})
         await _save_generation_to_db(
             settings, user.id, job_id, "txt2img", body.prompt,
             body.negative_prompt, model_id, body.model_dump(), url, True,
         )
+        all_urls = [url] + (extra_urls or [])
+        # Save extra batch images to DB
+        for extra_url in (extra_urls or []):
+            extra_job_id = str(uuid.uuid4())
+            await _save_generation_to_db(
+                settings, user.id, extra_job_id, "txt2img", body.prompt,
+                body.negative_prompt, model_id, body.model_dump(), extra_url, True,
+            )
         return GenerationResponse(
             job_id=job_id, status=JobStatus.completed,
             credits_used=base_cost, result_url=url,
+            result_urls=all_urls if len(all_urls) > 1 else [],
         )
 
     # ─── 1. ALWAYS try Novita.ai first for adult (NO safety filter) ───
@@ -1337,7 +1367,7 @@ async def generate_adult_video(
                         "https://api.openai.com/v1/chat/completions",
                         headers={"Authorization": f"Bearer {settings.openai_api_key}"},
                         json={
-                            "model": "gpt-4o-mini",
+                            "model": "gpt-4.1-mini",
                             "max_tokens": 300,
                             "messages": [{
                                 "role": "user",

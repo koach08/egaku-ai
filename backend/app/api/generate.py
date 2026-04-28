@@ -400,7 +400,7 @@ async def _generate_image_cloud(body: ImageGenerateRequest, request: Request, se
             fal_model_id = "fal_flux_realism"
             logger.info(f"NSFW mode: overriding model to fal_flux_realism")
         try:
-            logger.info(f"Trying fal.ai with model {fal_model_id} (original: {model_id})")
+            logger.info(f"Trying fal.ai with model {fal_model_id} (original: {model_id}) batch={body.batch_size}")
             fal_result = await fal_client.submit_txt2img(
                 prompt=body.prompt,
                 model_id=fal_model_id,
@@ -410,8 +410,10 @@ async def _generate_image_cloud(body: ImageGenerateRequest, request: Request, se
                 cfg=params["cfg"],
                 seed=body.seed,
                 negative_prompt=body.negative_prompt,
+                num_images=body.batch_size,
             )
-            result_url = fal_client.extract_image_url(fal_result)
+            all_urls = fal_client.extract_all_image_urls(fal_result)
+            result_url = all_urls[0] if all_urls else fal_client.extract_image_url(fal_result)
             if result_url:
                 # Check for black image (safety checker blocked)
                 if await fal_client.is_black_image(result_url):
@@ -442,11 +444,19 @@ async def _generate_image_cloud(body: ImageGenerateRequest, request: Request, se
                     settings, user.id, job_id, "txt2img", body.prompt,
                     body.negative_prompt, model_id, params, result_url, body.nsfw,
                 )
+                # Save additional batch images to DB
+                for extra_url in all_urls[1:]:
+                    extra_job_id = str(uuid.uuid4())
+                    await _save_generation_to_db(
+                        settings, user.id, extra_job_id, "txt2img", body.prompt,
+                        body.negative_prompt, model_id, params, extra_url, body.nsfw,
+                    )
                 return GenerationResponse(
                     job_id=job_id,
                     status=JobStatus.completed,
                     credits_used=credits_needed,
                     result_url=result_url,
+                    result_urls=all_urls,
                 )
             logger.warning("fal.ai returned no image URL")
         except Exception as fal_err:
@@ -1514,7 +1524,7 @@ async def suggest_img2vid_prompts(
                 "https://api.openai.com/v1/chat/completions",
                 headers={"Authorization": f"Bearer {settings.openai_api_key}"},
                 json={
-                    "model": "gpt-4o-mini",
+                    "model": "gpt-4.1-mini",
                     "max_tokens": 800,
                     "response_format": {"type": "json_object"},
                     "messages": [

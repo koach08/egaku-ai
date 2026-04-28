@@ -275,6 +275,7 @@ class GenerationResponse(BaseModel):
     status: JobStatus = JobStatus.queued
     credits_used: int
     result_url: str | None = None
+    result_urls: list[str] = []
 
 
 class JobStatusResponse(BaseModel):

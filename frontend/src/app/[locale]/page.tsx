@@ -8,6 +8,8 @@ import { WebsiteJsonLd } from "@/components/json-ld";
 import { ShowcaseGallery } from "@/components/showcase-gallery";
 import { AnonGenerator } from "@/components/anon-generator";
 import { AnnouncementBanner } from "@/components/announcement-banner";
+import { HeroVideo } from "@/components/hero-video";
+import { FadeIn } from "@/components/fade-in";
 import { LiveStats } from "@/components/live-stats";
 
 const planKeys = ["free", "lite", "basic", "pro", "unlimited", "studio"] as const;
@@ -24,7 +26,7 @@ const planPrices: Record<string, string> = {
 const featureKeys = [
   "txt2img", "img2img", "style", "txt2vid", "img2vid", "vid2vid",
   "lipSync", "talkingAvatar", "loraTraining", "characterVideo", "voiceClone",
-  "upscale", "inpaint", "controlnet", "removeBg", "customModels", "apiAccess",
+  "upscale", "inpaint", "controlnet", "removeBg", "customModels",
 ] as const;
 
 export default function LandingPage() {
@@ -36,57 +38,69 @@ export default function LandingPage() {
       <Header />
       <main>
         <AnnouncementBanner location="home" />
-        {/* Hero */}
-        <section className="container mx-auto px-4 py-20 text-center">
-          <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
-            {t("hero.title")}
-          </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
-            {t("hero.subtitle")}
-          </p>
-          {/* Free Generation — try before signup */}
-          <div className="mt-10 max-w-2xl mx-auto">
-            <AnonGenerator />
-          </div>
-          <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Button size="lg" className="text-lg px-8 py-6 bg-gradient-to-r from-purple-600 to-pink-600 hover:opacity-90" render={<Link href="/register" />}>
-              {t("common.startFree")} — 50 {t("common.credits")}
-            </Button>
-            <Button size="lg" variant="outline" render={<a href="#pricing" />}>
-              {t("hero.viewPricing")}
-            </Button>
-          </div>
-          <p className="mt-4 text-sm text-muted-foreground">
-            No credit card required. Start creating in 30 seconds.
-          </p>
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
-            {[
-              { label: "⚔️ Prompt Battle", href: "/battle", color: "from-red-500/20 to-orange-500/20 text-red-400" },
-              { label: "📸 Photo Booth", href: "/photo-booth", color: "from-green-500/20 to-emerald-500/20 text-green-400" },
-              { label: "😂 Meme Generator", href: "/meme", color: "from-yellow-500/20 to-amber-500/20 text-yellow-400" },
-              { label: "✏️ Logo Maker", href: "/logo", color: "from-violet-500/20 to-purple-500/20 text-violet-400" },
-              { label: "📱 Video Shorts", href: "/shorts", color: "from-pink-500/20 to-red-500/20 text-pink-400" },
-              { label: "🖼️ Wallpaper", href: "/wallpaper", color: "from-cyan-500/20 to-blue-500/20 text-cyan-400" },
-            ].map((f) => (
-              <Link
-                key={f.label}
-                href={f.href}
-                className={`text-xs px-3 py-1.5 rounded-full bg-gradient-to-r ${f.color} border border-white/5 hover:border-white/20 transition-colors`}
-              >
-                {f.label}
+        {/* Hero — video background */}
+        <section className="relative overflow-hidden">
+          {/* Video BG — random on each visit */}
+          <HeroVideo />
+
+          <div className="relative z-10 container mx-auto px-4 pt-28 pb-20 text-center">
+            <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl leading-tight">
+              {t("hero.title")}
+            </h1>
+            <p className="mx-auto mt-8 max-w-xl text-lg text-muted-foreground leading-relaxed">
+              {t("hero.subtitle")}
+            </p>
+
+            {/* Free Generation */}
+            <div className="mt-12 max-w-2xl mx-auto">
+              <AnonGenerator />
+            </div>
+
+            <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Button size="lg" className="text-lg px-8 py-6 bg-white text-black hover:bg-white/90 font-semibold" render={<Link href="/register" />}>
+                {t("common.startFree")} — 50 {t("common.credits")}
+              </Button>
+              <Button size="lg" variant="outline" className="border-white/20 hover:border-white/40" render={<a href="#pricing" />}>
+                {t("hero.viewPricing")}
+              </Button>
+            </div>
+            <p className="mt-5 text-sm text-muted-foreground/70">
+              No credit card required.
+            </p>
+
+            <div className="mt-10 flex flex-wrap items-center justify-center gap-2">
+              {[
+                { label: "Prompt Battle", href: "/battle" },
+                { label: "Photo Booth", href: "/photo-booth" },
+                { label: "Meme Generator", href: "/meme" },
+                { label: "Logo Maker", href: "/logo" },
+                { label: "Video Shorts", href: "/shorts" },
+                { label: "Wallpaper", href: "/wallpaper" },
+              ].map((f) => (
+                <Link
+                  key={f.label}
+                  href={f.href}
+                  className="text-xs px-3 py-1.5 rounded-full border border-white/10 text-muted-foreground hover:text-foreground hover:border-white/30 transition-colors"
+                >
+                  {f.label}
+                </Link>
+              ))}
+            </div>
+            <div className="mt-3">
+              <Link href="/tools" className="text-xs text-muted-foreground/60 hover:text-foreground transition-colors">
+                All 20+ tools →
               </Link>
-            ))}
-          </div>
-          <div className="mt-3">
-            <Link href="/tools" className="text-xs text-muted-foreground hover:text-purple-400 transition-colors underline underline-offset-4">
-              View all 20+ AI tools →
-            </Link>
+            </div>
           </div>
         </section>
 
         {/* Community Gallery — split into Images + Videos so visitors instantly see both capabilities */}
-        <ShowcaseGallery title={t("gallery.imagesTitle")} filter="image" maxItems={24} />
-        <ShowcaseGallery title={t("gallery.videosTitle")} filter="video" maxItems={18} />
+        <FadeIn>
+          <ShowcaseGallery title={t("gallery.imagesTitle")} filter="image" maxItems={24} />
+        </FadeIn>
+        <FadeIn delay={100}>
+          <ShowcaseGallery title={t("gallery.videosTitle")} filter="video" maxItems={18} />
+        </FadeIn>
 
         {/* How it works */}
         <section className="container mx-auto px-4 py-16">
@@ -157,38 +171,43 @@ export default function LandingPage() {
         </section>
 
         {/* NEW: Kling 3.0 Announcement Banner */}
-        <section className="container mx-auto px-4 py-6">
-          <div className="rounded-xl bg-gradient-to-r from-purple-600/20 via-pink-600/20 to-cyan-600/20 border border-purple-500/30 p-4 sm:p-6 text-center">
+        <FadeIn>
+        <section className="container mx-auto px-4 py-10">
+          <div className="rounded-xl bg-gradient-to-r from-white/[0.03] to-white/[0.06] border border-white/10 p-4 sm:p-6 text-center">
             <div className="flex items-center justify-center gap-2 mb-2">
-              <span className="text-xs font-bold bg-gradient-to-r from-purple-500 to-pink-500 text-white px-2.5 py-0.5 rounded-full animate-pulse">NEW</span>
-              <span className="text-sm sm:text-base font-bold">Kling 3.0 4K + Kling O3 Now Available</span>
+              <span className="text-xs font-bold bg-white/10 text-white px-2.5 py-0.5 rounded-full">NEW</span>
+              <span className="text-sm sm:text-base font-bold">Grok Imagine + Veo 3 Audio + Kling 3.0 4K</span>
             </div>
             <p className="text-xs sm:text-sm text-muted-foreground">
-              Native 4K video generation with cinematic quality. Plus Veo 3, GPT Image 2 and 25+ more models.
+              Create videos with audio, 4K cinematic output, and xAI&apos;s latest image model. 30+ models, one platform.
             </p>
           </div>
         </section>
+        </FadeIn>
 
-        {/* AI Models Showcase — card-based like BigMotion */}
-        <section className="container mx-auto px-4 py-12">
-          <h2 className="text-2xl font-bold text-center mb-3">25+ AI Models, One Platform</h2>
-          <p className="text-sm text-muted-foreground text-center mb-8">The latest and best models — at a fraction of the cost.</p>
+        {/* AI Models Showcase */}
+        <FadeIn>
+        <section className="container mx-auto px-4 py-20">
+          <h2 className="text-3xl font-bold text-center mb-4">30+ AI Models, One Platform</h2>
+          <p className="text-sm text-muted-foreground text-center mb-12 max-w-lg mx-auto">Anyone can create. The best models at a fraction of the cost.</p>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 max-w-5xl mx-auto">
             {[
-              { name: "Kling 3.0", tag: "4K Video", badge: "NEW", sample: "/samples/kling3_castle.mp4", type: "video" },
-              { name: "Kling O3", tag: "4K + Audio", badge: "NEW", sample: "/samples/kling3_cyberpunk.mp4", type: "video" },
+              { name: "Veo 3", tag: "Google Video + Audio", badge: "HOT", sample: "/samples/veo3.mp4", type: "video" },
+              { name: "Grok Imagine", tag: "xAI Image + Video", badge: "NEW", sample: "/samples/grok.jpg", type: "image" },
+              { name: "Kling 3.0", tag: "4K Cinematic Video", badge: "NEW", sample: "/samples/kling3_castle.mp4", type: "video" },
+              { name: "GPT Image 2", tag: "OpenAI Latest", badge: "", sample: "/samples/gpt_image2.png", type: "image" },
               { name: "Flux Pro", tag: "Best Image Quality", badge: "", sample: "/samples/flux_dev.jpg", type: "image" },
-              { name: "GPT Image 2", tag: "OpenAI Latest", badge: "NEW", sample: "/samples/gpt_image2.png", type: "image" },
-              { name: "Veo 3", tag: "Google Video", badge: "", sample: "/samples/veo3.mp4", type: "video" },
               { name: "Ideogram v3", tag: "Text + Logo", badge: "", sample: "/samples/ideogram.png", type: "image" },
+              { name: "Sora 2", tag: "OpenAI Cinematic Video", badge: "", sample: "/samples/kling3_cyberpunk.mp4", type: "video" },
               { name: "CivitAI", tag: "100K+ Community Models", badge: "", sample: "", type: "grid", gridImages: ["/samples/civitai_realistic.jpg","/samples/civitai_anime.jpg","/samples/civitai_fantasy.jpg","/samples/civitai_scifi.jpg"] },
-              { name: "SDXL", tag: "Free — 1024px", badge: "Free", sample: "/samples/sdxl.jpg", type: "image" },
-              { name: "Wan 2.6", tag: "Free Video", badge: "Free", sample: "/samples/wan26.mp4", type: "video" },
-              { name: "Nano Banana 2", tag: "2K Ultra Detail", badge: "", sample: "/samples/nano_banana.png", type: "image" },
+              { name: "Nano Banana 2", tag: "Google 4K Ultra", badge: "", sample: "/samples/nano_banana.png", type: "image" },
+              { name: "Wan 2.6", tag: "Free Video (NSFW OK)", badge: "Free", sample: "/samples/wan26.mp4", type: "video" },
+              { name: "Luma Photon", tag: "Cinematic Lighting", badge: "", sample: "/samples/flux_dev.jpg", type: "image" },
+              { name: "SDXL", tag: "Free 1024px", badge: "Free", sample: "/samples/sdxl.jpg", type: "image" },
             ].map((m) => (
               <Link key={m.name} href="/generate" className="group relative rounded-xl border border-muted bg-card overflow-hidden hover:border-purple-500/40 transition-all hover:shadow-lg">
                 {m.badge && (
-                  <span className={`absolute top-2 right-2 z-10 text-[9px] font-bold text-white px-2 py-0.5 rounded-full shadow-lg ${m.badge === "NEW" ? "bg-gradient-to-r from-purple-500 to-pink-500" : "bg-green-600"}`}>
+                  <span className={`absolute top-2 right-2 z-10 text-[9px] font-semibold px-2 py-0.5 rounded-full ${m.badge === "HOT" ? "bg-white text-black" : m.badge === "Free" ? "bg-green-600/80 text-white" : "bg-white/15 text-white backdrop-blur-sm"}`}>
                     {m.badge}
                   </span>
                 )}
@@ -223,8 +242,10 @@ export default function LandingPage() {
           </div>
           <LiveStats />
         </section>
+        </FadeIn>
 
         {/* Price Comparison — why EGAKU AI */}
+        <FadeIn>
         <section className="container mx-auto px-4 py-12">
           <h2 className="text-2xl font-bold text-center mb-3">How We Compare</h2>
           <p className="text-sm text-muted-foreground text-center mb-8">Same cutting-edge models. More features. Better price.</p>
@@ -263,14 +284,16 @@ export default function LandingPage() {
             </p>
           </div>
         </section>
+        </FadeIn>
 
         {/* Creative Tools — Main Navigation Hub */}
+        <FadeIn>
         <section className="container mx-auto px-4 py-16">
           <h2 className="text-3xl font-bold text-center mb-3">Creative Tools</h2>
           <p className="text-center text-muted-foreground mb-10">Everything you need to create — all in one platform.</p>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 max-w-5xl mx-auto">
             {[
-              { name: "AI Image Generator", desc: "25+ models including Flux Pro, Kling 3.0, GPT Image 2, SDXL", href: "/generate", icon: "🎨", gradient: "from-purple-600 to-pink-600" },
+              { name: "AI Image Generator", desc: "30+ models: Flux Pro, Grok, Kling 3.0, GPT Image 2, Ideogram", href: "/generate", icon: "🎨", gradient: "from-purple-600 to-pink-600" },
               { name: "Prompt Battle", desc: "Challenge friends to AI art duels — vote for the winner!", href: "/battle", icon: "⚔️", gradient: "from-red-600 to-orange-600" },
               { name: "Photo Booth", desc: "Selfie → professional portrait for LinkedIn, dating, social", href: "/photo-booth", icon: "📸", gradient: "from-green-600 to-emerald-600" },
               { name: "Logo Maker", desc: "Brand name → 3 professional logo variations instantly", href: "/logo", icon: "✏️", gradient: "from-violet-600 to-purple-600" },
@@ -299,8 +322,10 @@ export default function LandingPage() {
             ))}
           </div>
         </section>
+        </FadeIn>
 
         {/* Features */}
+        <FadeIn>
         <section className="container mx-auto px-4 py-16">
           <h2 className="text-3xl font-bold text-center mb-4">
             {t("features.title")}
@@ -363,8 +388,10 @@ export default function LandingPage() {
             })}
           </div>
         </section>
+        </FadeIn>
 
         {/* Pricing */}
+        <FadeIn>
         <section id="pricing" className="container mx-auto px-4 py-16">
           <h2 className="text-3xl font-bold text-center mb-4">
             {t("pricing.title")}
@@ -467,8 +494,10 @@ export default function LandingPage() {
           </Card>
 
         </section>
+        </FadeIn>
 
         {/* FAQ Section */}
+        <FadeIn>
         <section className="container mx-auto px-4 py-16">
           <h2 className="text-3xl font-bold text-center mb-10">Frequently Asked Questions</h2>
           <div className="max-w-3xl mx-auto space-y-4">
@@ -490,6 +519,7 @@ export default function LandingPage() {
             ))}
           </div>
         </section>
+        </FadeIn>
 
         {/* SEO Internal Links */}
         <section className="container mx-auto px-4 py-12 border-t">
@@ -597,7 +627,7 @@ export default function LandingPage() {
             </div>
             <div className="border-t pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
               <p>&copy; {new Date().getFullYear()} EGAKU AI. {t("footer.rights")}</p>
-              <p className="text-[10px]">Powered by Flux, Kling 3.0, Veo 3, GPT Image 2, SDXL, and 25+ AI models.</p>
+              <p className="text-[10px]">Powered by Veo 3, Grok, Flux, Kling 3.0, Sora 2, and 30+ AI models.</p>
             </div>
           </div>
         </footer>

@@ -395,7 +395,7 @@ async def generate_img2vid(
                 "https://api.openai.com/v1/chat/completions",
                 headers={"Authorization": f"Bearer {settings.openai_api_key}"},
                 json={
-                    "model": "gpt-4o-mini",
+                    "model": "gpt-4.1-mini",
                     "max_tokens": 200,
                     "messages": [{
                         "role": "user",

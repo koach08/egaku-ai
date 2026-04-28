@@ -125,6 +125,10 @@ export default function AdultPage() {
   const [i2vMode, setI2vMode] = useState<"animate" | "reimagine">("animate");
   const [suggestingPrompts, setSuggestingPrompts] = useState(false);
 
+  // Batch (paid users only)
+  const [batchSize, setBatchSize] = useState(1);
+  const [resultUrls, setResultUrls] = useState<string[]>([]);
+
   // Job state
   const [generating, setGenerating] = useState(false);
   const [resultUrl, setResultUrl] = useState<string | null>(null);
@@ -273,6 +277,7 @@ export default function AdultPage() {
 
     setGenerating(true);
     setResultUrl(null);
+    setResultUrls([]);
     setError(null);
     setElapsed(0);
     setResultType(mode === "video" || mode === "vid2vid" ? "video" : "image");
@@ -374,11 +379,14 @@ export default function AdultPage() {
           custom_model_name: customModelName || undefined,
           lora_model: loraModel || undefined,
           lora_strength: loraModel ? loraStrength : undefined,
+          batch_size: batchSize,
         });
       }
 
       if (res.status === "completed" && res.result_url) {
         setResultUrl(resolveResultUrl(res.result_url) || res.result_url);
+        const allUrls = (res.result_urls || []).map((u: string) => resolveResultUrl(u) || u);
+        if (allUrls.length > 1) setResultUrls(allUrls);
         setLastJobId(res.job_id || null);
         toast.success(`Done! Credits: ${res.credits_used}`);
       } else {
@@ -827,6 +835,18 @@ export default function AdultPage() {
                             loop
                             className="max-w-full max-h-[600px] rounded"
                           />
+                        ) : resultUrls.length > 1 ? (
+                          <div className={`grid gap-2 ${resultUrls.length === 2 ? "grid-cols-2" : "grid-cols-2"}`}>
+                            {resultUrls.map((url, i) => (
+                              <img
+                                key={i}
+                                src={url}
+                                alt={`Generated ${i + 1}`}
+                                className="w-full aspect-square object-cover rounded cursor-pointer hover:ring-2 hover:ring-pink-500 transition-all"
+                                onClick={() => window.open(url, "_blank")}
+                              />
+                            ))}
+                          </div>
                         ) : (
                           <img
                             src={resultUrl}
@@ -1408,6 +1428,30 @@ export default function AdultPage() {
                       onChange={(e) => setSeed(Number(e.target.value))}
                     />
                   </div>
+
+                  {/* Batch Size (paid users only, image modes) */}
+                  {(mode === "image" || mode === "civitai") && (
+                    <div>
+                      <Label className="text-xs flex items-center gap-1.5">
+                        Batch Size
+                        {(!subStatus?.main_plan || subStatus.main_plan === "free") && (
+                          <span className="text-[10px] bg-amber-500/20 text-amber-400 px-1.5 rounded">Lite+</span>
+                        )}
+                      </Label>
+                      {subStatus?.main_plan && subStatus.main_plan !== "free" ? (
+                        <Select value={String(batchSize)} onValueChange={(v) => setBatchSize(Number(v))}>
+                          <SelectTrigger><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="1">1 image</SelectItem>
+                            <SelectItem value="2">2 images</SelectItem>
+                            <SelectItem value="4">4 images</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      ) : (
+                        <p className="text-[11px] text-muted-foreground">Upgrade to Lite+ to generate multiple images at once</p>
+                      )}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 

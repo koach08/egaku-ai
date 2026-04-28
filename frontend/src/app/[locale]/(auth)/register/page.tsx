@@ -112,6 +112,9 @@ export default function RegisterPage() {
               <Button variant="outline" className="w-full" onClick={() => handleOAuth("discord")}>
                 Continue with Discord
               </Button>
+              <Button variant="outline" className="w-full" onClick={() => handleOAuth("twitter")}>
+                Continue with X (Twitter)
+              </Button>
               <Button variant="outline" className="w-full" onClick={() => handleOAuth("github")}>
                 Continue with GitHub
               </Button>

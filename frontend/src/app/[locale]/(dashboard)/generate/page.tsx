@@ -200,6 +200,7 @@ type JobState = {
   status: "queued" | "processing" | "completed" | "failed";
   type: "image" | "video";
   resultUrl?: string;
+  resultUrls?: string[];
   error?: string;
   progress: number;
   startedAt: number;
@@ -675,11 +676,13 @@ export default function GeneratePage() {
       });
       // fal.ai returns completed immediately with result_url
       if (res.status === "completed" && res.result_url) {
+        const allUrls = (res.result_urls || []).map((u: string) => resolveResultUrl(u) || u);
         setJob({
           jobId: res.job_id,
           status: "completed",
           type: "image",
           resultUrl: resolveResultUrl(res.result_url),
+          resultUrls: allUrls.length > 1 ? allUrls : undefined,
           progress: 1,
           startedAt: Date.now(),
         });
@@ -1991,7 +1994,22 @@ export default function GeneratePage() {
                   </div>
 
                   <div className="rounded-lg overflow-hidden bg-muted relative">
-                    {job.type === "image" ? (
+                    {job.type === "image" && job.resultUrls && job.resultUrls.length > 1 ? (
+                      <div className={`grid gap-2 ${job.resultUrls.length === 2 ? "grid-cols-2" : job.resultUrls.length === 3 ? "grid-cols-3" : "grid-cols-2"}`}>
+                        {job.resultUrls.map((url, i) => (
+                          <img
+                            key={i}
+                            src={url}
+                            alt={`Generated ${i + 1}`}
+                            className={`w-full aspect-square object-cover rounded cursor-pointer hover:ring-2 hover:ring-purple-500 transition-all duration-300 ${
+                              nsfwMode && resultBlurred ? "blur-xl" : ""
+                            }`}
+                            style={colorGrade !== "none" ? { filter: COLOR_GRADES.find((g) => g.id === colorGrade)?.filter } : undefined}
+                            onClick={() => window.open(url, "_blank")}
+                          />
+                        ))}
+                      </div>
+                    ) : job.type === "image" ? (
                       <img
                         src={job.resultUrl}
                         alt="Generated"
