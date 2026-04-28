@@ -1909,10 +1909,20 @@ export default function GeneratePage() {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <p className="text-sm font-medium text-green-500">Complete! ({elapsed}s)</p>
-                      {creditBalance !== null && (
+                      {creditBalance !== null && creditBalance > 10 && (
                         <span className="text-[10px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
                           {creditBalance} credits left
                         </span>
+                      )}
+                      {creditBalance !== null && creditBalance <= 10 && creditBalance > 0 && (
+                        <a href="/#pricing" className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 hover:bg-amber-500/30 transition-colors">
+                          {creditBalance} credits left — Upgrade
+                        </a>
+                      )}
+                      {creditBalance !== null && creditBalance <= 0 && (
+                        <a href="/#pricing" className="text-[10px] px-2 py-0.5 rounded-full bg-red-500/20 text-red-400 hover:bg-red-500/30 transition-colors">
+                          0 credits — Upgrade to continue
+                        </a>
                       )}
                     </div>
                     <div className="flex items-center gap-3">
@@ -2061,13 +2071,49 @@ export default function GeneratePage() {
               </Card>
             )}
 
-            {/* Failed */}
-            {job?.status === "failed" && (
+            {/* Failed — credit exhaustion gets upgrade CTA, other errors get standard display */}
+            {job?.status === "failed" && job.error && (job.error.includes("credits") || job.error.includes("Insufficient")) && (
+              <Card className="border-amber-500/30 bg-gradient-to-b from-amber-500/5 to-transparent">
+                <CardContent className="pt-6 pb-6 space-y-4 text-center">
+                  <p className="text-lg font-semibold">You&apos;re out of credits</p>
+                  <p className="text-sm text-muted-foreground max-w-md mx-auto">
+                    Upgrade to keep creating. Paid plans include more credits, premium models (Veo 3, Kling 3.0, Sora 2), batch generation, and no watermarks.
+                  </p>
+                  <div className="grid grid-cols-3 gap-3 max-w-lg mx-auto text-center">
+                    <div className="rounded-lg border border-muted p-3">
+                      <p className="text-xs text-muted-foreground">Lite</p>
+                      <p className="text-lg font-bold">¥480</p>
+                      <p className="text-[10px] text-muted-foreground">150 credits/mo</p>
+                    </div>
+                    <div className="rounded-lg border border-white/20 bg-white/5 p-3 ring-1 ring-white/10">
+                      <p className="text-xs text-white">Basic</p>
+                      <p className="text-lg font-bold">¥980</p>
+                      <p className="text-[10px] text-muted-foreground">500 credits/mo</p>
+                    </div>
+                    <div className="rounded-lg border border-muted p-3">
+                      <p className="text-xs text-muted-foreground">Pro</p>
+                      <p className="text-lg font-bold">¥2,980</p>
+                      <p className="text-[10px] text-muted-foreground">2,000 credits/mo</p>
+                    </div>
+                  </div>
+                  <div className="flex justify-center gap-3">
+                    <Button className="bg-white text-black hover:bg-white/90 font-semibold px-6" onClick={() => window.location.href = "/#pricing"}>
+                      View Plans
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => { setJob(null); setElapsed(0); }}>
+                      Dismiss
+                    </Button>
+                  </div>
+                  <p className="text-[10px] text-muted-foreground">Daily login bonus: +1 free credit every day</p>
+                </CardContent>
+              </Card>
+            )}
+            {job?.status === "failed" && job.error && !job.error.includes("credits") && !job.error.includes("Insufficient") && (
               <Card className="border-red-500/30">
                 <CardContent className="pt-5 space-y-2">
                   <p className="text-sm font-medium text-red-500">Generation failed</p>
                   <pre className="text-xs text-muted-foreground mt-1 bg-muted p-3 rounded-md overflow-x-auto select-all whitespace-pre-wrap break-all">
-                    {job.error || "An unexpected error occurred."}
+                    {job.error}
                   </pre>
                   <div className="flex gap-2 mt-3">
                     <Button variant="outline" size="sm" onClick={() => {

@@ -878,6 +878,15 @@ export default function AdultPage() {
                           </a>
                         </div>
                       </div>
+                    ) : error && (error.includes("credits") || error.includes("Insufficient")) ? (
+                      <div className="text-center p-8 space-y-4">
+                        <p className="text-lg font-semibold">Out of credits</p>
+                        <p className="text-sm text-muted-foreground max-w-sm mx-auto">Upgrade to keep creating. Pro plan includes 2,000 credits, all models, and priority queue.</p>
+                        <div className="flex justify-center gap-3">
+                          <button onClick={() => setShowPlans(true)} className="bg-white text-black hover:bg-white/90 font-semibold px-6 py-2 rounded-md text-sm">View Plans</button>
+                          <button onClick={() => setError(null)} className="border border-muted px-4 py-2 rounded-md text-sm text-muted-foreground hover:text-foreground">Dismiss</button>
+                        </div>
+                      </div>
                     ) : error ? (
                       <div className="text-center p-6">
                         <p className="text-red-400 text-sm">{error}</p>
