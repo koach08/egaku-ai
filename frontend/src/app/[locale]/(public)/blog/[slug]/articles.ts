@@ -1755,4 +1755,165 @@ export const ARTICLES: Article[] = [
       },
     },
   },
+
+  // ── How-to: Lip Sync + Talking Avatar ──
+  {
+    slug: "lip-sync-talking-avatar-guide",
+    category: "how-to",
+    tags: ["lip-sync", "talking-avatar", "video", "audio", "creative"],
+    publishedAt: "2026-04-28",
+    readingTime: 4,
+    translations: {
+      en: {
+        title: "How to Make Talking Avatars with AI Lip Sync",
+        description: "Create talking characters from a single photo using AI lip sync and voice cloning on EGAKU AI.",
+        sections: [
+          { heading: "What is Lip Sync?", content: `<p>AI Lip Sync takes a still image of a face and an audio track, then generates a video where the face moves naturally to match the speech. The result looks like the person in the photo is actually talking.</p><p>Combined with Voice Clone (text-to-speech with any voice), you can create a full talking avatar from scratch: generate a face with AI, clone a voice, and produce a speaking video.</p>` },
+          { heading: "Step-by-Step", content: `<ol><li><strong>Create a character image</strong> — Generate a portrait on the Generate page. Front-facing, clear face, good lighting works best.</li><li><strong>Prepare audio</strong> — Either upload your own audio file, or use <strong>Voice Clone</strong> to generate speech from text.</li><li><strong>Go to Lip Sync</strong> — Upload the portrait + audio.</li><li><strong>Generate</strong> — Wait 2-5 minutes. The AI produces a video with natural lip movements.</li></ol>` },
+          { heading: "Use Cases", content: `<ul><li><strong>Social media characters:</strong> Create a virtual influencer or mascot</li><li><strong>Presentations:</strong> AI narrator with a face</li><li><strong>Language learning:</strong> Characters speaking different languages</li><li><strong>Music videos:</strong> Characters lip-syncing to songs</li></ul>` },
+          { heading: "Tips for Quality", content: `<ul><li>High-resolution face images produce better results</li><li>Front-facing portraits work much better than side profiles</li><li>Clear audio without background noise syncs more accurately</li><li>Keep videos under 30 seconds for best quality</li></ul>` },
+        ],
+      },
+      ja: {
+        title: "AI Lip Syncでトーキングアバターを作る方法",
+        description: "1枚の写真からAIリップシンクと音声クローンで喋るキャラクターを作成する方法。",
+        sections: [
+          { heading: "Lip Syncとは？", content: `<p>AI Lip Syncは、静止画の顔と音声を組み合わせて、顔が自然に動く動画を生成します。写真の人物が実際に喋っているように見えます。</p><p>Voice Clone（テキストから音声生成）と組み合わせれば、AIで顔を生成→声をクローン→喋る動画、という流れで完全なトーキングアバターが作れます。</p>` },
+          { heading: "手順", content: `<ol><li><strong>キャラ画像を作成</strong> — Generateページでポートレートを生成。正面向き、鮮明な顔がベスト。</li><li><strong>音声を準備</strong> — 自分の音声をアップロード、またはVoice Cloneでテキストから生成。</li><li><strong>Lip Sync</strong> — ポートレート+音声をアップロード。</li><li><strong>生成</strong> — 2〜5分で自然なリップシンク動画が完成。</li></ol>` },
+          { heading: "活用例", content: `<ul><li>バーチャルインフルエンサー/マスコット</li><li>プレゼンのAIナレーター</li><li>語学学習（多言語キャラ）</li><li>ミュージックビデオ</li></ul>` },
+        ],
+      },
+      es: {
+        title: "Como crear avatares parlantes con AI Lip Sync",
+        description: "Crea personajes que hablan a partir de una sola foto usando lip sync y clonacion de voz con IA.",
+        sections: [
+          { heading: "Que es Lip Sync?", content: `<p>AI Lip Sync toma una imagen fija de un rostro y una pista de audio, y genera un video donde el rostro se mueve naturalmente para coincidir con el habla.</p>` },
+          { heading: "Paso a paso", content: `<ol><li>Crea una imagen de retrato</li><li>Prepara el audio o usa Voice Clone</li><li>Sube ambos a Lip Sync</li><li>Genera el video (2-5 minutos)</li></ol>` },
+        ],
+      },
+      zh: {
+        title: "如何用AI唇形同步制作会说话的头像",
+        description: "使用AI唇形同步和语音克隆，从一张照片创建会说话的角色。",
+        sections: [
+          { heading: "什么是Lip Sync?", content: `<p>AI Lip Sync将一张静态人脸图片和一段音频结合，生成面部自然移动匹配语音的视频。</p>` },
+          { heading: "步骤", content: `<ol><li>创建肖像图像</li><li>准备音频或使用Voice Clone</li><li>上传到Lip Sync</li><li>生成视频（2-5分钟）</li></ol>` },
+        ],
+      },
+      pt: {
+        title: "Como criar avatares falantes com AI Lip Sync",
+        description: "Crie personagens que falam a partir de uma unica foto usando lip sync e clonagem de voz com IA.",
+        sections: [
+          { heading: "O que e Lip Sync?", content: `<p>AI Lip Sync pega uma imagem estatica de um rosto e uma faixa de audio, e gera um video onde o rosto se move naturalmente para corresponder a fala.</p>` },
+          { heading: "Passo a passo", content: `<ol><li>Crie uma imagem de retrato</li><li>Prepare o audio ou use Voice Clone</li><li>Envie ambos para Lip Sync</li><li>Gere o video (2-5 minutos)</li></ol>` },
+        ],
+      },
+    },
+  },
+
+  // ── How-to: Style Transfer ──
+  {
+    slug: "style-transfer-transform-photos-art",
+    category: "how-to",
+    tags: ["style-transfer", "art", "creative", "beginner"],
+    publishedAt: "2026-04-28",
+    readingTime: 3,
+    translations: {
+      en: {
+        title: "Turn Any Photo into Art with AI Style Transfer",
+        description: "Transform ordinary photos into stunning artworks using 8 AI style presets. Oil painting, anime, watercolor, and more.",
+        sections: [
+          { heading: "What is Style Transfer?", content: `<p>Style transfer takes your photo and redraws it in a completely different artistic style while preserving the composition and subjects. Turn a selfie into an oil painting, a landscape into anime, or a pet photo into a watercolor.</p>` },
+          { heading: "Available Styles", content: `<ul><li><strong>Oil Painting:</strong> Classic fine art look with visible brushstrokes</li><li><strong>Watercolor:</strong> Soft, flowing colors with paper texture</li><li><strong>Anime:</strong> Japanese animation style with bold lines and vibrant colors</li><li><strong>Pencil Sketch:</strong> Black and white hand-drawn look</li><li><strong>Pop Art:</strong> Bold, Warhol-inspired colors</li><li><strong>Cyberpunk:</strong> Neon-lit futuristic aesthetic</li><li><strong>Ghibli:</strong> Studio Ghibli animation style</li><li><strong>Pixel Art:</strong> Retro 8-bit/16-bit game style</li></ul>` },
+          { heading: "How to Use", content: `<ol><li>Go to <strong>Generate</strong> page → <strong>Style Transfer</strong> tab</li><li>Upload any photo</li><li>Choose a style from the presets</li><li>Adjust strength (0.3 = subtle, 0.9 = full transformation)</li><li>Generate (2 credits)</li></ol>` },
+          { heading: "Strength Guide", content: `<ul><li><strong>0.3-0.4:</strong> Photo still recognizable, subtle artistic touch</li><li><strong>0.5-0.6:</strong> Balanced — clearly stylized but composition intact</li><li><strong>0.7-0.9:</strong> Heavy transformation, almost entirely redrawn</li></ul><p>Start at 0.5 and adjust from there.</p>` },
+        ],
+      },
+      ja: {
+        title: "AIスタイル変換で写真をアートに変える方法",
+        description: "普通の写真を8つのAIスタイルで美しいアートに変換。油絵、アニメ、水彩画など。",
+        sections: [
+          { heading: "スタイル変換とは？", content: `<p>スタイル変換は、写真の構図と被写体を保ちながら、まったく異なるアートスタイルで描き直します。自撮りを油絵に、風景をアニメに、ペット写真を水彩画に。</p>` },
+          { heading: "利用可能なスタイル", content: `<ul><li><strong>油絵：</strong>筆のタッチが見えるクラシックな画風</li><li><strong>水彩：</strong>柔らかく流れる色彩</li><li><strong>アニメ：</strong>日本アニメ風</li><li><strong>鉛筆スケッチ：</strong>白黒の手描き風</li><li><strong>ポップアート：</strong>ウォーホル風の大胆な色</li><li><strong>サイバーパンク：</strong>ネオンの未来的な雰囲気</li><li><strong>ジブリ：</strong>スタジオジブリ風</li><li><strong>ピクセルアート：</strong>レトロゲーム風</li></ul>` },
+          { heading: "使い方", content: `<ol><li><strong>Generate</strong>ページ → <strong>Style Transfer</strong>タブ</li><li>写真をアップロード</li><li>スタイルを選択</li><li>強度を調整（0.3=控えめ、0.9=完全変換）</li><li>生成（2クレジット）</li></ol>` },
+        ],
+      },
+      es: {
+        title: "Convierte cualquier foto en arte con Style Transfer",
+        description: "Transforma fotos ordinarias en obras de arte usando 8 estilos de IA. Oleo, anime, acuarela y mas.",
+        sections: [
+          { heading: "Que es Style Transfer?", content: `<p>Style transfer toma tu foto y la redibuja en un estilo artistico completamente diferente, preservando la composicion.</p>` },
+          { heading: "Como usar", content: `<ol><li>Ve a Generate → Style Transfer</li><li>Sube una foto</li><li>Elige un estilo</li><li>Ajusta la intensidad</li><li>Genera (2 creditos)</li></ol>` },
+        ],
+      },
+      zh: {
+        title: "用AI风格转换将照片变成艺术品",
+        description: "使用8种AI风格预设将普通照片转换为令人惊叹的艺术品。",
+        sections: [
+          { heading: "什么是风格转换?", content: `<p>风格转换将您的照片以完全不同的艺术风格重新绘制，同时保留构图和主体。</p>` },
+          { heading: "如何使用", content: `<ol><li>进入Generate → Style Transfer</li><li>上传照片</li><li>选择风格</li><li>调整强度</li><li>生成（2积分）</li></ol>` },
+        ],
+      },
+      pt: {
+        title: "Transforme qualquer foto em arte com Style Transfer",
+        description: "Transforme fotos comuns em obras de arte usando 8 estilos de IA.",
+        sections: [
+          { heading: "O que e Style Transfer?", content: `<p>Style transfer pega sua foto e a redesenha em um estilo artistico completamente diferente, preservando a composicao.</p>` },
+          { heading: "Como usar", content: `<ol><li>Va para Generate → Style Transfer</li><li>Envie uma foto</li><li>Escolha um estilo</li><li>Ajuste a intensidade</li><li>Gere (2 creditos)</li></ol>` },
+        ],
+      },
+    },
+  },
+
+  // ── Guide: Choosing the Right Video Model ──
+  {
+    slug: "which-ai-video-model-to-use-2026",
+    category: "guide",
+    tags: ["video", "models", "comparison", "kling", "veo3", "sora2"],
+    publishedAt: "2026-04-28",
+    readingTime: 5,
+    translations: {
+      en: {
+        title: "Which AI Video Model Should You Use? (2026 Guide)",
+        description: "Compare Veo 3, Kling 3.0, Sora 2, Grok Video, Wan 2.6 and more. Find the right video model for your project.",
+        sections: [
+          { heading: "Quick Decision Chart", content: `<table style="width:100%;border-collapse:collapse;font-size:13px;"><tr style="border-bottom:1px solid #333;"><th style="text-align:left;padding:8px;">I want...</th><th>Use this</th><th>Credits</th></tr><tr style="border-bottom:1px solid #222;"><td style="padding:8px;">Video with audio (no editing)</td><td><strong>Veo 3</strong></td><td>40</td></tr><tr style="border-bottom:1px solid #222;"><td style="padding:8px;">Highest visual quality (4K)</td><td><strong>Kling 3.0</strong></td><td>40</td></tr><tr style="border-bottom:1px solid #222;"><td style="padding:8px;">Longest duration (up to 20s)</td><td><strong>Sora 2</strong></td><td>50</td></tr><tr style="border-bottom:1px solid #222;"><td style="padding:8px;">Fast + audio</td><td><strong>Grok Video</strong></td><td>30</td></tr><tr style="border-bottom:1px solid #222;"><td style="padding:8px;">Free video generation</td><td><strong>Wan 2.6</strong> or <strong>LTX 2.3</strong></td><td>5-10</td></tr><tr style="border-bottom:1px solid #222;"><td style="padding:8px;">Animate a still image</td><td><strong>Kling 3.0 I2V</strong> or <strong>Wan 2.6 I2V</strong></td><td>10-40</td></tr><tr><td style="padding:8px;">Edit/restyle existing video</td><td><strong>WAN 2.7 V2V</strong></td><td>40</td></tr></table>` },
+          { heading: "Detailed Comparison", content: `<h4>Veo 3 (Google)</h4><p>The only model that generates native audio. Perfect for atmospheric content, social media clips, and presentations. 720p, 4-8 seconds. Prompt tip: describe sounds explicitly.</p><h4>Kling 3.0 (Kuaishou)</h4><p>Best raw visual quality. Native 4K output with cinematic motion. Great for professional-looking content. 5-10 seconds. No audio.</p><h4>Sora 2 (OpenAI)</h4><p>Longest clips (up to 20 seconds) with consistent quality. Cinematic style. Expensive but worth it for longer narratives.</p><h4>Grok Video (xAI)</h4><p>Fast generation (under 30 seconds) with native audio. 720p. Great for quick content creation and iteration.</p><h4>Wan 2.6 (Free)</h4><p>Best free option. Up to 15 seconds, 720p. NSFW-friendly. Image-to-video mode available. Quality is good for the price (free).</p>` },
+          { heading: "Tips for All Models", content: `<ul><li>Describe motion explicitly: "camera slowly pans left" or "she turns and smiles"</li><li>Keep prompts focused on one clear action per clip</li><li>Shorter is better for quality (5s > 15s for most models)</li><li>Use Image-to-Video for more control over the starting frame</li></ul>` },
+        ],
+      },
+      ja: {
+        title: "どのAI動画モデルを使うべき？（2026年ガイド）",
+        description: "Veo 3、Kling 3.0、Sora 2、Grok Video、Wan 2.6を比較。用途別のモデル選び方。",
+        sections: [
+          { heading: "早見表", content: `<table style="width:100%;border-collapse:collapse;font-size:13px;"><tr style="border-bottom:1px solid #333;"><th style="text-align:left;padding:8px;">目的</th><th>モデル</th><th>クレジット</th></tr><tr style="border-bottom:1px solid #222;"><td style="padding:8px;">音声付き動画</td><td><strong>Veo 3</strong></td><td>40</td></tr><tr style="border-bottom:1px solid #222;"><td style="padding:8px;">最高画質（4K）</td><td><strong>Kling 3.0</strong></td><td>40</td></tr><tr style="border-bottom:1px solid #222;"><td style="padding:8px;">最長動画（20秒）</td><td><strong>Sora 2</strong></td><td>50</td></tr><tr style="border-bottom:1px solid #222;"><td style="padding:8px;">高速+音声</td><td><strong>Grok Video</strong></td><td>30</td></tr><tr style="border-bottom:1px solid #222;"><td style="padding:8px;">無料動画</td><td><strong>Wan 2.6</strong> / <strong>LTX</strong></td><td>5-10</td></tr><tr><td style="padding:8px;">画像→動画</td><td><strong>Kling 3.0 I2V</strong></td><td>40</td></tr></table>` },
+          { heading: "モデル詳細", content: `<p><strong>Veo 3:</strong> ネイティブ音声生成が唯一の強み。SNSクリップに最適。</p><p><strong>Kling 3.0:</strong> 4K映像の最高品質。プロ仕様。</p><p><strong>Sora 2:</strong> 最長20秒。ストーリー性のある映像に。</p><p><strong>Grok Video:</strong> 30秒以内で生成完了。音声付き。高速。</p><p><strong>Wan 2.6:</strong> 無料で15秒まで。NSFW対応。</p>` },
+          { heading: "共通のコツ", content: `<ul><li>動きを明示的に記述：「カメラがゆっくり左にパン」「彼女が振り返って微笑む」</li><li>1クリップに1アクション</li><li>短い方が品質高い（5秒 > 15秒）</li></ul>` },
+        ],
+      },
+      es: {
+        title: "Que modelo de video AI deberias usar? (Guia 2026)",
+        description: "Compara Veo 3, Kling 3.0, Sora 2, Grok Video y Wan 2.6. Encuentra el modelo de video adecuado.",
+        sections: [
+          { heading: "Tabla rapida", content: `<ul><li><strong>Video con audio:</strong> Veo 3</li><li><strong>Mejor calidad visual:</strong> Kling 3.0</li><li><strong>Mas duracion:</strong> Sora 2</li><li><strong>Rapido + audio:</strong> Grok Video</li><li><strong>Gratis:</strong> Wan 2.6</li></ul>` },
+          { heading: "Consejos", content: `<ul><li>Describe el movimiento explicitamente</li><li>Un clip = una accion clara</li><li>Mas corto = mejor calidad</li></ul>` },
+        ],
+      },
+      zh: {
+        title: "该使用哪个AI视频模型？（2026指南）",
+        description: "比较Veo 3、Kling 3.0、Sora 2、Grok Video和Wan 2.6。找到适合您项目的视频模型。",
+        sections: [
+          { heading: "快速选择", content: `<ul><li><strong>带音频的视频：</strong>Veo 3</li><li><strong>最高画质：</strong>Kling 3.0</li><li><strong>最长时长：</strong>Sora 2</li><li><strong>快速+音频：</strong>Grok Video</li><li><strong>免费：</strong>Wan 2.6</li></ul>` },
+          { heading: "提示", content: `<ul><li>明确描述动作</li><li>每个片段一个动作</li><li>越短质量越好</li></ul>` },
+        ],
+      },
+      pt: {
+        title: "Qual modelo de video AI voce deve usar? (Guia 2026)",
+        description: "Compare Veo 3, Kling 3.0, Sora 2, Grok Video e Wan 2.6. Encontre o modelo certo.",
+        sections: [
+          { heading: "Tabela rapida", content: `<ul><li><strong>Video com audio:</strong> Veo 3</li><li><strong>Melhor qualidade:</strong> Kling 3.0</li><li><strong>Maior duracao:</strong> Sora 2</li><li><strong>Rapido + audio:</strong> Grok Video</li><li><strong>Gratuito:</strong> Wan 2.6</li></ul>` },
+          { heading: "Dicas", content: `<ul><li>Descreva o movimento explicitamente</li><li>Um clipe = uma acao clara</li><li>Mais curto = melhor qualidade</li></ul>` },
+        ],
+      },
+    },
+  },
 ];
