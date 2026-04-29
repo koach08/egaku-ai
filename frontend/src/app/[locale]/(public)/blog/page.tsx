@@ -53,6 +53,9 @@ export default async function BlogPage({ params }: Props) {
                   <Badge className={categoryColors[article.category] || "bg-muted"}>
                     {article.category}
                   </Badge>
+                  {article.premium && (
+                    <Badge className="bg-amber-500/20 text-amber-400 text-[9px]">Premium</Badge>
+                  )}
                   <span className="text-[10px] text-muted-foreground">{article.readingTime} min</span>
                   <span className="text-[10px] text-muted-foreground">·</span>
                   <time className="text-[10px] text-muted-foreground">{article.publishedAt}</time>

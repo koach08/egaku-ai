@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { notFound } from "next/navigation";
 import { ARTICLES } from "./articles";
+import { PremiumGate } from "@/components/premium-gate";
 
 export const dynamic = "force-dynamic";
 
@@ -93,22 +94,18 @@ export default async function BlogArticlePage({ params }: Props) {
 
         {/* Article Body */}
         <article className="prose prose-invert prose-sm max-w-none">
-          {t.sections.map((section, i) => (
-            <section key={i} className="mb-8">
-              <h2 className="text-xl font-semibold text-foreground mb-3">{section.heading}</h2>
-              <div
-                className="text-sm text-muted-foreground leading-relaxed [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-1 [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:space-y-1 [&_code]:bg-muted [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-purple-400 [&_code]:text-xs [&_table]:w-full [&_table]:border-collapse [&_th]:border [&_th]:border-muted [&_th]:p-2 [&_th]:bg-muted/50 [&_th]:text-left [&_th]:text-xs [&_td]:border [&_td]:border-muted [&_td]:p-2 [&_td]:text-xs [&_a]:text-purple-400 [&_a]:hover:underline [&_strong]:text-foreground [&_p]:mb-3"
-                dangerouslySetInnerHTML={{ __html: section.content }}
-              />
-            </section>
-          ))}
+          <PremiumGate
+            premium={article.premium || false}
+            previewCount={article.previewSections || 2}
+            sections={t.sections}
+          />
         </article>
 
         {/* CTA */}
         <div className="mt-12 rounded-xl bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20 p-6 text-center">
           <h3 className="text-lg font-semibold mb-2">Try it yourself</h3>
           <p className="text-sm text-muted-foreground mb-4">
-            Generate images and videos with 25+ AI models. Free to start.
+            Create images and videos with 30+ AI models. Free to start.
           </p>
           <Button className="bg-gradient-to-r from-purple-600 to-pink-600" render={<Link href="/generate" />}>
             Start Generating Free

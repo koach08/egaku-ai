@@ -13,6 +13,8 @@ export type Article = {
   publishedAt: string; // ISO date
   updatedAt?: string;
   readingTime: number; // minutes
+  premium?: boolean; // true = paid article (free for Lite+ users)
+  previewSections?: number; // how many sections to show for free (default: 2)
   translations: {
     [locale: string]: {
       title: string;
