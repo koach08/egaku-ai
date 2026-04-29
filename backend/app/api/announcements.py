@@ -82,7 +82,7 @@ async def send_retention(
         supabase_url=settings.supabase_url,
         supabase_key=settings.supabase_service_role_key,
         resend_api_key=settings.resend_api_key,
-        from_email="EGAKU AI <noreply@egaku-ai.com>",
+        from_email="EGAKU AI <noreply@language-smartlearning.com>",
         days_inactive=days,
         dry_run=dry_run,
     )

@@ -65,7 +65,7 @@ async def send_retention_emails(
     supabase_url: str,
     supabase_key: str,
     resend_api_key: str,
-    from_email: str = "EGAKU AI <noreply@egaku-ai.com>",
+    from_email: str = "EGAKU AI <noreply@language-smartlearning.com>",
     days_inactive: int = 7,
     dry_run: bool = False,
 ) -> dict:
@@ -76,21 +76,22 @@ async def send_retention_emails(
     sb_headers = {"apikey": supabase_key, "Authorization": f"Bearer {supabase_key}"}
 
     # Get users who haven't generated anything in N days
-    cutoff = (datetime.now(timezone.utc) - timedelta(days=days_inactive)).isoformat()
+    cutoff = (datetime.now(timezone.utc) - timedelta(days=days_inactive)).strftime("%Y-%m-%dT%H:%M:%S%z")
 
     # Get all users with email
     r = httpx.get(
         f"{supabase_url}/rest/v1/users?select=id,email,created_at",
         headers=sb_headers, timeout=30,
     )
-    all_users = r.json()
+    all_users = r.json() if isinstance(r.json(), list) else []
 
     # Get users who generated recently (after cutoff)
     r2 = httpx.get(
-        f"{supabase_url}/rest/v1/generations?select=user_id&created_at=gte.{cutoff}",
+        f"{supabase_url}/rest/v1/generations?select=user_id&created_at=gte.{cutoff}&limit=1000",
         headers=sb_headers, timeout=30,
     )
-    active_user_ids = {g["user_id"] for g in r2.json()}
+    gen_data = r2.json() if isinstance(r2.json(), list) else []
+    active_user_ids = {g["user_id"] for g in gen_data if isinstance(g, dict) and g.get("user_id")}
 
     # Inactive = registered but no recent generation
     inactive = [
