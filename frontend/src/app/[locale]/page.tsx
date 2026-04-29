@@ -102,89 +102,6 @@ export default function LandingPage() {
           <ShowcaseGallery title={t("gallery.videosTitle")} filter="video" maxItems={18} />
         </FadeIn>
 
-        {/* How it works */}
-        <section className="container mx-auto px-4 py-16">
-          <h2 className="text-2xl font-bold text-center mb-3">How It Works</h2>
-          <p className="text-sm text-muted-foreground text-center mb-10">From idea to professional content in 3 steps.</p>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            {/* Step 1 */}
-            <div className="rounded-xl border border-muted bg-card overflow-hidden hover:border-purple-500/30 transition-colors">
-              <div className="aspect-[16/9] bg-gradient-to-br from-purple-600/20 to-pink-600/20 flex items-center justify-center relative overflow-hidden">
-                <img src="/samples/flux_dev.jpg" alt="Step 1" className="w-full h-full object-cover opacity-40" />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="bg-black/60 backdrop-blur-sm rounded-lg px-4 py-2 text-center">
-                    <p className="text-xs text-white/70">Type your prompt</p>
-                    <p className="text-sm text-white font-mono">&quot;futuristic glass skyscraper...&quot;</p>
-                  </div>
-                </div>
-              </div>
-              <div className="p-5">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="w-7 h-7 rounded-full bg-purple-500 text-white flex items-center justify-center text-xs font-bold">1</div>
-                  <h3 className="font-semibold">Describe or Upload</h3>
-                </div>
-                <p className="text-sm text-muted-foreground">Type a prompt in any language, upload an image, or pick a one-click template. No design skills needed.</p>
-              </div>
-            </div>
-            {/* Step 2 */}
-            <div className="rounded-xl border border-muted bg-card overflow-hidden hover:border-pink-500/30 transition-colors">
-              <div className="aspect-[16/9] bg-gradient-to-br from-pink-600/20 to-orange-600/20 flex items-center justify-center relative overflow-hidden">
-                <div className="grid grid-cols-3 gap-1 p-3 w-full h-full">
-                  <div className="rounded bg-purple-500/30 flex items-center justify-center text-[9px] text-white/70 font-medium">Flux Pro</div>
-                  <div className="rounded bg-pink-500/30 flex items-center justify-center text-[9px] text-white/70 font-medium">Kling 3.0</div>
-                  <div className="rounded bg-cyan-500/30 flex items-center justify-center text-[9px] text-white/70 font-medium">GPT Image</div>
-                  <div className="rounded bg-green-500/30 flex items-center justify-center text-[9px] text-white/70 font-medium">CivitAI</div>
-                  <div className="rounded bg-amber-500/30 flex items-center justify-center text-[9px] text-white/70 font-medium">Veo 3</div>
-                  <div className="rounded bg-red-500/30 flex items-center justify-center text-[9px] text-white/70 font-medium">SDXL</div>
-                </div>
-              </div>
-              <div className="p-5">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="w-7 h-7 rounded-full bg-pink-500 text-white flex items-center justify-center text-xs font-bold">2</div>
-                  <h3 className="font-semibold">Pick a Model</h3>
-                </div>
-                <p className="text-sm text-muted-foreground">Choose from 25+ AI models. Kling 3.0 for 4K video, Flux for images, CivitAI for 100K+ community models.</p>
-              </div>
-            </div>
-            {/* Step 3 */}
-            <div className="rounded-xl border border-muted bg-card overflow-hidden hover:border-cyan-500/30 transition-colors">
-              <div className="aspect-[16/9] bg-muted relative overflow-hidden">
-                <div className="grid grid-cols-2 gap-1 p-2 w-full h-full">
-                  <img src="/samples/portrait.jpg" alt="Result 1" className="rounded object-cover w-full h-full" />
-                  <img src="/samples/anime.jpg" alt="Result 2" className="rounded object-cover w-full h-full" />
-                </div>
-              </div>
-              <div className="p-5">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="w-7 h-7 rounded-full bg-cyan-500 text-white flex items-center justify-center text-xs font-bold">3</div>
-                  <h3 className="font-semibold">Download &amp; Share</h3>
-                </div>
-                <p className="text-sm text-muted-foreground">Get HD images or 4K videos in seconds. Download, share to X, or publish to the community gallery.</p>
-              </div>
-            </div>
-          </div>
-          <div className="text-center mt-8">
-            <Button size="lg" className="bg-gradient-to-r from-purple-600 to-pink-600 hover:opacity-90 px-8" render={<Link href="/register" />}>
-              Start Creating Free
-            </Button>
-          </div>
-        </section>
-
-        {/* NEW: Kling 3.0 Announcement Banner */}
-        <FadeIn>
-        <section className="container mx-auto px-4 py-10">
-          <div className="rounded-xl bg-gradient-to-r from-white/[0.03] to-white/[0.06] border border-white/10 p-4 sm:p-6 text-center">
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <span className="text-xs font-bold bg-white/10 text-white px-2.5 py-0.5 rounded-full">NEW</span>
-              <span className="text-sm sm:text-base font-bold">Grok Imagine + Veo 3 Audio + Kling 3.0 4K</span>
-            </div>
-            <p className="text-xs sm:text-sm text-muted-foreground">
-              Create videos with audio, 4K cinematic output, and xAI&apos;s latest image model. 30+ models, one platform.
-            </p>
-          </div>
-        </section>
-        </FadeIn>
-
         {/* AI Models Showcase */}
         <FadeIn>
         <section className="container mx-auto px-4 py-20">
@@ -244,49 +161,7 @@ export default function LandingPage() {
         </section>
         </FadeIn>
 
-        {/* Price Comparison — why EGAKU AI */}
-        <FadeIn>
-        <section className="container mx-auto px-4 py-12">
-          <h2 className="text-2xl font-bold text-center mb-3">How We Compare</h2>
-          <p className="text-sm text-muted-foreground text-center mb-8">Same cutting-edge models. More features. Better price.</p>
-          <div className="max-w-3xl mx-auto rounded-xl border border-muted overflow-hidden">
-            <div className="grid grid-cols-4 text-center text-[11px] font-semibold bg-muted/50 p-3 border-b border-muted">
-              <span className="text-left pl-2">Feature</span>
-              <span>Video-only tools</span>
-              <span>General AI tools</span>
-              <span className="text-purple-400">EGAKU AI</span>
-            </div>
-            {[
-              { feat: "Starting price", c1: "$19-89/mo", c2: "$9-20/mo", egaku: "¥980/mo (~$6.50)" },
-              { feat: "Kling 3.0 4K", c1: "Some", c2: "Some", egaku: "Yes" },
-              { feat: "Veo 3 / Kling 3.0", c1: "Rare", c2: "Some", egaku: "Yes" },
-              { feat: "GPT Image 2", c1: "No", c2: "Some", egaku: "Yes" },
-              { feat: "Image models", c1: "3-5", c2: "5-8", egaku: "25+" },
-              { feat: "CivitAI (100K+ models)", c1: "No", c2: "No", egaku: "Yes" },
-              { feat: "Free tier", c1: "Limited", c2: "Limited", egaku: "50 credits" },
-              { feat: "Multi-language prompts", c1: "English only", c2: "English only", egaku: "All languages" },
-              { feat: "Vid2Vid style transfer", c1: "Rare", c2: "No", egaku: "Yes" },
-              { feat: "Gallery remix", c1: "No", c2: "No", egaku: "Yes" },
-            ].map((row, i) => (
-              <div key={i} className={`grid grid-cols-4 text-center text-xs p-3 ${i % 2 === 0 ? "bg-card" : "bg-muted/20"}`}>
-                <span className="font-medium text-left pl-2">{row.feat}</span>
-                <span className="text-muted-foreground">{row.c1}</span>
-                <span className="text-muted-foreground">{row.c2}</span>
-                <span className="text-purple-400 font-semibold">{row.egaku}</span>
-              </div>
-            ))}
-          </div>
-          <div className="mt-6 max-w-3xl mx-auto rounded-lg bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20 p-4 text-center">
-            <p className="text-sm font-medium">Regional Pricing Available</p>
-            <p className="text-xs text-muted-foreground mt-1">
-              Prices are automatically adjusted based on your country — up to 80% off in eligible regions.
-              We believe everyone should have access to AI creative tools, regardless of where they live.
-            </p>
-          </div>
-        </section>
-        </FadeIn>
-
-        {/* Creative Tools — Main Navigation Hub */}
+        {/* Creative Tools */}
         <FadeIn>
         <section className="container mx-auto px-4 py-16">
           <h2 className="text-3xl font-bold text-center mb-3">Creative Tools</h2>
@@ -320,72 +195,6 @@ export default function LandingPage() {
                 <div className={`absolute inset-0 bg-gradient-to-br ${tool.gradient} opacity-0 group-hover:opacity-5 transition-opacity`} />
               </Link>
             ))}
-          </div>
-        </section>
-        </FadeIn>
-
-        {/* Features */}
-        <FadeIn>
-        <section className="container mx-auto px-4 py-16">
-          <h2 className="text-3xl font-bold text-center mb-4">
-            {t("features.title")}
-          </h2>
-          <p className="text-sm text-muted-foreground text-center mb-10">Click any feature to try it.</p>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {featureKeys.map((key) => {
-              const hrefMap: Record<string, string> = {
-                txt2img: "/generate",
-                img2img: "/generate?remix_mode=img2img",
-                style: "/generate?remix_mode=style",
-                txt2vid: "/generate",
-                img2vid: "/generate?remix_mode=i2v",
-                vid2vid: "/vid2vid",
-                lipSync: "/lip-sync",
-                talkingAvatar: "/talking-avatar",
-                loraTraining: "/lora-train",
-                characterVideo: "/character-video",
-                voiceClone: "/voice-clone",
-                upscale: "/generate",
-                inpaint: "/generate",
-                controlnet: "/generate",
-                removeBg: "/generate",
-                customModels: "/generate",
-                apiAccess: "/settings",
-              };
-              const href = hrefMap[key] || "/generate";
-              const badgeMap: Record<string, string> = {
-                vid2vid: "NEW",
-                lipSync: "NEW",
-                talkingAvatar: "NEW",
-                loraTraining: "NEW · Pro",
-                characterVideo: "NEW",
-                voiceClone: "NEW",
-                apiAccess: "Studio",
-              };
-              const badge = badgeMap[key];
-              return (
-                <Link key={key} href={href}>
-                  <Card className="h-full hover:border-purple-500/50 transition-colors group cursor-pointer">
-                    <CardHeader className="pb-2">
-                      <div className="flex items-center justify-between">
-                        <CardTitle className="text-base group-hover:text-purple-400 transition-colors">
-                          {t(`features.${key}.title`)}
-                        </CardTitle>
-                        <span className="text-xs text-muted-foreground group-hover:text-purple-400 transition-colors">→</span>
-                      </div>
-                      {badge && (
-                        <Badge variant="outline" className="w-fit text-[10px] border-purple-500 text-purple-400">
-                          {badge}
-                        </Badge>
-                      )}
-                    </CardHeader>
-                    <CardContent className="text-sm text-muted-foreground">
-                      {t(`features.${key}.desc`)}
-                    </CardContent>
-                  </Card>
-                </Link>
-              );
-            })}
           </div>
         </section>
         </FadeIn>
