@@ -20,6 +20,7 @@ import { Header } from "@/components/layout/header";
 import { CivitAIBrowser } from "@/components/civitai-browser";
 import { PromptAssistant } from "@/components/prompt-assistant";
 import { trackEvent, CONVERSIONS } from "@/components/analytics";
+import { InpaintCanvas } from "@/components/inpaint-canvas";
 import { toast } from "sonner";
 
 const SAMPLERS = [
@@ -244,8 +245,9 @@ export default function GeneratePage() {
   const [inputImagePreview, setInputImagePreview] = useState<string | null>(null);
   const [denoise, setDenoise] = useState(0.7);
 
-  // Mask for inpainting
+  // Mask for inpainting (file upload or brush canvas data URL)
   const [maskImage, setMaskImage] = useState<File | null>(null);
+  const [maskDataUrl, setMaskDataUrl] = useState<string | null>(null);
 
   // Video for vid2vid
   const [inputVideo, setInputVideo] = useState<File | null>(null);
@@ -795,11 +797,17 @@ export default function GeneratePage() {
   const handleInpaint = async () => {
     if (!prompt.trim()) { toast.error("Please enter a prompt"); return; }
     if (!inputImage) { toast.error("Please upload an image"); return; }
-    if (!maskImage) { toast.error("Please upload a mask"); return; }
+    if (!maskImage && !maskDataUrl) { toast.error("Paint a mask or upload one"); return; }
     setGenerating(true); setJob(null); setElapsed(0); setResultBlurred(nsfwMode);
     try {
       const imgB64 = await fileToBase64(inputImage);
-      const maskB64 = await fileToBase64(maskImage);
+      let maskB64: string;
+      if (maskDataUrl) {
+        // From brush canvas — strip data URL prefix
+        maskB64 = maskDataUrl.replace(/^data:image\/\w+;base64,/, "");
+      } else {
+        maskB64 = await fileToBase64(maskImage!);
+      }
       const res = await api.inpaint(session!.access_token, {
         prompt: buildPrompt(prompt), negative_prompt: negativePrompt, model,
         image: imgB64, mask: maskB64,
@@ -1585,23 +1593,31 @@ export default function GeneratePage() {
                 </Button>
               </TabsContent>
 
-              {/* Inpaint */}
+              {/* Inpaint — Brush Canvas */}
               <TabsContent value="inpaint" className="space-y-4">
                 <div className="rounded-lg border border-dashed p-3 bg-muted/30">
                   <p className="text-sm font-medium">Edit parts of an image</p>
-                  <p className="text-xs text-muted-foreground">Upload an image, paint a mask over the area to change, then describe what you want.</p>
+                  <p className="text-xs text-muted-foreground">Upload an image, paint over the area to change, then describe what you want there instead.</p>
                 </div>
                 {renderImageUpload("Upload Image")}
-                <div>
-                  <Label className="text-xs">Upload Mask (white = area to edit)</Label>
-                  <Input type="file" accept="image/*" onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) setMaskImage(file);
-                  }} className="mt-1" />
-                </div>
+                {inputImage && (
+                  <InpaintCanvas
+                    imageFile={inputImage}
+                    onMaskReady={(dataUrl) => { setMaskDataUrl(dataUrl); toast.success("Mask applied"); }}
+                  />
+                )}
+                {!inputImage && (
+                  <div className="rounded-lg border border-dashed p-3 bg-muted/20 text-center">
+                    <p className="text-xs text-muted-foreground">Or upload a pre-made mask:</p>
+                    <Input type="file" accept="image/*" onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) { setMaskImage(file); setMaskDataUrl(null); }
+                    }} className="mt-2" />
+                  </div>
+                )}
                 {renderPromptInputs()}
-                <Button onClick={handleInpaint} disabled={generating} className="w-full" size="lg">
-                  {generating ? "Generating..." : "Inpaint (2 credits)"}
+                <Button onClick={handleInpaint} disabled={generating || (!maskDataUrl && !maskImage)} className="w-full" size="lg">
+                  {generating ? "Generating..." : `Inpaint${maskDataUrl ? "" : " (paint mask first)"} (2 credits)`}
                 </Button>
               </TabsContent>
 
