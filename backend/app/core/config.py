@@ -51,6 +51,9 @@ class Settings(BaseSettings):
     # Separate instance from regular vastai_comfyui_url. Top-tier NSFW video.
     wan22_comfyui_url: str = ""  # e.g. "http://194.14.47.19:22315"
 
+    # Discord showcase webhook (auto-post new creations)
+    discord_showcase_webhook_url: str = ""
+
     # NOWPayments (crypto payments for adult subscriptions)
     nowpayments_api_key: str = ""
     nowpayments_ipn_secret: str = ""

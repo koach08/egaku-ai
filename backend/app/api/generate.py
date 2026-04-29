@@ -902,6 +902,20 @@ async def _save_generation_to_db(
             logger.info("Gallery item created: %s", job_id)
         except Exception as gallery_err:
             logger.warning("Failed to save to gallery (non-fatal): %s", gallery_err)
+
+        # Post to Discord showcase (SFW only, non-blocking)
+        if not nsfw and settings.discord_showcase_webhook_url:
+            try:
+                from app.services.discord import post_to_showcase
+                await post_to_showcase(
+                    webhook_url=settings.discord_showcase_webhook_url,
+                    image_url=permanent_url if not is_video else None,
+                    video_url=permanent_url if is_video else None,
+                    prompt=prompt,
+                    model=model,
+                )
+            except Exception as discord_err:
+                logger.debug("Discord post failed (non-fatal): %s", discord_err)
     except Exception as e:
         logger.warning("Failed to save generation to DB (non-fatal): %s", e)
 
