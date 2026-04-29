@@ -766,7 +766,7 @@ with gr.Blocks(title="EGAKU AI") as app:
                     scale=2,
                 )
                 ai_model_override = gr.Dropdown(
-                    choices=["auto", "claude-opus-4-20250514", "claude-sonnet-4-20250514", "claude-haiku-4-5-20251001", "gpt-4o", "gpt-4o-mini", "grok-3", "grok-3-mini"],
+                    choices=["auto", "claude-opus-4-6", "claude-sonnet-4-6", "claude-haiku-4-5-20251001", "gpt-4.1", "gpt-4.1-mini", "grok-3", "grok-3-mini"],
                     value="auto",
                     label="モデル (auto=プロバイダーのデフォルト)",
                     scale=2,

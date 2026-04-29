@@ -15,30 +15,24 @@ export function LiveStats() {
   }, []);
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-2xl mx-auto text-center">
+    <div className="grid grid-cols-3 gap-8 max-w-lg mx-auto text-center">
       <div>
-        <p className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+        <p className="text-3xl font-bold text-white/90">
           {stats.models}+
         </p>
-        <p className="text-sm text-muted-foreground">AI Models</p>
+        <p className="text-xs text-white/40 mt-1">AI Models</p>
       </div>
       <div>
-        <p className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-          {stats.users.toLocaleString()}+
-        </p>
-        <p className="text-sm text-muted-foreground">Creators</p>
-      </div>
-      <div>
-        <p className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+        <p className="text-3xl font-bold text-white/90">
           {stats.creations.toLocaleString()}+
         </p>
-        <p className="text-sm text-muted-foreground">Creations</p>
+        <p className="text-xs text-white/40 mt-1">Creations</p>
       </div>
       <div>
-        <p className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+        <p className="text-3xl font-bold text-white/90">
           Free
         </p>
-        <p className="text-sm text-muted-foreground">To Start</p>
+        <p className="text-xs text-white/40 mt-1">To Start</p>
       </div>
     </div>
   );

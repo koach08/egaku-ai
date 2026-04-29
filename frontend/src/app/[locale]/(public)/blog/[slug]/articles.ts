@@ -1918,4 +1918,266 @@ export const ARTICLES: Article[] = [
       },
     },
   },
+  // ── Premium: Consistent Character Creation ──
+  {
+    slug: "create-consistent-ai-character",
+    category: "how-to",
+    tags: ["character", "consistent", "influencer", "advanced", "premium"],
+    publishedAt: "2026-04-30",
+    readingTime: 8,
+    premium: true,
+    previewSections: 2,
+    translations: {
+      en: {
+        title: "How to Create a Consistent AI Character (Step-by-Step)",
+        description: "Learn how to build a recognizable AI character with consistent face, style, and personality across dozens of images. The complete workflow for virtual influencers.",
+        sections: [
+          {
+            heading: "Why Consistency Matters",
+            content: `<p>A single beautiful AI image is easy. Creating a <em>recognizable character</em> that looks the same across 50+ images is the real skill. This is what separates casual users from creators who build followings on Instagram, X, and Pixiv.</p><p>In this guide, you'll learn the exact workflow used by top AI influencer accounts to maintain character consistency without LoRA training.</p>`,
+          },
+          {
+            heading: "Step 1: Design Your Character Sheet",
+            content: `<p>Start by generating a <strong>reference sheet</strong>. This is your character's identity document.</p><p>Use this prompt template with <strong>Flux Pro</strong> or <strong>Ideogram v3</strong>:</p><p><code>character reference sheet of [description], front view and 3/4 view, white background, clean lighting, full body and close-up face, consistent features, professional character design</code></p><p>Key details to lock down:</p><ul><li><strong>Face shape:</strong> Round, oval, angular, heart-shaped</li><li><strong>Eye color and shape:</strong> Be very specific (e.g., "large almond-shaped dark brown eyes")</li><li><strong>Hair:</strong> Color, length, style, parting direction</li><li><strong>Skin tone:</strong> Specific shade, not vague</li><li><strong>Body type:</strong> Height, build</li><li><strong>Signature elements:</strong> Mole, scar, glasses, earrings, tattoo</li></ul>`,
+          },
+          {
+            heading: "Step 2: Build Your Prompt Template",
+            content: `<p>Once you have your reference, create a <strong>base prompt</strong> that you'll reuse for every generation:</p><pre><code>[scene description], [character name] a [age] year old [ethnicity] woman with [hair description], [eye description], [skin tone], [signature elements], [clothing for this scene], [lighting], [camera angle], photorealistic, 8K</code></pre><p>Example base prompt:</p><pre><code>Yuki, a 24 year old Japanese woman with shoulder-length straight black hair with blunt bangs, large dark brown eyes, fair porcelain skin, small mole under left eye, wearing [OUTFIT], [SCENE], soft natural lighting, shot on Sony A7R IV, 85mm f/1.4, shallow depth of field</code></pre><p>The key is keeping 80% of the prompt identical and only changing the scene, outfit, and action.</p>`,
+          },
+          {
+            heading: "Step 3: Use Character Lock (PuLID)",
+            content: `<p>EGAKU AI's <strong>Character Lock</strong> feature uses PuLID technology to preserve facial identity across generations.</p><ol><li>Generate your best reference portrait</li><li>Go to Generate page and enable "Character Lock"</li><li>Upload your reference portrait</li><li>Write your new scene prompt (keep the character description consistent)</li><li>Adjust <strong>ID Weight</strong> (0.7-1.0 recommended, higher = more faithful to reference)</li></ol><p><strong>Pro tip:</strong> Generate 3-5 reference portraits first, pick the best one, then use that as your Character Lock reference for all future generations.</p>`,
+          },
+          {
+            heading: "Step 4: Wardrobe and Scene Variety",
+            content: `<p>Your character needs variety to feel real. Plan these in advance:</p><p><strong>10 Essential Scenes:</strong></p><ol><li>Casual selfie (coffee shop, bedroom, park)</li><li>Professional/work outfit</li><li>Workout/athletic wear</li><li>Evening/formal outfit</li><li>Beach/summer</li><li>Winter coat and scarf</li><li>Traditional/cultural outfit</li><li>Travel photo (famous landmark)</li><li>Food photo (restaurant, cooking)</li><li>Night out / city lights background</li></ol><p>For each scene, only change the outfit description and background. Keep the face description word-for-word identical.</p>`,
+          },
+          {
+            heading: "Step 5: Post-Processing Workflow",
+            content: `<p>After generation, apply these finishing touches:</p><ul><li><strong>Upscale:</strong> Always upscale to 4K before posting</li><li><strong>Face check:</strong> Zoom in and verify eye color, mole position, hair parting</li><li><strong>Color grade:</strong> Apply the same filter/LUT to all images for visual consistency</li><li><strong>Crop:</strong> Use consistent aspect ratios (4:5 for Instagram, 16:9 for X)</li></ul><p><strong>Quality control rule:</strong> If the face doesn't look right, regenerate. Never post an off-model image. It confuses your audience.</p>`,
+          },
+          {
+            heading: "Monetization Ideas",
+            content: `<p>Once your character has 20+ high-quality images:</p><ul><li><strong>Instagram/X account:</strong> Post daily, build a following, monetize with brand deals</li><li><strong>Patreon/Fanbox:</strong> Exclusive content tiers</li><li><strong>Print-on-demand:</strong> Posters, phone cases, stickers</li><li><strong>Stock photos:</strong> Sell character images as lifestyle stock</li><li><strong>YouTube Shorts:</strong> Use EGAKU AI's Video Shorts tool to animate your character</li></ul>`,
+          },
+        ],
+      },
+      ja: {
+        title: "一貫したAIキャラクターの作り方（ステップバイステップ）",
+        description: "何十枚の画像でも同じ顔・スタイルを保つAIキャラクターの作成方法。バーチャルインフルエンサーの完全ワークフロー。",
+        sections: [
+          { heading: "なぜ一貫性が重要か", content: `<p>1枚の綺麗なAI画像は簡単。50枚以上で同じキャラクターを維持するのが本当のスキルです。Instagram、X、Pixivでフォロワーを増やすクリエイターと、カジュアルユーザーの差はここにあります。</p>` },
+          { heading: "ステップ1: キャラクターシートを作る", content: `<p><strong>Flux Pro</strong>で参照シートを生成します。</p><p>プロンプト例：<code>character reference sheet of [詳細な外見], front view and 3/4 view, white background, clean lighting</code></p><p>固定すべき要素：顔の形、目の色と形、髪型・色、肌のトーン、体型、特徴的な要素（ほくろ、メガネなど）</p>` },
+          { heading: "ステップ2: プロンプトテンプレートを作る", content: `<p>参照画像ができたら、毎回使う<strong>ベースプロンプト</strong>を作ります。80%を固定し、シーンと服装だけ変える。</p>` },
+          { heading: "ステップ3: Character Lock (PuLID) を使う", content: `<p>EGAKU AIのCharacter Lock機能でPuLID技術を活用。参照画像をアップロードし、ID Weight 0.7-1.0で新しいシーンを生成。</p>` },
+          { heading: "ステップ4: 衣装とシーンのバリエーション", content: `<p>10の必須シーン：カフェ自撮り、仕事着、スポーツウェア、フォーマル、ビーチ、冬服、伝統衣装、旅行、食事、夜の街。顔の記述は一字一句同じに。</p>` },
+          { heading: "ステップ5: 後処理", content: `<p>4Kアップスケール、顔のチェック、統一フィルター適用、アスペクト比統一。オフモデルの画像は絶対に投稿しない。</p>` },
+          { heading: "収益化アイデア", content: `<p>Instagram/Xアカウント運用、Patreon/Fanbox、プリントオンデマンド、ストックフォト、YouTube Shorts。</p>` },
+        ],
+      },
+      es: {
+        title: "Como crear un personaje AI consistente (paso a paso)",
+        description: "Aprende a construir un personaje AI reconocible con cara, estilo y personalidad consistentes.",
+        sections: [
+          { heading: "Por que importa la consistencia", content: `<p>Una imagen AI bonita es facil. Crear un personaje reconocible en 50+ imagenes es la verdadera habilidad.</p>` },
+          { heading: "Paso 1: Hoja de personaje", content: `<p>Genera una hoja de referencia con Flux Pro. Define: forma de cara, color de ojos, cabello, tono de piel, elementos distintivos.</p>` },
+          { heading: "Paso 2: Plantilla de prompt", content: `<p>Crea un prompt base que reutilizaras. Cambia solo la escena y la ropa, manteniendo la descripcion facial identica.</p>` },
+          { heading: "Paso 3: Character Lock", content: `<p>Usa la funcion Character Lock de EGAKU AI para preservar la identidad facial.</p>` },
+        ],
+      },
+      zh: {
+        title: "如何创建一致的AI角色（分步指南）",
+        description: "学习如何构建在数十张图像中保持一致面孔和风格的AI角色。",
+        sections: [
+          { heading: "为什么一致性很重要", content: `<p>一张漂亮的AI图像很容易。在50多张图像中保持同一角色才是真正的技能。</p>` },
+          { heading: "步骤1：角色设计表", content: `<p>用Flux Pro生成参考表。固定：脸型、眼色、发型、肤色、标志性特征。</p>` },
+          { heading: "步骤2：提示词模板", content: `<p>创建基础提示词，80%保持不变，只改变场景和服装。</p>` },
+          { heading: "步骤3：角色锁定", content: `<p>使用EGAKU AI的Character Lock功能保持面部一致性。</p>` },
+        ],
+      },
+      pt: {
+        title: "Como criar um personagem AI consistente (passo a passo)",
+        description: "Aprenda a construir um personagem AI reconhecivel com rosto e estilo consistentes.",
+        sections: [
+          { heading: "Por que consistencia importa", content: `<p>Uma imagem AI bonita e facil. Criar um personagem reconhecivel em 50+ imagens e a verdadeira habilidade.</p>` },
+          { heading: "Passo 1: Ficha do personagem", content: `<p>Gere uma ficha de referencia com Flux Pro. Defina: formato do rosto, cor dos olhos, cabelo, tom de pele.</p>` },
+          { heading: "Passo 2: Template de prompt", content: `<p>Crie um prompt base reutilizavel. Mude apenas a cena e roupa.</p>` },
+        ],
+      },
+    },
+  },
+  // ── Premium: Product Photography with AI ──
+  {
+    slug: "ai-product-photography-guide",
+    category: "how-to",
+    tags: ["product", "ecommerce", "photography", "business", "premium"],
+    publishedAt: "2026-04-30",
+    readingTime: 7,
+    premium: true,
+    previewSections: 2,
+    translations: {
+      en: {
+        title: "Professional Product Photography with AI: Save Thousands on Shoots",
+        description: "Replace expensive product photography with AI-generated images. Step-by-step guide for Amazon, Shopify, Instagram ads. Real prompts and workflows.",
+        sections: [
+          {
+            heading: "The $5,000 Problem",
+            content: `<p>A professional product photo shoot costs $2,000-$10,000. You need a photographer, studio, lighting, models, props, and post-production. For a new brand or small business, that's often the biggest upfront cost.</p><p>AI can generate product images that are <strong>indistinguishable from real photos</strong> for a fraction of the cost. This guide shows you exactly how.</p>`,
+          },
+          {
+            heading: "What You Need",
+            content: `<p><strong>Required:</strong></p><ul><li>One real photo of your product (clean, well-lit, any background)</li><li>EGAKU AI account (Basic plan or above for best results)</li></ul><p><strong>Recommended models:</strong></p><ul><li><strong>Flux Pro:</strong> Best for photorealistic product shots</li><li><strong>Ideogram v3:</strong> Best when you need text on packaging</li><li><strong>GPT Image 2:</strong> Best for creative/lifestyle compositions</li></ul>`,
+          },
+          {
+            heading: "Method 1: Text-to-Image Product Shots",
+            content: `<p>If you have a simple product (bottle, box, gadget), you can describe it in a prompt:</p><pre><code>professional product photography of a [product description], on a [surface], [background], soft studio lighting, commercial quality, 8K, shot on Phase One IQ4 150MP</code></pre><p><strong>Example for a skincare bottle:</strong></p><pre><code>professional product photography of a matte black glass dropper bottle with gold cap labeled "VITAE Serum", on white marble surface, soft gradient cream background, three-point studio lighting, water droplets on surface, commercial beauty photography, 8K</code></pre><p><strong>Surface options:</strong> white marble, brushed concrete, raw wood, frosted glass, black velvet, terrazzo</p><p><strong>Background options:</strong> pure white, gradient cream, soft bokeh greenery, minimalist studio, lifestyle kitchen/bathroom</p>`,
+          },
+          {
+            heading: "Method 2: Image-to-Image Background Swap",
+            content: `<p>Take a real photo of your product on any surface, then use EGAKU AI's <strong>Background Removal</strong> + <strong>Inpainting</strong>:</p><ol><li>Upload your product photo</li><li>Use "Remove Background" to isolate the product</li><li>Go to Generate, select Inpainting mode</li><li>Paint around the product (keep product untouched)</li><li>Prompt: <code>professional studio background, soft three-point lighting, on white marble surface</code></li></ol><p>This preserves your real product exactly while creating a professional studio environment around it.</p>`,
+          },
+          {
+            heading: "Method 3: Lifestyle Scenes",
+            content: `<p>Lifestyle product photography shows your product "in use." This is what performs best on Instagram and Amazon A+ content.</p><pre><code>lifestyle product photography, [product] on a [surface] in a [setting], natural morning light from window, shallow depth of field, [person interacting with product], warm tones, editorial quality</code></pre><p><strong>Settings by product type:</strong></p><ul><li><strong>Food/drink:</strong> Rustic kitchen, cafe, picnic, dinner table</li><li><strong>Beauty/skincare:</strong> Bathroom shelf, vanity, spa setting</li><li><strong>Tech:</strong> Modern desk, coffee shop, commute</li><li><strong>Fashion:</strong> City street, cafe terrace, studio</li><li><strong>Home:</strong> Living room, bedroom, styled shelf</li></ul>`,
+          },
+          {
+            heading: "Amazon and Shopify Requirements",
+            content: `<p><strong>Amazon main image:</strong> Pure white background (RGB 255,255,255), product fills 85% of frame, no text/logos/watermarks.</p><p>Prompt for Amazon main:</p><pre><code>product photography of [product], centered on pure white background (#FFFFFF), no shadows, clean cutout style, product fills 85% of frame, high resolution</code></pre><p><strong>Amazon A+ / Shopify:</strong> Lifestyle images, infographics, comparison shots. More creative freedom here.</p><p><strong>Always upscale</strong> your final images to at least 2000x2000px before uploading to any marketplace.</p>`,
+          },
+          {
+            heading: "Cost Comparison",
+            content: `<table style="width:100%;border-collapse:collapse;font-size:13px;"><tr style="border-bottom:1px solid #333;"><th style="text-align:left;padding:8px;">Item</th><th>Traditional</th><th>EGAKU AI</th></tr><tr style="border-bottom:1px solid #222;"><td style="padding:8px;">10 product shots</td><td>$2,000-$5,000</td><td>~$10 (100 credits)</td></tr><tr style="border-bottom:1px solid #222;"><td style="padding:8px;">5 lifestyle scenes</td><td>$3,000-$8,000</td><td>~$5 (50 credits)</td></tr><tr style="border-bottom:1px solid #222;"><td style="padding:8px;">Turnaround</td><td>1-2 weeks</td><td>Minutes</td></tr><tr><td style="padding:8px;">Revisions</td><td>$500+/round</td><td>Free (regenerate)</td></tr></table>`,
+          },
+        ],
+      },
+      ja: {
+        title: "AIでプロ品質の商品写真を作る方法",
+        description: "高額な商品撮影をAIで代替。Amazon、Shopify、Instagram広告向けのステップバイステップガイド。",
+        sections: [
+          { heading: "撮影費用の問題", content: `<p>プロの商品撮影は1回20万-100万円。カメラマン、スタジオ、ライティング、モデル、後処理。新ブランドにとって最大の初期コスト。AIなら数百円で同等品質の画像が作れます。</p>` },
+          { heading: "必要なもの", content: `<p>商品の実写真1枚（清潔、明るい照明）とEGAKU AIアカウント（Basicプラン以上推奨）。<strong>Flux Pro</strong>がフォトリアリスティック商品写真に最適。</p>` },
+          { heading: "方法1: テキストから商品画像", content: `<p>シンプルな商品ならプロンプトで記述。<code>professional product photography of [商品], on white marble, soft studio lighting, commercial quality, 8K</code></p>` },
+          { heading: "方法2: 背景差し替え", content: `<p>実際の商品写真→背景削除→Inpaintingでスタジオ背景に差し替え。商品そのものは実物のまま保持。</p>` },
+          { heading: "方法3: ライフスタイルシーン", content: `<p>「使用中」の写真。Instagram広告やAmazon A+コンテンツで最もパフォーマンスが高い形式。</p>` },
+          { heading: "Amazon / Shopifyの要件", content: `<p>Amazonメイン画像：純白背景、商品85%、テキスト不可。A+コンテンツはライフスタイル画像OK。</p>` },
+          { heading: "コスト比較", content: `<p>従来の撮影10枚：20-50万円 → EGAKU AI：約1,000円。納期2週間 → 数分。修正1回5万円 → 無料。</p>` },
+        ],
+      },
+      es: {
+        title: "Fotografia profesional de productos con AI",
+        description: "Reemplaza las costosas sesiones de fotos con imagenes generadas por AI. Guia para Amazon, Shopify e Instagram.",
+        sections: [
+          { heading: "El problema de $5,000", content: `<p>Una sesion de fotos profesional cuesta $2,000-$10,000. AI puede generar imagenes indistinguibles de fotos reales por una fraccion del costo.</p>` },
+          { heading: "Lo que necesitas", content: `<p>Una foto real de tu producto y EGAKU AI (plan Basic o superior). Modelos recomendados: Flux Pro, Ideogram v3, GPT Image 2.</p>` },
+          { heading: "Metodo 1: Texto a imagen", content: `<p>Describe tu producto en un prompt detallado con superficie, fondo, e iluminacion de estudio.</p>` },
+          { heading: "Comparacion de costos", content: `<p>10 fotos tradicionales: $2,000-$5,000. Con EGAKU AI: ~$10. Tiempo: semanas vs minutos.</p>` },
+        ],
+      },
+      zh: {
+        title: "用AI制作专业产品摄影",
+        description: "用AI生成的图像替代昂贵的产品摄影。Amazon、Shopify、Instagram广告的分步指南。",
+        sections: [
+          { heading: "5000美元的问题", content: `<p>专业产品摄影一次费用2000-10000美元。AI可以以极低成本生成与真实照片无法区分的图像。</p>` },
+          { heading: "你需要什么", content: `<p>一张产品实拍照片和EGAKU AI账户（Basic计划以上）。推荐：Flux Pro、Ideogram v3。</p>` },
+          { heading: "方法1：文字生成产品图", content: `<p>用详细的提示词描述产品、表面、背景和灯光。</p>` },
+        ],
+      },
+      pt: {
+        title: "Fotografia profissional de produtos com AI",
+        description: "Substitua sessoes de fotos caras por imagens geradas por AI. Guia para Amazon, Shopify e Instagram.",
+        sections: [
+          { heading: "O problema de $5,000", content: `<p>Uma sessao de fotos profissional custa $2,000-$10,000. AI pode gerar imagens indistinguiveis de fotos reais por uma fracao do custo.</p>` },
+          { heading: "O que voce precisa", content: `<p>Uma foto real do produto e EGAKU AI (plano Basic ou superior). Modelos recomendados: Flux Pro, Ideogram v3.</p>` },
+          { heading: "Metodo 1: Texto para imagem", content: `<p>Descreva seu produto em um prompt detalhado com superficie, fundo e iluminacao.</p>` },
+        ],
+      },
+    },
+  },
+  // ── Premium: AI Video Production Workflow ──
+  {
+    slug: "ai-video-production-complete-workflow",
+    category: "guide",
+    tags: ["video", "workflow", "production", "advanced", "premium"],
+    publishedAt: "2026-04-30",
+    readingTime: 10,
+    premium: true,
+    previewSections: 2,
+    translations: {
+      en: {
+        title: "AI Video Production: From Script to Final Cut (Complete Workflow)",
+        description: "The complete workflow for producing professional AI videos. Script writing, scene planning, model selection, editing, and publishing. Used by top AI creators.",
+        sections: [
+          {
+            heading: "The AI Video Revolution",
+            content: `<p>In 2024, an AI-generated video meant a 4-second blurry clip. In 2026, we have Veo 3 (with audio), Kling 3.0 (4K), and Sora 2 (20 seconds). The quality gap between AI and traditional video is closing fast.</p><p>This guide covers the complete production workflow: from concept to a finished, polished video ready for YouTube, TikTok, or client delivery.</p>`,
+          },
+          {
+            heading: "Step 1: Script and Storyboard",
+            content: `<p>Every good video starts with a plan. Even a 30-second TikTok needs structure.</p><p><strong>For short-form (15-60s):</strong></p><ol><li>Hook (0-3s): Visual that stops the scroll</li><li>Setup (3-10s): Establish the scene/topic</li><li>Payoff (10-30s): The main content</li><li>CTA (last 5s): Follow, like, subscribe</li></ol><p><strong>For longer content (1-5 min):</strong></p><p>Use EGAKU AI's <strong>Storyboard Studio</strong>. Type your concept and it breaks it into scenes automatically. You can edit each scene's prompt before generation.</p><p><strong>Pro tip:</strong> Write your script as a series of one-sentence scene descriptions. Each sentence = one video clip.</p>`,
+          },
+          {
+            heading: "Step 2: Choose the Right Model Per Scene",
+            content: `<p>Different scenes need different models. Here's a decision matrix:</p><table style="width:100%;border-collapse:collapse;font-size:13px;"><tr style="border-bottom:1px solid #333;"><th style="text-align:left;padding:8px;">Scene Type</th><th>Best Model</th><th>Why</th></tr><tr style="border-bottom:1px solid #222;"><td style="padding:8px;">Talking head / dialogue</td><td>Veo 3</td><td>Native audio, lip sync</td></tr><tr style="border-bottom:1px solid #222;"><td style="padding:8px;">Cinematic landscape</td><td>Kling 3.0</td><td>4K, best visual quality</td></tr><tr style="border-bottom:1px solid #222;"><td style="padding:8px;">Long continuous shot</td><td>Sora 2</td><td>Up to 20 seconds</td></tr><tr style="border-bottom:1px solid #222;"><td style="padding:8px;">Quick B-roll</td><td>Grok Video</td><td>Fast, with audio</td></tr><tr style="border-bottom:1px solid #222;"><td style="padding:8px;">Animate a still</td><td>Kling 3.0 I2V</td><td>Preserves source image</td></tr><tr><td style="padding:8px;">Budget / free</td><td>Wan 2.6</td><td>Free, 15 seconds</td></tr></table><p>Mix and match models within a single project. Your audience doesn't care which model made each shot; they care about the final result.</p>`,
+          },
+          {
+            heading: "Step 3: Prompt Engineering for Video",
+            content: `<p>Video prompts are different from image prompts. The key additions:</p><ul><li><strong>Camera movement:</strong> "slow dolly forward", "aerial drone shot pulling back", "handheld tracking shot"</li><li><strong>Motion description:</strong> "the woman slowly turns her head and smiles", "rain falls on the window"</li><li><strong>Temporal direction:</strong> "starting from a close-up, gradually revealing the full scene"</li><li><strong>Mood/pace:</strong> "slow, contemplative", "energetic, fast-paced"</li></ul><p><strong>Template for cinematic shots:</strong></p><pre><code>[camera movement] of [subject doing action] in [setting], [lighting], [mood], cinematic, [aspect ratio hint]</code></pre><p><strong>Common mistake:</strong> Writing too much. Video models work best with 1-2 sentences. One clear action per clip.</p>`,
+          },
+          {
+            heading: "Step 4: Generate and Curate",
+            content: `<p>For each scene in your storyboard:</p><ol><li>Generate 3-5 variations using the same prompt</li><li>Pick the best one (check for: consistent motion, no artifacts, good composition)</li><li>If none are good enough, adjust the prompt and regenerate</li><li>Download the final selection in the highest available quality</li></ol><p><strong>Quality checklist per clip:</strong></p><ul><li>No morphing faces or melting objects</li><li>Consistent lighting direction across clips</li><li>Camera movement feels natural</li><li>No sudden jumps or freezes</li><li>Audio (if Veo 3/Grok) matches the visuals</li></ul><p>Budget: plan for 3x your final clip count in credits. You'll generate 3 to keep 1.</p>`,
+          },
+          {
+            heading: "Step 5: Edit and Assemble",
+            content: `<p>Once you have all your clips:</p><p><strong>Option A: EGAKU AI Storyboard Studio</strong></p><p>Upload your clips, arrange them in order, add BGM from our library, add narration with TTS. Export as a single video. All inside EGAKU AI.</p><p><strong>Option B: External editor (recommended for pro work)</strong></p><p>Use CapCut (free), DaVinci Resolve (free), or Premiere Pro:</p><ol><li>Import all clips</li><li>Trim and arrange on timeline</li><li>Add transitions (simple cuts or cross-dissolves work best; avoid flashy transitions)</li><li>Add background music (use royalty-free sources)</li><li>Color grade all clips to match (this is crucial for mixing different AI models)</li><li>Add text overlays, subtitles</li><li>Export at 1080p or 4K</li></ol><p><strong>Critical:</strong> Color grading is the #1 thing that makes a multi-model video look cohesive. Apply the same LUT or color correction to every clip.</p>`,
+          },
+          {
+            heading: "Step 6: Publishing Strategy",
+            content: `<p><strong>YouTube:</strong> Horizontal 16:9, 1080p minimum. Add chapters, end screens, cards. Description with keywords.</p><p><strong>TikTok/Reels/Shorts:</strong> Vertical 9:16, under 60 seconds. Hook in first 2 seconds. Text overlays. Trending audio.</p><p><strong>X (Twitter):</strong> Under 2:20. Square or horizontal. Subtitles (80% of X video is watched muted).</p><p><strong>Client delivery:</strong> ProRes or H.264 at highest bitrate. Include raw clips as bonus deliverables.</p>`,
+          },
+        ],
+      },
+      ja: {
+        title: "AI動画制作：台本から完成まで（完全ワークフロー）",
+        description: "プロ品質のAI動画を制作する完全ワークフロー。台本作成、シーン設計、モデル選択、編集、公開まで。",
+        sections: [
+          { heading: "AI動画の革命", content: `<p>2024年のAI動画は4秒のぼやけたクリップ。2026年にはVeo 3（音声付き）、Kling 3.0（4K）、Sora 2（20秒）。AIと従来の動画の品質差は急速に縮まっています。</p>` },
+          { heading: "ステップ1: 台本とストーリーボード", content: `<p>30秒のTikTokでも構造が必要。フック(0-3秒)→セットアップ(3-10秒)→ペイオフ(10-30秒)→CTA(最後5秒)。EGAKU AIのStoryboard Studioで自動シーン分割も可能。</p>` },
+          { heading: "ステップ2: シーンごとのモデル選択", content: `<p>会話→Veo 3、風景→Kling 3.0、長回し→Sora 2、Bロール→Grok Video、画像→動画→Kling I2V、無料→Wan 2.6。一つの作品で複数モデルを使い分ける。</p>` },
+          { heading: "ステップ3: 動画プロンプト", content: `<p>カメラワーク・動作・テンポを明示。1クリップ1アクション。2文以内が理想。</p>` },
+          { heading: "ステップ4: 生成とキュレーション", content: `<p>各シーンで3-5バリエーション生成、ベストを選択。品質チェック：顔の崩れ、照明の一貫性、自然なカメラワーク。</p>` },
+          { heading: "ステップ5: 編集と組み立て", content: `<p>Storyboard Studio内で完結するか、CapCut/DaVinci Resolveで本格編集。カラーグレーディングが最重要（複数モデルの統一感）。</p>` },
+          { heading: "ステップ6: 公開戦略", content: `<p>YouTube：16:9 1080p。TikTok/Reels：9:16 60秒以内。X：2:20以内、字幕必須。</p>` },
+        ],
+      },
+      es: {
+        title: "Produccion de video AI: Del guion al corte final",
+        description: "El flujo de trabajo completo para producir videos AI profesionales. Guion, planificacion, seleccion de modelos, edicion y publicacion.",
+        sections: [
+          { heading: "La revolucion del video AI", content: `<p>En 2024, un video AI era un clip borroso de 4 segundos. En 2026, tenemos Veo 3 (con audio), Kling 3.0 (4K) y Sora 2 (20 segundos).</p>` },
+          { heading: "Paso 1: Guion y storyboard", content: `<p>Todo buen video empieza con un plan. Estructura: Hook (0-3s), Setup (3-10s), Contenido (10-30s), CTA (ultimos 5s).</p>` },
+          { heading: "Paso 2: Modelo correcto por escena", content: `<p>Dialogo: Veo 3. Paisaje cinematico: Kling 3.0. Toma larga: Sora 2. B-roll rapido: Grok Video.</p>` },
+          { heading: "Paso 5: Editar y ensamblar", content: `<p>Color grading es lo #1 para que un video multi-modelo se vea cohesivo.</p>` },
+        ],
+      },
+      zh: {
+        title: "AI视频制作：从脚本到最终剪辑（完整工作流程）",
+        description: "制作专业AI视频的完整工作流程。脚本编写、场景规划、模型选择、编辑和发布。",
+        sections: [
+          { heading: "AI视频革命", content: `<p>2024年的AI视频是4秒模糊片段。2026年有Veo 3（带音频）、Kling 3.0（4K）和Sora 2（20秒）。</p>` },
+          { heading: "步骤1：脚本和分镜", content: `<p>30秒TikTok也需要结构。钩子(0-3秒)→建立(3-10秒)→内容(10-30秒)→CTA(最后5秒)。</p>` },
+          { heading: "步骤2：每个场景选择模型", content: `<p>对话：Veo 3。风景：Kling 3.0。长镜头：Sora 2。快速B-roll：Grok Video。</p>` },
+        ],
+      },
+      pt: {
+        title: "Producao de video AI: Do roteiro ao corte final",
+        description: "O fluxo de trabalho completo para produzir videos AI profissionais.",
+        sections: [
+          { heading: "A revolucao do video AI", content: `<p>Em 2024, um video AI era um clip borrado de 4 segundos. Em 2026, temos Veo 3 (com audio), Kling 3.0 (4K) e Sora 2 (20 segundos).</p>` },
+          { heading: "Passo 1: Roteiro e storyboard", content: `<p>Todo bom video comeca com um plano. Estrutura: Hook (0-3s), Setup (3-10s), Conteudo (10-30s), CTA (ultimos 5s).</p>` },
+          { heading: "Passo 2: Modelo certo por cena", content: `<p>Dialogo: Veo 3. Paisagem cinematica: Kling 3.0. Tomada longa: Sora 2.</p>` },
+        ],
+      },
+    },
+  },
 ];

@@ -789,7 +789,16 @@ class FalClient:
                         )
                         logger.info(f"fal.ai result fetch: HTTP {result_resp.status_code}")
                         if result_resp.status_code == 200:
-                            return result_resp.json()
+                            result_data = result_resp.json()
+                            # Detect empty/access-denied responses (e.g. Seedance 2 early access)
+                            if not result_data or (isinstance(result_data, dict) and not any(
+                                k in result_data for k in ("video", "videos", "output", "data", "images")
+                            )):
+                                logger.warning(
+                                    "fal.ai returned empty/unexpected result for %s: keys=%s",
+                                    fal_model, list(result_data.keys()) if isinstance(result_data, dict) else type(result_data),
+                                )
+                            return result_data
 
                         # 422 = fal.ai validation error in result — parse the error body
                         error_body = ""
@@ -909,16 +918,58 @@ class FalClient:
         return False
 
     def extract_video_url(self, result: dict) -> str | None:
-        """Extract the video URL from a fal.ai video response."""
+        """Extract the video URL from a fal.ai video response.
+
+        Handles multiple response formats across different models:
+          - { video: { url: "..." } }         — Veo 3, Kling, Seedance 2, most models
+          - { video: "https://..." }           — some older models
+          - { output: { url: "..." } }         — fallback format
+          - { data: { video: { url } } }       — nested wrapper (some queue results)
+          - { videos: [{ url: "..." }] }       — batch video results
+        """
+        # Standard: { video: { url } }
         video = result.get("video")
         if isinstance(video, dict):
-            return video.get("url")
-        if isinstance(video, str):
+            url = video.get("url")
+            if url:
+                return url
+        if isinstance(video, str) and video.startswith("http"):
             return video
-        # Some models return in different format
+
+        # Batch: { videos: [{ url }] }
+        videos = result.get("videos")
+        if isinstance(videos, list) and videos:
+            first = videos[0]
+            if isinstance(first, dict):
+                url = first.get("url")
+                if url:
+                    return url
+            if isinstance(first, str) and first.startswith("http"):
+                return first
+
+        # Nested wrapper: { data: { video: { url } } }
+        data = result.get("data")
+        if isinstance(data, dict):
+            nested_video = data.get("video")
+            if isinstance(nested_video, dict):
+                url = nested_video.get("url")
+                if url:
+                    return url
+
+        # Output fallback: { output: { url } }
         output = result.get("output")
         if isinstance(output, dict):
-            return output.get("url")
+            url = output.get("url")
+            if url:
+                return url
+
+        # Log the full response keys for debugging unknown formats
+        if result:
+            logger.warning(
+                "extract_video_url: no video URL found in response keys=%s (truncated values: %s)",
+                list(result.keys()),
+                {k: str(v)[:100] for k, v in result.items() if k != "logs"},
+            )
         return None
 
     def extract_image_url(self, result: dict) -> str | None:
