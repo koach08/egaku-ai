@@ -205,14 +205,14 @@ export default function LandingPage() {
               return (
                 <Card
                   key={planKey}
-                  className={`relative ${isRecommended ? "border-white/30 ring-1 ring-white/10" : "border-white/[0.06]"}`}
+                  className={isRecommended ? "border-white/30 ring-1 ring-white/10" : "border-white/[0.06]"}
                 >
-                  {isRecommended && (
-                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 text-[10px] font-semibold bg-white text-black px-3 py-1 rounded-full">
-                      RECOMMENDED
-                    </span>
-                  )}
                   <CardHeader className="text-center">
+                    {isRecommended && (
+                      <span className="inline-block text-[10px] font-semibold bg-white text-black px-3 py-1 rounded-full mb-2">
+                        RECOMMENDED
+                      </span>
+                    )}
                     <CardTitle className="text-base">{t(`plans.${planKey}.name`)}</CardTitle>
                     <div className="mt-2">
                       <span className="text-3xl font-bold">
