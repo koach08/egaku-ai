@@ -201,17 +201,11 @@ export default function LandingPage() {
             {planKeys.map((planKey) => {
               const price = planPrices[planKey];
               const features = t.raw(`plans.${planKey}.features`) as string[];
-              const isRecommended = planKey === "basic";
               return (
                 <Card
                   key={planKey}
-                  className={`relative ${isRecommended ? "border-white/30 ring-1 ring-white/10" : "border-white/[0.06]"}`}
+                  className="border-white/[0.06]"
                 >
-                  {isRecommended && (
-                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 text-[10px] font-semibold bg-white text-black px-3 py-1 rounded-full">
-                      POPULAR
-                    </span>
-                  )}
                   <CardHeader className="text-center">
                     <CardTitle className="text-base">{t(`plans.${planKey}.name`)}</CardTitle>
                     <div className="mt-2">
@@ -240,8 +234,8 @@ export default function LandingPage() {
                       ))}
                     </ul>
                     <Button
-                      className={`w-full mt-6 rounded-full ${isRecommended ? "bg-white text-black hover:bg-white/90" : ""}`}
-                      variant={isRecommended ? "default" : "outline"}
+                      className="w-full mt-6 rounded-full"
+                      variant="outline"
                       render={<Link href={price === "0" ? "/register" : `/register?plan=${planKey}`} />}
                     >
                       {price === "0"
