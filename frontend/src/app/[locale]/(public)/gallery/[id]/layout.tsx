@@ -22,12 +22,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       ? `${item.prompt.slice(0, 150)}${item.prompt.length > 150 ? "..." : ""} — Created with ${item.model || "AI"} on EGAKU AI`
       : `AI-generated artwork on EGAKU AI`;
 
-    // Use Next.js image optimization as proxy to serve resized OG images.
-    // Raw Supabase images can be 5MB+ which X/Twitter rejects.
-    // /_next/image?url=...&w=1200&q=75 returns a compressed version under 1MB.
-    const rawImage = (!item.nsfw && item.image_url) ? item.image_url : "";
-    const ogImage = rawImage
-      ? `https://egaku-ai.com/_next/image?url=${encodeURIComponent(rawImage)}&w=1200&q=75`
+    // Serve OG image via /api/og/[id] proxy to avoid 5MB+ raw images
+    // and HTML entity encoding issues with query params in meta tags
+    const ogImage = (!item.nsfw && item.image_url)
+      ? `https://egaku-ai.com/api/og/${id}`
       : "https://egaku-ai.com/og-image.jpg";
 
     return {
