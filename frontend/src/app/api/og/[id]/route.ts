@@ -33,9 +33,9 @@ export async function GET(
 
     const buffer = Buffer.from(await imgRes.arrayBuffer());
 
-    // Resize to 1200px wide, compress to JPEG
+    // Resize to 1200x630 (OG standard), center crop, compress to JPEG
     const compressed = await sharp(buffer)
-      .resize(1200, undefined, { fit: "inside", withoutEnlargement: true })
+      .resize(1200, 630, { fit: "cover", position: "centre" })
       .jpeg({ quality: 80 })
       .toBuffer();
 
