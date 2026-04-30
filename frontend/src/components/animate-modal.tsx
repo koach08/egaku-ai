@@ -165,7 +165,7 @@ export function AnimateModal({
           duration: effectiveDuration,
           mode,
           prompt: prompt.trim() || undefined,
-          frame_count: effectiveDuration * 8,
+          frame_count: Math.min(effectiveDuration * 8, 32),
           fps: 8,
         }),
       });
