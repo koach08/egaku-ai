@@ -172,7 +172,13 @@ export function AnimateModal({
 
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        const detail = err?.detail || `Request failed (${res.status})`;
+        // FastAPI 422 returns detail as array of objects
+        const rawDetail = err?.detail;
+        const detail = typeof rawDetail === "string"
+          ? rawDetail
+          : Array.isArray(rawDetail)
+            ? rawDetail.map((e: Record<string, unknown>) => e.msg || String(e)).join(", ")
+            : `Request failed (${res.status})`;
         if (res.status === 402) {
           toast.error("Not enough credits. Upgrade your plan to continue.", {
             action: {
