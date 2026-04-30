@@ -66,6 +66,7 @@ const TOOLS = [
     category: "Audio",
     items: [
       { name: "AI Sound Effects", desc: "Describe any sound → AI generates it for videos, games, podcasts", href: "/sound-effects", icon: "🔊", badge: "New" },
+      { name: "AI Voiceover", desc: "Type a script, choose a voice → professional voiceover audio", href: "/voiceover", icon: "🎙️", badge: "New" },
     ],
   },
   {
@@ -73,6 +74,9 @@ const TOOLS = [
     items: [
       { name: "Marketing Video Studio", desc: "Pick a template, enter product name → multi-scene marketing video", href: "/marketing-video", icon: "📢", badge: "New" },
       { name: "Music Video", desc: "Upload a song, pick a style → beat-synced music video", href: "/music-video", icon: "🎵", badge: "New" },
+      { name: "URL to Ad", desc: "Paste a product URL → ad-ready images in 6 formats", href: "/url-to-ad", icon: "🔗", badge: "New" },
+      { name: "Cinema Studio", desc: "Describe a scene, choose genre and camera → cinematic AI video", href: "/cinema-studio", icon: "🎬", badge: "New" },
+      { name: "Photodump", desc: "One character, 12 scenes — Instagram-ready photodump set", href: "/photodump", icon: "📸", badge: "New" },
     ],
   },
   {
