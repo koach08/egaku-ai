@@ -58,10 +58,11 @@ export const metadata: Metadata = {
     alternateLocale: ["ja_JP", "es_ES", "zh_CN", "pt_BR"],
     images: [
       {
-        url: "https://egaku-ai.com/og-image.png",
+        url: "https://egaku-ai.com/og-image.jpg",
         width: 1200,
         height: 630,
         alt: "EGAKU AI - AI Image & Video Generator",
+        type: "image/jpeg",
       },
     ],
   },
@@ -70,7 +71,7 @@ export const metadata: Metadata = {
     title: "EGAKU AI - Free AI Image & Video Generator",
     description:
       "Create images and videos with 30+ AI models. Veo 3, Grok, Flux, Kling 3.0, Sora 2. Free to start.",
-    images: ["https://egaku-ai.com/og-image.png"],
+    images: ["https://egaku-ai.com/og-image.jpg"],
   },
   robots: {
     index: true,
