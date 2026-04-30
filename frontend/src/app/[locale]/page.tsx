@@ -13,7 +13,8 @@ import { LiveStats } from "@/components/live-stats";
 import {
   ImageIcon, SwordsIcon, CameraIcon, PenToolIcon, SmileIcon,
   FilmIcon, MonitorIcon, LayoutIcon, ShoppingBagIcon, BookOpenIcon,
-  CompassIcon, VideoIcon, WandIcon,
+  CompassIcon, VideoIcon, WandIcon, EraserIcon, MaximizeIcon,
+  SparklesIcon, ZapIcon,
 } from "lucide-react";
 
 const planKeys = ["free", "lite", "basic", "pro", "unlimited", "studio"] as const;
@@ -160,6 +161,11 @@ export default function LandingPage() {
               { name: "Storyboard Studio", desc: "Multi-scene video with BGM and narration", href: "/storyboard", Icon: LayoutIcon },
               { name: "Product Studio", desc: "Product photos to professional ad images for e-commerce", href: "/product-studio", Icon: ShoppingBagIcon },
               { name: "Short Story", desc: "Story idea to AI-generated visual scenes for social media", href: "/short-story", Icon: BookOpenIcon },
+              { name: "AI Templates", desc: "One tap to create. No prompt needed", href: "/templates", Icon: ZapIcon },
+              { name: "VFX Effects", desc: "Fire, water, lightning, and 12 more effects on any photo", href: "/vfx", Icon: SparklesIcon },
+              { name: "Sketch to Image", desc: "Draw a rough sketch and AI turns it into a polished image", href: "/sketch", Icon: WandIcon },
+              { name: "Object Removal", desc: "Paint over unwanted objects and erase them cleanly", href: "/remove-object", Icon: EraserIcon },
+              { name: "Expand Image", desc: "Extend image borders with AI-generated content", href: "/expand", Icon: MaximizeIcon },
               { name: "Explore Gallery", desc: "Browse community creations and remix any prompt", href: "/gallery", Icon: CompassIcon },
             ] as const).map((tool) => (
               <Link
