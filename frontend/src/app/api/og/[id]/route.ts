@@ -36,11 +36,13 @@ export async function GET(
     }
 
     const buffer = await imgRes.arrayBuffer();
-    const contentType = imgRes.headers.get("content-type") || "image/jpeg";
+    const bytes = new Uint8Array(buffer);
 
-    return new NextResponse(buffer, {
+    return new NextResponse(bytes, {
+      status: 200,
       headers: {
-        "Content-Type": contentType,
+        "Content-Type": "image/png",
+        "Content-Length": String(bytes.length),
         "Cache-Control": "public, max-age=86400, s-maxage=86400",
       },
     });
