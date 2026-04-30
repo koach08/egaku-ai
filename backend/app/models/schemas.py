@@ -200,6 +200,25 @@ class OutpaintRequest(BaseModel):
     seed: int = -1
 
 
+class VirtualTryOnRequest(BaseModel):
+    human_image: str = ""  # base64 encoded person photo
+    garment_image: str = ""  # base64 encoded clothing image
+    description: str = "a person wearing the garment"
+
+
+class SoundEffectRequest(BaseModel):
+    prompt: str = Field(..., min_length=1, max_length=500)
+    duration: float = Field(5.0, ge=1.0, le=30.0)
+
+
+class FindReplaceRequest(BaseModel):
+    image: str = ""  # base64 encoded input image
+    mask: str = ""  # base64 encoded mask (white = area to replace)
+    prompt: str = Field(..., min_length=1, max_length=2000)  # what to put there
+    negative_prompt: str = ""
+    seed: int = -1
+
+
 class StyleTransferRequest(BaseModel):
     image: str = ""  # base64 encoded input image
     style: str = "ghibli"  # ghibli, anime, oil_painting, watercolor, cyberpunk, pixel_art, comic, ukiyoe
@@ -471,6 +490,9 @@ CREDIT_COSTS = {
     "battle_create": 2,  # image generation cost for creating/accepting a prompt battle
     "object_removal": 2,  # fal-ai/lama — fast object removal
     "outpaint": 3,  # expand image canvas via inpainting
+    "virtual_tryon": 5,  # fal-ai/idm-vton
+    "sound_effect": 3,  # beatoven/sound-effect-generation
+    "find_replace": 3,  # inpainting with specific prompt
 }
 
 

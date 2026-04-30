@@ -14,6 +14,7 @@ from app.models.schemas import (
     ConsistentCharacterRequest,
     ControlNetRequest,
     FaceSwapRequest,
+    FindReplaceRequest,
     GenerationResponse,
     Img2ImgRequest,
     Img2VidRequest,
@@ -23,10 +24,12 @@ from app.models.schemas import (
     ObjectRemovalRequest,
     OutpaintRequest,
     RemoveBgRequest,
+    SoundEffectRequest,
     StyleTransferRequest,
     TalkingAvatarRequest,
     UpscaleRequest,
     Vid2VidRequest,
+    VirtualTryOnRequest,
 )
 
 logger = logging.getLogger(__name__)
@@ -991,6 +994,161 @@ async def remove_object(
             logger.error(f"fal.ai object removal failed: {fal_err}")
 
     raise HTTPException(status_code=503, detail="Object removal service is temporarily unavailable.")
+
+
+# ─── Virtual Try-On (IDM-VTON) ───
+
+@router.post("/virtual-tryon", response_model=GenerationResponse)
+async def virtual_tryon(
+    body: VirtualTryOnRequest,
+    request: Request,
+    settings: Settings = Depends(get_settings),
+):
+    """Virtual try-on: put a garment on a person."""
+    _check_infra(settings)
+    user, profile, supabase = await _auth_and_profile(request, settings)
+
+    if not body.human_image or not body.garment_image:
+        raise HTTPException(status_code=400, detail="Both person photo and garment image are required")
+
+    from app.services.supabase import deduct_credits
+    credits_needed = CREDIT_COSTS["virtual_tryon"]
+    success = await deduct_credits(supabase, user.id, credits_needed, "Virtual try-on")
+    if not success:
+        raise HTTPException(status_code=402, detail="Insufficient credits")
+
+    job_id = str(uuid.uuid4())
+    human_url = _b64_to_data_url(body.human_image)
+    garment_url = _b64_to_data_url(body.garment_image)
+
+    from app.services.fal_ai import FalClient
+    fal_client = FalClient(settings)
+    if fal_client.is_available():
+        try:
+            result = await fal_client.submit_virtual_tryon(
+                human_image_url=human_url,
+                garment_image_url=garment_url,
+                description=body.description,
+            )
+            img_url = fal_client.extract_image_url(result)
+            if img_url:
+                from app.api.generate import _save_generation_to_db, _store_job_status
+                await _store_job_status(settings, job_id, "completed", {"url": img_url, "backend": "fal"})
+                await _save_generation_to_db(
+                    settings, str(user.id), job_id, "virtual_tryon", body.description,
+                    "", "fal_idm_vton", {},
+                    img_url, False,
+                )
+                return GenerationResponse(
+                    job_id=job_id, status=JobStatus.completed,
+                    credits_used=credits_needed, result_url=img_url,
+                )
+        except Exception as fal_err:
+            logger.error(f"fal.ai virtual try-on failed: {fal_err}")
+
+    raise HTTPException(status_code=503, detail="Virtual try-on service is temporarily unavailable.")
+
+
+# ─── Sound Effect Generator ───
+
+@router.post("/sound-effect", response_model=GenerationResponse)
+async def generate_sound_effect(
+    body: SoundEffectRequest,
+    request: Request,
+    settings: Settings = Depends(get_settings),
+):
+    """Generate AI sound effects from text description."""
+    _check_infra(settings)
+    user, profile, supabase = await _auth_and_profile(request, settings)
+
+    from app.services.supabase import deduct_credits
+    credits_needed = CREDIT_COSTS["sound_effect"]
+    success = await deduct_credits(supabase, user.id, credits_needed, "Sound effect generation")
+    if not success:
+        raise HTTPException(status_code=402, detail="Insufficient credits")
+
+    job_id = str(uuid.uuid4())
+
+    from app.services.fal_ai import FalClient
+    fal_client = FalClient(settings)
+    if fal_client.is_available():
+        try:
+            result = await fal_client.submit_sound_effect(
+                prompt=body.prompt,
+                duration=body.duration,
+            )
+            audio_url = fal_client.extract_audio_url(result)
+            if audio_url:
+                from app.api.generate import _store_job_status
+                await _store_job_status(settings, job_id, "completed", {"url": audio_url, "backend": "fal"})
+                return GenerationResponse(
+                    job_id=job_id, status=JobStatus.completed,
+                    credits_used=credits_needed, result_url=audio_url,
+                )
+        except Exception as fal_err:
+            logger.error(f"fal.ai sound effect failed: {fal_err}")
+
+    raise HTTPException(status_code=503, detail="Sound effect service is temporarily unavailable.")
+
+
+# ─── Find & Replace ───
+
+@router.post("/find-replace", response_model=GenerationResponse)
+async def find_replace(
+    body: FindReplaceRequest,
+    request: Request,
+    settings: Settings = Depends(get_settings),
+):
+    """Replace an object in an image: paint over it and describe what should be there."""
+    is_safe, flagged = check_prompt_compliance(body.prompt)
+    if not is_safe:
+        raise HTTPException(status_code=400, detail=f"Content policy violation: {', '.join(flagged)}")
+
+    _check_infra(settings)
+    user, profile, supabase = await _auth_and_profile(request, settings)
+
+    if not body.image or not body.mask:
+        raise HTTPException(status_code=400, detail="Both image and mask are required")
+
+    from app.services.supabase import deduct_credits
+    credits_needed = CREDIT_COSTS["find_replace"]
+    success = await deduct_credits(supabase, user.id, credits_needed, "Find & replace")
+    if not success:
+        raise HTTPException(status_code=402, detail="Insufficient credits")
+
+    job_id = str(uuid.uuid4())
+    image_url = _b64_to_data_url(body.image)
+    mask_url = _b64_to_data_url(body.mask)
+
+    from app.services.fal_ai import FalClient
+    fal_client = FalClient(settings)
+    if fal_client.is_available():
+        try:
+            result = await fal_client.submit_inpaint(
+                image_url=image_url,
+                mask_url=mask_url,
+                prompt=body.prompt,
+                negative_prompt=body.negative_prompt,
+                strength=0.95,
+                seed=body.seed,
+            )
+            img_url = fal_client.extract_image_url(result)
+            if img_url:
+                from app.api.generate import _save_generation_to_db, _store_job_status
+                await _store_job_status(settings, job_id, "completed", {"url": img_url, "backend": "fal"})
+                await _save_generation_to_db(
+                    settings, str(user.id), job_id, "find_replace", body.prompt,
+                    body.negative_prompt, "fal_flux_fill", body.model_dump(),
+                    img_url, False,
+                )
+                return GenerationResponse(
+                    job_id=job_id, status=JobStatus.completed,
+                    credits_used=credits_needed, result_url=img_url,
+                )
+        except Exception as fal_err:
+            logger.error(f"fal.ai find-replace failed: {fal_err}")
+
+    raise HTTPException(status_code=503, detail="Find & replace service is temporarily unavailable.")
 
 
 # ─── Outpaint (Expand Image) ───

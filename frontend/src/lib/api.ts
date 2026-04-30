@@ -186,6 +186,24 @@ export const api = {
       headers: authHeaders(token),
       body: JSON.stringify(params),
     }),
+  virtualTryOn: (token: string, params: Record<string, unknown>) =>
+    fetchAPI("/generate/virtual-tryon", {
+      method: "POST",
+      headers: authHeaders(token),
+      body: JSON.stringify(params),
+    }),
+  soundEffect: (token: string, params: Record<string, unknown>) =>
+    fetchAPI("/generate/sound-effect", {
+      method: "POST",
+      headers: authHeaders(token),
+      body: JSON.stringify(params),
+    }),
+  findReplace: (token: string, params: Record<string, unknown>) =>
+    fetchAPI("/generate/find-replace", {
+      method: "POST",
+      headers: authHeaders(token),
+      body: JSON.stringify(params),
+    }),
   removeObject: (token: string, params: Record<string, unknown>) =>
     fetchAPI("/generate/remove-object", {
       method: "POST",

@@ -909,6 +909,65 @@ class FalClient:
             logger.info("fal.ai LaMa object removal completed")
             return data
 
+    async def submit_virtual_tryon(
+        self,
+        human_image_url: str,
+        garment_image_url: str,
+        description: str = "a person wearing the garment",
+    ) -> dict:
+        """Virtual try-on using IDM-VTON. Puts garment on person."""
+        fal_model = "fal-ai/idm-vton"
+        input_params = {
+            "human_image_url": human_image_url,
+            "garment_image_url": garment_image_url,
+            "description": description,
+        }
+        url = f"{FAL_API_BASE}/{fal_model}"
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                url, json=input_params, headers=self.headers, timeout=120,
+            )
+            response.raise_for_status()
+            data = response.json()
+            logger.info("fal.ai IDM-VTON virtual try-on completed")
+            return data
+
+    async def submit_sound_effect(
+        self,
+        prompt: str,
+        duration: float = 5.0,
+    ) -> dict:
+        """Generate sound effect using Beatoven."""
+        fal_model = "beatoven/sound-effect-generation"
+        input_params = {
+            "prompt": prompt,
+            "duration": duration,
+        }
+        url = f"{FAL_API_BASE}/{fal_model}"
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                url, json=input_params, headers=self.headers, timeout=120,
+            )
+            response.raise_for_status()
+            data = response.json()
+            logger.info("fal.ai sound effect generation completed")
+            return data
+
+    def extract_audio_url(self, result: dict) -> str | None:
+        """Extract audio URL from a fal.ai audio response."""
+        audio = result.get("audio")
+        if isinstance(audio, dict):
+            return audio.get("url")
+        if isinstance(audio, str) and audio.startswith("http"):
+            return audio
+        audio_file = result.get("audio_file")
+        if isinstance(audio_file, dict):
+            return audio_file.get("url")
+        output = result.get("output")
+        if isinstance(output, dict):
+            return output.get("url")
+        return None
+
     @staticmethod
     async def is_black_image(image_url: str, threshold: int = 15) -> bool:
         """Check if a generated image is mostly black (safety checker blocked it)."""

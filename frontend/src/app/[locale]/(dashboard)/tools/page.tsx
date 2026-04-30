@@ -49,6 +49,7 @@ const TOOLS = [
       { name: "Object Removal", desc: "Paint over unwanted objects and erase them cleanly", href: "/remove-object", icon: "🧹", badge: "New" },
       { name: "Expand Image", desc: "Extend image borders with AI-generated content", href: "/expand", icon: "↔️", badge: "New" },
       { name: "Sketch to Image", desc: "Draw a rough sketch → AI creates a polished image", href: "/sketch", icon: "✏️", badge: "New" },
+      { name: "Find & Replace", desc: "Paint over an object, describe its replacement — AI swaps it", href: "/find-replace", icon: "🔄", badge: "New" },
       { name: "ControlNet", desc: "Guide generation with pose, depth, edges", href: "/generate?tab=controlnet", icon: "🎯", badge: "" },
     ],
   },
@@ -57,6 +58,20 @@ const TOOLS = [
     items: [
       { name: "Face Swap", desc: "Swap faces between two images", href: "/generate?tab=faceswap", icon: "🔀", badge: "" },
       { name: "Character Lock", desc: "Keep the same character across multiple scenes (PuLID)", href: "/generate?tab=character", icon: "🔒", badge: "Pro" },
+      { name: "Virtual Try-On", desc: "Upload your photo + clothing → AI puts the outfit on you", href: "/try-on", icon: "👔", badge: "New" },
+      { name: "Multi-Shot", desc: "Same subject from 9 camera angles — character sheets, product views", href: "/multi-shot", icon: "📐", badge: "New" },
+    ],
+  },
+  {
+    category: "Audio",
+    items: [
+      { name: "AI Sound Effects", desc: "Describe any sound → AI generates it for videos, games, podcasts", href: "/sound-effects", icon: "🔊", badge: "New" },
+    ],
+  },
+  {
+    category: "Marketing",
+    items: [
+      { name: "Marketing Video Studio", desc: "Pick a template, enter product name → multi-scene marketing video", href: "/marketing-video", icon: "📢", badge: "New" },
     ],
   },
   {
