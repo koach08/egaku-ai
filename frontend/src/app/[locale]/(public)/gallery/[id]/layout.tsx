@@ -22,10 +22,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       ? `${item.prompt.slice(0, 150)}${item.prompt.length > 150 ? "..." : ""} — Created with ${item.model || "AI"} on EGAKU AI`
       : `AI-generated artwork on EGAKU AI`;
 
-    // Serve OG image via /api/og/[id] proxy to avoid 5MB+ raw images
-    // and HTML entity encoding issues with query params in meta tags
-    const ogImage = (!item.nsfw && item.image_url)
-      ? `https://egaku-ai.com/api/og/${id}`
+    // Use Supabase render API to serve compressed OG image directly
+    // No proxy needed, no robots.txt issues
+    const rawUrl = (!item.nsfw && item.image_url) ? item.image_url : "";
+    const ogImage = rawUrl && rawUrl.includes("supabase.co/storage/v1/object/public/")
+      ? rawUrl.replace("/object/public/", "/render/image/public/") + "?width=1200&height=630&resize=cover&quality=70"
       : "https://egaku-ai.com/og-image.jpg";
 
     return {
