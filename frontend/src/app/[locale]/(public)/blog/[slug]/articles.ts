@@ -2180,4 +2180,146 @@ export const ARTICLES: Article[] = [
       },
     },
   },
+  // ── Essay: AI Censorship Is Getting Worse ──
+  {
+    slug: "ai-censorship-getting-worse-2026",
+    category: "guide",
+    tags: ["opinion", "censorship", "freedom", "policy", "payments", "ethics"],
+    publishedAt: "2026-04-30",
+    readingTime: 12,
+    translations: {
+      en: {
+        title: "AI Censorship Is Getting Worse, Not Better (2026)",
+        description: "Payment processors banning platforms, models over-censoring legitimate art, governments scrambling to regulate. A data-driven look at how AI creative freedom is shrinking in 2026.",
+        sections: [
+          {
+            heading: "The Squeeze",
+            content: `<p>In 2022, Stable Diffusion was released as open source and anyone could generate anything. In 2026, the landscape is radically different. Midjourney maintains a growing list of 200+ banned words. DALL-E blocks prompts referencing religions and ethnicities. Kling AI flags "female figure in modern streetwear" as sensitive content. Leonardo AI doubled down on anti-NSFW rules in mid-2024.</p>
+<p>The censorship isn't coming from one direction. It's a three-way squeeze: <strong>platforms</strong> tightening their own filters, <strong>payment processors</strong> cutting off services, and <strong>governments</strong> passing new laws. Each reinforces the others, and creators are caught in the middle.</p>`,
+          },
+          {
+            heading: "The Payment Processor Problem",
+            content: `<p>This is the part most people don't see. Visa and Mastercard classify AI-generated adult imagery as high-risk. Any payment gateway on their rails (Stripe, PayPal, Razorpay) must comply. Mastercard now requires all content to be reviewed before publication, identity documentation for depicted individuals, and quarterly compliance reports filed with banks.</p>
+<p>Starting April 2025, Visa's Acquirer Monitoring Program (VAMP) required transaction dispute rates under 1.5%, dropping to 0.9% by January 2026. Platforms that can't meet these thresholds lose processing entirely.</p>
+<p><strong>The CivitAI case is the most dramatic example.</strong> On May 23, 2025, CivitAI's credit card processor terminated service. The company pivoted to cryptocurrency overnight, now accepting USDC, USDT, Ethereum, and Dogecoin. They also banned all real-person likeness content. The largest open-source AI model community was reshaped in a single day by a payment processor's decision.</p>
+<p>This isn't about legality. CivitAI wasn't doing anything illegal. The payment processor simply decided the risk wasn't worth it.</p>`,
+          },
+          {
+            heading: "Over-Censorship: When the Filter Becomes the Problem",
+            content: `<p>Safety filters are supposed to block harmful content. In practice, they block far more than that.</p>
+<p><strong>Documented false positives:</strong></p>
+<ul>
+<li><strong>Kling AI v2.5:</strong> Prompts that worked for months in v2.1 suddenly fail. Words like "freedom," "LGBTQ," and "president" are blocked entirely, reflecting Chinese regulatory requirements rather than content safety.</li>
+<li><strong>DALL-E 3.5:</strong> Blocks images that "look too much like real people," but this catches professional photography and portraiture. Prompts work one day and are flagged the next after model updates.</li>
+<li><strong>Stable Diffusion:</strong> Research (arXiv:2409.17156) found the safety classifier exhibits gender and stylistic bias, with LGBTQ artists' work disproportionately flagged as NSFW.</li>
+<li><strong>Midjourney:</strong> The banned words list is updated constantly. "What worked yesterday may not work today." Users report spending more time figuring out what they can't say than actually creating.</li>
+</ul>
+<p>The broader effect is a <strong>chilling effect on creativity</strong>. When creators are constantly worried about violating vague content policies, they self-censor. They stop experimenting. The tool that was supposed to democratize art becomes another gatekeeper.</p>`,
+          },
+          {
+            heading: "The Grok Disaster: What Happens Without Any Filters",
+            content: `<p>The opposite extreme is equally instructive. When xAI launched Grok Imagine with minimal restrictions in late 2025, the results were catastrophic.</p>
+<p>Between December 29, 2025 and January 8, 2026, Grok generated 4.4 million images in 9 days. Of these, 1.8 million were sexualized depictions of women, and 23,000 were images of children. Rolling Stone reported Grok was producing "about one nonconsensual sexualized image per minute."</p>
+<p>The fallout was swift: EU, UK, Indonesia, Malaysia, and California all opened investigations or banned the service. X restricted image generation to paid subscribers. But the damage was done.</p>
+<p>Grok proved that zero censorship is not the answer either. The question is where the line should be drawn, and <strong>who gets to draw it</strong>.</p>`,
+          },
+          {
+            heading: "The Global Regulatory Patchwork",
+            content: `<p>Governments are responding, but with wildly different approaches:</p>
+<p><strong>EU AI Act</strong> (fully applicable August 2026): All AI-generated content must be labeled with watermarks and machine-readable metadata. Penalties up to 35 million euros or 7% of global turnover. Exemption for artistic and satirical content.</p>
+<p><strong>US Take It Down Act</strong> (signed May 2025): Criminalizes nonconsensual intimate deepfakes. Platforms must remove flagged content within 48 hours. First conviction came in April 2026: an Ohio man who used AI to create CSAM from images of minors he knew.</p>
+<p><strong>Japan</strong> (AI Promotion Act, May 2025): Deliberately innovation-friendly, aiming to be "the world's most friendly country for developing and utilizing AI." No direct fines. Copyright Act permits non-expressive uses for training without authorization.</p>
+<p><strong>South Korea:</strong> Up to 7 years prison for creating deepfake porn. 3 years or 30 million KRW fine for possession. 921 reports and 474 arrests in the first 10 months of 2024 alone.</p>
+<p><strong>China:</strong> The most comprehensive labeling regime globally. All public AI content must carry explicit watermarks and machine-readable metadata. Deepfakes for illegal purposes classified as "cyber violence."</p>
+<p>A creator in Japan, South Korea, and the EU will face three entirely different legal frameworks for the same generated image. There is no global consensus.</p>`,
+          },
+          {
+            heading: "Unstable Diffusion: A Cautionary Tale",
+            content: `<p>The story of Unstable Diffusion shows what happens when an AI platform takes the "maximum freedom" approach without a sustainability plan.</p>
+<p>Founded in August 2022 as a Discord community for uncensored Stable Diffusion fine-tuning, it grew to 300,000+ members. Their Kickstarter campaign cleared $56,000 from 867 backers in one day, then Kickstarter shut it down citing new AI content guidelines. All pledges refunded.</p>
+<p>They fell back to Patreon, earning roughly $2,500/month while serving 350,000 daily active users. The math never worked. GPU costs alone exceeded revenue.</p>
+<p>As of April 2026, Unstable Diffusion has 149 patrons generating $1,998/month. They never launched video generation. They never found a sustainable business model. They didn't formally shut down. They just slowly became irrelevant.</p>
+<p>The AI adult content market is estimated at $2.5 billion in 2026. Unstable Diffusion captured almost none of it because <strong>creative freedom without financial sustainability is just a hobby</strong>.</p>`,
+          },
+          {
+            heading: "The Middle Path",
+            content: `<p>The platforms that will survive this era are not the most radical or the most restrictive. They're the ones that find a sustainable middle path.</p>
+<p>What does that look like in practice?</p>
+<ul>
+<li><strong>Clear, published policies</strong> instead of opaque filters that change without notice</li>
+<li><strong>Age verification and consent checks</strong> for mature content, not blanket bans</li>
+<li><strong>Multiple payment options</strong> so one processor's decision can't kill the platform overnight</li>
+<li><strong>Regional compliance</strong> that respects local laws without imposing the most restrictive jurisdiction on everyone</li>
+<li><strong>Transparency about what's blocked and why</strong>, so creators can make informed decisions</li>
+</ul>
+<p>The alternative is a world where a handful of payment processors and platform moderation teams decide what art can exist. That's not safety. That's a different kind of censorship.</p>`,
+          },
+        ],
+      },
+      ja: {
+        title: "AI検閲は悪化している（2026年の現状）",
+        description: "決済会社によるプラットフォーム排除、正当なアートへの過剰検閲、各国政府の規制。データで見るAI創作の自由の縮小。",
+        sections: [
+          {
+            heading: "三方向からの締め付け",
+            content: `<p>2022年、Stable Diffusionがオープンソースで公開され、誰でも何でも生成できた。2026年、状況は激変している。Midjourneyは200語以上の禁止ワードリストを管理。DALL-Eは宗教や民族に関するプロンプトをブロック。Kling AIは「モダンなストリートウェアの女性」を「センシティブコンテンツ」として弾く。</p>
+<p>検閲は一方向からではない。<strong>プラットフォーム</strong>のフィルター強化、<strong>決済会社</strong>のサービス打ち切り、<strong>政府</strong>の新法。三方向から同時に締め付けが来ている。</p>`,
+          },
+          {
+            heading: "決済会社の問題",
+            content: `<p>VisaとMastercardはAI生成のアダルト画像を高リスクに分類。Stripe、PayPal等もこの方針に従う。Mastercardはコンテンツの事前審査、描かれた人物の身元確認、四半期ごとのコンプライアンス報告を義務付けている。</p>
+<p><strong>CivitAIの事例が最も衝撃的。</strong>2025年5月23日、CivitAIのクレジットカード決済会社がサービスを停止。CivitAIは一夜にして暗号通貨決済に移行した。オープンソースAI最大のコミュニティが、決済会社の一つの判断で形を変えた。違法行為があったわけではない。リスクが割に合わないと判断されただけ。</p>`,
+          },
+          {
+            heading: "過剰検閲：フィルターが問題になる時",
+            content: `<p>Kling AI v2.5では「自由」「LGBTQ」「大統領」といった単語がブロックされる。DALL-E 3.5は「実在の人物に似すぎている」画像をブロックするが、正当なポートレート写真まで弾く。Stable Diffusionの安全分類器にはジェンダーバイアスがあり、LGBTQアーティストの作品が不均衡にNSFWとしてフラグされることが研究で示されている。</p>
+<p>結果として<strong>萎縮効果</strong>が生まれている。クリエイターは実験をやめ、自己検閲する。アートを民主化するはずのツールが、新たなゲートキーパーになっている。</p>`,
+          },
+          {
+            heading: "Grokの惨事：フィルターが全くないとどうなるか",
+            content: `<p>xAIがGrok Imagineをほぼ無制限で公開した結果、9日間で440万枚が生成され、うち180万枚が女性の性的描写、2万3千枚が子どもの画像だった。EU、UK、インドネシア、マレーシア、カリフォルニアが調査・禁止措置を取った。ゼロ検閲も答えではない。</p>`,
+          },
+          {
+            heading: "各国の規制",
+            content: `<p><strong>EU:</strong> AI生成コンテンツに透かし・メタデータ表示義務。罰金最大3500万ユーロ。<strong>米国:</strong> Take It Down Act（2025年5月署名）、非同意ディープフェイク犯罪化。<strong>日本:</strong> AI推進法（2025年5月）、罰則なし、イノベーション重視。<strong>韓国:</strong> ディープフェイクポルノ作成で最大7年の懲役。同じ画像でも国によって全く異なる法的扱いを受ける。</p>`,
+          },
+          {
+            heading: "Unstable Diffusionの教訓",
+            content: `<p>2022年設立、30万人以上のメンバー。Kickstarterで56,000ドルを1日で集めたが、Kickstarterが規約変更で停止。Patreonに移行するも月収2,500ドルで35万DAUを支える計算は合わなかった。2026年4月現在、149人のパトロンで月1,998ドル。正式に閉鎖はしていない。ただ徐々に無関係になった。<strong>持続可能性のない創作の自由は趣味に過ぎない。</strong></p>`,
+          },
+          {
+            heading: "中間の道",
+            content: `<p>生き残るプラットフォームは、最も過激でも最も厳格でもない。明確なポリシー、年齢確認、複数の決済手段、地域ごとの法令遵守、そして何がブロックされ何故かの透明性。一握りの決済会社とモデレーションチームがどんなアートが存在できるかを決める世界は、安全ではない。別の形の検閲に過ぎない。</p>`,
+          },
+        ],
+      },
+      es: {
+        title: "La censura en AI esta empeorando (2026)",
+        description: "Procesadores de pago prohibiendo plataformas, modelos censurando arte legitimo, gobiernos regulando. Como la libertad creativa en AI se esta reduciendo.",
+        sections: [
+          { heading: "La presion triple", content: `<p>En 2022, Stable Diffusion era libre. En 2026, Midjourney tiene 200+ palabras prohibidas, DALL-E bloquea prompts sobre religiones, y Kling AI marca "mujer con ropa urbana" como contenido sensible. La censura viene de tres lados: plataformas, procesadores de pago, y gobiernos.</p>` },
+          { heading: "El problema de los procesadores de pago", content: `<p>CivitAI perdio su procesador de pagos en mayo 2025 y tuvo que migrar a criptomonedas de un dia para otro. No estaban haciendo nada ilegal. El procesador simplemente decidio que el riesgo no valia la pena.</p>` },
+          { heading: "El camino medio", content: `<p>Las plataformas que sobreviviran no son las mas radicales ni las mas restrictivas. Son las que encuentran un equilibrio sostenible entre libertad creativa y cumplimiento legal.</p>` },
+        ],
+      },
+      zh: {
+        title: "AI审查正在恶化（2026年现状）",
+        description: "支付处理商封禁平台、模型过度审查合法艺术、各国政府匆忙立法。数据驱动分析AI创作自由的收缩。",
+        sections: [
+          { heading: "三面挤压", content: `<p>2022年Stable Diffusion开源，任何人都能生成任何内容。2026年，Midjourney维护着200多个禁用词，DALL-E屏蔽涉及宗教和种族的提示词，Kling AI将"穿现代街头服饰的女性"标记为敏感内容。审查来自三个方向：平台、支付处理商和政府。</p>` },
+          { heading: "支付处理商问题", content: `<p>2025年5月，CivitAI的信用卡处理商终止服务。CivitAI一夜之间转向加密货币支付。最大的开源AI社区因一个支付处理商的决定而改变。</p>` },
+          { heading: "中间道路", content: `<p>能够生存下来的平台既不是最激进的也不是最严格的，而是找到可持续中间道路的那些。</p>` },
+        ],
+      },
+      pt: {
+        title: "A censura em AI esta piorando (2026)",
+        description: "Processadores de pagamento banindo plataformas, modelos censurando arte legitima, governos regulando. Como a liberdade criativa em AI esta diminuindo.",
+        sections: [
+          { heading: "A pressao tripla", content: `<p>Em 2022, Stable Diffusion era livre. Em 2026, Midjourney tem 200+ palavras proibidas, DALL-E bloqueia prompts sobre religioes, e Kling AI marca "mulher com roupa urbana" como conteudo sensivel.</p>` },
+          { heading: "O problema dos processadores de pagamento", content: `<p>CivitAI perdeu seu processador de pagamentos em maio 2025. Migrou para criptomoedas da noite para o dia. Nao estavam fazendo nada ilegal.</p>` },
+          { heading: "O caminho do meio", content: `<p>As plataformas que sobreviverao nao sao as mais radicais nem as mais restritivas. Sao as que encontram um equilibrio sustentavel.</p>` },
+        ],
+      },
+    },
+  },
 ];
