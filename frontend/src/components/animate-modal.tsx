@@ -189,7 +189,7 @@ export function AnimateModal({
         } else if (res.status === 403) {
           toast.error(detail || "This model requires a higher plan.");
         } else {
-          toast.error(detail);
+          toast.error(detail, { duration: 10000 });
         }
         stopTimers();
         setSubmitting(false);
