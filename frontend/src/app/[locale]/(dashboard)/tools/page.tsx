@@ -72,6 +72,7 @@ const TOOLS = [
     category: "Marketing",
     items: [
       { name: "Marketing Video Studio", desc: "Pick a template, enter product name → multi-scene marketing video", href: "/marketing-video", icon: "📢", badge: "New" },
+      { name: "Music Video", desc: "Upload a song, pick a style → beat-synced music video", href: "/music-video", icon: "🎵", badge: "New" },
     ],
   },
   {
