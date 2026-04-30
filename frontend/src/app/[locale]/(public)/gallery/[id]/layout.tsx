@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     // Serve OG image via /api/og/[id] proxy to avoid 5MB+ raw images
     // and HTML entity encoding issues with query params in meta tags
     const ogImage = (!item.nsfw && item.image_url)
-      ? `https://egaku-ai.com/api/og/${id}`
+      ? `https://egaku-ai.com/og/${id}`
       : "https://egaku-ai.com/og-image.jpg";
 
     return {
