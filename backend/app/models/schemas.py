@@ -187,6 +187,19 @@ class RemoveBgRequest(BaseModel):
     image: str = ""  # base64 encoded input image
 
 
+class ObjectRemovalRequest(BaseModel):
+    image: str = ""  # base64 encoded input image
+    mask: str = ""  # base64 encoded mask (white = area to remove)
+
+
+class OutpaintRequest(BaseModel):
+    image: str = ""  # base64 encoded input image
+    prompt: str = Field("", max_length=2000)
+    direction: str = "all"  # left, right, up, down, all
+    expand_pixels: int = Field(256, ge=64, le=512)
+    seed: int = -1
+
+
 class StyleTransferRequest(BaseModel):
     image: str = ""  # base64 encoded input image
     style: str = "ghibli"  # ghibli, anime, oil_painting, watercolor, cyberpunk, pixel_art, comic, ukiyoe
@@ -456,6 +469,8 @@ CREDIT_COSTS = {
     "character_video": 100,  # fal-ai/pixverse/c1/reference-to-video — ~5s @720p
     "voice_clone": 20,  # base cost for up to 500 chars
     "battle_create": 2,  # image generation cost for creating/accepting a prompt battle
+    "object_removal": 2,  # fal-ai/lama — fast object removal
+    "outpaint": 3,  # expand image canvas via inpainting
 }
 
 

@@ -179,6 +179,12 @@ export const api = {
       headers: authHeaders(token),
       body: JSON.stringify(params),
     }),
+  removeObject: (token: string, params: Record<string, unknown>) =>
+    fetchAPI("/generate/remove-object", {
+      method: "POST",
+      headers: authHeaders(token),
+      body: JSON.stringify(params),
+    }),
   outpaint: (token: string, params: Record<string, unknown>) =>
     fetchAPI("/generate/outpaint", {
       method: "POST",

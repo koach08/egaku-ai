@@ -20,6 +20,8 @@ from app.models.schemas import (
     InpaintRequest,
     JobStatus,
     LipSyncRequest,
+    ObjectRemovalRequest,
+    OutpaintRequest,
     RemoveBgRequest,
     StyleTransferRequest,
     TalkingAvatarRequest,
@@ -933,6 +935,166 @@ async def remove_background(
         return GenerationResponse(job_id=job_id, status=JobStatus.queued, credits_used=credits_needed)
 
     raise HTTPException(status_code=503, detail="Background removal service is temporarily unavailable.")
+
+
+# ─── Object Removal (LaMa) ───
+
+@router.post("/remove-object", response_model=GenerationResponse)
+async def remove_object(
+    body: ObjectRemovalRequest,
+    request: Request,
+    settings: Settings = Depends(get_settings),
+):
+    """Remove unwanted objects from an image using LaMa.
+
+    Paint over the object to remove, and LaMa fills it with plausible background.
+    """
+    _check_infra(settings)
+    user, profile, supabase = await _auth_and_profile(request, settings)
+
+    if not body.image or not body.mask:
+        raise HTTPException(status_code=400, detail="Both image and mask are required")
+
+    from app.services.supabase import deduct_credits
+
+    credits_needed = CREDIT_COSTS["object_removal"]
+    success = await deduct_credits(supabase, user.id, credits_needed, "Object removal")
+    if not success:
+        raise HTTPException(status_code=402, detail="Insufficient credits")
+
+    job_id = str(uuid.uuid4())
+    image_url = _b64_to_data_url(body.image)
+    mask_url = _b64_to_data_url(body.mask)
+
+    from app.services.fal_ai import FalClient
+    fal_client = FalClient(settings)
+    if fal_client.is_available():
+        try:
+            result = await fal_client.submit_object_removal(
+                image_url=image_url,
+                mask_url=mask_url,
+            )
+            img_url = fal_client.extract_image_url(result)
+            if img_url:
+                from app.api.generate import _save_generation_to_db, _store_job_status
+                await _store_job_status(settings, job_id, "completed", {"url": img_url, "backend": "fal"})
+                await _save_generation_to_db(
+                    settings, str(user.id), job_id, "object_removal", "Object removal",
+                    "", "fal_lama", {},
+                    img_url, False,
+                )
+                return GenerationResponse(
+                    job_id=job_id, status=JobStatus.completed,
+                    credits_used=credits_needed, result_url=img_url,
+                )
+        except Exception as fal_err:
+            logger.error(f"fal.ai object removal failed: {fal_err}")
+
+    raise HTTPException(status_code=503, detail="Object removal service is temporarily unavailable.")
+
+
+# ─── Outpaint (Expand Image) ───
+
+@router.post("/outpaint", response_model=GenerationResponse)
+async def outpaint_image(
+    body: OutpaintRequest,
+    request: Request,
+    settings: Settings = Depends(get_settings),
+):
+    """Expand an image beyond its borders using AI inpainting.
+
+    Extends the canvas in the specified direction(s) and fills with AI-generated content.
+    """
+    _check_infra(settings)
+    user, profile, supabase = await _auth_and_profile(request, settings)
+
+    if not body.image:
+        raise HTTPException(status_code=400, detail="Input image is required")
+
+    from app.services.supabase import deduct_credits
+
+    credits_needed = CREDIT_COSTS["outpaint"]
+    success = await deduct_credits(supabase, user.id, credits_needed, "Outpaint / expand image")
+    if not success:
+        raise HTTPException(status_code=402, detail="Insufficient credits")
+
+    job_id = str(uuid.uuid4())
+
+    # Decode base64 image, extend canvas, create mask, then inpaint
+    try:
+        from io import BytesIO
+        from PIL import Image as PILImage
+
+        # Decode input image
+        raw = body.image
+        if raw.startswith("data:"):
+            raw = raw.split(",", 1)[1]
+        img_bytes = base64.b64decode(raw)
+        img = PILImage.open(BytesIO(img_bytes)).convert("RGB")
+        orig_w, orig_h = img.size
+
+        pad = body.expand_pixels
+        d = body.direction
+
+        # Calculate new dimensions
+        left = pad if d in ("left", "all") else 0
+        right = pad if d in ("right", "all") else 0
+        top = pad if d in ("up", "all") else 0
+        bottom = pad if d in ("down", "all") else 0
+
+        new_w = orig_w + left + right
+        new_h = orig_h + top + bottom
+
+        # Create expanded canvas (black) and paste original
+        expanded = PILImage.new("RGB", (new_w, new_h), (0, 0, 0))
+        expanded.paste(img, (left, top))
+
+        # Create mask (white = area to generate, black = keep original)
+        mask = PILImage.new("L", (new_w, new_h), 255)  # all white
+        mask.paste(PILImage.new("L", (orig_w, orig_h), 0), (left, top))  # original area black
+
+        # Encode to data URLs
+        buf_img = BytesIO()
+        expanded.save(buf_img, format="PNG")
+        expanded_b64 = base64.b64encode(buf_img.getvalue()).decode()
+        expanded_url = f"data:image/png;base64,{expanded_b64}"
+
+        buf_mask = BytesIO()
+        mask.save(buf_mask, format="PNG")
+        mask_b64 = base64.b64encode(buf_mask.getvalue()).decode()
+        mask_url = f"data:image/png;base64,{mask_b64}"
+
+        # Use inpainting to fill the expanded area
+        from app.services.fal_ai import FalClient
+        fal_client = FalClient(settings)
+        if fal_client.is_available():
+            prompt = body.prompt if body.prompt else "seamless natural continuation of the scene, high quality, photorealistic"
+            result = await fal_client.submit_inpaint(
+                image_url=expanded_url,
+                mask_url=mask_url,
+                prompt=prompt,
+                negative_prompt="border, frame, seam, artifact, blurry",
+                strength=0.95,
+                seed=body.seed,
+            )
+            img_url = fal_client.extract_image_url(result)
+            if img_url:
+                from app.api.generate import _save_generation_to_db, _store_job_status
+                await _store_job_status(settings, job_id, "completed", {"url": img_url, "backend": "fal"})
+                await _save_generation_to_db(
+                    settings, str(user.id), job_id, "outpaint", prompt,
+                    "", "fal_flux_fill", body.model_dump(),
+                    img_url, False,
+                )
+                return GenerationResponse(
+                    job_id=job_id, status=JobStatus.completed,
+                    credits_used=credits_needed, result_url=img_url,
+                )
+
+    except Exception as err:
+        logger.error(f"Outpaint failed: {err}")
+
+    raise HTTPException(status_code=503, detail="Outpaint service is temporarily unavailable.")
 
 
 # ─── Style Transfer ───

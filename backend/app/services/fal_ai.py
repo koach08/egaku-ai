@@ -876,6 +876,39 @@ class FalClient:
             logger.info("fal.ai ControlNet job completed: type=%s", control_type)
             return data
 
+    async def submit_object_removal(
+        self,
+        image_url: str,
+        mask_url: str,
+    ) -> dict:
+        """Remove objects from an image using LaMa inpainting.
+
+        LaMa (Large Mask Inpainting) excels at removing objects and filling
+        the area with plausible background content.
+
+        Args:
+            image_url: HTTP(S) or data URL of the input image.
+            mask_url: HTTP(S) or data URL of the mask (white = remove).
+
+        Returns:
+            fal.ai response dict with `image` field.
+        """
+        fal_model = "fal-ai/lama"
+        input_params = {
+            "image_url": image_url,
+            "mask_url": mask_url,
+        }
+
+        url = f"{FAL_API_BASE}/{fal_model}"
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                url, json=input_params, headers=self.headers, timeout=120,
+            )
+            response.raise_for_status()
+            data = response.json()
+            logger.info("fal.ai LaMa object removal completed")
+            return data
+
     @staticmethod
     async def is_black_image(image_url: str, threshold: int = 15) -> bool:
         """Check if a generated image is mostly black (safety checker blocked it)."""
