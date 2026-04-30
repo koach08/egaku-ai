@@ -23,7 +23,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       : `AI-generated artwork on EGAKU AI`;
 
     // Use the actual generated image as OG image (no redirect, X-compatible)
-    const ogImage = (!item.nsfw && item.image_url) ? item.image_url : "https://egaku-ai.com/og-image.jpg";
+    // Videos don't have image_url, so fall back to site default
+    const ogImage = (!item.nsfw && item.image_url)
+      ? item.image_url
+      : "https://egaku-ai.com/og-image.jpg";
 
     return {
       title,
