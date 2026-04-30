@@ -12,6 +12,7 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "*.replicate.delivery" },
       { protocol: "https", hostname: "civitai.com" },
       { protocol: "https", hostname: "image.civitai.com" },
+      { protocol: "https", hostname: "*.supabase.co" },
     ],
   },
   async headers() {
