@@ -34,7 +34,14 @@ async function fetchAPI(path: string, options: RequestInit = {}, retries = 2) {
         // Don't retry client errors (4xx)
         if (res.status >= 400 && res.status < 500) {
           const error = await res.json().catch(() => ({ detail: res.statusText }));
-          throw new Error(error.detail || USER_FRIENDLY_ERRORS[res.status] || "Request failed");
+          // FastAPI 422 returns detail as array of validation errors
+          const detail = error.detail;
+          const message = typeof detail === "string"
+            ? detail
+            : Array.isArray(detail)
+              ? detail.map((e: Record<string, unknown>) => e.msg || String(e)).join(", ")
+              : USER_FRIENDLY_ERRORS[res.status] || "Request failed";
+          throw new Error(message);
         }
         // Retry server errors (5xx)
         if (attempt < retries) {
