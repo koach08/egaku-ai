@@ -1,52 +1,53 @@
 import { NextRequest, NextResponse } from "next/server";
+import sharp from "sharp";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001/api";
 
+export const runtime = "nodejs";
+
 /**
- * GET /api/og/[id] — serve a gallery image as a compressed OG image.
- * X/Twitter rejects images over 5MB. This endpoint fetches the original,
- * and proxies it. For images already under 5MB it passes through directly.
+ * GET /api/og/[id] — serve a gallery image as a compressed JPEG for OG/Twitter cards.
+ * Raw images from Supabase can be 5-6MB. X rejects anything over 5MB.
+ * This resizes to 1200px wide and compresses to JPEG ~200-400KB.
  */
 export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
+  const fallback = new URL("/og-image.jpg", _request.url);
 
   try {
-    // Fetch gallery item metadata
     const metaRes = await fetch(`${API_BASE}/gallery/${id}`, {
       next: { revalidate: 300 },
     });
-    if (!metaRes.ok) {
-      return NextResponse.redirect(new URL("/og-image.jpg", _request.url));
-    }
+    if (!metaRes.ok) return NextResponse.redirect(fallback);
 
     const data = await metaRes.json();
     const item = data.item || data;
 
-    if (item.nsfw || !item.image_url) {
-      return NextResponse.redirect(new URL("/og-image.jpg", _request.url));
-    }
+    if (item.nsfw || !item.image_url) return NextResponse.redirect(fallback);
 
-    // Fetch the actual image
     const imgRes = await fetch(item.image_url);
-    if (!imgRes.ok) {
-      return NextResponse.redirect(new URL("/og-image.jpg", _request.url));
-    }
+    if (!imgRes.ok) return NextResponse.redirect(fallback);
 
-    const buffer = await imgRes.arrayBuffer();
-    const bytes = new Uint8Array(buffer);
+    const buffer = Buffer.from(await imgRes.arrayBuffer());
 
-    return new NextResponse(bytes, {
+    // Resize to 1200px wide, compress to JPEG
+    const compressed = await sharp(buffer)
+      .resize(1200, undefined, { fit: "inside", withoutEnlargement: true })
+      .jpeg({ quality: 80 })
+      .toBuffer();
+
+    return new NextResponse(new Uint8Array(compressed), {
       status: 200,
       headers: {
-        "Content-Type": "image/png",
-        "Content-Length": String(bytes.length),
+        "Content-Type": "image/jpeg",
+        "Content-Length": String(compressed.length),
         "Cache-Control": "public, max-age=86400, s-maxage=86400",
       },
     });
   } catch {
-    return NextResponse.redirect(new URL("/og-image.jpg", _request.url));
+    return NextResponse.redirect(fallback);
   }
 }
