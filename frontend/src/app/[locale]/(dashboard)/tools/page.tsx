@@ -7,6 +7,7 @@ const TOOLS = [
   {
     category: "Image Generation",
     items: [
+      { name: "AI Templates", desc: "One tap to create — no prompt needed. Trending styles, portraits, products, videos", href: "/templates", icon: "⚡", badge: "New" },
       { name: "Text to Image", desc: "Generate images from text prompts with 20+ AI models", href: "/generate", icon: "🎨", badge: "Core" },
       { name: "Multi-Model Compare", desc: "Same prompt, 3 models side-by-side — find the best model", href: "/generate?tab=compare", icon: "⚖️", badge: "Unique" },
       { name: "Photo Booth", desc: "Selfie → professional portrait (LinkedIn, dating, resume)", href: "/photo-booth", icon: "📸", badge: "Popular" },
