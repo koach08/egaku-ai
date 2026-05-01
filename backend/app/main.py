@@ -120,6 +120,9 @@ app.include_router(rss.router, prefix="/api")
 from app.api import admin
 app.include_router(admin.router, prefix="/api")
 
+from app.api import daily_challenge
+app.include_router(daily_challenge.router, prefix="/api")
+
 
 @app.get("/api/health")
 async def health():

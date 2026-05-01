@@ -97,6 +97,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   pages.push({ path: "/voice-clone", priority: 0.7, changeFrequency: "weekly" as const });
   pages.push({ path: "/lora-train", priority: 0.7, changeFrequency: "weekly" as const });
   pages.push({ path: "/referrals", priority: 0.5, changeFrequency: "monthly" as const });
+  pages.push({ path: "/daily-challenge", priority: 0.8, changeFrequency: "daily" as const });
 
   const langAlternates = (path: string) => {
     const result: Record<string, string> = {};
