@@ -266,11 +266,13 @@ function SettingsContent() {
           </CardHeader>
           <CardContent>
             <p className="text-xs text-muted-foreground mb-3">One-time purchase. No subscription needed. Credits never expire.</p>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
               {([
-                { id: "pack_500", credits: 500, price: "$5", perCredit: "$0.01" },
-                { id: "pack_1500", credits: 1500, price: "$15", perCredit: "$0.01", badge: "Popular" },
-                { id: "pack_5000", credits: 5000, price: "$40", perCredit: "$0.008", badge: "Best Value" },
+                { id: "pack_500", credits: 500, price: "¥500" },
+                { id: "pack_1500", credits: 1500, price: "¥1,500" },
+                { id: "pack_3000", credits: 3000, price: "¥3,000", badge: "Popular" },
+                { id: "pack_6000", credits: 6000, price: "¥6,000" },
+                { id: "pack_12000", credits: 12000, price: "¥12,000", badge: "Best Value" },
               ] as const).map((pack) => (
                 <button
                   key={pack.id}
@@ -279,14 +281,13 @@ function SettingsContent() {
                   className="relative rounded-xl border border-white/[0.06] hover:border-purple-500/30 hover:bg-purple-500/5 p-4 text-center transition-all disabled:opacity-50"
                 >
                   {pack.badge && (
-                    <span className="absolute -top-2 left-1/2 -translate-x-1/2 text-[9px] bg-purple-500 text-white px-2 py-0.5 rounded-full">
+                    <span className="absolute -top-2 left-1/2 -translate-x-1/2 text-[9px] bg-purple-500 text-white px-2 py-0.5 rounded-full whitespace-nowrap">
                       {pack.badge}
                     </span>
                   )}
-                  <div className="text-2xl font-bold">{pack.credits.toLocaleString()}</div>
-                  <div className="text-xs text-muted-foreground">credits</div>
+                  <div className="text-xl font-bold">{pack.credits.toLocaleString()}</div>
+                  <div className="text-[10px] text-muted-foreground">credits</div>
                   <div className="text-sm font-semibold mt-2">{pack.price}</div>
-                  <div className="text-[10px] text-white/30">{pack.perCredit}/credit</div>
                 </button>
               ))}
             </div>

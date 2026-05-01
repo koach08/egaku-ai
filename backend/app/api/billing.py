@@ -30,17 +30,21 @@ PLAN_INFO = {
     "studio": {"name": "Studio", "price": 9980, "credits": 999999},
 }
 
-# One-time credit pack Price IDs (create in Stripe Dashboard)
+# One-time credit pack Price IDs (JPY base pricing, PPP applied at checkout)
 CREDIT_PACK_PRICES: dict[str, str] = {
-    "pack_500": "price_PLACEHOLDER_500",    # $5 → 500 credits
-    "pack_1500": "price_PLACEHOLDER_1500",  # $15 → 1500 credits
-    "pack_5000": "price_PLACEHOLDER_5000",  # $40 → 5000 credits
+    "pack_500": "price_1TSHA4PShJirStHRnQ0WHxp1",      # ¥500 → 500 credits
+    "pack_1500": "price_1TSHBLPShJirStHRyLA9QLjX",     # ¥1,500 → 1,500 credits
+    "pack_3000": "price_1TSHClPShJirStHRl0t4nh07",     # ¥3,000 → 3,000 credits
+    "pack_6000": "price_1TSHFIPShJirStHRXgfOyHdS",     # ¥6,000 → 6,000 credits
+    "pack_12000": "price_1TSHGFPShJirStHR05U5o93s",    # ¥12,000 → 12,000 credits
 }
 
 CREDIT_PACK_AMOUNTS: dict[str, int] = {
     "pack_500": 500,
     "pack_1500": 1500,
-    "pack_5000": 5000,
+    "pack_3000": 3000,
+    "pack_6000": 6000,
+    "pack_12000": 12000,
 }
 
 # Region-based pricing multipliers (PPP adjustment)
