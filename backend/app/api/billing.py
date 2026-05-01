@@ -17,8 +17,8 @@ PLAN_PRICES: dict[str, str] = {
     "lite": "price_1T8GeJPShJirStHRQdvJwaHz",
     "basic": "price_1T8GXZPShJirStHRlGlGLhfw",
     "pro": "price_1T8GYUPShJirStHRXOuwIl6J",
-    "unlimited": "price_1T8GYvPShJirStHRaqFVg0Xb",
-    "studio": "price_1T8GZOPShJirStHRYRRnJ9GS",
+    "unlimited": "price_1TSHcGPShJirStHR6VQ0Kn8S",
+    "studio": "price_1TSHdNPShJirStHRXKF4ViKx",
 }
 
 PLAN_INFO = {
