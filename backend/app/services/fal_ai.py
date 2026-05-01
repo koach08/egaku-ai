@@ -953,6 +953,59 @@ class FalClient:
             logger.info("fal.ai sound effect generation completed")
             return data
 
+    async def submit_music_generation(
+        self,
+        prompt: str,
+        duration: float = 30.0,
+        model: str = "ace_step",
+        lyrics: str = "",
+    ) -> dict:
+        """Generate music using fal.ai music models."""
+        MUSIC_MODELS = {
+            "ace_step": "fal-ai/ace-step",
+            "cassetteai": "cassetteai/music-generator",
+            "minimax_music": "fal-ai/minimax-music/v2",
+        }
+        fal_model = MUSIC_MODELS.get(model, MUSIC_MODELS["ace_step"])
+
+        if model == "ace_step":
+            input_params = {"prompt": prompt, "duration": duration}
+            if lyrics:
+                input_params["lyrics"] = lyrics
+        elif model == "cassetteai":
+            input_params = {"prompt": prompt, "duration": duration}
+        elif model == "minimax_music":
+            input_params = {"prompt": prompt}
+            if lyrics:
+                input_params["lyrics"] = lyrics
+        else:
+            input_params = {"prompt": prompt, "duration": duration}
+
+        url = f"{FAL_API_BASE}/{fal_model}"
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                url, json=input_params, headers=self.headers, timeout=180,
+            )
+            response.raise_for_status()
+            data = response.json()
+            logger.info("fal.ai music generation completed (model=%s)", model)
+            return data
+
+    def extract_music_url(self, result: dict) -> str | None:
+        """Extract music/audio URL from a fal.ai music generation response."""
+        audio_file = result.get("audio_file")
+        if isinstance(audio_file, dict):
+            return audio_file.get("url")
+        audio = result.get("audio")
+        if isinstance(audio, dict):
+            return audio.get("url")
+        if isinstance(audio, str) and audio.startswith("http"):
+            return audio
+        output = result.get("output")
+        if isinstance(output, dict):
+            return output.get("url")
+        return self.extract_audio_url(result)
+
     def extract_audio_url(self, result: dict) -> str | None:
         """Extract audio URL from a fal.ai audio response."""
         audio = result.get("audio")

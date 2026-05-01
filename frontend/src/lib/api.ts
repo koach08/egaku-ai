@@ -198,6 +198,12 @@ export const api = {
       headers: authHeaders(token),
       body: JSON.stringify(params),
     }),
+  generateMusic: (token: string, params: Record<string, unknown>) =>
+    fetchAPI("/generate/music", {
+      method: "POST",
+      headers: authHeaders(token),
+      body: JSON.stringify(params),
+    }),
   findReplace: (token: string, params: Record<string, unknown>) =>
     fetchAPI("/generate/find-replace", {
       method: "POST",

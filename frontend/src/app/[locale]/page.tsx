@@ -14,7 +14,7 @@ import {
   ImageIcon, SwordsIcon, CameraIcon, PenToolIcon, SmileIcon,
   FilmIcon, MonitorIcon, LayoutIcon, ShoppingBagIcon, BookOpenIcon,
   CompassIcon, VideoIcon, WandIcon, EraserIcon, MaximizeIcon,
-  SparklesIcon, ZapIcon,
+  SparklesIcon, ZapIcon, ClapperboardIcon, Music2Icon,
 } from "lucide-react";
 
 const planKeys = ["free", "lite", "basic", "pro", "unlimited", "studio"] as const;
@@ -150,8 +150,10 @@ export default function LandingPage() {
           <p className="text-center text-muted-foreground mb-14">Everything you need. One platform.</p>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 max-w-5xl mx-auto">
             {([
+              { name: "AI Movie Maker", desc: "One concept to finished movie. Scenes, video, music, export. 100% AI", href: "/movie-maker", Icon: ClapperboardIcon },
               { name: "AI Image Generator", desc: "30+ models including Flux Pro, Grok, GPT Image 2, Ideogram", href: "/generate", Icon: ImageIcon },
               { name: "AI Video Generator", desc: "Veo 3, Kling 3.0, Sora 2, Seedance 2, Wan 2.6 and more", href: "/generate", Icon: VideoIcon },
+              { name: "AI Music Generator", desc: "Describe a mood and AI creates original music. Like Suno, built in", href: "/music-gen", Icon: Music2Icon },
               { name: "Prompt Battle", desc: "Challenge others to AI art duels and vote for the winner", href: "/battle", Icon: SwordsIcon },
               { name: "Photo Booth", desc: "Selfie to professional portrait for LinkedIn, dating, social", href: "/photo-booth", Icon: CameraIcon },
               { name: "Logo Maker", desc: "Brand name to professional logo variations instantly", href: "/logo", Icon: PenToolIcon },
@@ -197,7 +199,7 @@ export default function LandingPage() {
           </h2>
           <div className="text-center mb-3">
             <span className="inline-block text-xs font-semibold bg-white/10 text-white/80 px-4 py-1.5 rounded-full">
-              LAUNCH50 — 50% OFF first month (limited)
+              LAUNCH50 — 50% OFF first 3 months (limited)
             </span>
           </div>
           <p className="text-center text-sm text-muted-foreground mb-14">

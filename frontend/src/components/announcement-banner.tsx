@@ -38,11 +38,24 @@ export function AnnouncementBanner({ location = "home" }: Props) {
       if (stored) setDismissed(new Set(JSON.parse(stored)));
     } catch {}
 
-    // Fetch announcements
+    // Hardcoded new-feature announcement (remove after 2 weeks)
+    const hardcoded: Announcement[] = [
+      {
+        id: "music-moviemaker-launch-2026-05",
+        type: "update",
+        title: "NEW: AI Music Generator + AI Movie Maker",
+        message: "Create original music from text (like Suno) and produce complete AI movies from a single concept. Image → Video → Music → Export.",
+        link_url: "/movie-maker",
+        link_label: "Try AI Movie Maker",
+        created_at: new Date().toISOString(),
+      },
+    ];
+
+    // Fetch announcements from API and merge with hardcoded
     fetch(`${API_BASE}/announcements/?location=${location}`)
       .then((res) => res.json())
-      .then((data) => setItems(data.announcements || []))
-      .catch(() => {});
+      .then((data) => setItems([...hardcoded, ...(data.announcements || [])]))
+      .catch(() => setItems(hardcoded));
   }, [location]);
 
   const dismiss = (id: string) => {

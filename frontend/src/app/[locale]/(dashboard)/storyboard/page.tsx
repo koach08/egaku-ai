@@ -107,6 +107,9 @@ export default function StoryboardPage() {
 
   // BGM
   const [bgmPreset, setBgmPreset] = useState("none");
+  const [aiBgmPrompt, setAiBgmPrompt] = useState("");
+  const [aiBgmUrl, setAiBgmUrl] = useState<string | null>(null);
+  const [aiBgmLoading, setAiBgmLoading] = useState(false);
 
   // Export
   const [exporting, setExporting] = useState(false);
@@ -152,6 +155,37 @@ export default function StoryboardPage() {
     const preset = CINEMA_PRESETS.find((p) => p.id === scene.cinemaPreset);
     return scene.prompt + (preset?.suffix || "");
   };
+
+  // Generate AI BGM
+  const generateAiBgm = useCallback(async () => {
+    if (!session?.access_token) return;
+    const prompt = aiBgmPrompt.trim() || scenes.map((s) => s.prompt).filter(Boolean).join(", ");
+    if (!prompt) {
+      toast.error("Add scene prompts or describe the BGM you want");
+      return;
+    }
+    setAiBgmLoading(true);
+    try {
+      const totalDuration = Math.min(scenes.reduce((sum, s) => sum + s.duration, 0), 60);
+      const res = await api.generateMusic(session.access_token, {
+        prompt: `background music for a video: ${prompt}`,
+        duration: Math.max(totalDuration, 15),
+        model: "ace_step",
+      });
+      if (res.result_url) {
+        const url = resolveResultUrl(res.result_url) || res.result_url;
+        setAiBgmUrl(url);
+        setBgmPreset("ai_generated");
+        toast.success("AI BGM generated!");
+      } else {
+        toast.error("BGM generation failed");
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "BGM generation failed");
+    } finally {
+      setAiBgmLoading(false);
+    }
+  }, [session, aiBgmPrompt, scenes]);
 
   // Generate a single scene
   const generateScene = useCallback(async (sceneId: string) => {
@@ -292,6 +326,7 @@ export default function StoryboardPage() {
       let hasNarration = false;
       let hasBgm = false;
       const selectedBgm = BGM_PRESETS.find((b) => b.id === bgmPreset);
+      const bgmUrl = bgmPreset === "ai_generated" ? aiBgmUrl : selectedBgm?.url;
 
       if (narrationScenes.length > 0) {
         setExportProgress("Processing narration...");
@@ -300,9 +335,9 @@ export default function StoryboardPage() {
         hasNarration = true;
       }
 
-      if (selectedBgm && selectedBgm.url) {
+      if (bgmUrl) {
         setExportProgress("Downloading BGM...");
-        const bgmData = await fetchFile(selectedBgm.url);
+        const bgmData = await fetchFile(bgmUrl);
         await ffmpeg.writeFile("bgm.mp3", bgmData);
         hasBgm = true;
       }
@@ -481,7 +516,12 @@ export default function StoryboardPage() {
           <CardContent className="pt-4 space-y-3">
             <div className="flex items-center gap-4 flex-wrap">
               <Label className="text-xs whitespace-nowrap">BGM:</Label>
-              <Select value={bgmPreset} onValueChange={(v) => v && setBgmPreset(v)}>
+              <Select value={bgmPreset} onValueChange={(v) => {
+                if (v) {
+                  setBgmPreset(v);
+                  if (v !== "ai_generated") setAiBgmUrl(null);
+                }
+              }}>
                 <SelectTrigger className="w-[180px] h-8 text-xs">
                   <SelectValue />
                 </SelectTrigger>
@@ -489,9 +529,31 @@ export default function StoryboardPage() {
                   {BGM_PRESETS.map((b) => (
                     <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
                   ))}
+                  <SelectItem value="ai_generated">AI Generate BGM</SelectItem>
                 </SelectContent>
               </Select>
-              {bgmPreset !== "none" && (
+              {bgmPreset === "ai_generated" && (
+                <div className="flex items-center gap-2 flex-1 min-w-0">
+                  <Input
+                    placeholder="Describe BGM mood (or auto from scenes)"
+                    value={aiBgmPrompt}
+                    onChange={(e) => setAiBgmPrompt(e.target.value)}
+                    className="h-8 text-xs flex-1"
+                  />
+                  <Button
+                    onClick={generateAiBgm}
+                    disabled={aiBgmLoading}
+                    size="sm"
+                    className="h-8 text-xs whitespace-nowrap bg-purple-600 hover:bg-purple-500"
+                  >
+                    {aiBgmLoading ? "Generating..." : "Generate (5 cr)"}
+                  </Button>
+                </div>
+              )}
+              {bgmPreset === "ai_generated" && aiBgmUrl && (
+                <audio src={aiBgmUrl} controls className="h-8" style={{ maxWidth: 200 }} />
+              )}
+              {bgmPreset !== "none" && bgmPreset !== "ai_generated" && (
                 <audio
                   src={BGM_PRESETS.find((b) => b.id === bgmPreset)?.url}
                   controls

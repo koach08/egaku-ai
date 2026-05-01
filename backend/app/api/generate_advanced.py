@@ -25,6 +25,7 @@ from app.models.schemas import (
     OutpaintRequest,
     RemoveBgRequest,
     SoundEffectRequest,
+    MusicGenerateRequest,
     StyleTransferRequest,
     TalkingAvatarRequest,
     UpscaleRequest,
@@ -1089,6 +1090,50 @@ async def generate_sound_effect(
             logger.error(f"fal.ai sound effect failed: {fal_err}")
 
     raise HTTPException(status_code=503, detail="Sound effect service is temporarily unavailable.")
+
+
+# ─── AI Music Generation ───
+
+@router.post("/music", response_model=GenerationResponse)
+async def generate_music(
+    body: MusicGenerateRequest,
+    request: Request,
+    settings: Settings = Depends(get_settings),
+):
+    """Generate AI music from text description."""
+    _check_infra(settings)
+    user, profile, supabase = await _auth_and_profile(request, settings)
+
+    from app.services.supabase import deduct_credits
+    credits_needed = CREDIT_COSTS["music_generate"]
+    success = await deduct_credits(supabase, user.id, credits_needed, f"Music generation ({body.model})")
+    if not success:
+        raise HTTPException(status_code=402, detail="Insufficient credits")
+
+    job_id = str(uuid.uuid4())
+
+    from app.services.fal_ai import FalClient
+    fal_client = FalClient(settings)
+    if fal_client.is_available():
+        try:
+            result = await fal_client.submit_music_generation(
+                prompt=body.prompt,
+                duration=body.duration,
+                model=body.model,
+                lyrics=body.lyrics,
+            )
+            audio_url = fal_client.extract_music_url(result)
+            if audio_url:
+                from app.api.generate import _store_job_status
+                await _store_job_status(settings, job_id, "completed", {"url": audio_url, "backend": "fal"})
+                return GenerationResponse(
+                    job_id=job_id, status=JobStatus.completed,
+                    credits_used=credits_needed, result_url=audio_url,
+                )
+        except Exception as fal_err:
+            logger.error(f"fal.ai music generation failed: {fal_err}")
+
+    raise HTTPException(status_code=503, detail="Music generation service is temporarily unavailable.")
 
 
 # ─── Find & Replace ───

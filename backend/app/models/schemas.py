@@ -211,6 +211,13 @@ class SoundEffectRequest(BaseModel):
     duration: float = Field(5.0, ge=1.0, le=30.0)
 
 
+class MusicGenerateRequest(BaseModel):
+    prompt: str = Field(..., min_length=1, max_length=1000)
+    duration: float = Field(30.0, ge=5.0, le=180.0)
+    model: str = Field("ace_step", pattern=r"^(ace_step|cassetteai|minimax_music)$")
+    lyrics: str = ""  # optional lyrics for MiniMax Music vocal mode
+
+
 class FindReplaceRequest(BaseModel):
     image: str = ""  # base64 encoded input image
     mask: str = ""  # base64 encoded mask (white = area to replace)
@@ -493,6 +500,7 @@ CREDIT_COSTS = {
     "virtual_tryon": 5,  # fal-ai/idm-vton
     "sound_effect": 3,  # beatoven/sound-effect-generation
     "find_replace": 3,  # inpainting with specific prompt
+    "music_generate": 5,  # AI music generation (ACE-Step/CassetteAI/MiniMax)
 }
 
 

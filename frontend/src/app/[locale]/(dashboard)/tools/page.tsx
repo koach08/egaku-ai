@@ -27,7 +27,6 @@ const TOOLS = [
       { name: "Talking Avatar", desc: "Character image + audio → cinematic talking video", href: "/talking-avatar", icon: "🗣️", badge: "New" },
       { name: "VFX Effects", desc: "Add fire, water, lightning, and more effects to any photo", href: "/vfx", icon: "✨", badge: "New" },
       { name: "Video Shorts", desc: "TikTok / Reels / Shorts vertical video generator", href: "/shorts", icon: "📱", badge: "Popular" },
-      { name: "Storyboard Studio", desc: "Multi-scene video production with BGM and narration", href: "/storyboard", icon: "🎞️", badge: "" },
     ],
   },
   {
@@ -63,19 +62,27 @@ const TOOLS = [
     ],
   },
   {
-    category: "Audio",
+    category: "Audio & Music",
     items: [
+      { name: "AI Music Generator", desc: "Describe a mood or genre → AI creates original music. Like Suno, built in", href: "/music-gen", icon: "🎵", badge: "New" },
       { name: "AI Sound Effects", desc: "Describe any sound → AI generates it for videos, games, podcasts", href: "/sound-effects", icon: "🔊", badge: "New" },
       { name: "AI Voiceover", desc: "Type a script, choose a voice → professional voiceover audio", href: "/voiceover", icon: "🎙️", badge: "New" },
+    ],
+  },
+  {
+    category: "Full Video Production",
+    items: [
+      { name: "AI Movie Maker", desc: "One concept → scenes → video → music → finished movie. 100% AI production", href: "/movie-maker", icon: "🎬", badge: "New" },
+      { name: "Storyboard Studio", desc: "Multi-scene video with narration, BGM, cinema presets, and AI music", href: "/storyboard", icon: "🎞️", badge: "Unique" },
+      { name: "Cinema Studio", desc: "Describe a scene, choose genre and camera → cinematic AI video", href: "/cinema-studio", icon: "🎥", badge: "New" },
+      { name: "Music Video", desc: "Upload a song, pick a style → beat-synced music video", href: "/music-video", icon: "🎵", badge: "New" },
     ],
   },
   {
     category: "Marketing",
     items: [
       { name: "Marketing Video Studio", desc: "Pick a template, enter product name → multi-scene marketing video", href: "/marketing-video", icon: "📢", badge: "New" },
-      { name: "Music Video", desc: "Upload a song, pick a style → beat-synced music video", href: "/music-video", icon: "🎵", badge: "New" },
       { name: "URL to Ad", desc: "Paste a product URL → ad-ready images in 6 formats", href: "/url-to-ad", icon: "🔗", badge: "New" },
-      { name: "Cinema Studio", desc: "Describe a scene, choose genre and camera → cinematic AI video", href: "/cinema-studio", icon: "🎬", badge: "New" },
       { name: "Photodump", desc: "One character, 12 scenes — Instagram-ready photodump set", href: "/photodump", icon: "📸", badge: "New" },
     ],
   },

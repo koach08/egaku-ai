@@ -74,7 +74,7 @@ export function PromoCodeInput({ accessToken, onApplied, compact }: Props) {
       )}
       {status !== "applied" && !compact && (
         <p className="text-[10px] text-muted-foreground mt-1.5">
-          Try: <code className="font-mono bg-muted px-1 rounded">LAUNCH50</code> (50% off first month)
+          Try: <code className="font-mono bg-muted px-1 rounded">LAUNCH50</code> (50% off first 3 months)
         </p>
       )}
     </div>
