@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { useAuth } from "@/lib/auth-context";
+import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -64,9 +65,17 @@ function LanguageSwitcher() {
 }
 
 export function Header() {
-  const { user, loading, signOut } = useAuth();
+  const { user, session, loading, signOut } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [credits, setCredits] = useState<number | null>(null);
   const t = useTranslations();
+
+  useEffect(() => {
+    if (!session?.access_token) return;
+    api.getBalance(session.access_token)
+      .then((data) => setCredits(data.balance ?? null))
+      .catch(() => {});
+  }, [session]);
 
   return (
     <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur">
@@ -87,7 +96,7 @@ export function Header() {
           </Link>
           <Link href="/tools" className="hover:text-foreground/80 flex items-center gap-1 font-medium">
             Tools
-            <span className="text-[9px] bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-400 px-1 rounded">20+</span>
+            <span className="text-[9px] bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-400 px-1 rounded">40+</span>
           </Link>
           <Link href="/gallery" className="hover:text-foreground/80">
             {t("nav.gallery")}
@@ -141,8 +150,15 @@ export function Header() {
 
           {/* Desktop user menu */}
           {loading ? null : user ? (
+            <div className="hidden md:flex items-center gap-2">
+              {credits !== null && (
+                <Link href="/settings" className="text-xs text-white/50 hover:text-white/70 transition-colors flex items-center gap-1">
+                  <span className="font-mono font-medium text-white/70">{credits.toLocaleString()}</span>
+                  <span>cr</span>
+                </Link>
+              )}
             <DropdownMenu>
-              <DropdownMenuTrigger className="relative h-8 w-8 rounded-full cursor-pointer hidden md:block">
+              <DropdownMenuTrigger className="relative h-8 w-8 rounded-full cursor-pointer">
                 <Avatar className="h-8 w-8">
                   <AvatarFallback>
                     {user.email?.charAt(0).toUpperCase()}
@@ -172,8 +188,17 @@ export function Header() {
                 <DropdownMenuItem render={<Link href="/wallpaper" />}>
                   Wallpaper
                 </DropdownMenuItem>
+                <DropdownMenuItem render={<Link href="/movie-maker" />}>
+                  AI Movie Maker
+                </DropdownMenuItem>
+                <DropdownMenuItem render={<Link href="/music-gen" />}>
+                  AI Music Generator
+                </DropdownMenuItem>
                 <DropdownMenuItem render={<Link href="/battle" />}>
                   Prompt Battle
+                </DropdownMenuItem>
+                <DropdownMenuItem render={<Link href="/daily-challenge" />}>
+                  Daily Challenge
                 </DropdownMenuItem>
                 <DropdownMenuItem render={<Link href="/gallery" />}>
                   {t("nav.gallery")}
@@ -193,6 +218,7 @@ export function Header() {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+            </div>
           ) : (
             <div className="hidden md:flex items-center gap-2">
               <Button variant="ghost" render={<Link href="/login" />}>
@@ -233,8 +259,8 @@ export function Header() {
           <Link href="/battle" onClick={() => setMobileOpen(false)} className="block py-2 text-sm hover:text-foreground/80">
             Prompt Battle
           </Link>
-          <Link href="/gallery" onClick={() => setMobileOpen(false)} className="block py-2 text-sm hover:text-foreground/80">
-            {t("nav.gallery")}
+          <Link href="/tools" onClick={() => setMobileOpen(false)} className="block py-2 text-sm hover:text-foreground/80 font-medium text-purple-400">
+            All Tools (40+)
           </Link>
           {user && (
             <Link href="/my-gallery" onClick={() => setMobileOpen(false)} className="block py-2 text-sm hover:text-foreground/80">
