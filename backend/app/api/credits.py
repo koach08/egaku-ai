@@ -54,7 +54,7 @@ async def get_costs():
     return CREDIT_COSTS
 
 
-DAILY_BONUS = 1  # 1 credit per day (enough for 1 Flux Schnell image)
+DAILY_BONUS = 5  # 5 credits per day — enough for daily engagement
 
 
 @router.post("/daily")
