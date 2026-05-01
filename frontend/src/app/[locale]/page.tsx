@@ -23,8 +23,8 @@ const planPrices: Record<string, string> = {
   lite: "480",
   basic: "980",
   pro: "2,980",
-  unlimited: "5,980",
-  studio: "9,980",
+  unlimited: "4,980",
+  studio: "6,980",
 };
 
 export default function LandingPage() {

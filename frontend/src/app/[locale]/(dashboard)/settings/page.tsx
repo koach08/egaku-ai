@@ -18,8 +18,8 @@ const PLAN_DISPLAY: Record<string, { name: string; price: string; credits: strin
   lite: { name: "Lite", price: "¥480/mo", credits: "150 / month" },
   basic: { name: "Basic", price: "¥980/mo", credits: "500 / month" },
   pro: { name: "Pro", price: "¥2,980/mo", credits: "2,000 / month" },
-  unlimited: { name: "Unlimited", price: "¥5,980/mo", credits: "Unlimited" },
-  studio: { name: "Studio", price: "¥9,980/mo", credits: "Unlimited" },
+  unlimited: { name: "Unlimited", price: "¥4,980/mo", credits: "Unlimited" },
+  studio: { name: "Studio", price: "¥6,980/mo", credits: "Unlimited" },
 };
 
 interface SubscriptionInfo {
@@ -62,7 +62,7 @@ function SettingsContent() {
         toast.success("Subscription activated! Credits have been added.");
       }
       const planPrices: Record<string, number> = {
-        lite: 480, basic: 980, pro: 2980, unlimited: 5980, studio: 9980, local: 4980,
+        lite: 480, basic: 980, pro: 2980, unlimited: 4980, studio: 6980, local: 4980,
       };
       trackPurchase(plan, planPrices[plan] || 0);
     } else if (checkout === "cancel") {
@@ -116,7 +116,7 @@ function SettingsContent() {
     if (!session) return;
     setUpgrading(plan);
     const planPrices: Record<string, number> = {
-      lite: 480, basic: 980, pro: 2980, unlimited: 5980, studio: 9980,
+      lite: 480, basic: 980, pro: 2980, unlimited: 4980, studio: 6980,
     };
     trackBeginCheckout(plan, planPrices[plan] || 0);
     try {

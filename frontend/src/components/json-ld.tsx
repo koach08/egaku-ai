@@ -87,7 +87,7 @@ export function WebsiteJsonLd() {
       },
       {
         "@type": "Offer",
-        price: "5980",
+        price: "4980",
         priceCurrency: "JPY",
         name: "Unlimited",
         description: "Unlimited generations, 5 CivitAI custom models, batch processing",

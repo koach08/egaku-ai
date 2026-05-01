@@ -26,8 +26,8 @@ PLAN_INFO = {
     "lite": {"name": "Lite", "price": 480, "credits": 150},
     "basic": {"name": "Basic", "price": 980, "credits": 500},
     "pro": {"name": "Pro", "price": 2980, "credits": 2000},
-    "unlimited": {"name": "Unlimited", "price": 5980, "credits": 999999},
-    "studio": {"name": "Studio", "price": 9980, "credits": 999999},
+    "unlimited": {"name": "Unlimited", "price": 4980, "credits": 999999},
+    "studio": {"name": "Studio", "price": 6980, "credits": 999999},
 }
 
 # One-time credit pack Price IDs (JPY base pricing, PPP applied at checkout)
