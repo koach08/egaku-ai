@@ -13,8 +13,8 @@ from app.services.supabase import get_supabase, get_credit_balance
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/referrals", tags=["referrals"])
 
-SIGNUP_BONUS = 50  # both get this on signup
-UPGRADE_BONUS = 500  # referrer gets this when referred user upgrades
+SIGNUP_BONUS = 100  # both get this on signup (was 50)
+UPGRADE_BONUS = 2000  # referrer gets 1 month Pro equivalent when referred user upgrades (was 500)
 
 
 class UseReferralCodeRequest(BaseModel):

@@ -39,7 +39,7 @@ export default function ReferralsPage() {
 
   const shareOnX = () => {
     if (!info) return;
-    const text = `I'm creating AI art on EGAKU AI — 25+ models, regional pricing, free to start. Use my link for +${info.signup_bonus} bonus credits!`;
+    const text = `I'm creating AI art, video & music on EGAKU AI — 40+ tools, free to start. Use my link for +${info.signup_bonus} bonus credits!`;
     const url = `https://x.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(info.share_url)}`;
     window.open(url, "_blank", "width=600,height=400");
   };
