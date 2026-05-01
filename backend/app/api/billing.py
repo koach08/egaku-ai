@@ -30,6 +30,19 @@ PLAN_INFO = {
     "studio": {"name": "Studio", "price": 9980, "credits": 999999},
 }
 
+# One-time credit pack Price IDs (create in Stripe Dashboard)
+CREDIT_PACK_PRICES: dict[str, str] = {
+    "pack_500": "price_PLACEHOLDER_500",    # $5 → 500 credits
+    "pack_1500": "price_PLACEHOLDER_1500",  # $15 → 1500 credits
+    "pack_5000": "price_PLACEHOLDER_5000",  # $40 → 5000 credits
+}
+
+CREDIT_PACK_AMOUNTS: dict[str, int] = {
+    "pack_500": 500,
+    "pack_1500": 1500,
+    "pack_5000": 5000,
+}
+
 # Region-based pricing multipliers (PPP adjustment)
 # Prices are shown in JPY equivalent but Stripe handles currency conversion
 # "体感物価" based pricing - what feels affordable in each country
@@ -226,6 +239,54 @@ async def create_checkout(
             del checkout_params["allow_promotion_codes"]
 
         session = stripe.checkout.Session.create(**checkout_params)
+
+    return {"checkout_url": session.url}
+
+
+@router.post("/checkout-credits")
+async def create_credit_checkout(
+    pack: str,
+    request: Request,
+    user=Depends(get_current_user),
+    settings: Settings = Depends(get_settings),
+):
+    """Create a Stripe Checkout session for one-time credit pack purchase."""
+    _get_stripe(settings)
+
+    if pack not in CREDIT_PACK_PRICES:
+        raise HTTPException(status_code=400, detail=f"Invalid pack: {pack}")
+
+    price_id = CREDIT_PACK_PRICES[pack]
+    if "PLACEHOLDER" in price_id:
+        raise HTTPException(status_code=503, detail="Credit packs not yet configured")
+
+    supabase = get_supabase(settings)
+    profile = await get_user_profile(supabase, user.id)
+    if not profile:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    # Get or create Stripe customer
+    customer_id = profile.get("stripe_customer_id")
+    if not customer_id:
+        customer = stripe.Customer.create(
+            email=profile["email"],
+            metadata={"user_id": user.id},
+        )
+        customer_id = customer.id
+        supabase.table("users").update(
+            {"stripe_customer_id": customer_id}
+        ).eq("id", user.id).execute()
+
+    origin = settings.cors_origins[0] if settings.cors_origins else "http://localhost:4000"
+
+    session = stripe.checkout.Session.create(
+        customer=customer_id,
+        mode="payment",
+        line_items=[{"price": price_id, "quantity": 1}],
+        metadata={"user_id": user.id, "pack": pack, "type": "credit_pack"},
+        success_url=f"{origin}/settings?checkout=success&pack={pack}",
+        cancel_url=f"{origin}/settings?checkout=cancel",
+    )
 
     return {"checkout_url": session.url}
 

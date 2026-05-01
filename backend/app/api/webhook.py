@@ -171,10 +171,28 @@ async def stripe_webhook(request: Request, settings: Settings = Depends(get_sett
                     except Exception as e:
                         logger.warning(f"Referral upgrade bonus failed: {e}")
             elif data.get("mode") == "payment":
-                # One-time purchase (local license)
-                supabase.table("users").update(
-                    {"local_license": True}
-                ).eq("id", user_id).execute()
+                purchase_type = metadata.get("type", "")
+                if purchase_type == "credit_pack":
+                    # One-time credit pack purchase
+                    pack = metadata.get("pack", "")
+                    from app.api.billing import CREDIT_PACK_AMOUNTS
+                    credits = CREDIT_PACK_AMOUNTS.get(pack, 0)
+                    if credits > 0:
+                        current = supabase.table("credits").select("balance").eq("user_id", user_id).maybe_single().execute()
+                        new_balance = (current.data["balance"] if current.data else 0) + credits
+                        supabase.table("credits").upsert({"user_id": user_id, "balance": new_balance}).execute()
+                        supabase.table("credit_transactions").insert({
+                            "user_id": user_id,
+                            "amount": credits,
+                            "type": "credit_pack",
+                            "description": f"Credit pack purchase: {pack} (+{credits} credits)",
+                        }).execute()
+                        logger.info(f"Credit pack purchased: user={user_id} pack={pack} credits={credits}")
+                else:
+                    # One-time purchase (local license)
+                    supabase.table("users").update(
+                        {"local_license": True}
+                    ).eq("id", user_id).execute()
 
         logger.info(f"Checkout completed: user={user_id} plan={plan}")
 

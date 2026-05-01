@@ -471,6 +471,11 @@ export const api = {
       method: "POST",
       headers: authHeaders(token),
     }),
+  createCreditPackCheckout: (token: string, pack: string) =>
+    fetchAPI(`/billing/checkout-credits?pack=${pack}`, {
+      method: "POST",
+      headers: authHeaders(token),
+    }),
 
   // Chat
   promptAssist: (token: string, message: string, history: { role: string; content: string }[]) =>

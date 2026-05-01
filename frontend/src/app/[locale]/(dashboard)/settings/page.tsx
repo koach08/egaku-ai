@@ -144,6 +144,20 @@ function SettingsContent() {
     }
   };
 
+  const handleBuyCredits = async (pack: string) => {
+    if (!session) return;
+    setUpgrading(pack);
+    try {
+      const { checkout_url } = await api.createCreditPackCheckout(session.access_token, pack);
+      window.location.href = checkout_url;
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Failed to start checkout";
+      toast.error(message);
+    } finally {
+      setUpgrading(null);
+    }
+  };
+
   const handleManageBilling = async () => {
     if (!session) return;
     setLoading(true);
@@ -241,6 +255,40 @@ function SettingsContent() {
             </div>
             <div className="pt-2">
               <PromoCodeInput accessToken={session?.access_token} />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Credit Packs */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="text-lg">Buy Credits</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-xs text-muted-foreground mb-3">One-time purchase. No subscription needed. Credits never expire.</p>
+            <div className="grid grid-cols-3 gap-3">
+              {([
+                { id: "pack_500", credits: 500, price: "$5", perCredit: "$0.01" },
+                { id: "pack_1500", credits: 1500, price: "$15", perCredit: "$0.01", badge: "Popular" },
+                { id: "pack_5000", credits: 5000, price: "$40", perCredit: "$0.008", badge: "Best Value" },
+              ] as const).map((pack) => (
+                <button
+                  key={pack.id}
+                  onClick={() => handleBuyCredits(pack.id)}
+                  disabled={upgrading === pack.id}
+                  className="relative rounded-xl border border-white/[0.06] hover:border-purple-500/30 hover:bg-purple-500/5 p-4 text-center transition-all disabled:opacity-50"
+                >
+                  {pack.badge && (
+                    <span className="absolute -top-2 left-1/2 -translate-x-1/2 text-[9px] bg-purple-500 text-white px-2 py-0.5 rounded-full">
+                      {pack.badge}
+                    </span>
+                  )}
+                  <div className="text-2xl font-bold">{pack.credits.toLocaleString()}</div>
+                  <div className="text-xs text-muted-foreground">credits</div>
+                  <div className="text-sm font-semibold mt-2">{pack.price}</div>
+                  <div className="text-[10px] text-white/30">{pack.perCredit}/credit</div>
+                </button>
+              ))}
             </div>
           </CardContent>
         </Card>
