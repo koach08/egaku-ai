@@ -169,7 +169,6 @@ const VIDEO_MODELS_T2V = [
   { id: "fal_kling25_t2v", name: "Kling 2.5 Pro", credits: 25, minPlan: "basic", badge: "★ Cinema", maxDuration: 10 },
   { id: "fal_grok_t2v", name: "Grok Video (xAI)", credits: 30, minPlan: "basic", badge: "★ Audio", maxDuration: 6 },
   { id: "fal_veo3_t2v", name: "Veo 3 (Google)", credits: 40, minPlan: "pro", badge: "★ Audio", maxDuration: 8 },
-  { id: "fal_sora2_t2v", name: "Sora 2 (OpenAI)", credits: 50, minPlan: "pro", badge: "★ Best 20s", maxDuration: 20 },
   { id: "fal_luma_t2v", name: "Luma Dream Machine", credits: 20, minPlan: "basic", badge: "New", maxDuration: 5 },
   { id: "fal_hunyuan_t2v", name: "Hunyuan (Tencent)", credits: 15, minPlan: "basic", badge: "New", maxDuration: 5 },
   { id: "fal_mochi_t2v", name: "Mochi v1 (Genmo)", credits: 10, minPlan: "free", badge: "New", maxDuration: 5 },
@@ -187,7 +186,6 @@ const VIDEO_MODELS_I2V = [
   { id: "fal_wan26_i2v", name: "Wan 2.6 I2V", credits: 12, minPlan: "free", badge: "★ 15s", maxDuration: 15 },
   { id: "fal_kling_i2v", name: "Kling v2 I2V", credits: 15, minPlan: "basic", badge: "HD", maxDuration: 10 },
   { id: "fal_kling25_i2v", name: "Kling 2.5 Pro I2V", credits: 25, minPlan: "basic", badge: "★ Cinema", maxDuration: 10 },
-  { id: "fal_sora2_i2v", name: "Sora 2 I2V", credits: 50, minPlan: "pro", badge: "★ Best 20s", maxDuration: 20 },
   { id: "fal_seedance2_i2v", name: "Seedance 2 I2V (ByteDance)", credits: 60, minPlan: "pro", badge: "★ Audio · Best", maxDuration: 15 },
   { id: "fal_seedance2_fast_i2v", name: "Seedance 2 Fast I2V", credits: 50, minPlan: "basic", badge: "★ Fast", maxDuration: 15 },
 ];
@@ -2093,7 +2091,7 @@ export default function GeneratePage() {
                 <CardContent className="pt-6 pb-6 space-y-4 text-center">
                   <p className="text-lg font-semibold">You&apos;re out of credits</p>
                   <p className="text-sm text-muted-foreground max-w-md mx-auto">
-                    Upgrade to keep creating. Paid plans include more credits, premium models (Veo 3, Kling 3.0, Sora 2), batch generation, and no watermarks.
+                    Upgrade to keep creating. Paid plans include more credits, premium models (Veo 3, Kling 3.0, Seedance 2.0), batch generation, and no watermarks.
                   </p>
                   <div className="grid grid-cols-3 gap-3 max-w-lg mx-auto text-center">
                     <div className="rounded-lg border border-muted p-3">

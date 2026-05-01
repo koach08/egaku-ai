@@ -21,7 +21,7 @@ const MODELS = [
   { name: "Grok Imagine", by: "xAI", type: "Image" },
   { name: "Flux Dev / Schnell", by: "Black Forest Labs", type: "Image" },
   { name: "SDXL / SD 3.5", by: "Stability AI", type: "Image" },
-  { name: "Sora 2", by: "OpenAI", type: "Video" },
+  { name: "Seedance 2.0", by: "ByteDance", type: "Video" },
   { name: "Veo 3", by: "Google", type: "Video" },
   { name: "Kling 2.5 Pro", by: "Kuaishou", type: "Video" },
   { name: "Grok Imagine Video", by: "xAI", type: "Video" },
@@ -31,7 +31,7 @@ const MODELS = [
 
 const FEATURES = [
   "Text-to-image with 15+ models",
-  "Text-to-video & image-to-video (Sora 2, Veo 3, Kling)",
+  "Text-to-video & image-to-video (Veo 3, Kling 3.0, Seedance 2.0)",
   "NSFW generation fully supported",
   "CivitAI custom model browser & generation",
   "Style transfer (8 presets: Ghibli, Anime, Cyberpunk...)",
@@ -73,7 +73,7 @@ export default function SelfHostedPage() {
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-6">
             Full source code for a production-ready AI image &amp; video generation SaaS.
-            20+ models including Sora 2, Veo 3, and Nano Banana 2.
+            30+ models including Veo 3, Seedance 2.0, and Nano Banana 2.
             NSFW-ready. Deploy in 30 minutes.
           </p>
           <div className="flex items-center justify-center gap-2 mb-8">

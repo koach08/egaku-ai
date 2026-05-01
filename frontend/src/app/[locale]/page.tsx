@@ -43,7 +43,7 @@ export default function LandingPage() {
 
           <div className="relative z-10 container mx-auto px-4 pt-20 pb-24 text-center">
             <p className="text-sm font-medium tracking-widest uppercase text-white/50 mb-6">
-              Veo 3 · Grok · Flux · Kling 3.0 · Sora 2 + 30 Models
+              Veo 3 · Grok · Flux · Kling 3.0 · Seedance 2.0 + 30 Models
             </p>
             <h1 className="text-5xl font-extrabold tracking-tight sm:text-6xl lg:text-7xl leading-[1.1]">
               {t("hero.title")}
@@ -107,7 +107,7 @@ export default function LandingPage() {
               { name: "GPT Image 2", tag: "OpenAI Latest", badge: "", sample: "/samples/gpt_image2.png", type: "image" },
               { name: "Flux Pro", tag: "Best Image Quality", badge: "", sample: "/samples/flux_dev.jpg", type: "image" },
               { name: "Ideogram v3", tag: "Text + Logo", badge: "", sample: "/samples/ideogram.png", type: "image" },
-              { name: "Sora 2", tag: "OpenAI Cinematic Video", badge: "", sample: "/samples/kling3_cyberpunk.mp4", type: "video" },
+              { name: "Seedance 2.0", tag: "ByteDance Cinema + Audio", badge: "", sample: "/samples/kling3_cyberpunk.mp4", type: "video" },
               { name: "CivitAI", tag: "100K+ Community Models", badge: "", sample: "", type: "grid", gridImages: ["/samples/civitai_realistic.jpg","/samples/civitai_anime.jpg","/samples/civitai_fantasy.jpg","/samples/civitai_scifi.jpg"] },
               { name: "Nano Banana 2", tag: "Google 4K Ultra", badge: "", sample: "/samples/nano_banana.png", type: "image" },
               { name: "Wan 2.6", tag: "Free Video", badge: "Free", sample: "/samples/wan26.mp4", type: "video" },
@@ -152,7 +152,7 @@ export default function LandingPage() {
             {([
               { name: "AI Movie Maker", desc: "One concept to finished movie. Scenes, video, music, export. 100% AI", href: "/movie-maker", Icon: ClapperboardIcon },
               { name: "AI Image Generator", desc: "30+ models including Flux Pro, Grok, GPT Image 2, Ideogram", href: "/generate", Icon: ImageIcon },
-              { name: "AI Video Generator", desc: "Veo 3, Kling 3.0, Sora 2, Seedance 2, Wan 2.6 and more", href: "/generate", Icon: VideoIcon },
+              { name: "AI Video Generator", desc: "Veo 3, Kling 3.0, Seedance 2.0, Wan 2.6 and more", href: "/generate", Icon: VideoIcon },
               { name: "AI Music Generator", desc: "Describe a mood and AI creates original music. Like Suno, built in", href: "/music-gen", Icon: Music2Icon },
               { name: "Prompt Battle", desc: "Challenge others to AI art duels and vote for the winner", href: "/battle", Icon: SwordsIcon },
               { name: "Photo Booth", desc: "Selfie to professional portrait for LinkedIn, dating, social", href: "/photo-booth", Icon: CameraIcon },
@@ -296,7 +296,7 @@ export default function LandingPage() {
           <div className="max-w-2xl mx-auto space-y-3">
             {[
               { q: "Is EGAKU AI free to use?", a: "Yes. 50 free credits per month plus a daily login bonus. Free plan includes image generation (Flux, SDXL) and video generation (LTX, Wan 2.6, up to 15 seconds). Premium models like Veo 3, Flux Pro, and Kling 3.0 require a paid plan starting at ¥480/month." },
-              { q: "What AI models are available?", a: "30+ models including Flux Dev, Flux Pro, SDXL, Ideogram v3, Luma Photon, Nano Banana 2, Grok Imagine, GPT Image 2, and video models like Veo 3, Kling 3.0, Sora 2, Seedance 2, and Wan 2.6. New models are added regularly." },
+              { q: "What AI models are available?", a: "30+ models including Flux Dev, Flux Pro, SDXL, Ideogram v3, Luma Photon, Nano Banana 2, Grok Imagine, GPT Image 2, and video models like Veo 3, Kling 3.0, Seedance 2.0, and Wan 2.6. Plus AI Music Generator. New models are added regularly." },
               { q: "Can I use CivitAI models?", a: "Yes. Basic plan and above can load CivitAI checkpoint models. Browse and search 100K+ community models directly from the generate page." },
               { q: "What tools are included?", a: "Image generation, video generation, Photo Booth, Logo Maker, Meme Generator, Wallpaper Studio, Video Shorts, Storyboard Studio, Face Swap, Character Lock, Style Transfer, Upscale, Background Removal, Inpainting, ControlNet, and Prompt Battle." },
               { q: "Do you support non-English prompts?", a: "Yes. Write prompts in any language. Japanese, Chinese, Korean, Spanish, and more. The AI automatically translates for optimal results." },
@@ -378,7 +378,7 @@ export default function LandingPage() {
             </div>
             <div className="border-t border-white/[0.06] pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-white/25">
               <p>&copy; {new Date().getFullYear()} EGAKU AI. {t("footer.rights")}</p>
-              <p>Powered by Veo 3, Grok, Flux, Kling 3.0, Sora 2, and 30+ AI models.</p>
+              <p>Powered by Veo 3, Grok, Flux, Kling 3.0, Seedance 2.0, and 30+ AI models.</p>
             </div>
           </div>
         </footer>

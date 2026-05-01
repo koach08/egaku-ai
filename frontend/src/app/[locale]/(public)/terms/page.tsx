@@ -32,7 +32,7 @@ export default function TermsPage() {
           <section>
             <h2 className="text-lg font-semibold text-foreground mb-3">2. Description of Service</h2>
             <p>
-              EGAKU AI provides cloud-based AI-powered tools for generating images and videos from text prompts, image inputs, and other creative parameters. The Service utilizes various machine learning models, including but not limited to Flux, SDXL, Stable Diffusion, Sora 2, Veo 3, Kling, and models accessible through CivitAI, fal.ai, and Novita.ai platforms.
+              EGAKU AI provides cloud-based AI-powered tools for generating images and videos from text prompts, image inputs, and other creative parameters. The Service utilizes various machine learning models, including but not limited to Flux, SDXL, Stable Diffusion, Veo 3, Kling, Seedance 2.0, and models accessible through CivitAI, fal.ai, and Novita.ai platforms.
             </p>
           </section>
 

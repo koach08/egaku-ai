@@ -40,8 +40,8 @@ const VIDEO_MODELS = [
   { id: "fal_kling_t2v", name: "Kling v2", credits: 15 },
   { id: "fal_minimax_t2v", name: "Minimax Hailuo", credits: 15 },
   { id: "fal_kling25_t2v", name: "Kling 2.5 Pro", credits: 25 },
+  { id: "fal_seedance2_t2v", name: "Seedance 2.0 (Audio)", credits: 30 },
   { id: "fal_veo3_t2v", name: "Veo 3 (Google)", credits: 40 },
-  { id: "fal_sora2_t2v", name: "Sora 2 (OpenAI)", credits: 50 },
 ];
 
 const COLOR_GRADES = [

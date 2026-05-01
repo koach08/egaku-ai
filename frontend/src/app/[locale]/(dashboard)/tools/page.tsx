@@ -19,7 +19,7 @@ const TOOLS = [
   {
     category: "Video Creation",
     items: [
-      { name: "Text to Video", desc: "Generate videos with Sora 2, Veo 3, Kling 2.5, and more", href: "/generate?tab=txt2vid", icon: "🎬", badge: "Core" },
+      { name: "Text to Video", desc: "Generate videos with Veo 3, Kling 3.0, Seedance 2.0, and more", href: "/generate?tab=txt2vid", icon: "🎬", badge: "Core" },
       { name: "Image to Video", desc: "Animate any image into a video clip", href: "/generate?tab=img2vid", icon: "▶️", badge: "" },
       { name: "Video-to-Video", desc: "Upload a clip, restyle it — watercolor, anime, cyberpunk", href: "/vid2vid", icon: "🎨", badge: "New" },
       { name: "Character Video", desc: "1-3 reference images → consistent character video (PixVerse C1)", href: "/character-video", icon: "🎭", badge: "New" },

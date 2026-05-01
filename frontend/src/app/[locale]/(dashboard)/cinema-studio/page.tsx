@@ -33,8 +33,8 @@ const CAMERA_STYLES = [
 const VIDEO_MODELS = [
   { id: "fal_wan26_t2v", name: "Wan 2.6 (Free)", credits: 10 },
   { id: "fal_kling25_t2v", name: "Kling 2.5 Pro (Cinema)", credits: 25 },
+  { id: "fal_seedance2_t2v", name: "Seedance 2.0 (Audio)", credits: 30 },
   { id: "fal_veo3_t2v", name: "Veo 3 + Audio", credits: 40 },
-  { id: "fal_sora2_t2v", name: "Sora 2 (20s)", credits: 50 },
 ];
 
 export default function CinemaStudioPage() {
@@ -48,7 +48,7 @@ export default function CinemaStudioPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const maxDuration = VIDEO_MODELS.find((m) => m.id === videoModel)?.id.includes("sora2") ? 20 : 10;
+  const maxDuration = 10;
 
   const handleGenerate = useCallback(async () => {
     if (!session?.access_token || !prompt.trim()) return;

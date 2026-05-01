@@ -99,9 +99,11 @@ export function WebsiteJsonLd() {
       url: "https://egaku-ai.com",
     },
     featureList: [
-      "Text-to-Image with 25+ AI models (Flux, Sora 2, Veo 3, Kling, SDXL, Nano Banana 2, Grok Imagine)",
+      "Text-to-Image with 30+ AI models (Flux, Veo 3, Kling, SDXL, Nano Banana 2, Grok Imagine, Seedance 2.0)",
       "Image-to-Image transformation",
-      "Text-to-Video generation (Sora 2, Veo 3, Kling 2.5, LTX, Wan, Minimax)",
+      "Text-to-Video generation (Veo 3, Kling 3.0, Seedance 2.0, LTX, Wan, Minimax)",
+      "AI Music Generator (ACE-Step, CassetteAI, MiniMax Music)",
+      "AI Movie Maker — one concept to finished movie",
       "Image-to-Video animation",
       "AI Face Swap — swap faces between images",
       "Character Lock (PuLID) — consistent character across multiple scenes",
@@ -168,7 +170,7 @@ export function WebsiteJsonLd() {
         name: "What features does EGAKU AI offer?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "EGAKU AI offers 25+ AI models, text-to-image, image-to-image, text-to-video (Sora 2, Veo 3, Kling 2.5), image-to-video, Face Swap, Character Lock (PuLID), AI Photo Booth, Video Shorts generator, Storyboard Studio with BGM, style transfer (8 styles), upscaling (4x), inpainting, background removal, ControlNet, batch generation, multi-language prompts, and CivitAI model support.",
+          text: "EGAKU AI offers 40+ AI tools, text-to-image, image-to-image, text-to-video (Veo 3, Kling 3.0, Seedance 2.0), AI Music Generator, AI Movie Maker, image-to-video, Face Swap, Character Lock (PuLID), AI Photo Booth, Video Shorts generator, Storyboard Studio with AI BGM, style transfer, upscaling (4x), inpainting, background removal, ControlNet, batch generation, multi-language prompts, and CivitAI model support.",
         },
       },
       {
