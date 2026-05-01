@@ -16,6 +16,7 @@ import {
   CompassIcon, VideoIcon, WandIcon, EraserIcon, MaximizeIcon,
   SparklesIcon, ZapIcon, ClapperboardIcon, Music2Icon,
 } from "lucide-react";
+import { PricingSection } from "@/components/pricing-tabs";
 
 const planKeys = ["free", "lite", "basic", "pro", "unlimited", "studio"] as const;
 const planPrices: Record<string, string> = {
@@ -26,6 +27,29 @@ const planPrices: Record<string, string> = {
   unlimited: "4,980",
   studio: "6,980",
 };
+const yearlyPrices: Record<string, string> = {
+  free: "0",
+  lite: "4,800",
+  basic: "9,800",
+  pro: "29,800",
+  unlimited: "49,800",
+  studio: "69,800",
+};
+const yearlyMonthly: Record<string, string> = {
+  free: "0",
+  lite: "400",
+  basic: "817",
+  pro: "2,483",
+  unlimited: "4,150",
+  studio: "5,817",
+};
+const creditPacks = [
+  { id: "pack_500", credits: 500, price: "500" },
+  { id: "pack_1500", credits: 1500, price: "1,500" },
+  { id: "pack_3000", credits: 3000, price: "3,000" },
+  { id: "pack_6000", credits: 6000, price: "6,000", badge: "Recommended" },
+  { id: "pack_12000", credits: 12000, price: "12,000" },
+];
 
 export default function LandingPage() {
   const t = useTranslations();
@@ -202,73 +226,10 @@ export default function LandingPage() {
               LAUNCH50 — 50% OFF first 3 months (limited)
             </span>
           </div>
-          <p className="text-center text-sm text-muted-foreground mb-14">
+          <p className="text-center text-sm text-muted-foreground mb-8">
             Regional pricing available. Up to 80% off based on your location.
           </p>
-          <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-6 max-w-7xl mx-auto">
-            {planKeys.map((planKey) => {
-              const price = planPrices[planKey];
-              const features = t.raw(`plans.${planKey}.features`) as string[];
-              const isRecommended = planKey === "basic";
-              return (
-                <Card
-                  key={planKey}
-                  className={isRecommended ? "border-white/30 ring-1 ring-white/10" : "border-white/[0.06]"}
-                >
-                  <CardHeader className="text-center">
-                    {isRecommended && (
-                      <span className="inline-block text-[10px] font-semibold bg-white text-black px-3 py-1 rounded-full mb-2">
-                        RECOMMENDED
-                      </span>
-                    )}
-                    <CardTitle className="text-base">{t(`plans.${planKey}.name`)}</CardTitle>
-                    <div className="mt-2">
-                      <span className="text-3xl font-bold">
-                        {price === "0"
-                          ? t("common.free")
-                          : `¥${price}`}
-                      </span>
-                      {price !== "0" && (
-                        <span className="text-muted-foreground text-sm">
-                          {" "}{t("common.perMonth")}
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {t(`plans.${planKey}.credits`)} {t("common.credits")}
-                    </p>
-                  </CardHeader>
-                  <CardContent>
-                    <ul className="space-y-2 text-xs">
-                      {features.map((f: string) => (
-                        <li key={f} className="flex items-start gap-2">
-                          <span className="text-emerald-400 mt-0.5">&#10003;</span>
-                          <span className="text-white/60">{f}</span>
-                        </li>
-                      ))}
-                    </ul>
-                    <Button
-                      className={`w-full mt-6 rounded-full ${isRecommended ? "bg-white text-black hover:bg-white/90" : ""}`}
-                      variant={isRecommended ? "default" : "outline"}
-                      render={<Link href={price === "0" ? "/register" : `/register?plan=${planKey}`} />}
-                    >
-                      {price === "0"
-                        ? t("common.startFree")
-                        : t("common.subscribe")}
-                    </Button>
-                    {price !== "0" && (
-                      <Link
-                        href={`/register?plan=${planKey}&crypto=1`}
-                        className="block w-full text-center text-[10px] text-white/30 hover:text-white/60 mt-2 py-1 transition-colors"
-                      >
-                        Pay with Crypto
-                      </Link>
-                    )}
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
+          <PricingSection />
 
           {/* Self-hosted */}
           <Card className="mt-10 max-w-sm mx-auto border-dashed border-white/[0.06]">

@@ -21,6 +21,14 @@ PLAN_PRICES: dict[str, str] = {
     "studio": "price_1TSHdNPShJirStHRXKF4ViKx",
 }
 
+YEARLY_PLAN_PRICES: dict[str, str] = {
+    "lite": "price_1TSHePPShJirStHR0bUMAYTr",
+    "basic": "price_1TSHfOPShJirStHRH9QonTAD",
+    "pro": "price_1TSHfyPShJirStHRw0obwTwu",
+    "unlimited": "price_1TSHgcPShJirStHRyMaFDnHn",
+    "studio": "price_1TSHh2PShJirStHRrWyK9HaR",
+}
+
 PLAN_INFO = {
     "free": {"name": "Free", "price": 0, "credits": 50},
     "lite": {"name": "Lite", "price": 480, "credits": 150},
@@ -160,13 +168,15 @@ async def get_plans(request: Request = None):
 async def create_checkout(
     plan: str,
     request: Request,
+    billing: str = "monthly",
     user=Depends(get_current_user),
     settings: Settings = Depends(get_settings),
 ):
-    """Create a Stripe Checkout session for subscription."""
+    """Create a Stripe Checkout session for subscription (monthly or yearly)."""
     _get_stripe(settings)
 
-    if plan not in PLAN_PRICES and plan != "local":
+    price_map = YEARLY_PLAN_PRICES if billing == "yearly" else PLAN_PRICES
+    if plan not in price_map and plan != "local":
         raise HTTPException(status_code=400, detail=f"Invalid plan: {plan}")
 
     supabase = get_supabase(settings)
@@ -212,7 +222,8 @@ async def create_checkout(
     else:
         # Check for region-specific Stripe price
         region_prices = REGION_PRICES.get(region, {})
-        price_id = region_prices.get(plan, PLAN_PRICES[plan])
+        default_price = price_map[plan]
+        price_id = region_prices.get(plan, default_price)
 
         checkout_params = {
             "customer": customer_id,

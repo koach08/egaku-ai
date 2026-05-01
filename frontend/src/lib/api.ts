@@ -456,8 +456,8 @@ export const api = {
   getPlans: () => fetchAPI("/billing/plans"),
   getSubscription: (token: string) =>
     fetchAPI("/billing/subscription", { headers: authHeaders(token) }),
-  createCheckout: (token: string, plan: string) =>
-    fetchAPI(`/billing/checkout?plan=${plan}`, {
+  createCheckout: (token: string, plan: string, billing: "monthly" | "yearly" = "monthly") =>
+    fetchAPI(`/billing/checkout?plan=${plan}&billing=${billing}`, {
       method: "POST",
       headers: authHeaders(token),
     }),
