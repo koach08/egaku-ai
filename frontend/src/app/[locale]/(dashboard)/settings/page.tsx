@@ -268,11 +268,11 @@ function SettingsContent() {
             <p className="text-xs text-muted-foreground mb-3">One-time purchase. No subscription needed. Credits never expire.</p>
             <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
               {([
-                { id: "pack_500", credits: 500, price: "¥500" },
-                { id: "pack_1500", credits: 1500, price: "¥1,500" },
-                { id: "pack_3000", credits: 3000, price: "¥3,000" },
+                { id: "pack_500", credits: 500, price: "¥500", badge: "" },
+                { id: "pack_1500", credits: 1500, price: "¥1,500", badge: "" },
+                { id: "pack_3000", credits: 3000, price: "¥3,000", badge: "" },
                 { id: "pack_6000", credits: 6000, price: "¥6,000", badge: "Recommended" },
-                { id: "pack_12000", credits: 12000, price: "¥12,000" },
+                { id: "pack_12000", credits: 12000, price: "¥12,000", badge: "" },
               ] as const).map((pack) => (
                 <button
                   key={pack.id}
