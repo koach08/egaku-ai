@@ -270,9 +270,9 @@ function SettingsContent() {
               {([
                 { id: "pack_500", credits: 500, price: "¥500" },
                 { id: "pack_1500", credits: 1500, price: "¥1,500" },
-                { id: "pack_3000", credits: 3000, price: "¥3,000", badge: "Popular" },
-                { id: "pack_6000", credits: 6000, price: "¥6,000" },
-                { id: "pack_12000", credits: 12000, price: "¥12,000", badge: "Best Value" },
+                { id: "pack_3000", credits: 3000, price: "¥3,000" },
+                { id: "pack_6000", credits: 6000, price: "¥6,000", badge: "Recommended" },
+                { id: "pack_12000", credits: 12000, price: "¥12,000" },
               ] as const).map((pack) => (
                 <button
                   key={pack.id}
