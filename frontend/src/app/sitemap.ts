@@ -72,6 +72,31 @@ export default function sitemap(): MetadataRoute.Sitemap {
   pages.push({ path: "/product-studio", priority: 0.8, changeFrequency: "weekly" as const });
   pages.push({ path: "/short-story", priority: 0.8, changeFrequency: "weekly" as const });
   pages.push({ path: "/vid2vid", priority: 0.7, changeFrequency: "weekly" as const });
+  // 2026-05 feature pages
+  pages.push({ path: "/movie-maker", priority: 0.9, changeFrequency: "weekly" as const });
+  pages.push({ path: "/music-gen", priority: 0.9, changeFrequency: "weekly" as const });
+  pages.push({ path: "/cinema-studio", priority: 0.8, changeFrequency: "weekly" as const });
+  pages.push({ path: "/music-video", priority: 0.8, changeFrequency: "weekly" as const });
+  pages.push({ path: "/marketing-video", priority: 0.7, changeFrequency: "weekly" as const });
+  pages.push({ path: "/url-to-ad", priority: 0.7, changeFrequency: "weekly" as const });
+  pages.push({ path: "/voiceover", priority: 0.8, changeFrequency: "weekly" as const });
+  pages.push({ path: "/photodump", priority: 0.7, changeFrequency: "weekly" as const });
+  pages.push({ path: "/templates", priority: 0.8, changeFrequency: "weekly" as const });
+  pages.push({ path: "/vfx", priority: 0.8, changeFrequency: "weekly" as const });
+  pages.push({ path: "/sketch", priority: 0.8, changeFrequency: "weekly" as const });
+  pages.push({ path: "/expand", priority: 0.7, changeFrequency: "weekly" as const });
+  pages.push({ path: "/remove-object", priority: 0.8, changeFrequency: "weekly" as const });
+  pages.push({ path: "/find-replace", priority: 0.7, changeFrequency: "weekly" as const });
+  pages.push({ path: "/try-on", priority: 0.8, changeFrequency: "weekly" as const });
+  pages.push({ path: "/multi-shot", priority: 0.7, changeFrequency: "weekly" as const });
+  pages.push({ path: "/sound-effects", priority: 0.7, changeFrequency: "weekly" as const });
+  pages.push({ path: "/tools", priority: 0.8, changeFrequency: "weekly" as const });
+  pages.push({ path: "/talking-avatar", priority: 0.7, changeFrequency: "weekly" as const });
+  pages.push({ path: "/lip-sync", priority: 0.7, changeFrequency: "weekly" as const });
+  pages.push({ path: "/character-video", priority: 0.7, changeFrequency: "weekly" as const });
+  pages.push({ path: "/voice-clone", priority: 0.7, changeFrequency: "weekly" as const });
+  pages.push({ path: "/lora-train", priority: 0.7, changeFrequency: "weekly" as const });
+  pages.push({ path: "/referrals", priority: 0.5, changeFrequency: "monthly" as const });
 
   const langAlternates = (path: string) => {
     const result: Record<string, string> = {};
