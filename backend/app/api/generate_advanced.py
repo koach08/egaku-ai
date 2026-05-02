@@ -1094,6 +1094,55 @@ async def generate_sound_effect(
 
 # ─── Face Fix (GFPGAN) ───
 
+class KontextEditRequest(BaseModel):
+    image_url: str = ""
+    prompt: str = Field(..., min_length=1, max_length=2000)
+    seed: int = -1
+
+@router.post("/kontext-edit", response_model=GenerationResponse)
+async def kontext_edit(
+    body: KontextEditRequest,
+    request: Request,
+    settings: Settings = Depends(get_settings),
+):
+    """Edit an image with text instructions using Flux Kontext."""
+    _check_infra(settings)
+    user, profile, supabase = await _auth_and_profile(request, settings)
+
+    if not body.image_url:
+        raise HTTPException(status_code=400, detail="image_url is required")
+
+    from app.services.supabase import deduct_credits
+    credits_needed = 5  # ~$0.04 per edit
+    success = await deduct_credits(supabase, user.id, credits_needed, "Flux Kontext edit")
+    if not success:
+        raise HTTPException(status_code=402, detail="Insufficient credits")
+
+    job_id = str(uuid.uuid4())
+
+    from app.services.fal_ai import FalClient
+    fal_client = FalClient(settings)
+    if fal_client.is_available():
+        try:
+            result = await fal_client.submit_kontext_edit(
+                image_url=body.image_url,
+                prompt=body.prompt,
+                seed=body.seed,
+            )
+            img_url = fal_client.extract_image_url(result)
+            if img_url:
+                from app.api.generate import _store_job_status
+                await _store_job_status(settings, job_id, "completed", {"url": img_url, "backend": "fal"})
+                return GenerationResponse(
+                    job_id=job_id, status=JobStatus.completed,
+                    credits_used=credits_needed, result_url=img_url,
+                )
+        except Exception as fal_err:
+            logger.error(f"fal.ai Kontext edit failed: {fal_err}")
+
+    raise HTTPException(status_code=503, detail="Kontext edit service is temporarily unavailable.")
+
+
 class FaceFixRequest(BaseModel):
     image_url: str = ""
 

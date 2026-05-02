@@ -953,6 +953,34 @@ class FalClient:
             logger.info("fal.ai sound effect generation completed")
             return data
 
+    async def submit_kontext_edit(
+        self,
+        image_url: str,
+        prompt: str,
+        guidance_scale: float = 2.5,
+        steps: int = 30,
+        seed: int = -1,
+    ) -> dict:
+        """Edit an image with text instructions using Flux Kontext."""
+        fal_model = "fal-ai/flux-pro/kontext"
+        input_params: dict = {
+            "image_url": image_url,
+            "prompt": prompt,
+            "guidance_scale": guidance_scale,
+            "num_inference_steps": steps,
+        }
+        if seed >= 0:
+            input_params["seed"] = seed
+        url = f"{FAL_API_BASE}/{fal_model}"
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                url, json=input_params, headers=self.headers, timeout=120,
+            )
+            response.raise_for_status()
+            data = response.json()
+            logger.info("fal.ai Flux Kontext edit completed")
+            return data
+
     async def submit_face_fix(self, image_url: str) -> dict:
         """Fix/enhance faces using GFPGAN via fal.ai."""
         fal_model = "fal-ai/gfpgan"

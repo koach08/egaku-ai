@@ -47,6 +47,7 @@ const TOOLS = [
       { name: "Upscale", desc: "Enhance resolution up to 4x with AI", href: "/generate?tab=upscale", icon: "🔍", badge: "" },
       { name: "Background Removal", desc: "Remove backgrounds instantly", href: "/generate?tab=removebg", icon: "✂️", badge: "" },
       { name: "Inpainting", desc: "Edit specific parts of an image", href: "/generate?tab=inpaint", icon: "🖌️", badge: "" },
+      { name: "AI Image Editor", desc: "Tell AI what to change: background, style, clothing, hair. Character stays the same (Flux Kontext)", href: "/edit", icon: "✨", badge: "New" },
       { name: "Object Removal", desc: "Paint over unwanted objects and erase them cleanly", href: "/remove-object", icon: "🧹", badge: "New" },
       { name: "Expand Image", desc: "Extend image borders with AI-generated content", href: "/expand", icon: "↔️", badge: "New" },
       { name: "Sketch to Image", desc: "Draw a rough sketch → AI creates a polished image", href: "/sketch", icon: "✏️", badge: "New" },

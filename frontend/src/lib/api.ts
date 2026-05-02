@@ -198,6 +198,12 @@ export const api = {
       headers: authHeaders(token),
       body: JSON.stringify(params),
     }),
+  kontextEdit: (token: string, params: Record<string, unknown>) =>
+    fetchAPI("/generate/kontext-edit", {
+      method: "POST",
+      headers: authHeaders(token),
+      body: JSON.stringify(params),
+    }),
   faceFix: (token: string, imageUrl: string) =>
     fetchAPI("/generate/face-fix", {
       method: "POST",
