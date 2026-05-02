@@ -101,6 +101,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   pages.push({ path: "/tag-builder", priority: 0.8, changeFrequency: "weekly" as const });
   pages.push({ path: "/saved-characters", priority: 0.6, changeFrequency: "weekly" as const });
   pages.push({ path: "/gif-maker", priority: 0.8, changeFrequency: "weekly" as const });
+  pages.push({ path: "/image-to-movie", priority: 0.9, changeFrequency: "weekly" as const });
 
   const langAlternates = (path: string) => {
     const result: Record<string, string> = {};
