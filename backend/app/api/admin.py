@@ -1,8 +1,10 @@
-"""Admin-only endpoints: user stats, content reports, system health."""
+"""Admin-only endpoints: user stats, content reports, email, credit management."""
 
 import logging
 
+import httpx
 from fastapi import APIRouter, Depends, HTTPException, Request
+from pydantic import BaseModel
 
 from app.core.config import Settings, get_settings
 from app.services.supabase import get_supabase, get_user_profile
@@ -133,3 +135,94 @@ async def list_reports(
     except Exception as e:
         logger.error(f"Reports list failed: {e}")
         return {"reports": []}
+
+
+# ─── Admin Email ───
+
+class AdminEmailRequest(BaseModel):
+    to: str
+    subject: str
+    body: str
+
+@router.post("/send-email")
+async def send_email(
+    body: AdminEmailRequest,
+    request: Request,
+    settings: Settings = Depends(get_settings),
+):
+    """Admin: send an email to any user via Resend."""
+    supabase, user = await _require_admin(request, settings)
+
+    if not settings.resend_api_key:
+        raise HTTPException(status_code=503, detail="Resend API key not configured")
+
+    try:
+        async with httpx.AsyncClient() as client:
+            res = await client.post(
+                "https://api.resend.com/emails",
+                headers={
+                    "Authorization": f"Bearer {settings.resend_api_key}",
+                    "Content-Type": "application/json",
+                },
+                json={
+                    "from": "EGAKU AI <noreply@language-smartlearning.com>",
+                    "to": [body.to],
+                    "subject": body.subject,
+                    "text": body.body,
+                },
+                timeout=15,
+            )
+            res.raise_for_status()
+            data = res.json()
+            logger.info(f"Admin email sent to {body.to}: {data.get('id')}")
+            return {"success": True, "email_id": data.get("id")}
+    except Exception as e:
+        logger.error(f"Admin email failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Email send failed: {e}")
+
+
+# ─── Admin Credit Grant ───
+
+class GrantCreditsRequest(BaseModel):
+    user_email: str
+    amount: int
+    reason: str = "Admin credit grant"
+
+@router.post("/grant-credits")
+async def grant_credits(
+    body: GrantCreditsRequest,
+    request: Request,
+    settings: Settings = Depends(get_settings),
+):
+    """Admin: add credits to any user by email."""
+    supabase, admin_user = await _require_admin(request, settings)
+
+    # Find user by email
+    result = supabase.table("users").select("id").eq("email", body.user_email).maybe_single().execute()
+    if not result or not result.data:
+        raise HTTPException(status_code=404, detail=f"User not found: {body.user_email}")
+
+    user_id = result.data["id"]
+
+    try:
+        from app.services.supabase import get_credit_balance
+        credits = await get_credit_balance(supabase, user_id)
+        current = credits["balance"] if credits else 0
+
+        supabase.table("credits").upsert({
+            "user_id": user_id,
+            "balance": current + body.amount,
+        }).execute()
+
+        supabase.table("credit_transactions").insert({
+            "user_id": user_id,
+            "amount": body.amount,
+            "type": "admin_grant",
+            "description": body.reason,
+        }).execute()
+
+        logger.info(f"Admin granted {body.amount} credits to {body.user_email} ({user_id})")
+        return {"success": True, "user_id": user_id, "new_balance": current + body.amount}
+    except Exception as e:
+        logger.error(f"Credit grant failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Credit grant failed: {e}")
