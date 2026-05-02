@@ -62,6 +62,7 @@ const TOOLS = [
       { name: "Character Lock", desc: "Keep the same character across multiple scenes (PuLID)", href: "/generate?tab=character", icon: "🔒", badge: "Pro" },
       { name: "Virtual Try-On", desc: "Upload your photo + clothing → AI puts the outfit on you", href: "/try-on", icon: "👔", badge: "New" },
       { name: "Multi-Shot", desc: "Same subject from 9 camera angles — character sheets, product views", href: "/multi-shot", icon: "📐", badge: "New" },
+      { name: "Face to Character", desc: "Upload a face photo → AI generates that person in any scene or style", href: "/face-gen", icon: "🪞", badge: "New" },
       { name: "Saved Characters", desc: "Save character presets and regenerate the same look anytime", href: "/saved-characters", icon: "👤", badge: "New" },
     ],
   },
