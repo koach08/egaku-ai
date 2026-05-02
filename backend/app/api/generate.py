@@ -275,9 +275,19 @@ async def _generate_image_cloud(body: ImageGenerateRequest, request: Request, se
     region_rules = get_region_rules(region)
 
     credits_needed = _calculate_credits("txt2img", body.model_dump())
+    relaxed = False
     success = await deduct_credits(supabase, user.id, credits_needed, f"Image generation ({body.width}x{body.height})")
     if not success:
-        raise HTTPException(status_code=402, detail="Insufficient credits")
+        # Check relaxed mode: paid users can use free model when credits run out
+        from app.services.supabase import check_relaxed_mode
+        if await check_relaxed_mode(supabase, user.id):
+            relaxed = True
+            body.model = "flux_schnell"  # Force cheapest model
+            body.width = min(body.width, 512)
+            body.height = min(body.height, 512)
+            body.steps = min(body.steps, 15)
+        else:
+            raise HTTPException(status_code=402, detail="Insufficient credits")
 
     # Increment daily image counter
     try:

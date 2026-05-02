@@ -124,6 +124,28 @@ async def deduct_credits(supabase: Client, user_id: str, amount: int, descriptio
     return True
 
 
+# Relaxed mode: paid users can still generate with free models when credits run out
+RELAXED_ELIGIBLE_PLANS = {"lite", "basic", "pro", "unlimited", "studio"}
+
+async def check_relaxed_mode(supabase: Client, user_id: str) -> bool:
+    """Check if user is eligible for relaxed (zero-credit) generation.
+    Returns True if user is on a paid plan but has 0 credits.
+    """
+    profile = await get_user_profile(supabase, user_id)
+    if not profile:
+        return False
+    plan = profile.get("plan", "free")
+    if plan not in RELAXED_ELIGIBLE_PLANS:
+        return False
+    # Unlimited/Studio never need relaxed mode
+    if plan in ("unlimited", "studio"):
+        return False
+    credits = await get_credit_balance(supabase, user_id)
+    if not credits or credits["balance"] <= 0:
+        return True
+    return False
+
+
 async def save_generation(supabase: Client, data: dict) -> dict:
     result = supabase.table("generations").insert(data).execute()
     return result.data[0]
