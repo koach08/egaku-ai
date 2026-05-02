@@ -27,6 +27,7 @@ const TOOLS = [
       { name: "Lip Sync", desc: "Any face video + any audio = perfect lip sync", href: "/lip-sync", icon: "👄", badge: "New" },
       { name: "Talking Avatar", desc: "Character image + audio → cinematic talking video", href: "/talking-avatar", icon: "🗣️", badge: "New" },
       { name: "VFX Effects", desc: "Add fire, water, lightning, and more effects to any photo", href: "/vfx", icon: "✨", badge: "New" },
+      { name: "GIF Maker", desc: "Upload an image, AI animates it into a looping GIF", href: "/gif-maker", icon: "🎞️", badge: "New" },
       { name: "Video Shorts", desc: "TikTok / Reels / Shorts vertical video generator", href: "/shorts", icon: "📱", badge: "Popular" },
     ],
   },
