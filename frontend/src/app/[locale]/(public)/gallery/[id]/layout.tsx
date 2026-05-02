@@ -22,11 +22,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       ? `${item.prompt.slice(0, 150)}${item.prompt.length > 150 ? "..." : ""} — Created with ${item.model || "AI"} on EGAKU AI`
       : `AI-generated artwork on EGAKU AI`;
 
-    // Use Supabase render API to serve compressed OG image directly
-    // No proxy needed, no robots.txt issues
-    const rawUrl = (!item.nsfw && item.image_url) ? item.image_url : "";
-    const ogImage = rawUrl && rawUrl.includes("supabase.co/storage/v1/object/public/")
-      ? rawUrl.replace("/object/public/", "/render/image/public/") + "?width=1200&height=630&resize=cover&quality=70"
+    // Use our own /api/og/[id] proxy to serve the image.
+    // Supabase storage sends "x-robots-tag: none" on ALL responses,
+    // which tells Twitter/X crawler to ignore the image entirely.
+    // Our proxy fetches, resizes to 1200x630 via sharp, and serves
+    // clean headers (no x-robots-tag), so Twitter cards work correctly.
+    const hasImage = !item.nsfw && item.image_url;
+    const ogImage = hasImage
+      ? `https://egaku-ai.com/api/og/${id}`
       : "https://egaku-ai.com/og-image.jpg";
 
     return {
@@ -37,7 +40,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         description,
         url: `https://egaku-ai.com/gallery/${id}`,
         type: "article",
-        images: [{ url: ogImage, width: 1200, height: 1200, alt: title }],
+        images: [{ url: ogImage, width: 1200, height: 630, alt: title }],
       },
       twitter: {
         card: "summary_large_image",
