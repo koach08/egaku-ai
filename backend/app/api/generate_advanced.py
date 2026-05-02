@@ -1092,6 +1092,50 @@ async def generate_sound_effect(
     raise HTTPException(status_code=503, detail="Sound effect service is temporarily unavailable.")
 
 
+# ─── Face Fix (GFPGAN) ───
+
+class FaceFixRequest(BaseModel):
+    image_url: str = ""
+
+@router.post("/face-fix", response_model=GenerationResponse)
+async def fix_face(
+    body: FaceFixRequest,
+    request: Request,
+    settings: Settings = Depends(get_settings),
+):
+    """Fix/enhance faces in an image using GFPGAN."""
+    _check_infra(settings)
+    user, profile, supabase = await _auth_and_profile(request, settings)
+
+    if not body.image_url:
+        raise HTTPException(status_code=400, detail="image_url is required")
+
+    from app.services.supabase import deduct_credits
+    success = await deduct_credits(supabase, user.id, 1, "Face fix (GFPGAN)")
+    if not success:
+        raise HTTPException(status_code=402, detail="Insufficient credits")
+
+    job_id = str(uuid.uuid4())
+
+    from app.services.fal_ai import FalClient
+    fal_client = FalClient(settings)
+    if fal_client.is_available():
+        try:
+            result = await fal_client.submit_face_fix(image_url=body.image_url)
+            img_url = fal_client.extract_image_url(result)
+            if img_url:
+                from app.api.generate import _store_job_status
+                await _store_job_status(settings, job_id, "completed", {"url": img_url, "backend": "fal"})
+                return GenerationResponse(
+                    job_id=job_id, status=JobStatus.completed,
+                    credits_used=1, result_url=img_url,
+                )
+        except Exception as fal_err:
+            logger.error(f"fal.ai face fix failed: {fal_err}")
+
+    raise HTTPException(status_code=503, detail="Face fix service is temporarily unavailable.")
+
+
 # ─── AI Music Generation ───
 
 @router.post("/music", response_model=GenerationResponse)

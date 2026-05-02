@@ -953,6 +953,20 @@ class FalClient:
             logger.info("fal.ai sound effect generation completed")
             return data
 
+    async def submit_face_fix(self, image_url: str) -> dict:
+        """Fix/enhance faces using GFPGAN via fal.ai."""
+        fal_model = "fal-ai/gfpgan"
+        input_params = {"image_url": image_url}
+        url = f"{FAL_API_BASE}/{fal_model}"
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                url, json=input_params, headers=self.headers, timeout=60,
+            )
+            response.raise_for_status()
+            data = response.json()
+            logger.info("fal.ai face fix completed")
+            return data
+
     async def submit_music_generation(
         self,
         prompt: str,

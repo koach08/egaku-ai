@@ -7,6 +7,7 @@ const TOOLS = [
   {
     category: "Image Generation",
     items: [
+      { name: "Tag Builder", desc: "No prompt needed. Pick tags (body, pose, style, setting) and generate", href: "/tag-builder", icon: "🏷️", badge: "New" },
       { name: "AI Templates", desc: "One tap to create — no prompt needed. Trending styles, portraits, products, videos", href: "/templates", icon: "⚡", badge: "New" },
       { name: "Text to Image", desc: "Generate images from text prompts with 20+ AI models", href: "/generate", icon: "🎨", badge: "Core" },
       { name: "Multi-Model Compare", desc: "Same prompt, 3 models side-by-side — find the best model", href: "/generate?tab=compare", icon: "⚖️", badge: "Unique" },
@@ -59,6 +60,7 @@ const TOOLS = [
       { name: "Character Lock", desc: "Keep the same character across multiple scenes (PuLID)", href: "/generate?tab=character", icon: "🔒", badge: "Pro" },
       { name: "Virtual Try-On", desc: "Upload your photo + clothing → AI puts the outfit on you", href: "/try-on", icon: "👔", badge: "New" },
       { name: "Multi-Shot", desc: "Same subject from 9 camera angles — character sheets, product views", href: "/multi-shot", icon: "📐", badge: "New" },
+      { name: "Saved Characters", desc: "Save character presets and regenerate the same look anytime", href: "/saved-characters", icon: "👤", badge: "New" },
     ],
   },
   {
