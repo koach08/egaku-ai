@@ -1165,9 +1165,14 @@ export default function GeneratePage() {
           </button>
         </div>
         {nsfwMode && (
-          <p className="text-[10px] text-amber-500 mt-1">
-            NSFW mode enabled — unrestricted content generation
-          </p>
+          <div className="mt-1.5 space-y-1">
+            <p className="text-[10px] text-amber-500">
+              Creative freedom enabled — unrestricted generation
+            </p>
+            <p className="text-[10px] text-white/30">
+              Tip: For best results, try <span className="text-white/50">Flux Realism</span>, <span className="text-white/50">Novita SDXL</span>, or <span className="text-white/50">CivitAI models</span> (My Models tab). English prompts work best.
+            </p>
+          </div>
         )}
       </div>
     </div>
