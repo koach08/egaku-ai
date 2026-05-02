@@ -11,7 +11,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Header } from "@/components/layout/header";
 import { AnnouncementBanner } from "@/components/announcement-banner";
 import { toast } from "sonner";
-import { HeartIcon, EyeIcon, EyeOffIcon, Loader2Icon, SparklesIcon } from "lucide-react";
+import { HeartIcon, EyeIcon, EyeOffIcon, Loader2Icon, SparklesIcon, BookmarkIcon } from "lucide-react";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -88,6 +88,32 @@ export default function GalleryPage() {
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [likingIds, setLikingIds] = useState<Set<string>>(new Set());
+  const [bookmarks, setBookmarks] = useState<Set<string>>(new Set());
+
+  // Load bookmarks from localStorage
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("egaku_bookmarks");
+      if (stored) setBookmarks(new Set(JSON.parse(stored)));
+    } catch {}
+  }, []);
+
+  const toggleBookmark = (e: React.MouseEvent, itemId: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setBookmarks((prev) => {
+      const next = new Set(prev);
+      if (next.has(itemId)) {
+        next.delete(itemId);
+        toast.success("Removed from collection");
+      } else {
+        next.add(itemId);
+        toast.success("Saved to collection");
+      }
+      localStorage.setItem("egaku_bookmarks", JSON.stringify([...next]));
+      return next;
+    });
+  };
 
   // Sentinel ref for intersection observer (load more)
   const sentinelRef = useRef<HTMLDivElement | null>(null);
@@ -425,6 +451,17 @@ export default function GalleryPage() {
                             {item.author_name}
                           </span>
                           <div className="flex items-center gap-2">
+                            <button
+                              onClick={(e) => toggleBookmark(e, item.id)}
+                              className={`text-xs transition-colors ${
+                                bookmarks.has(item.id)
+                                  ? "text-amber-400"
+                                  : "text-muted-foreground hover:text-amber-400"
+                              }`}
+                              title={bookmarks.has(item.id) ? "Remove from collection" : "Save to collection"}
+                            >
+                              <BookmarkIcon className={`size-3.5 ${bookmarks.has(item.id) ? "fill-amber-400" : ""}`} />
+                            </button>
                             <Link
                               href={`/generate?prompt=${encodeURIComponent(item.prompt)}&model=${item.model}`}
                               onClick={(e) => e.stopPropagation()}
