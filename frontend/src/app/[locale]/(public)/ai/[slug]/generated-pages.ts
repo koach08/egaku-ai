@@ -362,5 +362,146 @@ const USE_CASE_PAGES: Record<string, GeneratedPage> = {
   },
 };
 
-// Merge use-case pages into generated pages
+// SEO pages — target users looking for AI creative tools
+const ALTERNATIVE_PAGES: Record<string, GeneratedPage> = {
+  "all-in-one-ai-creative-platform": {
+    title: "All-in-One AI Creative Platform — Image, Video & Music | EGAKU AI",
+    h1: "One Platform for Image, Video & Music",
+    description: "40+ AI creative tools in one place. Generate images with 30+ models, create videos with Veo 3 and Kling 3.0, produce original music, and make full movies. Free to start.",
+    keywords: ["ai creative platform", "ai image video music", "all in one ai generator", "ai art platform"],
+    features: [
+      "30+ image models (Flux Pro, Grok, GPT Image 2, Ideogram, CivitAI)",
+      "6+ video models (Veo 3 with audio, Kling 3.0, Seedance 2.0)",
+      "AI Music Generator — describe a mood, get original music",
+      "AI Movie Maker — one concept to finished movie",
+      "VFX effects, lip sync, talking avatar, photo booth",
+      "Free tier with 50 credits + 5 daily bonus",
+      "Plans from 480 yen/month",
+    ],
+    prompts: [
+      "cinematic slow motion, a dancer performing in a rain-soaked street at night, neon reflections",
+      "product showcase video, sleek smartphone rotating on a reflective surface, studio lighting",
+      "anime opening sequence, characters running through cherry blossom storm, dramatic sky",
+    ],
+    faq: [
+      { q: "Why use one platform instead of separate tools?", a: "Instead of paying for Midjourney ($10) + Runway ($15) + Suno ($10) separately, EGAKU AI gives you image, video, and music generation in one place starting at 480 yen/month. Your creations stay in one gallery, and tools like Movie Maker connect everything." },
+      { q: "Is EGAKU AI free?", a: "Yes. Free tier includes 50 credits on signup plus 5 daily bonus credits. No credit card required." },
+      { q: "What makes EGAKU AI different?", a: "40+ tools in one platform: image generation, video creation, AI music, Movie Maker, VFX effects, voice cloning, and more. Most platforms focus on one thing. EGAKU AI does it all." },
+    ],
+    category: "feature",
+    minPlan: "Free",
+    credits: "1-40",
+  },
+  "ai-video-generator-all-models": {
+    title: "AI Video Generator — Veo 3, Kling 3.0, Seedance 2.0 & More | EGAKU AI",
+    h1: "All the Best AI Video Models in One Place",
+    description: "Access Veo 3 (with audio), Kling 3.0, Seedance 2.0, Wan 2.6, and more from one platform. Text-to-video, image-to-video, video-to-video. Free to try.",
+    keywords: ["ai video generator", "ai video generator free", "text to video", "veo 3", "kling 3.0", "seedance 2.0", "sora 2 alternative"],
+    features: [
+      "Veo 3 — Google's video model with native audio",
+      "Kling 3.0 — 4K cinema quality",
+      "Seedance 2.0 — ByteDance's latest with audio sync",
+      "Wan 2.6 — Alibaba's 15-second video model",
+      "Text-to-video, image-to-video, video-to-video all supported",
+      "AI Movie Maker — full video production pipeline",
+      "Compare models side by side on the same prompt",
+    ],
+    prompts: [
+      "a lone astronaut walking through a bioluminescent cave on an alien planet, volumetric fog",
+      "timelapse of a flower blooming in morning light, macro photography, shallow depth of field",
+      "cyberpunk city flythrough, neon signs, rain, holographic advertisements, cinematic",
+    ],
+    faq: [
+      { q: "Which video models are available?", a: "Veo 3 (Google, audio), Kling 3.0/2.5 Pro (4K), Seedance 2.0 (ByteDance, audio), Wan 2.1/2.6 (Alibaba), LTX 2.3 (fast), Minimax Hailuo, Luma, Hunyuan, Mochi, Pika v2, and more." },
+      { q: "Can I try for free?", a: "Yes. 50 credits on signup, 5 daily bonus. LTX 2.3 costs just 5 credits per video. No credit card needed." },
+      { q: "What happened to Sora 2?", a: "Sora 2 (OpenAI) shut down in April 2026. EGAKU AI offers Veo 3 and Seedance 2.0 as superior alternatives with native audio generation." },
+    ],
+    category: "feature",
+    minPlan: "Free",
+    credits: "5-40",
+  },
+  "ai-movie-maker-free": {
+    title: "Free AI Movie Maker — Create Videos from Text | EGAKU AI",
+    h1: "AI Movie Maker",
+    description: "Type one concept, get a finished AI movie with scenes, video, and music. 100% AI production. Free to start. No editing skills needed.",
+    keywords: ["ai movie maker", "ai movie maker free", "ai video maker", "text to movie", "ai film maker"],
+    features: [
+      "Type a concept → AI breaks it into scenes",
+      "Each scene generated as video (Veo 3, Kling 3.0, Seedance 2.0)",
+      "AI generates matching background music",
+      "All scenes stitched together with music → download as MP4",
+      "Cinema style presets (Cinematic, Anime, Sci-Fi, Horror, Retro)",
+      "Free to try with 50 signup credits",
+    ],
+    prompts: [
+      "A samurai stands alone on a misty battlefield at dawn. He draws his sword. Cherry blossoms fall. A rival appears. They clash in slow motion.",
+      "A cozy cabin in winter. Inside, an artist paints by firelight. Snow falls outside. The painting comes alive. Magic fills the room.",
+      "Futuristic Tokyo. A delivery drone weaves through neon canyons. It lands on a rooftop garden. A child opens the package. Inside: a small robot companion.",
+    ],
+    faq: [
+      { q: "What is AI Movie Maker?", a: "AI Movie Maker turns a single text concept into a complete video with scenes, AI-generated music, and final export. No editing, no filming, no instruments needed. 100% AI." },
+      { q: "How much does it cost?", a: "Free tier includes 50 credits. A 5-scene movie with music costs about 30-55 credits depending on the video model. Credit packs start at 500 for just 500 yen." },
+      { q: "What video models are available?", a: "LTX 2.3 (fast, 5cr), Wan 2.1 (10cr), Kling v2 (15cr), Kling 2.5 Pro 4K (25cr), Seedance 2.0 with audio (30cr), and Veo 3 with audio (40cr)." },
+    ],
+    category: "feature",
+    minPlan: "Free",
+    credits: "5-40",
+  },
+  "ai-music-generator-free": {
+    title: "Free AI Music Generator — Create Music from Text | EGAKU AI",
+    h1: "AI Music Generator",
+    description: "Describe a mood or genre, AI creates original music. Like Suno but free to start and integrated with video tools. 3 models, 12 genre presets.",
+    keywords: ["ai music generator", "ai music generator free", "suno alternative", "suno alternative free", "text to music"],
+    features: [
+      "3 AI music models (ACE-Step, CassetteAI, MiniMax Music 2.0)",
+      "12 genre presets (Cinematic, Lo-Fi, EDM, J-Pop, Jazz, Hip Hop...)",
+      "Lyrics support for vocal tracks (MiniMax, ACE-Step)",
+      "Up to 3 minutes per generation",
+      "Integrated with Movie Maker and Storyboard",
+      "5 credits per song, free tier available",
+    ],
+    prompts: [
+      "epic cinematic orchestral soundtrack, dramatic strings, brass fanfare, building tension, film score",
+      "lo-fi hip hop beat, mellow piano, vinyl crackle, relaxed jazzy chords, study music",
+      "upbeat Japanese pop song, catchy melody, bright synths, energetic drums, anime opening style",
+    ],
+    faq: [
+      { q: "How is this different from Suno?", a: "Suno is a standalone music app ($10/month). EGAKU AI includes music generation as part of a 40+ tool creative platform ($3/month). Plus your music integrates directly with Movie Maker and Storyboard for video production." },
+      { q: "Can I use the music commercially?", a: "Generated music is royalty-free for personal and commercial use." },
+      { q: "Does it generate vocals?", a: "Yes. MiniMax Music 2.0 and ACE-Step support lyrics input for vocal tracks." },
+    ],
+    category: "feature",
+    minPlan: "Free",
+    credits: "5",
+  },
+  "best-ai-creative-tools-2026": {
+    title: "Best AI Creative Tools 2026 — Image, Video, Music in One App | EGAKU AI",
+    h1: "Best AI Creative Tools 2026",
+    description: "The best AI tools for creative work in 2026. 30+ image models, 6+ video models with audio, AI music generation, and Movie Maker. All in one platform.",
+    keywords: ["best ai creative tools 2026", "ai art generator 2026", "ai tools for creators", "best ai video generator 2026"],
+    features: [
+      "Image: Flux Pro, Grok, GPT Image 2, Ideogram v3, CivitAI 100K+ models",
+      "Video: Veo 3 (audio), Kling 3.0 (4K), Seedance 2.0 (audio)",
+      "Music: ACE-Step, CassetteAI, MiniMax Music 2.0",
+      "Movie Maker: concept to finished movie in minutes",
+      "40+ total tools: VFX, lip sync, photo booth, templates, and more",
+      "Free to start, plans from 480 yen/month",
+    ],
+    prompts: [
+      "a golden retriever running through autumn leaves in slow motion, cinematic, warm light",
+      "abstract fluid art in motion, vibrant colors mixing and flowing, mesmerizing patterns",
+      "miniature city on a table, tilt-shift photography style, tiny cars and people, shallow DOF",
+    ],
+    faq: [
+      { q: "Why is EGAKU AI considered the best for creators?", a: "It combines image, video, and music generation in one platform with 40+ tools. No need to switch between apps. Plus it starts free." },
+      { q: "Is it good for beginners?", a: "Yes. AI Templates let you create with one tap, no prompt needed. Daily Challenge gives you a theme to practice with. Photo Booth turns selfies into professional portraits." },
+    ],
+    category: "feature",
+    minPlan: "Free",
+    credits: "1-40",
+  },
+};
+
+// Merge all pages
 Object.assign(GENERATED_PAGES, USE_CASE_PAGES);
+Object.assign(GENERATED_PAGES, ALTERNATIVE_PAGES);
