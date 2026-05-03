@@ -240,10 +240,10 @@ VIDEO_MODELS = {
         "min_plan": "basic",
     },
     "fal_luma_t2v": {
-        "fal_id": "fal-ai/luma-dream-machine",
-        "name": "Luma Dream Machine",
-        "description": "Luma AI's cinematic video generation, smooth motion",
-        "credits": 20,
+        "fal_id": "fal-ai/luma/ray-2",
+        "name": "Luma Ray 2",
+        "description": "Luma AI's latest — enhanced realism and motion quality",
+        "credits": 25,
         "min_plan": "basic",
     },
     "fal_hunyuan_t2v": {
@@ -309,11 +309,11 @@ VIDEO_MODELS = {
         "credits": 15,
         "min_plan": "basic",
     },
-    "fal_luma15_t2v": {
-        "fal_id": "fal-ai/luma-dream-machine/v1.5",
-        "name": "Luma v1.5",
-        "description": "Latest Luma Dream Machine — improved motion and consistency",
-        "credits": 20,
+    "fal_luma_ray2_modify": {
+        "fal_id": "fal-ai/luma/ray-2/modify",
+        "name": "Luma Ray 2 Modify",
+        "description": "Modify existing videos with Luma Ray 2 — restyle, edit, enhance",
+        "credits": 25,
         "min_plan": "basic",
     },
     # --- Video-to-video (style transfer / restyle) ---
