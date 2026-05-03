@@ -28,6 +28,20 @@ const CAMERA_STYLES = [
   { id: "drone", name: "Drone (aerial)" },
   { id: "steadicam", name: "Steadicam (fluid)" },
   { id: "static", name: "Static (tripod)" },
+  { id: "tracking", name: "Tracking (follow subject)" },
+  { id: "orbit", name: "Orbit (circle around)" },
+  { id: "pushpull", name: "Push-Pull (zoom tension)" },
+];
+
+const LENS_PRESETS = [
+  { id: "none", name: "Default", suffix: "" },
+  { id: "wide", name: "Wide Angle (24mm)", suffix: ", shot on 24mm wide angle lens, expansive field of view, slight barrel distortion" },
+  { id: "portrait", name: "Portrait (85mm)", suffix: ", shot on 85mm portrait lens, shallow depth of field, creamy bokeh, subject isolation" },
+  { id: "telephoto", name: "Telephoto (200mm)", suffix: ", shot on 200mm telephoto lens, compressed perspective, extreme bokeh, isolated subject" },
+  { id: "macro", name: "Macro (close-up)", suffix: ", extreme macro close-up, razor-thin depth of field, intricate details visible" },
+  { id: "fisheye", name: "Fisheye", suffix: ", fisheye lens, extreme wide angle, barrel distortion, immersive perspective" },
+  { id: "anamorphic", name: "Anamorphic", suffix: ", anamorphic lens, horizontal lens flare, 2.39:1 cinematic aspect ratio, oval bokeh" },
+  { id: "tiltshift", name: "Tilt-Shift", suffix: ", tilt-shift lens effect, miniature model appearance, selective focus plane" },
 ];
 
 const VIDEO_MODELS = [
@@ -42,6 +56,7 @@ export default function CinemaStudioPage() {
   const [prompt, setPrompt] = useState("");
   const [genre, setGenre] = useState("general");
   const [camera, setCamera] = useState("auto");
+  const [lens, setLens] = useState("none");
   const [videoModel, setVideoModel] = useState("fal_kling25_t2v");
   const [duration, setDuration] = useState(8);
   const [result, setResult] = useState<string | null>(null);
@@ -74,7 +89,9 @@ export default function CinemaStudioPage() {
         static: "static tripod shot, no camera movement",
       };
 
-      const fullPrompt = `${prompt}, ${genreMap[genre] || ""}, ${cameraMap[camera] || ""}, cinematic aspect ratio, film grain, professional cinematography, 4K`.trim();
+      const lensObj = LENS_PRESETS.find((l) => l.id === lens);
+      const lensSuffix = lensObj?.suffix || "";
+      const fullPrompt = `${prompt}, ${genreMap[genre] || ""}, ${cameraMap[camera] || ""}${lensSuffix}, cinematic aspect ratio, film grain, professional cinematography, 4K`.trim();
 
       const res = await api.generateVideo(session.access_token, {
         prompt: fullPrompt, model: videoModel, duration: Math.min(duration, maxDuration), seed: -1, nsfw: false,
@@ -135,6 +152,15 @@ export default function CinemaStudioPage() {
                   {CAMERA_STYLES.map((c) => (
                     <button key={c.id} onClick={() => setCamera(c.id)}
                       className={`px-3 py-1 rounded-full text-[11px] transition-colors ${camera === c.id ? "bg-white text-black" : "border border-white/[0.06] text-white/50 hover:text-white/80"}`}>{c.name}</button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs text-white/40 mb-2">Lens</label>
+                <div className="flex flex-wrap gap-1.5">
+                  {LENS_PRESETS.map((l) => (
+                    <button key={l.id} onClick={() => setLens(l.id)}
+                      className={`px-3 py-1 rounded-full text-[11px] transition-colors ${lens === l.id ? "bg-purple-500 text-white" : "border border-white/[0.06] text-white/50 hover:text-white/80"}`}>{l.name}</button>
                   ))}
                 </div>
               </div>

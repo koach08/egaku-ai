@@ -81,6 +81,67 @@ const VFX_PRESETS = [
     preview: "from-green-500 to-teal-700",
     prompt: "digital glitch effect on the subject, RGB color split, scan lines, pixelation, matrix-style data corruption, cyberpunk digital distortion, VHS static noise",
   },
+  // ── Viral / Pikaffects-style ──
+  {
+    id: "cakeify",
+    name: "Cakeify",
+    preview: "from-pink-300 to-rose-500",
+    prompt: "the subject transforms into a realistic cake version of itself, fondant texture, frosting details, cake layers visible, the transformation happens smoothly, food photography lighting, satisfying ASMR feel",
+  },
+  {
+    id: "melt",
+    name: "Melt",
+    preview: "from-orange-400 to-red-500",
+    prompt: "the subject slowly melts like hot wax or chocolate, dripping and oozing downward, gooey liquid texture, satisfying melting effect, dramatic studio lighting, slow motion",
+  },
+  {
+    id: "explode",
+    name: "Explode",
+    preview: "from-red-600 to-orange-800",
+    prompt: "the subject dramatically explodes outward into hundreds of fragments, debris flying in all directions, shockwave visible, dust and particles, dramatic slow motion explosion, cinematic",
+  },
+  {
+    id: "inflate",
+    name: "Inflate",
+    preview: "from-sky-300 to-blue-500",
+    prompt: "the subject inflates like a balloon, getting rounder and bigger, stretchy rubbery texture, cartoon physics, bouncy and playful, whimsical lighting, satisfying expansion",
+  },
+  {
+    id: "squish",
+    name: "Squish",
+    preview: "from-purple-400 to-fuchsia-600",
+    prompt: "the subject gets squished and compressed flat like soft clay, then bounces back to normal shape, elastic deformation, satisfying squishy physics, playful animation, smooth motion",
+  },
+  {
+    id: "crystallize",
+    name: "Crystallize",
+    preview: "from-cyan-300 to-blue-600",
+    prompt: "the subject transforms into sparkling crystal, diamond-like facets forming across the surface, refracting light into rainbows, transparent and glittering, magical transformation, luxury feel",
+  },
+  {
+    id: "pixelate",
+    name: "Minecraft-ify",
+    preview: "from-green-400 to-emerald-600",
+    prompt: "the subject transforms into a Minecraft-style blocky voxel version, cubic pixels, 8-bit retro game aesthetic, block by block transformation, fun and nostalgic",
+  },
+  {
+    id: "origami",
+    name: "Origami Fold",
+    preview: "from-amber-300 to-yellow-500",
+    prompt: "the subject folds into an intricate origami paper sculpture, crisp paper folds visible, white and colored paper texture, the folding animation is smooth and satisfying, soft studio lighting",
+  },
+  {
+    id: "lego",
+    name: "LEGO Build",
+    preview: "from-red-500 to-yellow-500",
+    prompt: "the subject transforms into a LEGO brick construction, colorful plastic bricks assembling piece by piece, satisfying click-together building animation, toy photography style",
+  },
+  {
+    id: "bloom_flowers",
+    name: "Flower Takeover",
+    preview: "from-green-400 to-pink-400",
+    prompt: "flowers and vines rapidly grow and cover the entire subject, nature reclaiming, lush green leaves and colorful blooms spreading across every surface, timelapse growth effect, beautiful and organic",
+  },
 ] as const;
 
 const VIDEO_MODELS = [

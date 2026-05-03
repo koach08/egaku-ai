@@ -81,6 +81,7 @@ const TOOLS = [
       { name: "Image to Movie", desc: "Upload or generate images → animate each with Seedance/Kling/Wan → add music → export", href: "/image-to-movie", icon: "🖼️", badge: "New" },
       { name: "Storyboard Studio", desc: "Multi-scene video with narration, BGM, cinema presets, and AI music", href: "/storyboard", icon: "🎞️", badge: "Unique" },
       { name: "Cinema Studio", desc: "Describe a scene, choose genre and camera → cinematic AI video", href: "/cinema-studio", icon: "🎥", badge: "New" },
+      { name: "Image Transitions", desc: "Upload 2-5 images → AI creates smooth transition video between them", href: "/transitions", icon: "🔀", badge: "New" },
       { name: "Music Video", desc: "Upload a song, pick a style → beat-synced music video", href: "/music-video", icon: "🎵", badge: "New" },
     ],
   },
