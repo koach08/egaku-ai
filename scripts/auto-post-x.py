@@ -132,9 +132,13 @@ def generate_fresh_image():
 def download_image(url):
     res = httpx.get(url, timeout=30, follow_redirects=True)
     res.raise_for_status()
+    data = res.content
+    # Skip tiny images (likely black/blocked by safety filter)
+    if len(data) < 5000:
+        return None
     ext = ".jpg" if "jpeg" in res.headers.get("content-type", "") or "jpg" in url else ".png"
     tmp = tempfile.NamedTemporaryFile(suffix=ext, delete=False)
-    tmp.write(res.content)
+    tmp.write(data)
     tmp.close()
     return tmp.name
 
@@ -160,10 +164,22 @@ def post_from_gallery():
     if not candidates:
         return False
 
-    item = candidates[0]
-    print(f"Gallery post: {item['id']} — {item.get('prompt', '')[:50]}...")
+    # Try candidates until we find a valid image
+    image_path = None
+    item = None
+    for candidate in candidates:
+        image_path = download_image(candidate["image_url"])
+        if image_path:
+            item = candidate
+            break
+        print(f"Skipped black/tiny image: {candidate['id']}")
+        posted.add(candidate["id"])
 
-    image_path = download_image(item["image_url"])
+    if not item or not image_path:
+        save_json(POSTED_FILE, posted)
+        return False
+
+    print(f"Gallery post: {item['id']} — {item.get('prompt', '')[:50]}...")
     template = random.choice(TEMPLATES_GALLERY)
     model = item.get("model", "")
     if model:
