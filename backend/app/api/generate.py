@@ -228,9 +228,19 @@ async def _generate_image_cloud(body: ImageGenerateRequest, request: Request, se
     plan = profile["plan"]
     limits = PLAN_LIMITS[plan]
 
-    # Admin accounts bypass NSFW plan restrictions
-    from app.core.legal import is_admin
+    # Auto-detect NSFW prompt and reroute to appropriate model
+    from app.core.legal import is_admin, check_nsfw_prompt
     user_email = profile.get("email", "")
+    if not body.nsfw and check_nsfw_prompt(body.prompt):
+        # User wrote NSFW prompt but didn't toggle NSFW mode
+        if profile.get("age_verified") or is_admin(user_email):
+            # Auto-enable NSFW and switch to a capable model
+            body.nsfw = True
+            if body.model in ("flux_schnell", "fal_flux_dev", "fal_sdxl"):
+                body.model = "fal_flux_realism"
+            logger.info(f"Auto-NSFW: user={user.id} model→{body.model}")
+
+    # Admin accounts bypass NSFW plan restrictions
     if body.nsfw and not limits["nsfw_allowed"] and not is_admin(user_email):
         raise HTTPException(status_code=403, detail="NSFW content requires age verification")
     if body.nsfw and not profile.get("age_verified") and not is_admin(user_email):

@@ -72,6 +72,22 @@ def get_region_rules(country_code: str) -> dict:
     return REGION_RULES.get(country_code, REGION_RULES["DEFAULT"])
 
 
+NSFW_PROMPT_KEYWORDS = {
+    "nude", "naked", "topless", "nsfw", "sex", "erotic", "hentai", "porn",
+    "lingerie", "underwear", "bikini", "see-through", "undress", "strip",
+    "seduc", "provocat", "breast", "boob", "ass ", "butt ", "penis", "vagina",
+    "desnud", "nudo", "nackt", "裸", "ヌード", "全裸", "エロ", "セックス", "おっぱい", "ペニス",
+}
+
+
+def check_nsfw_prompt(prompt: str) -> bool:
+    """Detect if a prompt is likely NSFW (but not necessarily prohibited).
+    Used for auto-routing to NSFW-capable models.
+    """
+    prompt_lower = prompt.lower()
+    return any(kw in prompt_lower for kw in NSFW_PROMPT_KEYWORDS)
+
+
 def is_admin(email: str) -> bool:
     """Check if the email belongs to an admin account."""
     return email in ADMIN_EMAILS
