@@ -17,11 +17,14 @@ from pathlib import Path
 import httpx
 import tweepy
 
-# ── X API認証（EGAKU AIアカウント）──
-API_KEY = "XUEZMSAH1o07irVPwHQss0aZ6"
-API_SECRET = "ruoFRWtK7jFPQDIh90IDnMh2AITBzupPDScYiMuqHL8Vrmbvp2"
-ACCESS_TOKEN = "2042617154969731072-LLzfLDggWVP1FtuW3MybUt09nWPBR1"
-ACCESS_SECRET = "5dXIeIgKbUpA8XxWC6A5xpnkgq1fRynM9LCCOQKzy9Tfy"
+# ── X API認証（環境変数から読み込み）──
+from dotenv import load_dotenv
+load_dotenv(Path(__file__).parent / ".env")
+
+API_KEY = os.environ.get("X_API_KEY", "")
+API_SECRET = os.environ.get("X_API_SECRET", "")
+ACCESS_TOKEN = os.environ.get("X_ACCESS_TOKEN", "")
+ACCESS_SECRET = os.environ.get("X_ACCESS_SECRET", "")
 
 # ── EGAKU AI API ──
 API_BASE = "https://api.egaku-ai.com/api"
